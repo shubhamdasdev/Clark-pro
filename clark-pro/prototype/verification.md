@@ -13,7 +13,9 @@ Executed in headless Chrome against the standalone `index.html`:
 | Selecting `Choose angle` updates the inspector | Pass |
 | Selecting Reel A enables version approval | Pass |
 | Promoting a memory proposal decrements the proposal count | Pass |
-| Final active view after navigation is Memory | Pass |
+| Selecting a canvas object switches to bounded selected-lineage relationships | Pass |
+| Connections actions preserve permission/trust review messaging | Pass |
+| Final active view after full navigation is Connections | Pass |
 
 ## Responsive check
 
@@ -33,9 +35,10 @@ The prototype does not introduce horizontal overflow at the checked narrow width
 ## Visual checks
 
 - Focus: hierarchy, decision choices, loop checkpoint, actions, and context packet visible.
-- Canvas: all 50 objects render across six semantic lanes; structure edges, impact dimming, collapse, and inspector are available.
+- Canvas: all 50 objects render across six semantic lanes; readable critical-path, selected-lineage, evidence, learning, policy, all-structure, impact dimming, collapse, type icons, and inspector are available.
 - Review: two media versions compare side by side; approval remains separate from publication authority.
 - Memory: active, proposed, and disputed items are distinguishable; proposals expose evidence and explicit Promote/Reject actions.
+- Connections: MCP host/server roles, social account states, skill trust/quarantine, Clark Bridge clients, and harness health are visible.
 
 ## Remaining human gate
 

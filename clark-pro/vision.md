@@ -88,6 +88,8 @@ The Mac application with six coordinated views over one underlying project graph
 - **Library** — projects, artifacts, templates, sources, and past outputs.
 - **Memory** — what Clark believes, why it believes it, and how to change it.
 
+Connections remains a supporting system surface for MCP, social accounts, skills, Clark Bridge, permissions, and harness health rather than another creative mode.
+
 ### Clark Harness
 
 The durable local runtime. It compiles a creative graph into run plans, executes tools and agents, schedules work, enforces policy, records events, recovers after interruption, and evaluates results.

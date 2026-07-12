@@ -21,6 +21,8 @@ All views operate on the same objects, versions, runs, and permissions.
 
 Focus is the default. Canvas is one click away. A blank canvas is never the onboarding experience.
 
+**Connections** is a supporting system surface rather than a seventh creative view. It exposes MCP servers, social accounts, capability health, Clark Bridge clients, installed skills, trust, scopes, and quarantine state without mixing infrastructure setup into daily creative work.
+
 ## The Canvas Layout
 
 The default graph flows through six semantic lanes from left to right:

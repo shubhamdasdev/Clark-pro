@@ -17,6 +17,7 @@
 5. Find when the newsletter is scheduled and identify one blocked distribution item.
 6. Find the evidence behind a proposed memory and reject or promote it.
 7. Explain the difference between an artifact, operator, decision, gate, and loop.
+8. Open Connections and explain how Clark is simultaneously an MCP host, an MCP server, a social integration layer, and a governed skill host.
 
 ## Evidence to record
 
@@ -28,6 +29,7 @@
 - Whether 50-object Canvas remained legible:
 - Whether approval vs publication was clear:
 - Whether memory evidence and promotion were clear:
+- Whether MCP, social-account, Bridge, and skill trust states were understandable:
 - What the participant expected but could not find:
 
 ## Gate scoring
@@ -43,6 +45,7 @@ Each item is Pass, Partial, or Fail with notes.
 | Inspect and govern a memory proposal |  |  |
 | Navigate a 50-object project without losing orientation |  |  |
 | Distinguish approval from publication authority |  |  |
+| Explain Clark Connect, Clark Bridge, social adapters, and skill trust |  |  |
 
 ## Decision
 

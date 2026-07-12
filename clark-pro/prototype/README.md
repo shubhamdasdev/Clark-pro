@@ -9,6 +9,8 @@ This is the Ground-stratum clickable prototype for the six-view Mac product mode
 - Library
 - Memory
 
+Connections is included as a supporting system surface for MCP servers, social accounts, Clark Bridge clients, skills, trust, and harness health.
+
 `index.html` is a standalone artifact generated from the thread visualization source. Open it in a browser to exercise the 50-object Full-Week fixture, angle decisions, downstream-impact preview, version approval, timeline, artifact library, and governed memory proposals.
 
 The prototype validates information architecture and interaction contracts. It is not an alternate implementation path; production work follows the Electron, event, harness, memory, policy, and capability contracts in the authoritative architecture documents.
@@ -30,6 +32,10 @@ The prototype validates information architecture and interaction contracts. It i
 ### Memory
 
 ![Memory view](memory-preview.png)
+
+### Connections
+
+![Connections view](connections-preview.png)
 
 ## Regenerate
 

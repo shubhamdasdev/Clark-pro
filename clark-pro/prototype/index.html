@@ -133,6 +133,9 @@ svg.lucide { width: 16px; height: 16px; }
     #clark-studio-vis .cs-artifact { padding: 8px 0; border-bottom: 1px solid var(--border); }
     #clark-studio-vis .cs-memory-list { display: grid; gap: 8px; }
     #clark-studio-vis .cs-memory-item { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    #clark-studio-vis .cs-system-list { display: grid; gap: 4px; margin-bottom: 16px; }
+    #clark-studio-vis .cs-system-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    #clark-studio-vis .cs-system-row:last-child { border-bottom: 0; }
     #clark-studio-vis .cs-inspector { position: sticky; top: 0; }
     #clark-studio-vis .cs-mini-meter { height: 6px; background: var(--muted); overflow: hidden; }
     #clark-studio-vis .cs-mini-meter > span { display: block; height: 100%; width: 38%; background: var(--viz-series-1); }
@@ -162,6 +165,7 @@ svg.lucide { width: 16px; height: 16px; }
       #clark-studio-vis .cs-day { grid-template-columns: 64px 1fr; }
       #clark-studio-vis .cs-library { grid-template-columns: 1fr; }
       #clark-studio-vis .cs-inspector { position: static; }
+      #clark-studio-vis .cs-system-row { grid-template-columns: 1fr; }
     }
   </style>
 
@@ -185,6 +189,7 @@ svg.lucide { width: 16px; height: 16px; }
     <button type="button" class="btn cs-tab" data-view="review" aria-pressed="false"><i data-lucide="scan-eye" aria-hidden="true"></i> Review <span class="viz-badge" id="cs-review-count">3</span></button>
     <button type="button" class="btn cs-tab" data-view="library" aria-pressed="false"><i data-lucide="library" aria-hidden="true"></i> Library</button>
     <button type="button" class="btn cs-tab" data-view="memory" aria-pressed="false"><i data-lucide="brain" aria-hidden="true"></i> Memory <span class="viz-badge" id="cs-memory-count">2</span></button>
+    <button type="button" class="btn cs-tab" data-view="connections" aria-pressed="false"><i data-lucide="cable" aria-hidden="true"></i> Connections</button>
   </nav>
 
   <main class="cs-main">
@@ -229,7 +234,9 @@ svg.lucide { width: 16px; height: 16px; }
       <div class="viz-controls">
         <label class="form-label" for="cs-edge-mode">Show
           <select class="form-select" id="cs-edge-mode">
-            <option value="structure">Structure</option>
+            <option value="critical">Critical path</option>
+            <option value="selected">Selected lineage</option>
+            <option value="all">All structure</option>
             <option value="evidence">Evidence</option>
             <option value="learning">Learning</option>
             <option value="policy">Policy</option>
@@ -297,6 +304,47 @@ svg.lucide { width: 16px; height: 16px; }
           <h3>What Clark is uncertain about</h3>
           <p class="text-small">Whether professional AI authority and dating commentary should share one audience. Existing evidence is mixed and reputational policy is stricter than reach goals.</p>
           <p class="text-small text-muted">Status: disputed · scope: workspace · retrieval: explicit-only</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="cs-view" id="cs-view-connections" role="tabpanel" aria-label="Connections and system view" hidden>
+      <div class="cs-statusline"><span class="viz-badge">Harness healthy</span><span class="viz-badge">Bridge on</span><span class="viz-badge">4 MCP servers</span><span class="viz-badge">6 social accounts</span><span class="viz-badge">12 trusted skills</span></div>
+      <div class="cs-two">
+        <div>
+          <h3>Connected capabilities</h3>
+          <div class="cs-system-list" id="cs-capability-list">
+            <div class="cs-system-row"><div><strong>Higgsfield</strong><div class="text-small text-muted">MCP · image, video, avatar · OAuth healthy</div></div><span class="viz-badge">Bundled</span></div>
+            <div class="cs-system-row"><div><strong>Postiz</strong><div class="text-small text-muted">MCP + API · publish, schedule, analytics · 32 platform schemas</div></div><span class="viz-badge">Verified</span></div>
+            <div class="cs-system-row"><div><strong>Research</strong><div class="text-small text-muted">MCP · search and source fetch · read-only</div></div><span class="viz-badge">Verified</span></div>
+            <div class="cs-system-row"><div><strong>Local media</strong><div class="text-small text-muted">ffmpeg · validate, normalize, caption, export · no network</div></div><span class="viz-badge">Bundled</span></div>
+          </div>
+          <h3>Social accounts</h3>
+          <div class="cs-system-list">
+            <div class="cs-system-row"><div><strong>LinkedIn · Shubham</strong><div class="text-small text-muted">Postiz · publish + analytics · healthy</div></div><span class="viz-badge">Connected</span></div>
+            <div class="cs-system-row"><div><strong>Instagram · Creator</strong><div class="text-small text-muted">Postiz · Reels + carousel · healthy</div></div><span class="viz-badge">Connected</span></div>
+            <div class="cs-system-row"><div><strong>TikTok</strong><div class="text-small text-muted">Postiz · approval-sensitive · export fallback</div></div><span class="viz-badge">Limited</span></div>
+            <div class="cs-system-row"><div><strong>YouTube</strong><div class="text-small text-muted">Direct + Postiz fallback · upload scope</div></div><span class="viz-badge">Connected</span></div>
+            <div class="cs-system-row"><div><strong>X</strong><div class="text-small text-muted">Postiz · schedule · budget policy active</div></div><span class="viz-badge">Connected</span></div>
+            <div class="cs-system-row"><div><strong>Newsletter + Medium</strong><div class="text-small text-muted">Validated export and assisted handoff</div></div><span class="viz-badge">Fallback</span></div>
+          </div>
+          <div class="cs-actions">
+            <button type="button" class="btn cs-system-action" data-action="Add MCP server">Add MCP server</button>
+            <button type="button" class="btn cs-system-action" data-action="Connect social account">Connect social account</button>
+            <button type="button" class="btn cs-system-action" data-action="Install Agent Skill">Install skill</button>
+          </div>
+        </div>
+        <aside class="card cs-inspector">
+          <div class="cs-inline"><span class="viz-badge">Clark Bridge</span><span class="text-small text-muted">MCP server</span></div>
+          <h3>One canonical workspace, any trusted client</h3>
+          <p class="text-small"><strong>Bind:</strong> localhost · scoped tokens · Keychain-backed client registry</p>
+          <p class="text-small"><strong>Clients:</strong> Codex (project read/write), Hermes (capture + runs), Claude (review resources)</p>
+          <p class="text-small"><strong>Surface:</strong> 16 tools · 8 resources · 3 prompts · durable job receipts</p>
+          <p class="text-small"><strong>Long work:</strong> MCP Tasks when negotiated; Clark jobs otherwise.</p>
+          <button type="button" class="btn cs-system-action" data-action="Register MCP client">Register client</button>
+          <h3 class="cs-spacer-top">Skills</h3>
+          <p class="text-small">12 trusted · 2 updates quarantined · 1 learned procedure awaiting tests.</p>
+          <button type="button" class="btn cs-system-action" data-action="Review skill quarantine">Review quarantine</button>
         </aside>
       </div>
     </section>
@@ -376,7 +424,12 @@ svg.lucide { width: 16px; height: 16px; }
       root.querySelector('#cs-object-count').textContent = `${totalObjects} objects`;
 
       const edgeSets = {
-        structure: [
+        critical: [
+          ['0-0','0-1'],['0-1','1-6'],['1-6','2-0'],['2-0','2-1'],['2-1','2-4'],['2-4','2-7'],
+          ['2-7','3-2'],['3-2','3-3'],['3-3','3-9'],['3-9','4-0'],['4-0','4-2'],['4-2','4-5'],
+          ['4-5','4-6'],['4-6','5-0'],['5-0','5-1'],['5-1','5-3'],['5-3','5-4'],['5-4','5-5']
+        ],
+        all: [
           ['0-1','1-6'],['0-2','1-6'],['1-6','2-0'],['2-0','2-1'],['2-0','2-2'],['2-0','2-3'],
           ['2-1','2-4'],['2-2','2-4'],['2-3','2-4'],['2-4','2-5'],['2-4','2-6'],['2-4','2-7'],['2-4','2-8'],
           ['2-7','3-2'],['3-2','3-3'],['3-2','3-4'],['3-9','4-0'],['4-0','4-1'],['4-0','4-2'],['4-0','4-3'],['4-0','4-4'],
@@ -385,6 +438,11 @@ svg.lucide { width: 16px; height: 16px; }
         evidence: [['1-0','1-6'],['1-1','1-6'],['1-2','1-6'],['1-3','1-6'],['1-4','1-7'],['1-5','1-6'],['1-6','2-1'],['1-6','2-2'],['1-6','2-3']],
         learning: [['5-1','5-3'],['5-2','5-3'],['5-3','5-4'],['5-4','5-5'],['5-4','5-6'],['5-5','2-1']],
         policy: [['0-5','3-8'],['0-5','4-5'],['0-6','1-8'],['0-6','3-9'],['3-8','4-5']]
+      };
+      let selectedEdges = [];
+      const iconByType = {
+        Source: 'link', Artifact: 'file', Memory: 'brain', Policy: 'shield', Gate: 'shield-check',
+        Operator: 'settings-2', Decision: 'diamond', Loop: 'repeat-2', Skill: 'wand-sparkles'
       };
 
       const statusClass = (status) => ({ ready: 'is-ready', review: 'is-review', learning: 'is-learning', running: 'is-running' }[status] || '');
@@ -401,7 +459,12 @@ svg.lucide { width: 16px; height: 16px; }
             const button = document.createElement('button');
             button.type = 'button';
             button.className = `btn viz-tile ${statusClass(status)}`;
-            button.textContent = label;
+            const nodeIcon = document.createElement('i');
+            nodeIcon.dataset.lucide = iconByType[type] || 'circle';
+            nodeIcon.setAttribute('aria-hidden', 'true');
+            const nodeLabel = document.createElement('span');
+            nodeLabel.textContent = label;
+            button.append(nodeIcon, nodeLabel);
             button.setAttribute('aria-label', `${label}. ${type}. ${status}. ${detail}`);
             button.dataset.lane = String(laneIndex);
             button.dataset.item = String(itemIndex);
@@ -420,8 +483,8 @@ svg.lucide { width: 16px; height: 16px; }
         if (!svg || !wrap || innerWidth <= 980) return;
         const wrapRect = wrap.getBoundingClientRect();
         if (wrapRect.width < 1 || wrapRect.height < 1) return;
-        const mode = root.querySelector('#cs-edge-mode')?.value || 'structure';
-        const paths = edgeSets[mode] || edgeSets.structure;
+        const mode = root.querySelector('#cs-edge-mode')?.value || 'critical';
+        const paths = mode === 'selected' ? selectedEdges : (edgeSets[mode] || edgeSets.critical);
         svg.setAttribute('viewBox', `0 0 ${wrapRect.width} ${wrapRect.height}`);
         svg.innerHTML = '';
         paths.forEach(([fromId, toId]) => {
@@ -473,6 +536,7 @@ svg.lucide { width: 16px; height: 16px; }
       root.querySelector('#cs-open-evidence').addEventListener('click', () => {
         root.querySelector('[data-view="canvas"]').click();
         root.querySelector('#cs-edge-mode').value = 'evidence';
+        drawEdges();
         activity.textContent = 'Evidence edges visible · 8 sources support 6 claims';
       });
 
@@ -488,8 +552,26 @@ svg.lucide { width: 16px; height: 16px; }
         if (!button) return;
         const item = lanes[Number(button.dataset.lane)].items[Number(button.dataset.item)];
         root.querySelectorAll('#cs-canvas-grid button').forEach((node) => node.setAttribute('aria-pressed', String(node === button)));
+        const selectedId = button.dataset.node;
+        const allEdges = edgeSets.all;
+        let frontier = new Set([selectedId]);
+        const collected = [];
+        for (let depth = 0; depth < 2; depth += 1) {
+          const next = new Set();
+          allEdges.forEach((edge) => {
+            if (frontier.has(edge[0]) || frontier.has(edge[1])) {
+              if (!collected.some((existing) => existing[0] === edge[0] && existing[1] === edge[1])) collected.push(edge);
+              next.add(edge[0]);
+              next.add(edge[1]);
+            }
+          });
+          frontier = next;
+        }
+        selectedEdges = collected;
+        root.querySelector('#cs-edge-mode').value = 'selected';
+        drawEdges();
         root.querySelector('#cs-node-inspector').innerHTML = `<h3>${item[0]}</h3><p class="text-small"><strong>Kind:</strong> ${item[1]}<br><strong>State:</strong> ${item[2]}<br><strong>Detail:</strong> ${item[3]}</p><p class="text-small text-muted">Revision and provenance are append-only. Open activity for the full receipt.</p>`;
-        activity.textContent = `Selected ${item[1].toLowerCase()} · ${item[0]}`;
+        activity.textContent = `Selected lineage · ${item[1].toLowerCase()} · ${item[0]} · ${selectedEdges.length} nearby relationships`;
       });
 
       root.querySelector('#cs-impact-toggle').addEventListener('change', (event) => {
@@ -603,6 +685,12 @@ svg.lucide { width: 16px; height: 16px; }
         event.target.disabled = true;
         root.querySelector('#cs-budget').textContent = '$19.20 reserved / $50';
         activity.textContent = 'Run queued · waiting for current angle decision · reservation is reversible';
+      });
+
+      root.querySelectorAll('.cs-system-action').forEach((button) => {
+        button.addEventListener('click', () => {
+          activity.textContent = `${button.dataset.action} flow opened · permissions and trust review required before activation`;
+        });
       });
 
       const previewParams = new URLSearchParams(location.search);
