@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clark Pro Studio Prototype</title>
+  <style>
+:root {
+  color-scheme: light dark;
+  --background: #f7f7f5;
+  --foreground: #20201e;
+  --card: #ffffff;
+  --card-foreground: #20201e;
+  --primary: #20201e;
+  --primary-foreground: #ffffff;
+  --secondary: #ecece8;
+  --secondary-foreground: #20201e;
+  --muted: #ecece8;
+  --muted-foreground: #686863;
+  --accent: #e5e5df;
+  --accent-foreground: #20201e;
+  --destructive: #b42318;
+  --border: #d8d8d2;
+  --input: #c9c9c2;
+  --ring: #6a6a64;
+  --viz-series-1: #6366f1;
+  --viz-series-2: #0f9f7f;
+  --viz-series-3: #d97706;
+  --viz-series-4: #a855f7;
+  --viz-series-5: #0284c7;
+  --viz-series-6: #db2777;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #181816;
+    --foreground: #eeeeda;
+    --card: #242421;
+    --card-foreground: #eeeeda;
+    --primary: #eeeeda;
+    --primary-foreground: #181816;
+    --secondary: #30302c;
+    --secondary-foreground: #eeeeda;
+    --muted: #30302c;
+    --muted-foreground: #aeaea5;
+    --accent: #393934;
+    --accent-foreground: #eeeeda;
+    --destructive: #f97066;
+    --border: #45453f;
+    --input: #55554d;
+    --ring: #c5c5ba;
+    --viz-series-1: #8b8df8;
+    --viz-series-2: #38cfa8;
+    --viz-series-3: #f0a53a;
+    --viz-series-4: #c77dff;
+    --viz-series-5: #38bdf8;
+    --viz-series-6: #f472b6;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px; background: var(--background); color: var(--foreground); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; font-size: 14px; line-height: 1.45; }
+button, input, select, textarea { font: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+h1, h2, h3 { font-weight: 500; line-height: 1.25; }
+h2 { margin: 10px 0; }
+h3 { margin-top: 0; }
+.card { min-width: 0; overflow-wrap: anywhere; background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--secondary); color: var(--secondary-foreground); cursor: pointer; text-decoration: none; white-space: normal; }
+.btn:hover { background: var(--accent); color: var(--accent-foreground); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary, .btn[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.viz-tile { min-height: 42px; align-self: stretch; }
+.viz-badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px; background: var(--muted); color: var(--foreground); font-size: 12px; }
+.viz-controls { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.text-small { font-size: 12px; }
+.text-muted { color: var(--muted-foreground); }
+.form-label { display: grid; gap: 4px; color: var(--muted-foreground); }
+.form-select { min-height: 34px; padding: 4px 28px 4px 8px; border: 1px solid var(--input); border-radius: 7px; background: var(--card); color: var(--card-foreground); }
+.form-check { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; }
+.form-check-input { width: 18px; height: 18px; }
+svg.lucide { width: 16px; height: 16px; }
+@media (max-width: 620px) { body { padding: 14px; } }
+</style>
+</head>
+<body>
+<div id="clark-studio-vis" aria-label="Interactive Clark Pro Mac studio concept">
+  <style>
+    #clark-studio-vis { color: var(--foreground); }
+    #clark-studio-vis .cs-topbar,
+    #clark-studio-vis .cs-nav,
+    #clark-studio-vis .cs-meta,
+    #clark-studio-vis .cs-actions,
+    #clark-studio-vis .cs-inline,
+    #clark-studio-vis .cs-statusline { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    #clark-studio-vis .cs-topbar { justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    #clark-studio-vis .cs-topbar > *,
+    #clark-studio-vis .cs-two > * { min-width: 0; }
+    #clark-studio-vis .cs-actions { max-width: 100%; }
+    #clark-studio-vis .cs-nav { padding: 10px 0; border-bottom: 1px solid var(--border); }
+    #clark-studio-vis .cs-meta { color: var(--muted-foreground); }
+    #clark-studio-vis .cs-main { padding-top: 12px; }
+    #clark-studio-vis .cs-view[hidden] { display: none; }
+    #clark-studio-vis .cs-two { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(220px, .8fr); gap: 14px; align-items: start; }
+    #clark-studio-vis .cs-canvas-wrap { position: relative; min-width: 0; }
+    #clark-studio-vis .cs-canvas-grid { position: relative; z-index: 1; }
+    #clark-studio-vis .cs-edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    #clark-studio-vis .cs-edges path { fill: none; stroke: var(--border); stroke-width: 1.5; }
+    #clark-studio-vis .cs-edges .edge-evidence { stroke: var(--viz-series-5); }
+    #clark-studio-vis .cs-edges .edge-learning { stroke: var(--viz-series-4); stroke-dasharray: 5 4; }
+    #clark-studio-vis .cs-edges .edge-policy { stroke: var(--viz-series-3); }
+    #clark-studio-vis .cs-canvas-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; align-items: start; }
+    #clark-studio-vis .cs-lane { min-width: 0; }
+    #clark-studio-vis .cs-lane + .cs-lane { border-left: 1px solid var(--border); padding-left: 10px; }
+    #clark-studio-vis .cs-lane-header { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+    #clark-studio-vis .cs-node-stack { display: grid; gap: 6px; }
+    #clark-studio-vis .cs-node-stack .btn { width: 100%; justify-content: flex-start; text-align: left; }
+    #clark-studio-vis .cs-node-stack .is-stale { opacity: .55; }
+    #clark-studio-vis .cs-node-stack .is-running { background: color-mix(in srgb, var(--viz-series-1) 16%, transparent); }
+    #clark-studio-vis .cs-node-stack .is-ready { background: color-mix(in srgb, var(--viz-series-2) 14%, transparent); }
+    #clark-studio-vis .cs-node-stack .is-review { background: color-mix(in srgb, var(--viz-series-3) 14%, transparent); }
+    #clark-studio-vis .cs-node-stack .is-learning { background: color-mix(in srgb, var(--viz-series-4) 14%, transparent); }
+    #clark-studio-vis .cs-stepper { display: grid; gap: 8px; margin: 12px 0; }
+    #clark-studio-vis .cs-step { display: grid; grid-template-columns: 24px minmax(0,1fr) auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    #clark-studio-vis .cs-step:last-child { border-bottom: 0; }
+    #clark-studio-vis .cs-step-index { color: var(--muted-foreground); }
+    #clark-studio-vis .cs-choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    #clark-studio-vis .cs-timeline { display: grid; gap: 10px; }
+    #clark-studio-vis .cs-day { display: grid; grid-template-columns: 72px repeat(4, minmax(0, 1fr)); gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    #clark-studio-vis .cs-slot { min-width: 0; padding: 6px; background: color-mix(in srgb, var(--muted) 70%, transparent); }
+    #clark-studio-vis .cs-slot strong { display: block; }
+    #clark-studio-vis .cs-review-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    #clark-studio-vis .cs-review-media { min-height: 140px; display: grid; place-items: center; background: color-mix(in srgb, var(--viz-series-1) 10%, transparent); }
+    #clark-studio-vis .cs-library { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+    #clark-studio-vis .cs-artifact { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    #clark-studio-vis .cs-memory-list { display: grid; gap: 8px; }
+    #clark-studio-vis .cs-memory-item { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    #clark-studio-vis .cs-inspector { position: sticky; top: 0; }
+    #clark-studio-vis .cs-mini-meter { height: 6px; background: var(--muted); overflow: hidden; }
+    #clark-studio-vis .cs-mini-meter > span { display: block; height: 100%; width: 38%; background: var(--viz-series-1); }
+    #clark-studio-vis .cs-activity { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); color: var(--muted-foreground); }
+    #clark-studio-vis .cs-spacer-top { margin-top: 10px; }
+    @media (max-width: 980px) {
+      #clark-studio-vis .cs-edges { display: none; }
+      #clark-studio-vis .cs-canvas-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      #clark-studio-vis .cs-lane + .cs-lane { border-left: 0; padding-left: 0; }
+      #clark-studio-vis .cs-lane:nth-child(2),
+      #clark-studio-vis .cs-lane:nth-child(3),
+      #clark-studio-vis .cs-lane:nth-child(5),
+      #clark-studio-vis .cs-lane:nth-child(6) { border-left: 1px solid var(--border); padding-left: 10px; }
+      #clark-studio-vis .cs-library { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 620px) {
+      #clark-studio-vis .cs-topbar { align-items: flex-start; flex-direction: column; }
+      #clark-studio-vis .cs-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      #clark-studio-vis .cs-nav .btn { width: 100%; }
+      #clark-studio-vis .cs-actions { display: grid; grid-template-columns: 1fr; width: 100%; }
+      #clark-studio-vis .cs-actions .btn { width: 100%; max-width: 100%; white-space: normal; }
+      #clark-studio-vis .cs-two,
+      #clark-studio-vis .cs-review-grid,
+      #clark-studio-vis .cs-choice-grid { grid-template-columns: 1fr; }
+      #clark-studio-vis .cs-canvas-grid { grid-template-columns: 1fr; }
+      #clark-studio-vis .cs-lane { border-left: 0 !important; padding-left: 0 !important; }
+      #clark-studio-vis .cs-day { grid-template-columns: 64px 1fr; }
+      #clark-studio-vis .cs-library { grid-template-columns: 1fr; }
+      #clark-studio-vis .cs-inspector { position: static; }
+    }
+  </style>
+
+  <div class="cs-topbar">
+    <div>
+      <strong>Clark Pro</strong>
+      <div class="text-small text-muted">Cortex Diary · Week 28</div>
+    </div>
+    <div class="cs-actions">
+      <span class="viz-badge" id="cs-object-count">50 objects</span>
+      <span class="viz-badge" id="cs-budget">$19.20 / $50</span>
+      <button type="button" class="btn" id="cs-dry-run"><i data-lucide="shield-check" aria-hidden="true"></i> Dry run</button>
+      <button type="button" class="btn btn-primary" id="cs-run"><i data-lucide="play" aria-hidden="true"></i> Run to review</button>
+    </div>
+  </div>
+
+  <nav class="cs-nav" aria-label="Clark Studio views">
+    <button type="button" class="btn cs-tab" data-view="focus" aria-pressed="true"><i data-lucide="circle-dot" aria-hidden="true"></i> Focus</button>
+    <button type="button" class="btn cs-tab" data-view="canvas" aria-pressed="false"><i data-lucide="workflow" aria-hidden="true"></i> Canvas</button>
+    <button type="button" class="btn cs-tab" data-view="timeline" aria-pressed="false"><i data-lucide="calendar-days" aria-hidden="true"></i> Timeline</button>
+    <button type="button" class="btn cs-tab" data-view="review" aria-pressed="false"><i data-lucide="scan-eye" aria-hidden="true"></i> Review <span class="viz-badge" id="cs-review-count">3</span></button>
+    <button type="button" class="btn cs-tab" data-view="library" aria-pressed="false"><i data-lucide="library" aria-hidden="true"></i> Library</button>
+    <button type="button" class="btn cs-tab" data-view="memory" aria-pressed="false"><i data-lucide="brain" aria-hidden="true"></i> Memory <span class="viz-badge" id="cs-memory-count">2</span></button>
+  </nav>
+
+  <main class="cs-main">
+    <section class="cs-view" id="cs-view-focus" role="tabpanel" aria-label="Focus view">
+      <div class="cs-two">
+        <div class="card">
+          <div class="cs-inline">
+            <span class="viz-badge">Decision</span>
+            <span class="text-small text-muted">Sensemaking loop · checkpoint 2 of 4</span>
+          </div>
+          <h2>Choose the angle that deserves a full-week branch</h2>
+          <p id="cs-focus-summary">Clark found three supportable directions. One matches your build-in-public evidence and prior creator corrections without overclaiming audience performance.</p>
+          <div class="cs-choice-grid" id="cs-angle-choices">
+            <button type="button" class="btn viz-tile" data-angle="The creator OS is memory, not generation" aria-pressed="false">Memory, not generation</button>
+            <button type="button" class="btn viz-tile" data-angle="Why a canvas alone is already commoditized" aria-pressed="false">Canvas is commoditized</button>
+            <button type="button" class="btn viz-tile" data-angle="Building a Mac studio that can explain every decision" aria-pressed="false">Explain every decision</button>
+          </div>
+          <div class="cs-stepper" aria-label="Current loop progress">
+            <div class="cs-step"><span class="cs-step-index">1</span><span><strong>Capture + intent</strong><br><span class="text-small text-muted">Creator OS thesis and constraints</span></span><span class="viz-badge">Done</span></div>
+            <div class="cs-step"><span class="cs-step-index">2</span><span><strong>Research + claims</strong><br><span class="text-small text-muted">8 sources · 6 supported claims · 2 uncertainties</span></span><span class="viz-badge">Done</span></div>
+            <div class="cs-step"><span class="cs-step-index">3</span><span><strong>Angle decision</strong><br><span class="text-small text-muted">Waiting for creator judgment</span></span><span class="viz-badge" id="cs-angle-status">Waiting</span></div>
+            <div class="cs-step"><span class="cs-step-index">4</span><span><strong>Production branches</strong><br><span class="text-small text-muted">LinkedIn · newsletter · reel · carousel</span></span><span class="viz-badge">Blocked</span></div>
+          </div>
+          <div class="cs-actions">
+            <button type="button" class="btn" id="cs-open-evidence"><i data-lucide="book-open" aria-hidden="true"></i> Inspect evidence</button>
+            <button type="button" class="btn" id="cs-preview-impact"><i data-lucide="git-branch" aria-hidden="true"></i> Preview downstream impact</button>
+            <button type="button" class="btn btn-primary" id="cs-continue" disabled>Continue with angle</button>
+          </div>
+        </div>
+        <aside class="card cs-inspector" id="cs-focus-inspector">
+          <h3>Context packet</h3>
+          <p class="text-small"><strong>Constitution:</strong> specific, dry, evidence-first; no “AI will replace everything.”</p>
+          <p class="text-small"><strong>Memory:</strong> build explanations earned fewer impressions but more qualified replies than generic AI takes. Sample is small.</p>
+          <p class="text-small"><strong>Policy:</strong> day-job confidentiality; cite competitive claims; disclose generated media.</p>
+          <p class="text-small"><strong>Budget:</strong> $30.80 remaining.</p>
+          <div class="cs-mini-meter" aria-label="Thirty-eight percent of budget used"><span></span></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="cs-view" id="cs-view-canvas" role="tabpanel" aria-label="Canvas view" hidden>
+      <div class="viz-controls">
+        <label class="form-label" for="cs-edge-mode">Show
+          <select class="form-select" id="cs-edge-mode">
+            <option value="structure">Structure</option>
+            <option value="evidence">Evidence</option>
+            <option value="learning">Learning</option>
+            <option value="policy">Policy</option>
+          </select>
+        </label>
+        <label class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="cs-impact-toggle">
+          <span class="form-check-label">Preview angle-change impact</span>
+        </label>
+        <button type="button" class="btn" id="cs-collapse-loops">Collapse loops</button>
+      </div>
+      <div class="cs-two">
+        <div class="cs-canvas-wrap">
+          <svg class="cs-edges" id="cs-edges" aria-hidden="true"></svg>
+          <div class="cs-canvas-grid" id="cs-canvas-grid" aria-label="Fifty-object creator workflow across six semantic lanes"></div>
+        </div>
+        <aside class="card cs-inspector" id="cs-node-inspector" aria-live="polite">
+          <h3>Select an object</h3>
+          <p class="text-small text-muted">Inspect version, evidence, skill, capability, cost, permissions, and run state.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="cs-view" id="cs-view-timeline" role="tabpanel" aria-label="Timeline view" hidden>
+      <div class="cs-statusline"><span class="viz-badge">Week 28</span><span class="text-small text-muted">Production state and publication truth share one timeline.</span></div>
+      <div class="cs-timeline" id="cs-timeline"></div>
+    </section>
+
+    <section class="cs-view" id="cs-view-review" role="tabpanel" aria-label="Review view" hidden>
+      <div class="cs-review-grid">
+        <article class="card" data-review-card="A">
+          <div class="cs-inline"><span class="viz-badge">Reel A</span><span class="text-small text-muted">$4.20 · Seedance · v3</span></div>
+          <div class="cs-review-media"><div><i data-lucide="play-circle" aria-hidden="true"></i><br>Memory, not generation</div></div>
+          <p><strong>Hook:</strong> “The next creator tool won’t win because it generates more. It’ll win because it remembers why you rejected the last draft.”</p>
+          <p class="text-small text-muted">6/6 claims supported · AI disclosure present · 1 brand warning resolved</p>
+          <button type="button" class="btn cs-pick-review" data-pick="A" aria-pressed="false">Select Reel A</button>
+        </article>
+        <article class="card" data-review-card="B">
+          <div class="cs-inline"><span class="viz-badge">Reel B</span><span class="text-small text-muted">$3.85 · Seedance · v2</span></div>
+          <div class="cs-review-media"><div><i data-lucide="play-circle" aria-hidden="true"></i><br>The canvas is not the moat</div></div>
+          <p><strong>Hook:</strong> “A node canvas looked differentiated six months ago. Now the moat is the history of decisions behind every node.”</p>
+          <p class="text-small text-muted">5/6 claims supported · competitive citation needs confirmation</p>
+          <button type="button" class="btn cs-pick-review" data-pick="B" aria-pressed="false">Select Reel B</button>
+        </article>
+      </div>
+      <div class="cs-actions cs-spacer-top">
+        <button type="button" class="btn" id="cs-request-change">Request targeted change</button>
+        <button type="button" class="btn btn-primary" id="cs-approve-review" disabled>Approve selected version</button>
+      </div>
+      <p class="text-small text-muted" id="cs-review-note">Approval is version-specific and does not authorize publication.</p>
+    </section>
+
+    <section class="cs-view" id="cs-view-library" role="tabpanel" aria-label="Library view" hidden>
+      <div class="cs-statusline"><span class="viz-badge">128 artifacts</span><span class="viz-badge">14 sources</span><span class="viz-badge">7 loops</span><span class="text-small text-muted">Canonical local library · content-addressed assets</span></div>
+      <div class="cs-library" id="cs-library"></div>
+    </section>
+
+    <section class="cs-view" id="cs-view-memory" role="tabpanel" aria-label="Memory view" hidden>
+      <div class="cs-two">
+        <div>
+          <div class="cs-statusline"><span class="viz-badge">Creator model</span><span class="text-small text-muted">2 proposals need review · no silent promotion</span></div>
+          <div class="cs-memory-list" id="cs-memory-list"></div>
+        </div>
+        <aside class="card cs-inspector" id="cs-memory-inspector">
+          <h3>What Clark is uncertain about</h3>
+          <p class="text-small">Whether professional AI authority and dating commentary should share one audience. Existing evidence is mixed and reputational policy is stricter than reach goals.</p>
+          <p class="text-small text-muted">Status: disputed · scope: workspace · retrieval: explicit-only</p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="cs-activity text-small" id="cs-activity" aria-live="polite">Harness ready · all credentials healthy · no external mutations pending</div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('clark-studio-vis');
+      const activity = root.querySelector('#cs-activity');
+      const lanes = [
+        { name: 'Intent', icon: 'lightbulb', items: [
+          ['Quick capture','Source','done','Original note + voice memo'],
+          ['Creator OS idea','Artifact','done','Canonical idea v4'],
+          ['Week 28 brief','Artifact','done','Full-Week entry contract'],
+          ['AI PM audience','Memory','done','Workspace audience scope'],
+          ['Build-in-public goal','Policy','done','Authority over raw reach'],
+          ['$50 run budget','Gate','done','Hard paid-call ceiling'],
+          ['Confidentiality','Policy','done','No internal work details']
+        ]},
+        { name: 'Evidence', icon: 'book-open-check', items: [
+          ['Hermes harness','Source','done','Memory + skill-loop evidence'],
+          ['Agent Skills spec','Source','done','Package contract'],
+          ['MCP Tasks','Source','done','Experimental async protocol'],
+          ['Postiz MCP','Source','done','Distribution capability'],
+          ['PixVerse Canvas','Source','done','Competitive overlap'],
+          ['Electron security','Source','done','Desktop trust boundary'],
+          ['Claim ledger','Artifact','done','6 supported · 2 uncertain'],
+          ['Saturation scan','Operator','done','Canvas alone is weak wedge'],
+          ['Research review','Gate','review','Creator accepts claim set']
+        ]},
+        { name: 'Creative', icon: 'sparkles', items: [
+          ['Angle generator','Operator','done','Bounded 4-step agent'],
+          ['Memory angle','Artifact','review','Strongest strategic wedge'],
+          ['Canvas angle','Artifact','review','Competitive correction'],
+          ['Provenance angle','Artifact','review','Decision-graph story'],
+          ['Choose angle','Decision','review','Current Focus item'],
+          ['LinkedIn script','Artifact','ready','Blocked by decision'],
+          ['Newsletter draft','Artifact','ready','Blocked by decision'],
+          ['Reel script','Artifact','ready','Blocked by decision'],
+          ['Carousel outline','Artifact','ready','Blocked by decision']
+        ]},
+        { name: 'Production', icon: 'clapperboard', items: [
+          ['Brand context','Memory','done','Constitution revision 7'],
+          ['Script skill','Skill','done','creator-script v2.3'],
+          ['Reel operator','Operator','ready','Higgsfield capability'],
+          ['Reel A','Artifact','review','Seedance v3 · $4.20'],
+          ['Reel B','Artifact','review','Seedance v2 · $3.85'],
+          ['Carousel render','Operator','ready','6 slides'],
+          ['Carousel PDF','Artifact','ready','LinkedIn + Instagram'],
+          ['Caption normalize','Operator','ready','ffmpeg local'],
+          ['Disclosure gate','Gate','ready','AI media label'],
+          ['Production review','Decision','review','3 items waiting']
+        ]},
+        { name: 'Distribution', icon: 'send', items: [
+          ['Platform adapt','Operator','ready','Dynamic schemas'],
+          ['LinkedIn post','Artifact','ready','Document post'],
+          ['Instagram Reel','Artifact','ready','9:16 + caption'],
+          ['TikTok Reel','Artifact','ready','AI disclosure'],
+          ['Newsletter','Artifact','ready','Saturday 9 AM'],
+          ['Publish approval','Gate','ready','Version-specific'],
+          ['Postiz publish','Operator','ready','Intent receipts'],
+          ['Export fallback','Operator','done','Always available']
+        ]},
+        { name: 'Outcomes', icon: 'activity', items: [
+          ['Publication verify','Operator','ready','No unknown final state'],
+          ['Analytics pull','Operator','ready','Postiz + direct'],
+          ['Creator judgment','Decision','ready','Quality + effort'],
+          ['Outcome report','Artifact','learning','Sample-aware'],
+          ['Reflection loop','Loop','learning','Proposal-only'],
+          ['Memory proposal','Artifact','learning','Human promotion'],
+          ['Skill proposal','Artifact','learning','Tests + rollback']
+        ]}
+      ];
+      const totalObjects = lanes.reduce((sum, lane) => sum + lane.items.length, 0);
+      root.querySelector('#cs-object-count').textContent = `${totalObjects} objects`;
+
+      const edgeSets = {
+        structure: [
+          ['0-1','1-6'],['0-2','1-6'],['1-6','2-0'],['2-0','2-1'],['2-0','2-2'],['2-0','2-3'],
+          ['2-1','2-4'],['2-2','2-4'],['2-3','2-4'],['2-4','2-5'],['2-4','2-6'],['2-4','2-7'],['2-4','2-8'],
+          ['2-7','3-2'],['3-2','3-3'],['3-2','3-4'],['3-9','4-0'],['4-0','4-1'],['4-0','4-2'],['4-0','4-3'],['4-0','4-4'],
+          ['4-1','4-5'],['4-2','4-5'],['4-3','4-5'],['4-5','4-6'],['4-6','5-0'],['5-0','5-1']
+        ],
+        evidence: [['1-0','1-6'],['1-1','1-6'],['1-2','1-6'],['1-3','1-6'],['1-4','1-7'],['1-5','1-6'],['1-6','2-1'],['1-6','2-2'],['1-6','2-3']],
+        learning: [['5-1','5-3'],['5-2','5-3'],['5-3','5-4'],['5-4','5-5'],['5-4','5-6'],['5-5','2-1']],
+        policy: [['0-5','3-8'],['0-5','4-5'],['0-6','1-8'],['0-6','3-9'],['3-8','4-5']]
+      };
+
+      const statusClass = (status) => ({ ready: 'is-ready', review: 'is-review', learning: 'is-learning', running: 'is-running' }[status] || '');
+      const canvas = root.querySelector('#cs-canvas-grid');
+      const renderCanvas = () => {
+        canvas.innerHTML = '';
+        lanes.forEach((lane, laneIndex) => {
+          const section = document.createElement('section');
+          section.className = 'cs-lane';
+          section.innerHTML = `<div class="cs-lane-header"><i data-lucide="${lane.icon}" aria-hidden="true"></i><strong>${lane.name}</strong><span class="text-small text-muted">${lane.items.length}</span></div><div class="cs-node-stack"></div>`;
+          const stack = section.querySelector('.cs-node-stack');
+          lane.items.forEach((item, itemIndex) => {
+            const [label, type, status, detail] = item;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `btn viz-tile ${statusClass(status)}`;
+            button.textContent = label;
+            button.setAttribute('aria-label', `${label}. ${type}. ${status}. ${detail}`);
+            button.dataset.lane = String(laneIndex);
+            button.dataset.item = String(itemIndex);
+            button.dataset.node = `${laneIndex}-${itemIndex}`;
+            stack.appendChild(button);
+          });
+          canvas.appendChild(section);
+        });
+        if (globalThis.lucide) lucide.createIcons({ attrs: { width: 16, height: 16 } });
+        requestAnimationFrame(drawEdges);
+      };
+
+      const drawEdges = () => {
+        const svg = root.querySelector('#cs-edges');
+        const wrap = root.querySelector('.cs-canvas-wrap');
+        if (!svg || !wrap || innerWidth <= 980) return;
+        const wrapRect = wrap.getBoundingClientRect();
+        if (wrapRect.width < 1 || wrapRect.height < 1) return;
+        const mode = root.querySelector('#cs-edge-mode')?.value || 'structure';
+        const paths = edgeSets[mode] || edgeSets.structure;
+        svg.setAttribute('viewBox', `0 0 ${wrapRect.width} ${wrapRect.height}`);
+        svg.innerHTML = '';
+        paths.forEach(([fromId, toId]) => {
+          const from = root.querySelector(`[data-node="${fromId}"]`);
+          const to = root.querySelector(`[data-node="${toId}"]`);
+          if (!from || !to || from.hidden || to.hidden) return;
+          const a = from.getBoundingClientRect();
+          const b = to.getBoundingClientRect();
+          const x1 = a.right - wrapRect.left;
+          const y1 = a.top + a.height / 2 - wrapRect.top;
+          const x2 = b.left - wrapRect.left;
+          const y2 = b.top + b.height / 2 - wrapRect.top;
+          const bend = Math.max(16, (x2 - x1) * .45);
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', `M ${x1} ${y1} C ${x1 + bend} ${y1}, ${x2 - bend} ${y2}, ${x2} ${y2}`);
+          path.setAttribute('class', `edge-${mode}`);
+          svg.appendChild(path);
+        });
+      };
+      renderCanvas();
+
+      root.querySelectorAll('.cs-tab').forEach((button) => {
+        button.addEventListener('click', () => {
+          const view = button.dataset.view;
+          root.querySelectorAll('.cs-tab').forEach((tab) => tab.setAttribute('aria-pressed', String(tab === button)));
+          root.querySelectorAll('.cs-view').forEach((panel) => { panel.hidden = panel.id !== `cs-view-${view}`; });
+          if (view === 'canvas') requestAnimationFrame(drawEdges);
+          activity.textContent = `${button.textContent.trim()} view · same canonical project state`;
+        });
+      });
+
+      let selectedAngle = '';
+      root.querySelectorAll('[data-angle]').forEach((button) => {
+        button.addEventListener('click', () => {
+          selectedAngle = button.dataset.angle;
+          root.querySelectorAll('[data-angle]').forEach((choice) => choice.setAttribute('aria-pressed', String(choice === button)));
+          root.querySelector('#cs-angle-status').textContent = 'Chosen';
+          root.querySelector('#cs-continue').disabled = false;
+          root.querySelector('#cs-focus-summary').textContent = `Selected: “${selectedAngle}.” Four production branches become ready; estimated additional spend is $14.60.`;
+          activity.textContent = `Decision staged · ${selectedAngle} · not yet committed`;
+        });
+      });
+
+      root.querySelector('#cs-continue').addEventListener('click', () => {
+        activity.textContent = `Decision recorded · production plan compiled for “${selectedAngle}”`;
+        root.querySelector('#cs-angle-status').textContent = 'Recorded';
+      });
+
+      root.querySelector('#cs-open-evidence').addEventListener('click', () => {
+        root.querySelector('[data-view="canvas"]').click();
+        root.querySelector('#cs-edge-mode').value = 'evidence';
+        activity.textContent = 'Evidence edges visible · 8 sources support 6 claims';
+      });
+
+      root.querySelector('#cs-preview-impact').addEventListener('click', () => {
+        root.querySelector('[data-view="canvas"]').click();
+        root.querySelector('#cs-impact-toggle').checked = true;
+        root.querySelectorAll('#cs-canvas-grid .cs-lane:nth-child(n+4) .btn').forEach((node) => node.classList.add('is-stale'));
+        activity.textContent = 'Impact preview · 18 downstream objects stale · $14.60 estimated regeneration';
+      });
+
+      root.querySelector('#cs-canvas-grid').addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-lane]');
+        if (!button) return;
+        const item = lanes[Number(button.dataset.lane)].items[Number(button.dataset.item)];
+        root.querySelectorAll('#cs-canvas-grid button').forEach((node) => node.setAttribute('aria-pressed', String(node === button)));
+        root.querySelector('#cs-node-inspector').innerHTML = `<h3>${item[0]}</h3><p class="text-small"><strong>Kind:</strong> ${item[1]}<br><strong>State:</strong> ${item[2]}<br><strong>Detail:</strong> ${item[3]}</p><p class="text-small text-muted">Revision and provenance are append-only. Open activity for the full receipt.</p>`;
+        activity.textContent = `Selected ${item[1].toLowerCase()} · ${item[0]}`;
+      });
+
+      root.querySelector('#cs-impact-toggle').addEventListener('change', (event) => {
+        root.querySelectorAll('#cs-canvas-grid .cs-lane:nth-child(n+4) .btn').forEach((node) => node.classList.toggle('is-stale', event.target.checked));
+        activity.textContent = event.target.checked ? 'Impact preview · downstream production, distribution, and outcomes dimmed' : 'Impact preview cleared';
+      });
+
+      root.querySelector('#cs-edge-mode').addEventListener('change', (event) => {
+        drawEdges();
+        activity.textContent = `${event.target.options[event.target.selectedIndex].text} relationships selected`;
+      });
+
+      let collapsed = false;
+      root.querySelector('#cs-collapse-loops').addEventListener('click', (event) => {
+        collapsed = !collapsed;
+        root.querySelectorAll('.cs-node-stack').forEach((stack) => {
+          [...stack.children].forEach((child, index) => { child.hidden = collapsed && index > 2; });
+        });
+        event.target.textContent = collapsed ? 'Expand all 50 objects' : 'Collapse loops';
+        root.querySelector('#cs-object-count').textContent = collapsed ? '18 visible · 50 total' : '50 objects';
+        requestAnimationFrame(drawEdges);
+        activity.textContent = collapsed ? 'Loops collapsed to working summaries' : 'All workflow objects expanded';
+      });
+
+      const timelineData = [
+        ['Mon','LinkedIn','Script review','Reel','Rendering','—','—'],
+        ['Tue','Instagram','Approved','TikTok','Approved','Newsletter','Draft'],
+        ['Wed','LinkedIn','Scheduled 8:30 AM','Instagram','Scheduled 8 PM','—','—'],
+        ['Thu','TikTok','Needs disclosure','Carousel','Review','—','—'],
+        ['Fri','LinkedIn','Source check','Real footage','Capture 7 PM','—','—'],
+        ['Sat','Newsletter','Scheduled 9 AM','Instagram','Export ready','—','—'],
+        ['Sun','Review loop','Scheduled 6 PM','Analytics','Waiting','—','—']
+      ];
+      const timeline = root.querySelector('#cs-timeline');
+      timelineData.forEach((row) => {
+        const el = document.createElement('div');
+        el.className = 'cs-day';
+        el.innerHTML = `<strong>${row[0]}</strong><div class="cs-slot"><strong>${row[1]}</strong><span class="text-small text-muted">${row[2]}</span></div><div class="cs-slot"><strong>${row[3]}</strong><span class="text-small text-muted">${row[4]}</span></div><div class="cs-slot"><strong>${row[5]}</strong><span class="text-small text-muted">${row[6]}</span></div><button type="button" class="btn">Open</button>`;
+        timeline.appendChild(el);
+      });
+
+      let reviewPick = '';
+      root.querySelectorAll('.cs-pick-review').forEach((button) => {
+        button.addEventListener('click', () => {
+          reviewPick = button.dataset.pick;
+          root.querySelectorAll('.cs-pick-review').forEach((pick) => pick.setAttribute('aria-pressed', String(pick === button)));
+          root.querySelector('#cs-approve-review').disabled = false;
+          root.querySelector('#cs-review-note').textContent = `Reel ${reviewPick} selected. Approval will pin this exact artifact version.`;
+        });
+      });
+      root.querySelector('#cs-approve-review').addEventListener('click', () => {
+        root.querySelector('#cs-review-note').textContent = `Reel ${reviewPick} approved. Publication remains separately gated.`;
+        root.querySelector('#cs-review-count').textContent = '2';
+        activity.textContent = `Decision receipt created · Reel ${reviewPick} approved`;
+      });
+      root.querySelector('#cs-request-change').addEventListener('click', () => {
+        activity.textContent = 'Targeted change prepared · only selected Reel branch will become stale';
+      });
+
+      const artifacts = [
+        ['Creator OS thesis','Idea · v4'],['Hermes research','Source · cited'],['Claim ledger','Research · v2'],['Memory angle','Angle · chosen'],
+        ['LinkedIn script','Text · v3'],['Newsletter','Text · v2'],['Reel A','Video · review'],['Reel B','Video · review'],
+        ['Carousel','PDF · 6 slides'],['Brand constitution','Memory · rev 7'],['Full-Week loop','Loop · 1.0'],['Creator script','Skill · 2.3']
+      ];
+      const library = root.querySelector('#cs-library');
+      artifacts.forEach(([name, meta]) => {
+        const item = document.createElement('div');
+        item.className = 'cs-artifact';
+        item.innerHTML = `<strong>${name}</strong><div class="text-small text-muted">${meta}</div>`;
+        library.appendChild(item);
+      });
+
+      const memories = [
+        ['Identity','Be specific, dry, and evidence-first.','active','Explicit constitution revision 7'],
+        ['Preference','Show the operational tradeoff before the aspirational claim.','active','4 creator corrections'],
+        ['Performance','Build explanations may attract fewer impressions but more qualified replies.','proposed','3 LinkedIn posts; weak evidence'],
+        ['Procedure','Use Postiz for broad distribution and direct connectors only for strategic gaps.','proposed','Architecture decision + connector research'],
+        ['Boundary','Do not expose confidential day-job details.','active','Explicit creator policy'],
+        ['Uncertainty','Dating commentary may weaken professional audience coherence.','disputed','Mixed goals; insufficient evidence']
+      ];
+      const memoryList = root.querySelector('#cs-memory-list');
+      memories.forEach((memory, index) => {
+        const row = document.createElement('div');
+        row.className = 'cs-memory-item';
+        row.innerHTML = `<div><span class="viz-badge">${memory[0]}</span> <strong>${memory[1]}</strong><div class="text-small text-muted">${memory[3]} · ${memory[2]}</div></div>${memory[2] === 'proposed' ? `<div class="cs-actions"><button type="button" class="btn cs-memory-reject" data-memory="${index}">Reject</button><button type="button" class="btn btn-primary cs-memory-approve" data-memory="${index}">Promote</button></div>` : ''}`;
+        memoryList.appendChild(row);
+      });
+      memoryList.addEventListener('click', (event) => {
+        const approve = event.target.closest('.cs-memory-approve');
+        const reject = event.target.closest('.cs-memory-reject');
+        if (!approve && !reject) return;
+        const index = Number((approve || reject).dataset.memory);
+        const row = (approve || reject).closest('.cs-memory-item');
+        if (approve) {
+          row.querySelector('.text-muted').textContent = `${memories[index][3]} · active after human promotion`;
+          row.querySelector('.cs-actions').remove();
+          activity.textContent = `Memory promoted with evidence · ${memories[index][1]}`;
+        } else {
+          row.querySelector('.text-muted').textContent = `${memories[index][3]} · rejected and inactive`;
+          row.querySelector('.cs-actions').remove();
+          activity.textContent = `Memory rejected · it will not enter future context`;
+        }
+        const remaining = root.querySelectorAll('.cs-memory-approve').length;
+        root.querySelector('#cs-memory-count').textContent = String(remaining);
+      });
+
+      root.querySelector('#cs-dry-run').addEventListener('click', () => {
+        activity.textContent = 'Dry run passed · 12 capabilities healthy · 3 review gates · $14.60 estimated · no mutations executed';
+      });
+      root.querySelector('#cs-run').addEventListener('click', (event) => {
+        event.target.disabled = true;
+        root.querySelector('#cs-budget').textContent = '$19.20 reserved / $50';
+        activity.textContent = 'Run queued · waiting for current angle decision · reservation is reversible';
+      });
+
+      const previewParams = new URLSearchParams(location.search);
+      const initialView = previewParams.get('view');
+      const initialTab = initialView ? root.querySelector(`[data-view="${initialView}"]`) : null;
+      if (initialTab) initialTab.click();
+      if (previewParams.get('impact') === '1') root.querySelector('#cs-impact-toggle')?.click();
+      requestAnimationFrame(drawEdges);
+      addEventListener('resize', drawEdges);
+    })();
+  </script>
+</div>
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
+<script>if (globalThis.lucide) lucide.createIcons({ attrs: { width: 16, height: 16 } });</script>
+</body>
+</html>

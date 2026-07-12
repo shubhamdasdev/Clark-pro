@@ -57,6 +57,7 @@ Read these in order:
 6. **[roadmap.md](roadmap.md)** — cumulative product strata and whole-product delivery gates; no throwaway MVP.
 7. **[research-basis.md](research-basis.md)** — current external evidence and competitive reality behind the v2 decisions.
 8. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
+9. **[prototype/](prototype/README.md)** — clickable six-view studio concept using a 50-object Full-Week fixture and a structured evaluation guide.
 
 ## One-Line Pitch
 
@@ -64,4 +65,4 @@ Read these in order:
 
 ## Current Status
 
-Product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system. The current gate is product coherence: the thesis, canvas grammar, harness, memory model, MCP boundary, security model, and cumulative delivery plan must agree before implementation begins.
+Ground-stratum product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system, and the first clickable Focus/Canvas/Timeline/Review/Library/Memory prototype now exists. The remaining canvas gate is behavioral evidence from five representative creator walkthroughs; implementation should not fan out until those results are recorded and required redesigns are resolved.
