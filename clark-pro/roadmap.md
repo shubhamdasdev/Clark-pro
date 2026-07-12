@@ -32,6 +32,7 @@ The same canonical workspace must be usable from Clark Studio and Clark Bridge, 
 - threat model and trust boundaries;
 - representative Full-Week project fixture with realistic artifacts and failure cases;
 - architecture decision records for desktop shell, database, credential storage, model gateway, licensing, updates, and distribution.
+- positioning, packaging, replacement target, economic principles, and explicit commercial failure conditions.
 
 ### Gate
 
@@ -39,6 +40,7 @@ The same canonical workspace must be usable from Clark Studio and Clark Bridge, 
 - Engineering can trace every visible state to a domain object or event.
 - Security can explain every path from renderer to credential or external mutation.
 - Product can explain why Clark wins without claiming uniqueness for canvas, generation, MCP, or scheduling alone.
+- Target creators demonstrate first-week value, commit representative workflow data, and provide a binding willingness-to-pay signal under the gates in `positioning-and-business.md`.
 
 ## Stratum 1 — Mac Studio Foundation
 
@@ -266,7 +268,8 @@ Before implementation begins:
 
 1. Convert the authoritative documents into versioned domain schemas and ADRs.
 2. Produce the clickable six-view Mac prototype using the Full-Week fixture.
-3. Run five creator walkthroughs focused on Focus-vs-Canvas comprehension.
-4. Finalize the threat model and credential flows.
-5. Define the event catalog and capability adapter conformance suite.
-6. Convert the approved epics into team-owned release plans without weakening their acceptance gates.
+3. Run five creator walkthroughs focused on Focus-vs-Canvas comprehension, provenance, memory evidence, and authority.
+4. Recruit three design partners for a real multi-channel week and a binding willingness-to-pay test.
+5. Finalize the threat model and credential flows.
+6. Define the event catalog and capability adapter conformance suite.
+7. Convert the approved epics into team-owned release plans without weakening their acceptance gates.

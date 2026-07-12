@@ -1,5 +1,7 @@
 # Clark Studio Prototype Evaluation
 
+Use this only for observed creator sessions. The prior expert rehearsal and its design changes are documented in [cognitive-walkthroughs.md](cognitive-walkthroughs.md); they do not count as participant evidence.
+
 ## Participant
 
 - Date:
@@ -18,6 +20,7 @@
 6. Find the evidence behind a proposed memory and reject or promote it.
 7. Explain the difference between an artifact, operator, decision, gate, and loop.
 8. Open Connections and explain how Clark is simultaneously an MCP host, an MCP server, a social integration layer, and a governed skill host.
+9. State what this run may do automatically, what is budget-bound, what always requires approval, and what data may leave the Mac.
 
 ## Evidence to record
 
@@ -30,6 +33,7 @@
 - Whether approval vs publication was clear:
 - Whether memory evidence and promotion were clear:
 - Whether MCP, social-account, Bridge, and skill trust states were understandable:
+- Whether the run contract and remote-data boundary were understandable:
 - What the participant expected but could not find:
 
 ## Gate scoring
@@ -46,6 +50,7 @@ Each item is Pass, Partial, or Fail with notes.
 | Navigate a 50-object project without losing orientation |  |  |
 | Distinguish approval from publication authority |  |  |
 | Explain Clark Connect, Clark Bridge, social adapters, and skill trust |  |  |
+| Explain effective autonomy and remote-data boundaries |  |  |
 
 ## Decision
 

@@ -250,3 +250,5 @@ The canvas design is ready for implementation only when a clickable prototype pr
 5. A memory proposal shows evidence and can be corrected or rejected in place.
 6. A 50-object project remains legible through lanes, groups, filters, and Focus mode.
 7. The same project can be operated through UI or Clark Bridge without state divergence.
+8. A creator can inspect the evidence, contradiction, confidence, scope, and retrieval state behind a memory proposal before promotion.
+9. Before a run, the creator can explain which actions are automatic, budget-bound, approval-gated, prohibited from automation, and allowed to send data off the Mac.

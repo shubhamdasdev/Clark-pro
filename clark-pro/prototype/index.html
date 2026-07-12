@@ -226,6 +226,11 @@ svg.lucide { width: 16px; height: 16px; }
           <p class="text-small"><strong>Policy:</strong> day-job confidentiality; cite competitive claims; disclose generated media.</p>
           <p class="text-small"><strong>Budget:</strong> $30.80 remaining.</p>
           <div class="cs-mini-meter" aria-label="Thirty-eight percent of budget used"><span></span></div>
+          <h3 class="cs-spacer-top">Run contract</h3>
+          <p class="text-small"><strong>Runs automatically:</strong> scoped research, local transforms, and approved generation below the $50 ceiling.</p>
+          <p class="text-small"><strong>Always asks:</strong> angle selection, paid overage, version approval, account mutation, and publication.</p>
+          <p class="text-small"><strong>Never automatic:</strong> memory or skill promotion, confidentiality override, destructive action, or cross-workspace access.</p>
+          <p class="text-small text-muted">Remote data: claim excerpts and generation inputs only · originals stay local unless a step explicitly names them.</p>
         </aside>
       </div>
     </section>
@@ -255,7 +260,7 @@ svg.lucide { width: 16px; height: 16px; }
         </div>
         <aside class="card cs-inspector" id="cs-node-inspector" aria-live="polite">
           <h3>Select an object</h3>
-          <p class="text-small text-muted">Inspect version, evidence, skill, capability, cost, permissions, and run state.</p>
+          <p class="text-small text-muted">One selection reveals source, current version, cost, approval, publish state, outcome, permissions, and nearby lineage.</p>
         </aside>
       </div>
     </section>
@@ -345,6 +350,11 @@ svg.lucide { width: 16px; height: 16px; }
           <h3 class="cs-spacer-top">Skills</h3>
           <p class="text-small">12 trusted · 2 updates quarantined · 1 learned procedure awaiting tests.</p>
           <button type="button" class="btn cs-system-action" data-action="Review skill quarantine">Review quarantine</button>
+          <h3 class="cs-spacer-top">Effective autonomy</h3>
+          <p class="text-small"><strong>Auto:</strong> scoped reads, retrieval, validation, and reversible local transforms.</p>
+          <p class="text-small"><strong>Budget-bound:</strong> model and media generation within the reviewed run quote.</p>
+          <p class="text-small"><strong>Human gate:</strong> publish, account changes, memory promotion, skill trust, and sensitive export.</p>
+          <p class="text-small text-muted">Effective permission = client scope ∩ workspace policy ∩ capability trust ∩ current run approval.</p>
         </aside>
       </div>
     </section>
@@ -440,12 +450,47 @@ svg.lucide { width: 16px; height: 16px; }
         policy: [['0-5','3-8'],['0-5','4-5'],['0-6','1-8'],['0-6','3-9'],['3-8','4-5']]
       };
       let selectedEdges = [];
+      const traceFacts = {
+        'Reel A': {
+          source: 'Creator OS idea v4 → Memory angle → Reel script v3', version: 'v3 · current', cost: '$4.20',
+          approval: 'Waiting for production review', publish: 'Not authorized', outcome: 'Not live · observation pending', permission: 'Higgsfield generate · quoted run only'
+        },
+        'Reel B': {
+          source: 'Creator OS idea v4 → Canvas angle → Reel script v2', version: 'v2 · alternate', cost: '$3.85',
+          approval: 'Waiting for production review', publish: 'Not authorized', outcome: 'Not live · observation pending', permission: 'Higgsfield generate · quoted run only'
+        },
+        'LinkedIn post': {
+          source: 'Creator OS idea v4 → Memory angle → LinkedIn script v3', version: 'v3 · current', cost: '$1.18 cumulative',
+          approval: 'Content review waiting', publish: 'Planned Wed 8:30 AM · no publish grant', outcome: 'Not live · observation pending', permission: 'Postiz draft only · publish requires human gate'
+        },
+        'Instagram Reel': {
+          source: 'Creator OS idea v4 → Memory angle → Reel A v3', version: 'v3 · current adaptation', cost: '$4.62 cumulative',
+          approval: 'Reel review waiting', publish: 'Planned Wed 8 PM · no publish grant', outcome: 'Not live · observation pending', permission: 'Postiz media upload · publish requires human gate'
+        },
+        'TikTok Reel': {
+          source: 'Creator OS idea v4 → Memory angle → Reel A v3', version: 'v3 · disclosure adaptation', cost: '$4.54 cumulative',
+          approval: 'Blocked by disclosure gate', publish: 'Unscheduled · export fallback ready', outcome: 'Not live · observation pending', permission: 'Assisted/export only until account policy passes'
+        },
+        'Newsletter': {
+          source: 'Creator OS idea v4 → Memory angle → Newsletter draft v2', version: 'v2 · current', cost: '$0.76 cumulative',
+          approval: 'Content approved · publication not authorized', publish: 'Planned Sat 9 AM · assisted handoff', outcome: 'Not live · observation pending', permission: 'Validated export · no remote credential'
+        }
+      };
       const iconByType = {
         Source: 'link', Artifact: 'file', Memory: 'brain', Policy: 'shield', Gate: 'shield-check',
         Operator: 'settings-2', Decision: 'diamond', Loop: 'repeat-2', Skill: 'wand-sparkles'
       };
 
       const statusClass = (status) => ({ ready: 'is-ready', review: 'is-review', learning: 'is-learning', running: 'is-running' }[status] || '');
+      const factsFor = (item, laneIndex) => traceFacts[item[0]] || {
+        source: laneIndex === 0 ? 'Original creator input' : `${lanes[Math.max(0, laneIndex - 1)].name} lane · selected lineage`,
+        version: item[1] === 'Artifact' ? 'Current canonical revision' : 'Pinned definition revision',
+        cost: item[1] === 'Operator' ? 'Included in $14.60 run quote' : 'No direct charge',
+        approval: item[2] === 'review' ? 'Human review required' : 'No approval currently pending',
+        publish: laneIndex < 4 ? 'Not a publication object' : 'Publication policy applies',
+        outcome: laneIndex === 5 ? 'Evidence collection state visible here' : 'Trace continues to Outcomes',
+        permission: item[1] === 'Operator' ? 'Capability lease limited to this run step' : 'Workspace-scoped read'
+      };
       const canvas = root.querySelector('#cs-canvas-grid');
       const renderCanvas = () => {
         canvas.innerHTML = '';
@@ -570,8 +615,17 @@ svg.lucide { width: 16px; height: 16px; }
         selectedEdges = collected;
         root.querySelector('#cs-edge-mode').value = 'selected';
         drawEdges();
-        root.querySelector('#cs-node-inspector').innerHTML = `<h3>${item[0]}</h3><p class="text-small"><strong>Kind:</strong> ${item[1]}<br><strong>State:</strong> ${item[2]}<br><strong>Detail:</strong> ${item[3]}</p><p class="text-small text-muted">Revision and provenance are append-only. Open activity for the full receipt.</p>`;
+        const facts = factsFor(item, Number(button.dataset.lane));
+        root.querySelector('#cs-node-inspector').innerHTML = `<div class="cs-inline"><span class="viz-badge">${item[1]}</span><span class="viz-badge">${item[2]}</span></div><h3>${item[0]}</h3><p class="text-small"><strong>Source:</strong> ${facts.source}<br><strong>Version:</strong> ${facts.version}<br><strong>Cost:</strong> ${facts.cost}<br><strong>Approval:</strong> ${facts.approval}<br><strong>Publish:</strong> ${facts.publish}<br><strong>Outcome:</strong> ${facts.outcome}<br><strong>Permission:</strong> ${facts.permission}</p><p class="text-small text-muted">${item[3]} · append-only revision and decision receipts</p><button type="button" class="btn cs-trace-lineage" data-trace-node="${selectedId}">Trace source to outcome</button>`;
         activity.textContent = `Selected lineage · ${item[1].toLowerCase()} · ${item[0]} · ${selectedEdges.length} nearby relationships`;
+      });
+
+      root.querySelector('#cs-node-inspector').addEventListener('click', (event) => {
+        const trace = event.target.closest('.cs-trace-lineage');
+        if (!trace) return;
+        root.querySelector('#cs-edge-mode').value = 'selected';
+        drawEdges();
+        activity.textContent = `Provenance trace ready · source, current revision, decision, publication state, and outcome remain one canonical lineage`;
       });
 
       root.querySelector('#cs-impact-toggle').addEventListener('change', (event) => {
@@ -645,33 +699,43 @@ svg.lucide { width: 16px; height: 16px; }
       });
 
       const memories = [
-        ['Identity','Be specific, dry, and evidence-first.','active','Explicit constitution revision 7'],
-        ['Preference','Show the operational tradeoff before the aspirational claim.','active','4 creator corrections'],
-        ['Performance','Build explanations may attract fewer impressions but more qualified replies.','proposed','3 LinkedIn posts; weak evidence'],
-        ['Procedure','Use Postiz for broad distribution and direct connectors only for strategic gaps.','proposed','Architecture decision + connector research'],
-        ['Boundary','Do not expose confidential day-job details.','active','Explicit creator policy'],
-        ['Uncertainty','Dating commentary may weaken professional audience coherence.','disputed','Mixed goals; insufficient evidence']
+        ['Identity','Be specific, dry, and evidence-first.','active','Explicit constitution revision 7','workspace','explicit','No contradiction recorded'],
+        ['Preference','Show the operational tradeoff before the aspirational claim.','active','4 creator corrections','workspace','medium','One accepted aspirational hook'],
+        ['Performance','Build explanations may attract fewer impressions but more qualified replies.','proposed','3 LinkedIn posts; 14 qualified replies; weak sample','LinkedIn','low','Two generic AI posts reached more people'],
+        ['Procedure','Use Postiz for broad distribution and direct connectors only for strategic gaps.','proposed','Architecture decision + connector conformance results','distribution loop','medium','YouTube direct upload exposes richer state'],
+        ['Boundary','Do not expose confidential day-job details.','active','Explicit creator policy','all workspaces','explicit','No override allowed'],
+        ['Uncertainty','Dating commentary may weaken professional audience coherence.','disputed','Mixed goals; insufficient evidence','workspace','low','Creator still values both topics']
       ];
       const memoryList = root.querySelector('#cs-memory-list');
       memories.forEach((memory, index) => {
         const row = document.createElement('div');
         row.className = 'cs-memory-item';
-        row.innerHTML = `<div><span class="viz-badge">${memory[0]}</span> <strong>${memory[1]}</strong><div class="text-small text-muted">${memory[3]} · ${memory[2]}</div></div>${memory[2] === 'proposed' ? `<div class="cs-actions"><button type="button" class="btn cs-memory-reject" data-memory="${index}">Reject</button><button type="button" class="btn btn-primary cs-memory-approve" data-memory="${index}">Promote</button></div>` : ''}`;
+        row.innerHTML = `<div><span class="viz-badge">${memory[0]}</span> <strong>${memory[1]}</strong><div class="text-small text-muted">${memory[3]} · ${memory[2]}</div></div><div class="cs-actions"><button type="button" class="btn cs-memory-inspect" data-memory="${index}">Inspect evidence</button>${memory[2] === 'proposed' ? `<button type="button" class="btn cs-memory-reject" data-memory="${index}">Reject</button><button type="button" class="btn btn-primary cs-memory-approve" data-memory="${index}">Promote</button>` : ''}</div>`;
         memoryList.appendChild(row);
       });
       memoryList.addEventListener('click', (event) => {
+        const inspect = event.target.closest('.cs-memory-inspect');
         const approve = event.target.closest('.cs-memory-approve');
         const reject = event.target.closest('.cs-memory-reject');
-        if (!approve && !reject) return;
-        const index = Number((approve || reject).dataset.memory);
-        const row = (approve || reject).closest('.cs-memory-item');
+        if (!inspect && !approve && !reject) return;
+        const action = inspect || approve || reject;
+        const index = Number(action.dataset.memory);
+        const row = action.closest('.cs-memory-item');
+        if (inspect) {
+          const memory = memories[index];
+          root.querySelector('#cs-memory-inspector').innerHTML = `<div class="cs-inline"><span class="viz-badge">${memory[2]}</span><span class="text-small text-muted">${memory[0]} · ${memory[4]}</span></div><h3>${memory[1]}</h3><p class="text-small"><strong>Evidence:</strong> ${memory[3]}<br><strong>Confidence:</strong> ${memory[5]}<br><strong>Contradiction:</strong> ${memory[6]}<br><strong>Retrieval:</strong> proposal-only until promoted</p><p class="text-small text-muted">Clark stores the observation and the creator's judgment separately; reach does not automatically become taste.</p>`;
+          activity.textContent = `Memory evidence inspected · ${memory[3]} · confidence ${memory[5]}`;
+          return;
+        }
         if (approve) {
           row.querySelector('.text-muted').textContent = `${memories[index][3]} · active after human promotion`;
-          row.querySelector('.cs-actions').remove();
+          row.querySelector('.cs-memory-reject')?.remove();
+          row.querySelector('.cs-memory-approve')?.remove();
           activity.textContent = `Memory promoted with evidence · ${memories[index][1]}`;
         } else {
           row.querySelector('.text-muted').textContent = `${memories[index][3]} · rejected and inactive`;
-          row.querySelector('.cs-actions').remove();
+          row.querySelector('.cs-memory-reject')?.remove();
+          row.querySelector('.cs-memory-approve')?.remove();
           activity.textContent = `Memory rejected · it will not enter future context`;
         }
         const remaining = root.querySelectorAll('.cs-memory-approve').length;
@@ -697,6 +761,16 @@ svg.lucide { width: 16px; height: 16px; }
       const initialView = previewParams.get('view');
       const initialTab = initialView ? root.querySelector(`[data-view="${initialView}"]`) : null;
       if (initialTab) initialTab.click();
+      const initialNode = previewParams.get('node');
+      if (initialNode) {
+        root.querySelector('[data-view="canvas"]')?.click();
+        [...root.querySelectorAll('[data-node]')].find((node) => node.dataset.node === initialNode)?.click();
+      }
+      const initialMemory = previewParams.get('memory');
+      if (initialMemory) {
+        root.querySelector('[data-view="memory"]')?.click();
+        root.querySelector(`.cs-memory-inspect[data-memory="${initialMemory}"]`)?.click();
+      }
       if (previewParams.get('impact') === '1') root.querySelector('#cs-impact-toggle')?.click();
       requestAnimationFrame(drawEdges);
       addEventListener('resize', drawEdges);

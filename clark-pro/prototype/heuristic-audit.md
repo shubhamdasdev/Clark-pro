@@ -15,6 +15,9 @@
 | Learning opacity | A “learning loop” could imply silent self-modification. | High | Memory proposals show evidence and Promote/Reject controls; Connections shows skill quarantine; no proposal silently becomes active. |
 | Provider breadth | Listing every platform as a direct integration would misrepresent connector reality. | Medium | Connections distinguishes Postiz, direct + fallback, limited, and assisted/export states. |
 | Graph responsiveness | A wide canvas could force horizontal scrolling on narrow surfaces. | Medium | Semantic lanes reflow, SVG edges are suppressed below the wide breakpoint, and a 390px device-metric check proves no horizontal overflow. |
+| Provenance scanability | The inspector did not satisfy the stated ten-second lineage gate because it omitted source, canonical version, cumulative cost, approval, publication, and outcome fields. | High | Every selection now exposes a consistent provenance contract; representative posts contain concrete values and a source-to-outcome trace action. |
+| Memory evidence | Proposal evidence was present only as a short caption and did not expose contradiction, scope, or confidence. | High | Added an evidence inspection path for every memory item with separate evidence, contradiction, confidence, scope, and retrieval state. |
+| Effective authority | Policy, budget, connector trust, and publication approval were individually visible but did not form one understandable autonomy contract. | High | Focus now states automatic, budget-bound, always-ask, never-automatic, and remote-data boundaries; Connections shows the permission intersection. |
 
 ## Remaining limitations before human testing
 
@@ -23,6 +26,7 @@
 3. Connections currently demonstrates trust and scope concepts but does not run a full OAuth, MCP installation, or skill-permission review flow.
 4. The prototype uses representative content rather than a participant's own live workspace.
 5. Mac-native menu, Share extension, notification, Keychain prompt, and window behaviors require a later native interaction prototype.
+6. The five-workflow expert rehearsal in `cognitive-walkthroughs.md` removes obvious failures but is not participant evidence.
 
 ## Expert decision
 

@@ -56,8 +56,9 @@ Read these in order:
 5. **[mcp-ecosystem.md](mcp-ecosystem.md)** — MCP client/server roles, capability adapters, skills, and social integration strategy.
 6. **[roadmap.md](roadmap.md)** — cumulative product strata and whole-product delivery gates; no throwaway MVP.
 7. **[research-basis.md](research-basis.md)** — current external evidence and competitive reality behind the v2 decisions.
-8. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
-9. **[prototype/](prototype/README.md)** — clickable six-view studio concept using a 50-object Full-Week fixture and a structured evaluation guide.
+8. **[positioning-and-business.md](positioning-and-business.md)** — category, buyer, replacement target, packaging, economics, acquisition, and commercial validation gates.
+9. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
+10. **[prototype/](prototype/README.md)** — clickable six-view studio concept using a 50-object Full-Week fixture and a structured evaluation guide.
 
 ## One-Line Pitch
 

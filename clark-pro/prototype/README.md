@@ -11,7 +11,7 @@ This is the Ground-stratum clickable prototype for the six-view Mac product mode
 
 Connections is included as a supporting system surface for MCP servers, social accounts, Clark Bridge clients, skills, trust, and harness health.
 
-`index.html` is a standalone artifact generated from the thread visualization source. Open it in a browser to exercise the 50-object Full-Week fixture, angle decisions, downstream-impact preview, version approval, timeline, artifact library, and governed memory proposals.
+`index.html` is a standalone artifact generated from the thread visualization source. Open it in a browser to exercise the 50-object Full-Week fixture, angle decisions, downstream-impact preview, object-level provenance contracts, version approval, timeline, artifact library, governed memory evidence, run authority, and Connections.
 
 The prototype validates information architecture and interaction contracts. It is not an alternate implementation path; production work follows the Electron, event, harness, memory, policy, and capability contracts in the authoritative architecture documents.
 
@@ -46,5 +46,7 @@ node render.mjs /absolute/path/to/clark-studio.html index.html
 ## Review checklist
 
 Use [prototype-evaluation.md](prototype-evaluation.md) during walkthroughs. Record evidence rather than treating the existence of the prototype as proof that the canvas gate passed.
+
+The pre-participant expert rehearsal across five creator workflows is recorded in [cognitive-walkthroughs.md](cognitive-walkthroughs.md). It is design evidence, not human validation.
 
 Automated interaction, responsive-layout, and visual checks are recorded in [verification.md](verification.md).
