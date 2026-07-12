@@ -1,144 +1,250 @@
-# Clark Pro — The Canvas
+# Clark Pro — Studio and Canvas Specification
 
-The canvas is the product. Everything else is plumbing. This doc defines the node system: the building blocks, how they connect, and how the agent ("Clark") walks the graph while you watch.
+## The Canvas Is a View, Not the Database
 
----
+Clark's underlying truth is a versioned creative graph and immutable event history. The canvas is the richest visual projection of that truth, but it is not the only way to work.
 
-## Mental Model
+This distinction matters. Most creators should be able to run a proven loop without wiring nodes. Experts should be able to open the graph, inspect lineage, branch, compare, replace capabilities, and author new loops.
 
-A **content idea is a graph.** It starts as one node (the brain dump) and grows downstream into research, angles, scripts, media, platform posts, approval, publish, and learning. The creator and the agent both manipulate this graph directly.
+## One Project, Six Views
 
+All views operate on the same objects, versions, runs, and permissions.
+
+| View | Primary question | Default user action |
+|---|---|---|
+| **Focus** | What needs my attention now? | Decide, edit, approve, retry, or continue. |
+| **Canvas** | How is the work connected? | Inspect lineage, branch, rewire, compare, or run. |
+| **Timeline** | What happens when? | Schedule, sequence, and see production/publish state. |
+| **Review** | Is this safe and good enough to ship? | Compare versions, inspect sources, approve, reject, or request change. |
+| **Library** | What do I already have? | Reuse artifacts, templates, sources, and successful patterns. |
+| **Memory** | What does Clark believe and why? | Inspect, correct, promote, expire, or forget. |
+
+Focus is the default. Canvas is one click away. A blank canvas is never the onboarding experience.
+
+## The Canvas Layout
+
+The default graph flows through six semantic lanes from left to right:
+
+```text
+INTENT → EVIDENCE → CREATIVE → PRODUCTION → DISTRIBUTION → OUTCOMES
 ```
-  BRAIN DUMP
-      │
-      ▼
-  RESEARCH ───────► ANGLES ──┬─► SCRIPT (TikTok) ─► REEL ──────► POST (TikTok) ──┐
-                             │                                                    │
-                             ├─► SCRIPT (LinkedIn) ─► CAROUSEL ─► POST (LinkedIn)─┤
-                             │                                                    ▼
-                             └─► SCRIPT (Substack) ─► (long-form) ─► POST (Sub.) APPROVAL ─► PUBLISH ─► LEARN
-                                                                                              │           │
-                                                                                              └───────────┘
-                                                                                          (loop feeds new ideas)
+
+Each lane can collapse into a summary group. Cross-lane dependencies are allowed, but the layout engine warns when a graph becomes difficult to read.
+
+### Persistent chrome
+
+- **Top run bar:** run, pause, resume, stop, dry-run, active policy, budget, estimated cost, model mode, and current run health.
+- **Left studio rail:** projects, templates, capability palette, installed skills, connected accounts, and search.
+- **Right inspector:** selected object's content, versions, configuration, inputs, outputs, permissions, cost, evidence, and history.
+- **Bottom activity strip:** run events, async jobs, scheduled work, notifications, and logs.
+- **Command field:** natural-language steering that always resolves to a visible proposed graph change or run command before execution.
+
+## Visual Grammar
+
+Calling everything a node makes the product hard to understand. Clark uses five visually distinct primitives.
+
+### 1. Artifacts — durable things
+
+Artifacts are the primary objects the creator owns:
+
+- idea;
+- source;
+- research brief;
+- claim;
+- angle;
+- script;
+- image;
+- audio;
+- video;
+- carousel;
+- platform post;
+- published post;
+- outcome report;
+- memory proposal;
+- skill proposal.
+
+Artifacts have append-only versions, canonical selection, provenance, status, and previews. Editing an artifact creates a new version. Prior versions remain addressable.
+
+### 2. Operators — actions over artifacts
+
+Operators transform, inspect, or move artifacts:
+
+- deterministic transform;
+- agent task;
+- MCP tool call;
+- local command;
+- media render;
+- platform adapter;
+- publisher;
+- analytics pull;
+- evaluator.
+
+Operators display provider, capability, permissions, budget class, expected duration, and last reliability. They are not durable creative output; their executions are recorded as runs.
+
+### 3. Decisions — human or policy choices
+
+Decision cards make judgment explicit:
+
+- select an angle;
+- choose a take;
+- accept a claim;
+- approve a post;
+- resolve a policy warning;
+- promote a memory;
+- install or update a skill.
+
+A decision shows who or what made it, alternatives considered, evidence shown, and whether it can be reversed.
+
+### 4. Gates — constraints that must pass
+
+Gates enforce:
+
+- human approval;
+- fact/evidence coverage;
+- brand rules;
+- platform requirements;
+- budget ceilings;
+- AI-content disclosure;
+- legal or confidentiality policy;
+- asset quality thresholds.
+
+Gates are enforced by the harness, not merely drawn in the UI.
+
+### 5. Loops — reusable durable workflows
+
+A loop is a versioned group with:
+
+- typed entry contract;
+- success contract;
+- internal graph;
+- permissions;
+- cost and time budget;
+- checkpoint policy;
+- recovery policy;
+- evaluation rubric;
+- reflection policy.
+
+Loops can be collapsed to one card, opened as a sub-canvas, saved as templates, scheduled, called through MCP, or invoked by another loop.
+
+## Edge Types
+
+Edges communicate meaning, not merely connectivity.
+
+| Edge | Meaning | Visual treatment |
+|---|---|---|
+| **Data** | Output becomes an input. | Solid neutral line. |
+| **Control** | Completion or decision enables the next step. | Arrowed line. |
+| **Evidence** | A source or outcome supports a claim, decision, or memory. | Thin blue line with citation marker. |
+| **Learning** | An observed result can propose a memory, strategy, or skill change. | Dashed violet line; never auto-promoted by default. |
+| **Policy** | A rule constrains an action. | Red/gold line visible on selection. |
+
+Ports are typed. Connection errors explain the mismatch and offer valid adapters.
+
+## The Default Full-Week Loop
+
+```text
+Capture
+  ↓
+Intent + relevant Creator Model context
+  ↓
+Research + claim ledger + saturation scan
+  ↓
+Angle set → Decision
+  ↓
+Platform scripts in parallel
+  ↓
+Media production + deterministic adapters
+  ↓
+Evidence / brand / cost / platform gates
+  ↓
+Human review
+  ↓
+Postiz or direct publisher connectors
+  ↓
+Publish verification
+  ↓
+Outcome observation
+  ↓
+Reflection → memory and skill proposals → Human promotion
 ```
 
-Each box is a **node**. Each arrow is a **connection** that carries data + context. The agent travels the graph; you can grab any node and redirect it.
+The creator can run this from Focus mode as a guided sequence or open the entire graph.
 
----
+## Canvas Behaviors
 
-## Core Principles
+### Staleness and impact
 
-1. **Every step is a visible node.** No hidden chain-of-thought-only steps. If the agent did it, there's a node for it.
-2. **Connections carry context.** A SCRIPT node downstream of an ANGLE node *inherits* the angle, the research, the brand voice — automatically.
-3. **Non-destructive & forkable.** Regenerate a node and the old version is kept as a sibling. Branch any node to explore alternatives.
-4. **Staleness propagates.** Edit an upstream node and everything downstream is marked stale (dimmed) with a "regenerate" affordance — like a spreadsheet recalc.
-5. **Human gates are nodes too.** Approval isn't a modal popup; it's a node in the flow you can see waiting.
+Changing a canonical artifact recalculates downstream input hashes. Affected artifacts become stale but are never destroyed. Before regeneration, Clark shows:
 
----
+- what will change;
+- what can be reused;
+- estimated cost;
+- approvals that will be invalidated;
+- scheduled posts at risk.
 
-## Node Types
+### Branch and compare
 
-### 1. Brain Dump (input)
-- **In:** raw text, voice memo, link, screenshot, or a half-formed thought.
-- **Does:** Clark parses intent, detects which buckets/pillars it maps to (Ambition/AI, Lifestyle, Dating — or the long-form pillars), and proposes a direction.
-- **Out:** a structured "intent" that seeds the graph.
-- *Example input:* "something about how everyone's using RAG wrong and I'm tired of it"
+Any artifact can branch. Compare supports text diff, image A/B, synchronized video playback, cost, evidence coverage, policy status, and creator annotations. Promoting a branch is an explicit decision event.
 
-### 2. Research
-- **In:** the intent.
-- **Does:** runs a research agent (web search MCP, trend lookup, your own past-performance memory) to gather supporting facts, current takes, what's already saturated, and a contrarian angle.
-- **Out:** a research brief (claims + sources + "saturation/opportunity" read).
-- **MCP:** web search, trends, optionally your analytics memory.
+### Live execution
 
-### 3. Angles
-- **In:** research brief + intent.
-- **Does:** generates 3–6 distinct content angles, each with a predicted strength and target platform fit. You pick one or more (each pick forks a branch).
-- **Out:** one selected angle per branch.
-- *Example angles:* "RAG is dead, here's what's next" (hot take) / "I audited my own RAG pipeline" (build-in-public) / "RAG vs agents, decided" (explainer).
+During a run, operators show queued, waiting, running, streaming, blocked, retrying, complete, failed, cancelled, or orphaned state. Async provider jobs reconnect by durable external ID after restart.
 
-### 4. Script (platform-aware)
-- **In:** chosen angle + brand voice + platform target.
-- **Does:** writes the script/copy tuned to the platform's format and your voice rules (from [positioning.md](../positioning.md)). One Script node per platform — the same angle becomes a 8-sec TikTok hook, a 250-word LinkedIn post, and a 600-word Substack section.
-- **Out:** platform-ready script + hook + caption.
-- **This is the old `/gen-hook` skill, now a node.**
+### Dry-run
 
-### 5. Media — Image / Reel / Carousel / B-roll
-- **In:** script + your trained avatar (Soul 2.0) + style preset.
-- **Does:** calls **Higgsfield MCP** to generate the asset in place. The node shows the render live, async, with the generation ID. Regenerate, pick a take, or branch styles.
-  - **Image node** → Soul 2.0 / Flux 2
-  - **Reel node** → Seedance 2.0 (native lip-sync + audio) or Lipsync Studio
-  - **Carousel node** → multi-slide image set
-  - **B-roll node** → Kling 3.0 / Veo 3.1
-- **Out:** media file(s) + metadata.
-- **These are the old `/gen-reel`, `/gen-carousel`, `/gen-broll` skills, now nodes.**
+Dry-run compiles the graph without paid or mutating calls. It checks capability availability, credentials, permissions, port types, platform rules, budgets, and expected human gates.
 
-### 6. Platform Adapter / Post
-- **In:** script + media.
-- **Does:** assembles the final platform-native post — aspect ratio, caption length, hashtag rules, link placement, thumbnail, first-comment, alt text. Knows each platform's quirks (TikTok ≠ Reels ≠ Shorts even if the video is the same).
-- **Out:** a ready-to-publish post object per platform.
-- **Platforms:** LinkedIn, X, Instagram, TikTok, Substack, Medium, YouTube Shorts (+ extensible).
+### Intervention
 
-### 7. Approval (human-in-the-loop gate)
-- **In:** one or more finished posts.
-- **Does:** pauses the flow. Shows a clean review surface — preview exactly as it'll appear on each platform. You approve, request changes (Clark regenerates just that node), or reject.
-- **Out:** approved posts move forward; the gate state is visible on the canvas.
+The creator can pause a branch, edit an artifact, redirect an agent, change a model, replace a tool, or lower autonomy. Unaffected branches continue when safe.
 
-### 8. Publish
-- **In:** approved posts.
-- **Does:** publishes via the platform's MCP/API where available (LinkedIn, X, YouTube), or stages for **assisted publish** (browser hand-off / export + one-click) where no API exists (TikTok personal, Substack, IG personal). Honors scheduling.
-- **Out:** live post URLs + post IDs.
-- **Matches the Creator plan's "manual posting is a 1-min non-blocker" stance** — Clark Pro makes that minute one click.
+### Explain mode
 
-### 9. Learn (performance loop)
-- **In:** published post IDs.
-- **Does:** after a set delay, pulls analytics (views, retention, engagement) via platform analytics MCPs or manual entry, attributes them back to the **idea → angle → hook → format**, and writes to per-creator **performance memory**.
-- **Out:** updated memory that biases future Research and Angles nodes. *This closes the loop and is the moat.*
+Every recommendation and proposed mutation has a “Why?” affordance showing retrieved memories, sources, policies, skill versions, and uncertainty.
 
----
+## Avoiding Canvas Failure Modes
 
-## Utility / Glue Nodes
+### No spaghetti
 
-- **Brand Voice node** — injects [positioning.md](../positioning.md) rules into any downstream generation (global context node).
-- **Memory node** — surfaces "what worked before" relevant to the current idea.
-- **Note / Comment node** — human annotations on the canvas (for teams).
-- **Branch / Compare node** — A/B two versions of any node side by side, promote the winner.
-- **Schedule node** — sets publish time per platform (TikTok 7–9pm CT, etc., pulled from [cadence.md](../cadence.md)).
+- semantic lanes and automatic layout by default;
+- loops and campaigns collapse into groups;
+- edge bundling for repeated context;
+- filters for data, control, evidence, learning, or policy edges;
+- Focus mode for normal operation;
+- graph complexity warnings;
+- templates start opinionated and editable.
 
----
+### No tiny-dashboard problem
 
-## How the Agent ("Clark") Walks the Graph
+Media and long text open into dedicated editors while preserving graph context. The canvas preview is a summary, not the only editing surface.
 
-1. You drop a **Brain Dump** and hit **Run** (or "Run to Approval").
-2. Clark executes nodes in dependency order. The **active node glows**; output **streams into it live** (text types out, images resolve, video renders with a progress ring).
-3. At fork points (Angles), Clark either **auto-picks** (autonomy slider high) or **pauses for you to choose** (autonomy slider low).
-4. The flow **stops at the Approval gate** and waits. You review, nudge, approve.
-5. **Publish** fires; **Learn** is scheduled for N days later and wakes itself.
-6. You can **interrupt any running node**, edit its input, and Clark replans downstream.
+### No fake agent theater
 
-### Autonomy Slider
-A single control from **"Watch me approve everything"** → **"Wake me at the approval gate"** → **"Full auto, just publish."** Early on you keep it low (trust); as the pipeline proves out you raise it. Mirrors the Creator plan's Day-1→Day-60 trust ramp.
+Animations represent real state transitions. Clark never invents an “agent thinking” visualization that is not backed by events.
 
----
+### No black-box learning
 
-## Templates (pre-wired graphs)
+Learning edges end in proposals. Permanent memory or skill changes require policy-based approval and retain the evidence used.
 
-Ship the Creator plan's workflows as **starter templates** — a new user picks one instead of wiring from scratch:
+## Mac-Specific Interaction
 
-- **"Short-form triple"** — one idea → TikTok reel + IG reel + carousel (the Higgsfield pipeline).
-- **"Long-form atomic"** — one idea → newsletter + 3 LinkedIn posts + 1 Medium piece (the [longform-content.md](../longform-content.md) atomic system).
-- **"Full week"** — orchestrates a whole week across both, following the [cadence.md](../cadence.md) rotation.
-- **"Build-in-public"** — Cortex update → reel + LinkedIn + newsletter mention.
+- Global quick capture for text, URL, screenshot, selected file, or voice memo.
+- Share extension for Safari, Finder, Photos, and supported apps.
+- Drag files, folders, browser links, and media directly onto a project.
+- Menu-bar run status and review queue.
+- Native notifications for decisions, failed runs, completed renders, and scheduled-publish problems.
+- Quick Look previews and Finder reveal for local assets.
+- Keyboard-first command palette and undo/redo aligned with Mac conventions.
+- Credentials stored through macOS Keychain; the canvas never displays raw secrets.
 
-A template is just a saved graph with empty input nodes. This is how the personal plan literally becomes product features.
+## Canvas Quality Gate
 
----
+The canvas design is ready for implementation only when a clickable prototype proves all of the following with representative real content:
 
-## What the User Sees (the surface)
-
-- **Canvas** (center): the node graph, pannable/zoomable, nodes streaming live.
-- **Inspector** (right): selected node's inputs, outputs, versions, regenerate controls.
-- **Run bar** (top): Run / Run-to-Approval / autonomy slider / cost + credit meter.
-- **Library** (left): templates, brand voice, avatar/Soul, saved assets, past graphs.
-- **Timeline / Calendar** (bottom, optional): scheduled + published posts across platforms.
-
-The feeling: **a video editor's NLE layout**, repurposed for the whole content workflow.
+1. A new user can run the Full-Week loop from Focus mode without understanding graphs.
+2. An expert can open Canvas and identify source, current version, cost, approval state, publish state, and outcome lineage for any post within ten seconds.
+3. Editing an angle clearly explains downstream impact before spending money.
+4. Comparing two scripts and two reels is easier than opening separate tools.
+5. A memory proposal shows evidence and can be corrected or rejected in place.
+6. A 50-object project remains legible through lanes, groups, filters, and Focus mode.
+7. The same project can be operated through UI or Clark Bridge without state divergence.

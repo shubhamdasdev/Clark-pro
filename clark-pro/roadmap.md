@@ -1,105 +1,272 @@
-# Clark Pro — Roadmap
+# Clark Pro — Cumulative Whole-Product Delivery Plan
 
-Built in phases that each ship something usable, and each phase is **dogfooded by the personal [Creator plan](../README.md)**. You are user zero; your 100K journey is the test suite and the launch story.
+## Delivery Philosophy
 
----
+Clark will not build a throwaway demo and later replace it with the “real architecture.” It will also not attempt every feature simultaneously without integration gates.
 
-## Guiding Rule
+The product is delivered in **cumulative strata**. Each stratum is production-quality, uses the final domain contracts, and becomes the base of the next. A stratum may expose only part of the eventual product, but it cannot rely on disposable state, bypass security, or invent a second architecture.
 
-> Every phase must make *your own* weekly content faster before it's offered to anyone else. If it doesn't help you ship the Creator plan, it doesn't ship.
+This is not an MVP roadmap. It is a whole-product construction sequence.
 
----
+## Product Completion Definition
 
-## Phase 0 — Spike (1 weekend)
+Clark Pro 1.0 is complete only when the Mac application can operate the full creator cycle:
 
-**Goal:** prove the core loop end-to-end, ugly.
+```text
+capture → understand → create → review → distribute → observe → reflect → improve
+```
 
-- Hardcode one graph: Brain Dump → Script → Reel (Higgsfield MCP) → manual export.
-- No fancy canvas yet — even a list UI. Just prove: idea in → reel out, through the orchestrator + MCP.
-- **Dogfood:** generate one real reel for your account this way.
-- **Exit:** one reel produced through code, not the chat skills.
+The same canonical workspace must be usable from Clark Studio and Clark Bridge, with local ownership, durable recovery, inspectable memory, skill governance, and platform fallbacks.
 
-## Phase 1 — MVP Canvas (2–4 weeks)
+## Ground — Contracts and Product Proof
 
-**Goal:** the visual canvas for a single idea, single-to-few platforms, manual publish.
+**Purpose:** eliminate ambiguity before implementation fans out.
 
-- React Flow canvas with live node states (idle/running/streaming/done/stale).
-- Node types: Brain Dump, Research, Angles, Script, Reel, Carousel, B-roll, Platform Adapter, Approval.
-- Higgsfield nodes wired (the five skills → five node manifests).
-- Publish = **export/staged** (manual 1-min upload — matches the plan).
-- Local-first: SQLite + local `output/`. `docker compose up`.
-- Brand Voice node loads [positioning.md](../positioning.md).
-- **Dogfood:** run your actual short-form "triple" template (TikTok + IG + carousel) for a full week from the canvas.
-- **Exit:** you produce a week of content faster on the canvas than via slash commands.
+### Deliverables
 
-## Phase 2 — Connected + Learning (4–6 weeks)
+- authoritative vision, canvas grammar, harness architecture, memory model, MCP boundary, and security model;
+- clickable Mac studio prototype covering Focus, Canvas, Review, Timeline, Library, and Memory;
+- versioned domain event and JSON schema catalog;
+- capability adapter contract;
+- loop definition contract;
+- threat model and trust boundaries;
+- representative Full-Week project fixture with realistic artifacts and failure cases;
+- architecture decision records for desktop shell, database, credential storage, model gateway, licensing, updates, and distribution.
 
-**Goal:** the graph becomes *connected* and *learning*.
+### Gate
 
-- Staleness propagation (edit upstream → downstream dims → regenerate).
-- Versions/forks per node; Branch/Compare node for A/B.
-- **Learn node + performance memory** — manual analytics entry first, then API pulls.
-- Research/Angles read performance memory (the loop closes).
-- Templates: short-form triple, long-form atomic, full-week.
-- Autonomy slider.
-- **Dogfood:** the weekly review ritual ([avatar-pipeline.md](../avatar-pipeline.md)) now runs *inside* Clark Pro.
-- **Exit:** the canvas tells you what worked last week and seeds this week.
+- The canvas passes every quality gate in `the-canvas.md` with five representative users.
+- Engineering can trace every visible state to a domain object or event.
+- Security can explain every path from renderer to credential or external mutation.
+- Product can explain why Clark wins without claiming uniqueness for canvas, generation, MCP, or scheduling alone.
 
-## Phase 3 — Multi-Platform Publish (4–6 weeks)
+## Stratum 1 — Mac Studio Foundation
 
-**Goal:** real publishing where APIs allow, assisted everywhere else.
+**Purpose:** establish the permanent local product substrate.
 
-- Publisher nodes: YouTube + LinkedIn + X via API; TikTok/IG/Substack/Medium via assisted (browser MCP) or staged export.
-- Schedule node + calendar/timeline view (uses [cadence.md](../cadence.md) times).
-- Cost/credit meter + budget ceilings.
-- **Dogfood:** an entire week auto-publishes (or one-click-publishes) across all your platforms.
-- **Exit:** you run the full [cadence.md](../cadence.md) week from one canvas in one sitting.
+### Deliverables
 
-## Phase 4 — Open-Source Launch (ongoing)
+- signed/notarized Electron Mac application;
+- hardened main/preload/renderer boundaries;
+- project and workspace creation;
+- content-addressed asset library;
+- event log, projections, schema migrations, backup/export/import;
+- macOS Keychain credential broker;
+- Focus and Canvas read/write surfaces;
+- graph compiler and dry-run;
+- durable run engine with pause, retry, cancellation, checkpointing, and restart recovery;
+- model gateway with at least two providers or one provider plus local test adapter;
+- observability, diagnostics bundle, crash recovery, and update rollback.
 
-**Goal:** ship it publicly; ignite the node ecosystem.
+### Vertical proof
 
-- Clean the plugin SDK (`packages/sdk`) so third parties can author nodes (MCP + manifest).
-- Docs, example nodes, `docker compose` quickstart.
-- License decision: **AGPL** (protect hosted business) vs **MIT** (max adoption) — decide here.
-- Public repo + a launch reel: *"I built an open-source AI studio to run my own creator pipeline — here's the canvas."* (This is itself Ambition/AI bucket content — the product launch *is* content.)
-- **Dogfood → flywheel:** your audience (built via the Creator plan) becomes Clark Pro's first users. The two projects feed each other.
+Run a production-contract loop from captured idea to an approved text artifact. It must use the real event log, memory references, capability policy, run ledger, and review gate.
 
-## Phase 5 — Hosted (business model, later)
+### Gate
 
-**Goal:** non-technical creators without self-hosting.
+- forced-termination recovery passes at every run state;
+- renderer cannot access secrets or arbitrary execution;
+- workspace round-trip export/import preserves checksums and lineage;
+- 50-object fixture remains responsive;
+- no throwaway alternate path exists.
 
-- Multi-tenant: Postgres + object storage + auth.
-- Managed MCP keys / credit reselling.
-- Team features: roles, shared approval, multi-account.
-- Pricing: free self-host forever; hosted = subscription + usage. Open-core.
+## Stratum 2 — Creator Model and Skills Foundation
 
----
+**Purpose:** make personalization and self-improvement first-class before broad automation.
 
-## How the Two Projects Compound
+### Deliverables
 
-| Creator plan gives Clark Pro | Clark Pro gives Creator plan |
-|---|---|
-| A real workflow to productize | Faster content production each phase |
-| A first user with real needs (you) | The weekly review automated |
-| Launch-story content + an audience | Multi-platform publishing from one place |
-| Templates (triple, atomic, full-week) | A compounding performance-memory edge |
-| Brand voice + positioning rules | The product *is* your build-in-public story |
+- Memory view and five memory layers;
+- brand constitution editor and import from existing positioning documents;
+- memory proposals, evidence, contradiction, expiry, correction, and forgetting;
+- task-specific context compiler with retrieval audit;
+- Agent Skills package host;
+- skill installation, quarantine, permissions, revisions, tests, promotion, and rollback;
+- reflection loop producing reviewable memory and skill proposals;
+- creator edit/rejection signals recorded as evidence;
+- sensitivity and remote-context policies.
 
-**The build-in-public loop:** building Clark Pro generates Ambition/AI content for the Creator plan; the Creator plan's audience becomes Clark Pro's launch users; their usage improves Clark Pro; a better Clark Pro produces better content. Each turn of the loop strengthens both.
+### Vertical proof
 
----
+The same idea is developed twice: once without creator context and once with the governed creator model and a trusted skill. Review must show exactly which memories and skill revision affected the result.
 
-## Open Questions (decide before/early in build)
+### Gate
 
-1. **License:** AGPL vs MIT. (Leaning AGPL to keep a hosted business viable.)
-2. **Canvas lib:** React Flow (node-graph-native, recommended) vs tldraw (freeform) vs hybrid.
-3. **Publishing depth at MVP:** staged-export only (safe, fast) vs. attempt LinkedIn/YouTube API early.
-4. **Hosted timing:** how long to stay self-host-only before building multi-tenant.
-5. **Scope discipline:** resist becoming generic n8n — stay social-content-opinionated.
+- creator can correct or forget any active belief and prove it no longer appears in retrieval;
+- a proposed skill cannot expand permissions;
+- skill regression forces rollback;
+- retrieved context has traceable references and sensitivity policy.
 
----
+## Stratum 3 — Full Creation Studio
 
-## Immediate Next Step (when you say go)
+**Purpose:** support serious multi-format content production.
 
-Scaffold **Phase 0**: a single hardcoded Brain Dump → Script → Reel path that calls Higgsfield MCP through a tiny orchestrator and drops an `.mp4` in `output/reels/`. One weekend. Prove the loop, then grow the canvas around it.
+### Deliverables
+
+- source ingestion for text, URLs, PDFs, screenshots, files, audio, and video;
+- research loop with claim ledger, citations, and uncertainty;
+- angle development, branch, compare, and canonical decisions;
+- script and long-form editors;
+- Higgsfield capability adapter and async media jobs;
+- image, reel, B-roll, carousel, audio, and caption artifact types;
+- ffmpeg validation, normalization, previews, subtitles, and packaging;
+- dedicated media comparison and version review;
+- brand, evidence, cost, accessibility, disclosure, and confidentiality gates;
+- full creator templates: Short-Form Series, Long-Form Atomic, Build-in-Public, and Full Week.
+
+### Vertical proof
+
+Produce a complete, reviewed weekly content set from real Creator-plan inputs, with sources, lineage, costs, versions, and export packages.
+
+### Gate
+
+- every final claim traces to a source or explicit creator assertion;
+- every media asset survives restart and provider reconnect;
+- downstream impact is previewed before regeneration spend;
+- creator judges at least 80% of approved artifacts publishable with normal editing rather than rescue work;
+- total human time and cost are recorded, not estimated from demos.
+
+## Stratum 4 — Distribution Mesh
+
+**Purpose:** connect the studio to the real social operating environment without letting platform variance corrupt core.
+
+### Deliverables
+
+- account connection center and scope display;
+- Postiz MCP/API adapter for broad platform coverage;
+- platform schema discovery and validation;
+- direct connectors selected by strategic need;
+- Timeline with production, schedule, submission, verification, and failure state;
+- approval policies per account, platform, campaign, and mutation class;
+- assisted handoff and deterministic export fallbacks;
+- idempotent publish intent ledger and ambiguous-failure reconciliation;
+- disclosure and platform-policy enforcement;
+- retry, reschedule, revoke, and account-health flows.
+
+### Vertical proof
+
+Operate a full week across the creator's actual channels from one workspace. Every publication must end as verified live, explicitly failed, cancelled, or exported—never unknown without a reconciliation task.
+
+### Gate
+
+- duplicate publication chaos test passes;
+- revoked credentials block dependent scheduled work immediately;
+- connector outage degrades to export without artifact loss;
+- live URLs and provider receipts reconcile to publication intent;
+- platform-specific requirements are visible before approval.
+
+## Stratum 5 — Observation and Evidence-Based Learning
+
+**Purpose:** close the loop without inventing fake certainty.
+
+### Deliverables
+
+- analytics ingestion from Postiz and selected direct sources;
+- manual and qualitative observation capture;
+- comment/audience signal ingestion under explicit permission;
+- performance evidence linked to exact artifact and decision lineage;
+- cohort-aware descriptive comparisons with sample counts;
+- Review and Memory surfaces for proposed lessons;
+- experiment proposals and follow-up tracking;
+- strategy review loop;
+- production-efficiency and creator-satisfaction metrics beside reach;
+- data freshness, missingness, and deletion handling.
+
+### Vertical proof
+
+Run four real weekly cycles. Clark must produce a useful review that identifies evidence, uncertainty, and a small set of proposed changes without asserting unsupported causal predictions.
+
+### Gate
+
+- every recommendation cites observations and sample size;
+- creator can distinguish preference, outcome, and hypothesis;
+- deleted or unavailable platform data is represented honestly;
+- accepted lessons influence later context through visible references;
+- rejected lessons do not silently return.
+
+## Stratum 6 — Clark Bridge and Ecosystem
+
+**Purpose:** make Clark the composable creator system other agents and builders can use.
+
+### Deliverables
+
+- permissioned local Clark MCP server;
+- tools, resources, prompts, and job receipts defined in `mcp-ecosystem.md`;
+- MCP Tasks mapping when negotiated;
+- client registration, scopes, revocation, and audit;
+- Clark Kit for capability adapters, UI renderers, loops, templates, policies, and skills;
+- conformance CLI and fixture harness;
+- signed/verified package channel plus community installation;
+- sample integrations for Hermes, Claude, Codex, and another MCP client;
+- developer documentation and compatibility matrix.
+
+### Vertical proof
+
+An external agent captures an idea, starts a permitted loop, waits through a durable job, receives a review requirement, submits a creator-approved decision, and retrieves the exported artifact without creating state outside Clark's event model.
+
+### Gate
+
+- UI and Bridge operations converge on identical state and policy;
+- client scopes prevent cross-workspace and sensitive-memory access;
+- disconnect/reconnect does not lose long-running work;
+- malicious manifests and skills cannot escape quarantine permissions;
+- packages can upgrade and roll back without corrupting projects.
+
+## Stratum 7 — Team and Elastic Execution
+
+**Purpose:** extend the local-first operating model to teams and work that must continue when the Mac sleeps.
+
+### Deliverables
+
+- workspace roles and shared decision queues;
+- encrypted event synchronization and conflict handling;
+- optional object storage mirror;
+- scoped remote worker and scheduled execution;
+- credential delegation without copying personal Keychain state wholesale;
+- activity, comment, assignment, and approval coordination;
+- organization policies and audit export;
+- managed hosted offering built on the same contracts.
+
+### Gate
+
+- offline Mac edits reconcile without last-write-wins data loss;
+- remote worker cannot read unrelated memory or credentials;
+- personal and team creator models remain separate;
+- local export remains complete and usable without hosted service.
+
+## Cross-Cutting Workstreams
+
+These proceed across every stratum:
+
+1. **Product and research:** user workflows, canvas testing, connector reality, creator outcome studies.
+2. **Desktop and design:** Mac interaction, accessibility, performance, media editing, information architecture.
+3. **Harness and domain:** events, graph, runs, policies, agents, recovery, evaluation.
+4. **Memory and learning:** creator model, retrieval, reflection, skills, governance.
+5. **Connectors:** MCP host, auth, Higgsfield, Postiz, direct social and analytics.
+6. **Security and trust:** threat models, sandboxing, Keychain, permissions, updates, supply chain.
+7. **Quality:** fixtures, conformance, chaos tests, migrations, performance, release verification.
+8. **Developer ecosystem:** Clark Bridge, SDK, docs, package verification, examples.
+
+## Release Gates, Not Feature Checklists
+
+No stratum is complete because screens exist. Completion requires:
+
+- representative real workflows;
+- failure and restart tests;
+- measurable creator judgment;
+- security evidence;
+- migration and rollback evidence;
+- observability;
+- documented limitations;
+- no bypass around the permanent architecture.
+
+## Immediate Next Work
+
+Before implementation begins:
+
+1. Convert the authoritative documents into versioned domain schemas and ADRs.
+2. Produce the clickable six-view Mac prototype using the Full-Week fixture.
+3. Run five creator walkthroughs focused on Focus-vs-Canvas comprehension.
+4. Finalize the threat model and credential flows.
+5. Define the event catalog and capability adapter conformance suite.
+6. Convert the approved epics into team-owned release plans without weakening their acceptance gates.

@@ -1,125 +1,219 @@
-# Clark Pro — Product Description (PRD)
+# Clark Pro — Product Requirements
 
-**Status:** Draft v1 · July 2026
-**Source docs:** [vision.md](../vision.md) · [the-canvas.md](../the-canvas.md) · [architecture.md](../architecture.md) · [mcp-ecosystem.md](../mcp-ecosystem.md) · [roadmap.md](../roadmap.md)
-**Companion docs:** [02-user-flows.md](02-user-flows.md) · [03-epics-and-stories.md](03-epics-and-stories.md) · [04-architecture-and-tech-stack.md](04-architecture-and-tech-stack.md)
+**Status:** Authoritative v2 · July 2026
+**Product:** Mac-first, memory-native creator operating system
+**Companion documents:** [Vision](../vision.md) · [Studio and Canvas](../the-canvas.md) · [Architecture](../architecture.md) · [Memory](../memory-and-learning.md) · [MCP Ecosystem](../mcp-ecosystem.md) · [Delivery Plan](../roadmap.md)
 
----
+## 1. Definition
 
-## 1. One-Sentence Definition
+Clark Pro is a Mac application and durable creator harness that connects intent, evidence, creative production, distribution, outcomes, memory, and reusable skills. It consumes external capabilities through MCP and other adapters, and exposes its own permissioned MCP server so other agents can operate the same canonical workspace.
 
-Clark Pro is an **open-source, MCP-native visual studio** where a creator turns one brain-dumped idea into researched, scripted, rendered, platform-formatted, approved, and published content across every channel — on a connected canvas where they watch the agents work, and where every published result feeds back to make the next idea smarter.
+## 2. Primary User and Job
 
-## 2. The Problem
+The primary user is a professional operator-creator building a multi-channel personal brand without a production team.
 
-AI made *generation* cheap but left the *workflow* broken. A solo creator producing 14 short-form pieces + 4 long-form pieces a week today:
+**Functional job:** turn rough intent into a coordinated, published body of work across channels without losing context, state, or judgment.
 
-1. **Bounces between 8–10 tools** (chat, image gen, video gen, caption writer, scheduler, analytics) losing context at every hop.
-2. **Cannot see the whole pipeline** — work lives in chat scrollback and scattered files; there is no single surface showing idea → published.
-3. **Repeats dead work** — changing the angle means manually redoing scripts, media, and captions with no dependency tracking.
-4. **Never learns systematically** — what hook/format/angle actually performed lives in platform dashboards, disconnected from where the next idea is created.
+**Emotional job:** feel in control of a capable studio rather than dependent on opaque automation.
 
-The result: content volume is limited not by generation quality but by **orchestration overhead** — exactly the constraint the [Creator plan](../../README.md) hit and solved by hand.
+**Strategic job:** compound creator knowledge, procedures, and evidence into an owned operating advantage.
 
-## 3. Target Users
+## 3. Product Outcomes
 
-| Tier | Who | What they need | When we serve them |
-|---|---|---|---|
-| **1 — Solo operator-creator** (design partner: the Creator plan's author) | Builds in public, posts short-form + long-form across 5–7 platforms, ~1.5 hrs/day budget, no team | Volume without a team; visibility; trust ramp (approve everything → full auto); hard budget caps | MVP (Phases 0–2) |
-| **2 — Small creator teams / agencies** | Ghostwriting shops, 2–10 person content teams | Approval workflows, multi-account, roles, shared templates | v1+ (Phase 5) |
-| **3 — Builder community** | Devs who want to add models/platforms/research sources | Plugin SDK: a node = MCP server + manifest, no core fork | Phase 4 launch |
+1. **Continuity:** creators stop repeating identity, project, and process context across tools.
+2. **Control:** every paid or mutating action is visible, permissioned, interruptible, and recoverable.
+3. **Coherence:** artifacts across platforms remain connected to one intent and evidence base.
+4. **Compounding:** corrections, successful procedures, and outcomes can become governed memory and skills.
+5. **Portability:** canonical state remains exportable and useful without a hosted Clark service.
+6. **Composability:** UI users, external agents, connectors, and skills operate through the same domain contracts.
 
-**Primary JTBD:** *"When I have a content idea, I want to turn it into published, on-brand, platform-native posts everywhere I have an audience — without babysitting ten tools — so I can hit my posting cadence in ≤90 min/day and grow my brand."*
+## 4. Product Domains
 
-Secondary emotional job: *feel like a studio operator, not a prompt typist.* Secondary social job: *the tool itself is my build-in-public story.*
+### F0 — Mac host and capture
 
-## 4. Goals & Non-Goals
+- Signed/notarized app, native lifecycle, menus, notifications, updates, and recovery.
+- Global capture for text, URL, screenshot, file, selected content, and voice memo.
+- Share and drag/drop paths into a workspace or inbox.
+- Menu-bar status for active work and pending review.
 
-### Goals
-1. **G1 — Collapse the workflow:** one idea → a full multi-platform content set from a single canvas, in one sitting.
-2. **G2 — Make agent work visible and steerable:** every step is a node you can watch, interrupt, edit, fork, and regenerate.
-3. **G3 — Close the learning loop:** published performance attributes back to idea/angle/hook/format and biases future generations (the moat).
-4. **G4 — Stay extensible:** any new model/platform/research source drops in as MCP server + manifest, no core changes.
-5. **G5 — Respect trust and money:** human approval gate on by default; hard budget ceilings; bring-your-own keys; local-first.
+### F1 — Workspaces, projects, and library
 
-### Non-Goals (v1)
-- No model training, fine-tuning, or inference hosting — we orchestrate MCP tools, never build generators.
-- No generic workflow automation (not n8n) — opinionated for social content only.
-- No mass auto-posting or ToS circumvention — assisted publishing where APIs don't exist.
-- No multi-tenant/hosted/teams until Phase 5 — local-first, single user.
-- No mobile app.
+- Workspace is the privacy, identity, policy, account, and memory boundary.
+- Projects organize campaigns, series, or ongoing bodies of work.
+- Library stores sources, artifacts, templates, loops, and exports.
+- Search spans text and metadata without merging workspace boundaries.
 
-## 5. The Big Feature Sections
+### F2 — Studio views
 
-These eight sections structure the whole product. [02-user-flows.md](02-user-flows.md) has one flow set per section; [03-epics-and-stories.md](03-epics-and-stories.md) maps epics to them.
+- Focus, Canvas, Timeline, Review, Library, and Memory are synchronized projections.
+- Focus is the default operating view.
+- Canvas supports semantic lanes, groups, typed primitives, staleness, branch, compare, and live runs.
+- Dedicated editors handle long text and media without losing graph context.
 
-### F1 — Canvas & Graph Engine
-The core surface: a pannable/zoomable node graph (video-editor NLE feel: canvas center, inspector right, run bar top, library left, timeline bottom). Nodes have a visible state machine (`idle → queued → running → streaming → done → stale → error`). Non-destructive versions per node; branch/fork any node; staleness propagates downstream spreadsheet-style when an upstream node changes.
+### F3 — Durable harness
 
-### F2 — Idea Intake (Brain Dump)
-The entry point: raw text, link, voice memo, or screenshot in; Clark classifies it against the creator's content buckets and emits a structured intent that seeds the graph. Zero-friction — messier input is a feature.
+- Versioned loops compile into durable run plans.
+- Dry-run validates dependencies, credentials, permissions, cost, policy, and gates.
+- Runs support parallel branches, checkpoints, pause, interruption, retry, cancellation, and restart recovery.
+- External mutations use intent receipts and reconciliation.
 
-### F3 — Idea Intelligence (Research & Angles)
-Research node: multi-step agent pulling web search, trends, and the creator's own performance memory into a brief (claims + sources + saturation/opportunity read). Angles node: 3–6 distinct angles with predicted strength and platform fit; each pick forks a branch. Autonomy slider decides auto-pick vs. ask.
+### F4 — Creator model and context
 
-### F4 — Content Generation (Script & Media)
-Platform-aware Script nodes (same angle → 8-sec TikTok hook / 250-word LinkedIn post / 600-word newsletter section), all injected with the Brand Voice node ([positioning.md](../../positioning.md)). Media nodes call Higgsfield MCP and render live in place: Image (Soul 2.0/Flux 2), Reel (Seedance 2.0/Lipsync Studio), Carousel (Flux 2 multi-slide), B-roll (Kling 3.0/Veo 3.1). These are the Creator plan's five skills, productized as the first five node manifests.
+- Identity, semantic, episodic, procedural, and performance memory are separate types.
+- Memory items carry scope, evidence, confidence, sensitivity, status, and lifecycle.
+- Context is compiled per task and retrieval is traceable.
+- Creator can inspect, correct, dispute, expire, export, or forget any item.
 
-### F5 — Platform Assembly & Approval
-Platform Adapter nodes assemble native post objects (aspect, caption limits, hashtags, first comment, alt text, thumbnail) for LinkedIn, X, Instagram, TikTok, Substack, Medium, YouTube Shorts. The Approval node is a first-class gate: the run pauses, the creator reviews per-platform previews exactly as they'll appear, then approves / requests changes (regenerates just that node) / rejects.
+### F5 — Research and creative development
 
-### F6 — Publishing (API + Assisted)
-API publish where platforms allow (YouTube, X, LinkedIn where approved, IG Business); **assisted publish** everywhere else — the post arrives fully assembled and staged for a 1-minute manual upload or a browser hand-off that pre-fills and leaves the final click to the human. Schedule node applies per-platform posting times from [cadence.md](../../cadence.md). Design rule: **publishing never blocks the pipeline.**
+- Source import, research, claim ledger, citations, uncertainty, and saturation analysis.
+- Angle development, human/agent decisions, branch, compare, and canonical selection.
+- Script and long-form production with platform-aware but shared lineage.
+- No unsupported precise performance predictions.
 
-### F7 — Learning Loop & Performance Memory
-The Learn node wakes N days post-publish, pulls analytics (API or manual entry), attributes results back to idea → angle → hook → format, and writes per-creator performance memory. Research and Angles nodes read this memory — the loop closes and compounds. This is the long-term moat.
+### F6 — Media production
 
-### F8 — Platform Chrome: Templates, Library, Settings & Budget
-Starter templates (pre-wired graphs): *Short-form triple*, *Long-form atomic*, *Full week*, *Build-in-public*. Library of past graphs, assets, brand voice, avatar. Settings: MCP server registry (`clark.config.yaml` or UI), bring-your-own tokens. Cost meter on the run bar; budget ceilings that **halt runs** (generalizing the Creator plan's $100 cap).
+- Image, audio, video, reel, B-roll, carousel, caption, thumbnail, and composite artifact types.
+- Higgsfield is an initial media adapter, not a permanent hard dependency.
+- Local media workers validate, normalize, preview, caption, and package.
+- Async jobs reconnect after restart and preserve provider IDs and cost.
 
-## 6. Success Metrics
+### F7 — Review, policy, and trust
 
-| Metric | Target | Phase |
-|---|---|---|
-| **Activation:** brain dump → first staged post | ≤ 15 min, first session | MVP |
-| **Core efficiency:** full "short-form triple" (reel + IG reel + carousel) human time | ≤ 20 min (vs ~45 via slash commands) | MVP exit |
-| **Weekly dogfood:** full Creator-plan week run from the canvas | 1 sitting, ≤ 3 hrs human time | Phase 3 exit |
-| **Reliability:** node-level run failures requiring manual restart | < 5% of runs | MVP+ |
-| **Learning loop:** % published posts with performance attributed to memory | > 80% | Phase 2 exit |
-| **Ecosystem:** third-party node manifests published | ≥ 5 within 90 days of OSS launch | Phase 4 |
-| **Budget safety:** runs halted at ceiling with zero overage | 100% | MVP |
+- Gates for human approval, evidence, brand, platform, disclosure, accessibility, confidentiality, and budget.
+- Native platform previews and version comparison.
+- Decision receipts include alternatives, evidence, actor, and reversibility.
+- Autonomy is a policy matrix by action class and workspace, not one global slider.
 
-**North-star metric:** *published posts per human-hour* — the whole product exists to raise it.
+### F8 — Distribution mesh
 
-## 7. Release Phases (summary — full detail in [roadmap.md](../roadmap.md))
+- Postiz is the first broad social adapter through MCP/API/CLI.
+- Direct official connectors are added where strategically justified.
+- Assisted handoff and deterministic export are permanent fallbacks.
+- Publication intent, scheduled, submitted, verified, failed, removed, and exported states remain distinct.
+- Timeline unifies production and distribution state.
 
-| Phase | Scope | Feature sections | Exit test |
-|---|---|---|---|
-| **0 — Spike** (1 weekend) | Headless pipeline: Brain Dump → Script → Reel via Higgsfield MCP → `output/reels/*.mp4` | F2, F4 (thin) | One real reel produced through code |
-| **1 — MVP Canvas** (2–4 wks) | Visual canvas, core nodes, staged publish, templates v0 | F1–F5, F6 (staged only), F8 (basic) | A week of content faster on canvas than via slash commands |
-| **2 — Connected + Learning** (4–6 wks) | Staleness, versions, branch/compare, Learn node, memory | F1 (full), F7 | Canvas tells you what worked last week and seeds this week |
-| **3 — Multi-Platform Publish** (4–6 wks) | API publishers, assisted browser publish, schedule + calendar, cost metering v2 | F6 (full), F8 (full) | Full cadence week runs from one canvas in one sitting |
-| **4 — OSS Launch** | Plugin SDK, docs, launch content | F8 (SDK) | Public repo + launch reel; first external node |
-| **5 — Hosted** | Multi-tenant, teams, billing | — | Business model live |
+### F9 — Observation and learning
 
-## 8. Key Decisions (resolved from roadmap open questions)
+- Collect quantitative, qualitative, and creator-judgment observations.
+- Link outcomes to exact artifact and decision lineage.
+- Show sample size, missingness, freshness, and uncertainty.
+- Reflection proposes memories, experiments, strategies, or skill changes.
+- Promotion requires policy-defined review and is reversible.
 
-| # | Question | Decision | Rationale |
-|---|---|---|---|
-| D1 | License | **AGPL-3.0** | Protects the hosted business (Phase 5) while staying genuinely open; the node ecosystem lives in manifests + MCP servers, which third parties license however they want — AGPL only binds the core. |
-| D2 | Canvas library | **React Flow** | Node-graph-native (ports, edges, custom renderers), mature, huge community — community node renderers are the Tier-3 growth path. tldraw freeform layer deferred. |
-| D3 | Publishing depth at MVP | **Staged export only** | Matches the Creator plan's "1-minute manual post" stance; APIs are the highest-variance, lowest-learning part of MVP. API publishers land in Phase 3. |
-| D4 | Hosted timing | **Not before OSS launch proves node ecosystem pull** | Self-host adoption and external nodes are the signal to invest in multi-tenant. |
-| D5 | Scope discipline | **Social-content-opinionated, always** | Every node type must map to the idea→publish→learn loop; generic workflow features are rejected by default. |
+### F10 — Skills and ecosystem
 
-## 9. Riskiest Assumptions (test order)
+- Install Agent Skills packages with quarantine, permission review, tests, revisions, and rollback.
+- Propose skills from successful or corrected trajectories.
+- Clark Connect hosts external MCP servers and capability adapters.
+- Clark Bridge exposes permissioned tools, resources, prompts, and durable jobs.
+- Clark Kit supports connectors, capabilities, renderers, loops, templates, policies, and skills.
 
-1. **A1 — The orchestrated pipeline produces *usable* content end-to-end** (not just demos). *Test: Phase 0 spike — one real reel posted to the real account.* Cheapest, first.
-2. **A2 — The canvas is genuinely faster than slash commands** for a practiced operator. *Test: Phase 1 exit — timed week-for-week comparison.* If false, Clark Pro is a demo, not a tool.
-3. **A3 — Performance memory measurably improves content choices.** *Test: Phase 2 — do memory-biased angles beat non-biased on retention over 4 weeks?*
-4. **A4 — Assisted publish is acceptable UX** (creators tolerate the 1-minute final click). *Test: dogfood; watch for skipped posts.*
-5. **A5 — Third parties will author nodes.** *Test: Phase 4 — SDK + 3 example nodes; count external manifests in 90 days.*
+### F11 — Team and elastic execution
 
-## 10. Out of Scope / Deferred
+- Roles, assignments, comments, shared approval, and workspace policies.
+- Encrypted event synchronization and asset mirroring.
+- Scoped remote workers for schedules and long jobs.
+- Personal and team memory remain separate unless explicitly shared.
 
-Teams & roles (Phase 5) · multi-account (Phase 5) · mobile · paid template marketplace · fine-tuned per-creator models · full-auto publishing as default (opt-in only, ever).
+## 5. Core Requirements
+
+### Data and provenance
+
+- Every artifact is versioned and content-addressed where applicable.
+- Every external call records capability revision, provider, inputs, outputs, timing, cost, and permission receipt.
+- Every publication traces to its approved artifact version.
+- Every active memory or skill revision traces to evidence and a promotion event.
+
+### Reliability
+
+- Restart cannot lose canonical state, approval state, or external job identity.
+- Ambiguous publication failures enter reconciliation rather than blind retry.
+- Connector outages degrade to export.
+- Backups, migration preview, import, and rollback are first-class.
+
+### Security
+
+- Renderer has no direct secrets, shell, filesystem, or arbitrary network authority.
+- Credentials live in macOS Keychain behind scopes and leases.
+- MCP servers, skills, and connectors are untrusted until reviewed.
+- Remote context obeys sensitivity and workspace policy.
+- Clark Bridge is localhost-only by default with explicit scoped clients.
+
+### Usability
+
+- Common loops require no manual graph construction.
+- Every blocked state explains the cause and valid next actions.
+- The creator can answer what happened, why, what it cost, and what will change.
+- Canvas complexity is managed through lanes, groups, filters, templates, and Focus mode.
+
+## 6. Non-Goals
+
+- Training proprietary foundation models.
+- Becoming a generic workflow automation platform.
+- Circumventing platform policy or hiding AI disclosure.
+- Optimizing solely for follower count or reach.
+- Silent self-modification of memory, skills, or strategy.
+- Requiring cloud storage for canonical personal state.
+- Promising every social platform through direct Clark-owned integrations.
+
+## 7. Success Measures
+
+### Product utility
+
+- Time from capture to first reviewable artifact.
+- Human edit time and revision count per approved artifact.
+- Cost per approved and per published artifact.
+- Weekly active creator loops and four-week retention.
+- Percentage of weekly work completed inside one canonical Clark workspace.
+
+### Trust and reliability
+
+- Duplicate or unknown publication rate.
+- Recovery success after forced interruption.
+- Percentage of paid/mutating actions with complete receipts.
+- Policy warning precision and override rate.
+- Backup restore and migration success.
+
+### Personalization
+
+- Memory retrieval helpfulness feedback.
+- Memory proposal acceptance, edit, rejection, and correction rates.
+- Percentage of outputs with visible memory/skill references.
+- Skill success, regression, and rollback rates.
+- Time required to correct or forget a belief.
+
+### Creative outcomes
+
+- Creator-rated publishability and satisfaction.
+- Evidence coverage and factual correction rate.
+- Platform-specific outcome distributions with sample size.
+- Production consistency without loss of creator voice.
+
+Follower targets belong to the Creator plan, not Clark product acceptance.
+
+## 8. Resolved Decisions
+
+| Decision | Resolution |
+|---|---|
+| First product surface | Signed/notarized Mac application. |
+| Desktop framework | Electron with hardened renderer and isolated harness process. |
+| Default interaction | Focus mode with templates; Canvas is advanced visibility/control. |
+| Canonical ownership | Local Mac event log, asset store, memory, and Keychain credentials. |
+| Model runtime | Provider-neutral gateway; no required single-vendor Agent SDK. |
+| MCP role | Clark is both MCP host/client and permissioned MCP server. |
+| Social breadth | Postiz first, direct adapters selectively, assisted/export always. |
+| Learning | Evidence-bound proposals; no silent memory or skill promotion. |
+| Delivery | Cumulative production strata; no throwaway MVP architecture. |
+
+## 9. Riskiest Assumptions
+
+1. Focus + Canvas is meaningfully better than a strong linear production interface.
+2. Creators value continuity, provenance, and memory enough to adopt a desktop operating layer.
+3. The creator-model review burden remains lower than the value it creates.
+4. Postiz and selected providers supply enough publishing/analytics coverage without Clark owning every integration.
+5. A Mac-local canonical system can support schedules and teams through scoped remote execution without confusing state.
+6. Evidence-linked learning improves creator judgment without overfitting small, noisy platform data.
+7. The plugin/skill ecosystem can remain powerful while permissioned and understandable.
+
+Each assumption requires representative workflow evidence before its dependent strata expand.

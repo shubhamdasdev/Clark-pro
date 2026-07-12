@@ -1,144 +1,385 @@
-# Clark Pro — Architecture
+# Clark Pro — Full Product Architecture
 
-How the canvas, the agents, and the MCP tools fit together. Designed local-first and open-source, so a solo creator can run it on a laptop and a builder can extend it without forking core.
+## Architecture Thesis
 
----
+Clark is a local-first desktop system with a durable agent harness, not a browser UI wrapped around API calls. The Mac owns canonical identity, memory, credentials, project history, and approval state. Models, MCP servers, social platforms, and cloud workers are replaceable execution dependencies.
 
-## High-Level Shape
+The architecture is incremental but not disposable: every delivery stratum uses the same domain contracts, event log, identity model, permissions, credential broker, run protocol, and migration system.
 
+## Runtime Topology
+
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│                         CLARK STUDIO                              │
+│ Electron macOS app                                               │
+│ React renderer · Focus · Canvas · Timeline · Review · Memory     │
+└───────────────┬──────────────────────────────────────────────────┘
+                │ typed, allowlisted IPC
+┌───────────────▼──────────────────────────────────────────────────┐
+│                       CLARK HARNESS                               │
+│ isolated utility process / local daemon                          │
+│ planner · run engine · policies · agents · tools · skills        │
+│ scheduler · evaluators · recovery · observability                │
+└───────┬───────────────┬─────────────────┬────────────────────────┘
+        │               │                 │
+┌───────▼──────┐ ┌──────▼────────┐ ┌──────▼───────────────────────┐
+│ CLARK MEMORY │ │ CLARK CONNECT │ │ CLARK BRIDGE                 │
+│ event store  │ │ MCP clients   │ │ local/remote MCP server      │
+│ creator model│ │ adapters      │ │ tools · resources · prompts  │
+│ skills       │ │ auth broker   │ │ tasks/fallback jobs          │
+└───────┬──────┘ └──────┬────────┘ └──────────────────────────────┘
+        │               │
+┌───────▼───────────────▼──────────────────────────────────────────┐
+│ SQLite/WAL · content-addressed assets · Keychain · search index │
+└──────────────────────────────────────────────────────────────────┘
+        │
+┌───────▼──────────────────────────────────────────────────────────┐
+│ Optional scoped workers: rendering, scheduled jobs, team relay  │
+└──────────────────────────────────────────────────────────────────┘
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                        CANVAS (Web UI)                         │
-│   React + React Flow node graph · live streaming · inspector   │
-└───────────────▲───────────────────────────────┬──────────────┘
-                │ SSE / WebSocket (live node state)│ REST/RPC (commands)
-┌───────────────┴───────────────────────────────▼──────────────┐
-│                      ORCHESTRATOR (server)                     │
-│   Graph engine · run scheduler · Claude Agent SDK · staleness  │
-│   per-node agent runner · approval gates · learning scheduler  │
-└──────┬───────────────────┬───────────────────┬───────────────┘
-       │ MCP client         │ MCP client        │ MCP client
-┌──────▼──────┐      ┌──────▼───────┐    ┌──────▼─────────┐
-│ Higgsfield  │      │  Platform    │    │  Research /    │
-│ MCP (media) │      │  Publisher   │    │  Analytics MCP │
-│ Soul/Seedance│     │  MCPs        │    │  (search,trends│
-│ Kling/Veo   │      │ (LI,X,YT...) │    │   ,perf data)  │
-└─────────────┘      └──────────────┘    └────────────────┘
-       │                     │                    │
-┌──────▼─────────────────────▼────────────────────▼──────────────┐
-│                        STORAGE                                  │
-│  Graph/run state (SQLite local → Postgres hosted)               │
-│  Media assets (local FS → S3/R2)  ·  Performance memory (vector)│
-└─────────────────────────────────────────────────────────────────┘
+
+## Technology Decisions
+
+| Layer | Decision | Reason |
+|---|---|---|
+| Desktop shell | **Electron**, hardened and notarized | React Flow and the MCP TypeScript ecosystem remain first-class; one JavaScript runtime minimizes integration friction. Media workloads already dominate footprint, so smaller shell size is not the primary constraint. |
+| Renderer | **React + TypeScript + Vite** | No SSR is needed inside a desktop studio. Vite is simpler than carrying Next.js server semantics into a local app. |
+| Canvas | **React Flow** with custom lane/group/render layers | Strong typed graph primitives and custom media/artifact cards. |
+| UI state | **Zustand** for transient interaction; query cache for daemon state | Canvas movement is local UI state; canonical project state remains in the harness. |
+| Harness | **TypeScript utility process/local daemon** | Isolates agent and connector failures from the UI and keeps compatibility with MCP and provider SDKs. |
+| Domain contracts | **Zod + versioned JSON schemas** | Shared validation across IPC, persistence, MCP, import/export, and plugins. |
+| Database | **SQLite in WAL mode** through a repository interface | Correct for single-user canonical state and portable backups. Hosted storage is a separate adapter, not a promised dialect swap. |
+| Search | SQLite FTS for text; vector extension only for bounded similarity use | Structured retrieval is primary; embeddings do not become the memory model. |
+| Assets | Content-addressed local object store with typed metadata | Deduplication, integrity, deterministic export, and future remote mirroring. |
+| Secrets | **macOS Keychain** through a credential broker | OAuth tokens and API keys never live in graph JSON, logs, or ordinary SQLite rows. |
+| Model access | Provider-neutral model gateway | Anthropic, OpenAI, local, and routed providers are selectable per task. Agent SDKs are adapters, not the harness. |
+| MCP | Official TypeScript SDK; Streamable HTTP and stdio | Clark hosts external servers and exposes Clark Bridge. |
+| Media | ffmpeg/ffprobe workers plus provider adapters | Local validation, normalization, thumbnails, captions, and exports remain deterministic. |
+| Packaging | Signed/notarized DMG with auto-update channel | Mac is the primary release surface; App Store sandbox restrictions are not assumed compatible with arbitrary local tools. |
+
+## Why Electron for the First Mac Product
+
+The product's center is a rich React graph, TypeScript MCP ecosystem, background agent process, and media orchestration. Electron permits one coherent capability and type system across those layers while still providing native menus, dock behavior, notifications, deep links, protocol handlers, secure storage, and signed distribution.
+
+Mac quality is a product requirement rather than a framework label. Clark must implement native keyboard behavior, window restoration, drag/drop, Quick Look, menu-bar status, Keychain, notifications, file coordination, accessibility, and notarization. A future Swift helper or extension may provide Share Extension and deeper system integration without moving the harness into Swift.
+
+## Process Boundaries
+
+### Renderer process
+
+- No Node integration.
+- Context isolation on.
+- Strict Content Security Policy.
+- Only typed preload APIs.
+- No direct filesystem, network credential, shell, or MCP access.
+- Treats all artifact HTML and provider output as untrusted.
+
+### Main process
+
+- Window and lifecycle management.
+- Native menus, notifications, deep links, file dialogs, update flow.
+- Starts and supervises the harness process.
+- Does not execute model or connector work itself.
+
+### Harness process
+
+- Owns project commands and run state.
+- Connects to MCP servers and model providers.
+- Executes allowlisted local capabilities.
+- Emits immutable domain events.
+- Survives renderer reloads and recovers runs after application restart.
+
+### Media workers
+
+- Separate processes for ffmpeg, probes, thumbnails, transcription, and large transforms.
+- Resource and time limits.
+- No credential access unless a job explicitly receives a scoped lease.
+
+## Domain Model
+
+The model is event-backed and versioned.
+
+### Core aggregates
+
+- `Workspace` — creator boundary, policies, accounts, memory namespace.
+- `Project` — a campaign, series, or body of related work.
+- `CreativeGraph` — versioned declarative graph of artifacts, operators, decisions, gates, and loops.
+- `Artifact` and `ArtifactVersion` — durable creator-owned content with provenance.
+- `LoopDefinition` — reusable graph with contracts, policies, and evaluation.
+- `Run` and `RunStep` — compiled execution and durable state.
+- `Capability` — tool/connector behavior independent of transport.
+- `AccountConnection` — platform identity plus credential reference.
+- `Decision` — human, agent, or policy choice with alternatives and evidence.
+- `Publication` — desired, scheduled, submitted, verified, failed, or removed platform state.
+- `Observation` — metrics, comments, qualitative judgment, or external event.
+- `MemoryItem` and `MemoryProposal` — governed creator-model state.
+- `SkillPackage` and `SkillRevision` — installed or learned procedures.
+- `Policy` — permissions, disclosure, budget, confidentiality, and autonomy.
+
+### Important invariants
+
+1. Artifact versions are append-only.
+2. Canonical selection is a decision event, not an overwrite.
+3. Every external mutation has an idempotency key when the provider supports one and an internal intent ID regardless.
+4. A run step cannot access a credential outside its capability lease.
+5. Memory and skill proposals cannot become active without their policy-defined promotion event.
+6. Publishing intent, provider submission, and verified live publication are distinct states.
+7. Deleting local content produces explicit tombstones and asset-retention decisions.
+8. Every schema and event carries a version.
+
+## Event Log and Projections
+
+Commands validate policy and append domain events. Read models project the event log into query-optimized tables for canvas, timeline, search, review, and memory.
+
+Representative events:
+
+```text
+idea.captured
+artifact.version_created
+artifact.canonical_selected
+graph.edge_changed
+run.planned
+run.started
+step.waiting_for_approval
+tool.call_requested
+tool.call_completed
+publication.submitted
+publication.verified
+observation.recorded
+memory.proposed
+memory.promoted
+skill.revision_proposed
+skill.revision_promoted
 ```
 
----
+This is not event sourcing for fashion. It provides provenance, undo, audit, deterministic recovery, memory evidence, and synchronization boundaries.
 
-## Components
+## Clark Harness
 
-### 1. Canvas (frontend)
-- **Stack:** Next.js (React) + **React Flow** for the node graph (purpose-built for exactly this: nodes, edges, handles, pan/zoom). tldraw-style freeform layer optional later for sketching.
-- **Live updates:** subscribes to the orchestrator over **SSE/WebSocket**; each node has a state machine (`idle → queued → running → streaming → done → stale/error`) rendered as visual states.
-- **Inspector & versions:** non-destructive — every regenerate creates a new version object; UI shows a version stack per node.
-- **Why React Flow:** mature, open-source, handles big graphs, custom node renderers (a Reel node renders a video player; a Script node renders editable text). Community can ship custom node renderers.
+The harness is a collection of explicit services.
 
-### 2. Orchestrator (server)
-The brain. Responsibilities:
-- **Graph engine** — stores the DAG, resolves dependencies, computes execution order, propagates **staleness** when an upstream node changes (spreadsheet-style recalc).
-- **Per-node agent runner** — each node type maps to an agent task or a direct MCP tool call. Runs on the **Claude Agent SDK** (TypeScript) so nodes can themselves be small agents (e.g., the Research node is a multi-step agent; the Reel node is mostly a single MCP call).
-- **MCP client layer** — connects to all configured MCP servers, forwards bearer tokens (e.g., Higgsfield OAuth), exposes their tools to nodes.
-- **Approval gates** — pause runs, emit a "needs approval" event to the canvas, resume on response.
-- **Learning scheduler** — schedules the Learn node to wake N days post-publish, pull analytics, and write memory. (Same idea as a cron/scheduled wake-up.)
-- **Cost/credit metering** — tracks Higgsfield credits + model token spend per run; enforces budget ceilings (the Creator plan's $100 instinct, generalized).
+### Graph compiler
 
-### 3. MCP Tool Layer
-Clark Pro **is an MCP orchestrator**. It ships zero generators of its own. Categories:
-- **Media:** Higgsfield MCP (Soul 2.0, Seedance 2.0, Kling 3.0, Veo 3.1, Flux 2). See [mcp-ecosystem.md](mcp-ecosystem.md).
-- **Publishing:** per-platform publisher MCPs (API where it exists; browser-assist MCP like Playwright where it doesn't).
-- **Research:** web search, trends, competitor scan.
-- **Analytics:** platform insight pulls for the learning loop.
+- validates typed ports and cycles;
+- expands loop groups;
+- resolves capabilities and adapters;
+- calculates staleness and reuse;
+- produces a run plan with predicted paid calls, gates, and permissions;
+- supports dry-run before execution.
 
-### 4. Storage
-- **Graph/run state:** SQLite for local/self-host → Postgres for hosted multi-user.
-- **Assets:** local filesystem (`output/`) for local → S3/R2 for hosted. Mirrors the Creator plan repo layout.
-- **Performance memory:** a vector + structured store keyed by creator, capturing (idea → angle → hook → format → result). This is what the Learn node writes and the Research/Angles nodes read.
+### Durable run engine
 
----
+- dependency scheduling;
+- bounded parallelism and provider-specific rate limits;
+- checkpointing and replay;
+- async job attachment by external ID;
+- retries based on error class and idempotency safety;
+- cancellation, timeout, and orphan detection;
+- compensation steps for reversible mutations;
+- boot-time recovery.
 
-## The Plugin Model: "A Node = MCP Tool + Manifest"
+### Context compiler
 
-The open-source flywheel. To add a capability to Clark Pro you don't fork core — you publish:
+Builds the minimum task context from:
 
-1. **An MCP server** exposing the tool (e.g., a new video model, a new platform publisher, a new research source).
-2. **A node manifest** (JSON/YAML) describing:
-   - `inputs` — typed ports (text, image, video, post-object, brand-voice...)
-   - `outputs` — typed ports
-   - `tool` — which MCP tool to call + param mapping
-   - `render` — how the node draws itself (text editor, image preview, video player, form)
-   - `config` — user-editable settings (model, aspect, duration, style preset)
+- current artifact inputs;
+- pinned sources and claims;
+- relevant creator-model slices;
+- active policies;
+- selected skill revision;
+- platform rules;
+- prior corrections for this loop;
+- explicit uncertainty and missing information.
 
-The orchestrator reads the manifest, wires the ports, and the canvas renders the node. **No core changes.** A community "Pika video node" or "Bluesky publish node" is just a manifest + an MCP endpoint.
+Context assembly is logged as references, not as duplicated secret-bearing prompts.
+
+### Agent runner
+
+The agent runner is provider-neutral and supports:
+
+- one-shot structured model calls;
+- bounded tool-using loops;
+- specialist agents;
+- isolated parallel delegates;
+- model routing by quality, latency, privacy, and cost;
+- tool allowlists and step budgets;
+- interruption and human elicitation;
+- recorded trajectories for evaluation and later skill proposals.
+
+Most classification, adaptation, and validation tasks should not use an autonomous agent loop.
+
+### Policy engine
+
+Policies decide:
+
+- which capabilities an agent may use;
+- whether an action requires approval;
+- which accounts and projects are in scope;
+- allowed spend and rate limits;
+- disclosure requirements;
+- confidential topics or sources;
+- memory retrieval and mutation permissions;
+- remote-worker eligibility.
+
+### Evaluation engine
+
+Evaluation happens at several levels:
+
+- schema and media validity;
+- evidence coverage;
+- brand-policy compliance;
+- platform requirements;
+- creator rubric;
+- run reliability and cost;
+- post-publication observations;
+- skill regression tests.
+
+## Capability Contract
+
+MCP tools are one way to implement a capability, not the capability model itself.
+
+Each capability declares:
 
 ```yaml
-# example: reel.node.yaml
-name: Reel (Seedance)
-category: media
-inputs:
-  - { name: script, type: text }
-  - { name: avatar, type: image }
-outputs:
-  - { name: video, type: video }
-tool:
-  server: higgsfield
-  call: generate_video
-  params: { model: seedance-2, aspect_ratio: "9:16", duration: 8 }
-render: video-player
-config:
-  - { name: style, type: select, options: [ugc, cinematic, hyper-motion] }
+id: social.publish.postiz
+version: 1.0.0
+kind: mutation
+transport: mcp
+inputSchema: schemas/postiz-publish.json
+outputSchema: schemas/publication-receipt.json
+permissions: [network, social.publish]
+credentialScopes: [postiz.write]
+async:
+  mode: job
+  cancellable: true
+idempotency:
+  strategy: provider-or-intent-ledger
+cost:
+  quote: supported
+ui:
+  renderer: publication-card
+reliability:
+  retryPolicy: safe-transient-only
 ```
 
-This makes the Creator plan's five Higgsfield skills the **first five built-in node manifests**.
+An adapter implements lifecycle hooks for auth, validation, quote, execute, observe, cancel, reconcile, and health. Simple MCP tools can use a generic adapter; complex providers can ship a driver without changing core domain logic.
 
----
+## Storage
 
-## Agent Design
+### SQLite databases
 
-- **Clark** is the orchestrating persona, but under the hood it's **many small agents**, one per node type, each with a tight system prompt and the minimum tools it needs. This keeps each step debuggable and cheap.
-- **Brand voice as shared context:** the Brand Voice node injects [positioning.md](../positioning.md) into every generation agent's context. (Could integrate the existing `brand-voice` skills.)
-- **Determinism where possible:** simple nodes (a single MCP call) skip the agent and call the tool directly — faster, cheaper, predictable. Agents are reserved for nodes that genuinely need multi-step reasoning (Research, Angles, Learn).
-- **Replanning:** if you edit a node mid-run, the orchestrator diffs the graph and re-runs only what's stale.
+Separate logical stores reduce blast radius:
 
----
+- `clark.db` — projects, graphs, artifacts, runs, publications, policies, projections.
+- `memory.db` — creator-model items, evidence links, proposals, retrieval feedback.
+- `skills.db` — installed packages, revisions, tests, trust and promotion state.
 
-## Open-Source Structure
+They may begin as one physical database with separate schemas/tables, but repository boundaries remain explicit.
 
-- **Monorepo** (pnpm/turbo):
-  - `apps/canvas` — Next.js frontend
-  - `apps/orchestrator` — server + graph engine + Agent SDK
-  - `packages/nodes` — built-in node manifests (the Higgsfield five + publishers)
-  - `packages/mcp-client` — shared MCP connection layer
-  - `packages/sdk` — types for third-party node authors
-- **License:** lean **AGPL** (protects the hosted-version business while staying open) — or MIT if maximizing adoption matters more. Decision deferred; flagged in [roadmap.md](roadmap.md).
-- **Self-host first:** `docker compose up` runs the whole thing locally with SQLite + local files. Bring-your-own MCP keys (Higgsfield, platform tokens).
-- **Hosted later:** managed multi-tenant version is the business model (see roadmap). Same core, Postgres + object storage + auth.
+### Asset store
 
----
+```text
+Clark Library/
+  objects/sha256/<prefix>/<hash>
+  previews/<hash>/<variant>
+  exports/<project>/<platform>/
+  backups/
+```
 
-## Security & Trust
+Asset metadata records MIME type, dimensions, duration, checksum, origin, rights note, creator, and references. Garbage collection only removes unreferenced objects after a retention window and recoverable trash stage.
 
-- **Tokens stay local in self-host;** never proxied through a third party.
-- **Publishing respects platform ToS** — assisted/manual where APIs forbid automation; no mass auto-posting.
-- **Approval gate is mandatory by default** — full-auto is opt-in per graph.
-- **Human-visible cost meter** — no surprise credit burn; budget ceilings halt runs (generalizing the $100 cap).
+### Backups and portability
 
----
+- Atomic local snapshots.
+- User-selected backup location.
+- Portable workspace export with JSONL events, schemas, skills, and assets.
+- Import validation and migration preview.
+- Optional encrypted sync later; no hidden cloud dependency.
 
-## Why This Architecture Fits the Plan We Already Have
+## Credential and Authorization Architecture
 
-- The **Higgsfield MCP** decision from [avatar-pipeline.md](../avatar-pipeline.md) becomes the media node layer — unchanged, just wrapped.
-- The **five skills** in [higgsfield-skills.md](../higgsfield-skills.md) become the first node manifests.
-- **`CLAUDE.md` defaults** become per-graph config + the Brand Voice node.
-- **`SESSION-RESUME.md` batch recovery** becomes the orchestrator's run-state persistence (resume a failed run = built-in).
-- **The weekly review ritual** becomes the Learn node + performance memory.
+- API keys, access tokens, refresh tokens, and encryption keys live in macOS Keychain.
+- Database rows store opaque credential references and scopes.
+- OAuth uses PKCE and state validation.
+- Connector processes receive short-lived capability leases, not raw access to every secret.
+- Logs and model context pass through redaction.
+- Revocation immediately disables dependent capabilities and marks scheduled work blocked.
+- Clark Bridge uses explicit client registration, scoped tokens, and localhost-only binding by default.
 
-Nothing is thrown away. Clark Pro is the personal pipeline, lifted into a visual, multi-tenant, extensible product.
+## MCP Dual Role
+
+### Clark as MCP client/host
+
+Clark connects to stdio and Streamable HTTP servers, negotiates capabilities, validates tool schemas, enforces local permissions, and records every call. Server-provided descriptions and annotations are untrusted until the user trusts the server.
+
+### Clark as MCP server: Clark Bridge
+
+Clark exposes a stable external surface:
+
+- capture and query ideas;
+- inspect projects and artifact lineage;
+- plan or start approved loops;
+- query run and review state;
+- submit creator decisions;
+- query permitted memory;
+- stage or publish through policy;
+- install or invoke trusted skills;
+- retrieve exported artifacts.
+
+Long-running work uses Clark's internal job protocol. Clark maps it to MCP Tasks when both sides negotiate support; otherwise tools return a `jobId` with explicit status, result, and cancel tools. MCP Tasks remain experimental and cannot be the only recovery mechanism.
+
+## Cloud and Team Evolution
+
+Local-first does not mean painting the product into a single-user corner.
+
+- Every aggregate is workspace-scoped from the first schema.
+- Identity and access decisions are explicit events.
+- The local repository interface and remote repository interface are separate implementations.
+- Remote workers accept encrypted, scoped job envelopes and return signed results.
+- Teams add a relay, shared event synchronization, role policies, and object storage without moving personal Keychain credentials into project rows.
+- Conflict resolution operates on aggregate versions and decision events, not raw last-write-wins tables.
+
+## Repository Shape
+
+```text
+clark-pro/
+  apps/
+    desktop/                 # Electron main, preload, renderer
+    bridge-cli/              # local admin and MCP setup CLI
+  services/
+    harness/                 # durable runtime and IPC/API
+    worker/                  # optional remote/scoped worker
+  packages/
+    domain/                  # aggregates, events, schemas, invariants
+    graph/                   # compiler, staleness, layout metadata
+    run-engine/              # scheduler, recovery, job state
+    memory/                  # creator model and retrieval
+    skills/                  # Agent Skills host and evolution
+    policy/                  # permissions, budgets, disclosure
+    model-gateway/           # provider-neutral model interface
+    capabilities/            # capability registry and adapters
+    mcp-host/                # outbound MCP clients
+    mcp-server/              # Clark Bridge
+    connectors/              # Higgsfield, Postiz, direct providers
+    media/                   # ffmpeg, validation, previews, exports
+    plugin-sdk/              # manifests, drivers, renderers, tests
+    observability/           # structured events, traces, diagnostics
+  skills/                    # bundled Agent Skills packages
+  templates/                 # bundled loops and project templates
+  schemas/                   # published versioned JSON schemas
+```
+
+## Quality and Security Gates
+
+The architecture is not production-ready until it proves:
+
+1. Signed/notarized installation and update rollback.
+2. Renderer compromise cannot directly access credentials or arbitrary local execution.
+3. Run recovery after forced termination during model call, media job, approval wait, and publish submission.
+4. Duplicate publish prevention across restart and network retry.
+5. Workspace export/import with checksums and schema migration preview.
+6. Memory and skill mutation audit, correction, deletion, and rollback.
+7. MCP server permission isolation and revocation.
+8. Connector conformance tests with recorded provider fixtures.
+9. Budget reservation and reconciliation under failure.
+10. A 50-object canvas remains responsive and legible on the oldest supported Mac.

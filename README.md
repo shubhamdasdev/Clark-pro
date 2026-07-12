@@ -19,9 +19,9 @@ Both share the same positioning, voice, and topic universe — long-form deepens
 
 ## The Third Workstream → Clark Pro (the product)
 
-The pipeline we designed to run *this* creator plan is itself a product: **[Clark Pro](clark-pro/README.md)** — an open-source, MCP-native, visual AI social media studio. Brain-dump an idea and watch it become research → angles → scripts → images → videos → platform posts → approval → publish → learning, all on a connected canvas where you *see* the agents work.
+The pipeline designed for this creator plan becomes **[Clark Pro](clark-pro/README.md)** — a Mac-first, memory-native creator operating system. It connects intent, research, creation, approval, distribution, observation, and learning through a durable harness and living canvas.
 
-This creator plan is Clark Pro's **first user and launch story**; Clark Pro is what makes this creator plan scale. They compound. See [clark-pro/](clark-pro/README.md).
+Clark is both an MCP host and MCP server, installs governed Agent Skills, connects to broad social infrastructure such as Postiz, and builds an inspectable creator model from evidence and explicit judgment. The creator plan is Clark's first real workspace and continuous product test; Clark makes the plan more coherent and executable while the plan supplies the real decisions, failures, outcomes, and corrections Clark needs to learn.
 
 ## Hard Constraints
 
@@ -44,13 +44,12 @@ This creator plan is Clark Pro's **first user and launch story**; Clark Pro is w
 6. **[milestones.md](milestones.md)** — 20-month timeline through Dec 2027.
 7. **[risks-and-mitigations.md](risks-and-mitigations.md)** — full risk register for both workstreams.
 
-## What Happens Next (no code yet until reviewed)
+## What Happens Next
 
-1. Review all docs and make any edits.
-2. **One-time setup:** Add Higgsfield MCP to Claude Code `settings.json`. Train Soul 2.0 on 10–15 photos.
-3. **Build skills:** create `.claude/commands/` directory, write the 5 skill files from `higgsfield-skills.md`.
-4. **Write `CLAUDE.md`** in project root using the template in `higgsfield-skills.md`.
-5. **Dashboard:** 1-hour spike on Postiz. If it fits, use it. If not, build minimal Next.js + SQLite kanban.
-6. **First batch:** run `/gen-content` × 3 (one per bucket) as a pipeline test.
+The Creator plan can still use Higgsfield and existing skills immediately, but Clark Pro is no longer framed as a weekend dashboard or slash-command wrapper. Its current gate is product coherence and canvas proof.
 
-See [avatar-pipeline.md](avatar-pipeline.md) → First 14 Days section for day-by-day steps.
+1. Finalize Clark's product contracts, domain events, capability model, memory governance, and security decisions.
+2. Prototype Focus, Canvas, Review, Timeline, Library, and Memory with a realistic Full-Week project fixture.
+3. Test the studio model with real creators before implementation fans out.
+4. Translate the approved model into the cumulative whole-product delivery strata in [clark-pro/roadmap.md](clark-pro/roadmap.md).
+5. Continue using the Creator plan as the first production workspace and evidence source throughout construction.

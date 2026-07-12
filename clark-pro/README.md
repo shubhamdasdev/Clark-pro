@@ -1,63 +1,67 @@
 # Clark Pro
 
-**A visual AI social media creation studio.** Brain-dump an idea and watch it become research, angles, scripts, images, videos, platform-specific posts, approvals, publishing, and performance learning — all on a connected visual canvas where you *see* the agents working.
+**A Mac-first, memory-native operating system for serious creators.** Clark turns intent into published work through visible, repeatable loops, and it learns only from evidence the creator can inspect, correct, or forget.
 
-> Think **ComfyUI for social content** crossed with **a video editor's timeline** and **n8n's integrations** — open-source, MCP-native, agent-driven.
+Clark is not another AI content generator and not a scheduler with a chat box. It is the durable layer between a creator and every model, skill, media service, publishing platform, and analytics source they use.
 
----
+> **One creator model. One visual studio. Every tool. Every channel. Every lesson retained.**
 
-## The Combination (why this project exists)
+## The Product System
 
-This project is the synthesis of three things we built up in the [Creator plan](../README.md):
-
-| What we had | What it becomes in Clark Pro |
+| Product surface | Role |
 |---|---|
-| A **personal creator workflow** (idea → research → script → media → post → learn) | The **canvas pipeline** — the product's core UX |
-| **Higgsfield MCP skills** (`/gen-hook`, `/gen-reel`, `/gen-carousel`...) | **Nodes** on the canvas instead of slash commands |
-| **Manual multi-platform posting** (TikTok, IG, LinkedIn, Medium, Beehiiv) | **Platform adapter nodes** + assisted publishing |
-| **The weekly review ritual** (retention → what to repeat) | The **performance learning loop** baked into the graph |
+| **Clark Studio** | The signed macOS app: Focus, Canvas, Timeline, Review, Library, and Memory views. |
+| **Clark Harness** | The local durable runtime: loops, runs, agents, tools, approvals, budgets, retries, schedules, and recovery. |
+| **Clark Memory** | The inspectable creator model: identity, brand rules, facts, episodes, performance evidence, and learned procedures. |
+| **Clark Connect** | MCP client + connector runtime for Higgsfield, Postiz, research, analytics, files, browsers, and direct APIs. |
+| **Clark Bridge** | Clark's own MCP server so Claude, Codex, ChatGPT, Hermes, and other clients can use Clark as a tool. |
+| **Clark Skills** | Installable Agent Skills plus creator-specific skills proposed from successful runs and promoted only through review. |
+| **Clark Kit** | SDK and manifests for capabilities, renderers, connectors, templates, policies, and skills. |
 
-**The key realization:** the pipeline we designed for one creator (you) is a product. You are now both the *builder* and the *first user / design partner*. Your 100K creator journey dogfoods Clark Pro; Clark Pro is the launch story of your creator journey. They compound.
+## The Strongest Wedge
 
----
+The initial user is a professional solo creator running a multi-channel personal brand while holding a demanding job. Their problem is not access to generation. It is preserving intent, brand judgment, source evidence, production state, approvals, distribution state, and lessons across dozens of tools and hundreds of posts.
 
-## What Makes It Different
+Clark's wedge is **creator continuity**:
 
-Most AI content tools are **chat → copy → paste**. You lose the thread, you can't see the work, nothing is connected, and nothing learns.
+1. Capture a rough idea anywhere.
+2. Enrich it with sources and relevant personal memory.
+3. Develop and compare angles without losing lineage.
+4. Produce platform-native artifacts with visible costs and provenance.
+5. Review and publish through the best available connector.
+6. Observe outcomes and attach them to the exact decisions that produced them.
+7. Propose a reusable lesson or skill; let the creator approve what Clark learns.
 
-Clark Pro is **visual, connected, and agent-driven**:
-- Every idea, script, image, post, approval, and publish step is a **node you can see and steer**.
-- Agents **work inside the canvas** — nodes light up as they run, stream output live, and branch.
-- The whole graph is **connected** — change the angle and downstream scripts/media regenerate.
-- It **learns** — published performance flows back and biases the next idea.
+The result is not merely more content. It is a studio that becomes more aligned, more useful, and more operationally capable without becoming opaque.
 
----
+## Product Invariants
 
-## Documents
+1. **Local-first, not local-only.** The Mac owns the canonical personal state; optional cloud workers can perform remote jobs without owning identity or memory.
+2. **Artifacts are durable; agents are replaceable.** Models and agent runtimes can change without corrupting project history.
+3. **Every action has provenance.** Inputs, model, tools, skill version, cost, approvals, and outputs are recorded.
+4. **Learning is proposed, never silently absorbed.** Memory and skill mutations are reviewable, reversible, and attributable to evidence.
+5. **MCP is a protocol, not the product model.** Clark consumes MCP servers and exposes an MCP server, while its internal capability contract also handles auth, async work, idempotency, UI, cost, and lifecycle.
+6. **The canvas cannot become spaghetti.** Templates, lanes, groups, Focus mode, and automatic layout are first-class.
+7. **Publishing is policy-bound.** Platform rules, account permissions, AI disclosure, human approval, and fallback export are enforced by the harness.
+8. **No throwaway architecture.** Delivery is incremental, but each stratum uses the production contracts, event log, migrations, security model, and observability foundation.
 
-**Vision layer:**
+## Authoritative Documents
 
-1. **[vision.md](vision.md)** — the product vision, who it's for, the problem, the "video editor for social workflows" framing, and the explicit assumptions.
-2. **[the-canvas.md](the-canvas.md)** — the heart of the product: the node system, every node type, how the agent walks the graph.
-3. **[architecture.md](architecture.md)** — tech stack, agent orchestration, the MCP plugin model, open-source structure.
-4. **[mcp-ecosystem.md](mcp-ecosystem.md)** — the tools and agents that plug in (Higgsfield, publishers, research, analytics) and how they collaborate.
-5. **[roadmap.md](roadmap.md)** — MVP → v1 → v2, and how the personal Creator plan dogfoods each phase.
+Read these in order:
 
-**Build layer (product/, July 2026):**
-
-6. **[product/01-product-description.md](product/01-product-description.md)** — the PRD: problem, users, goals/non-goals, the 8 feature sections, success metrics, resolved decisions (license, canvas lib, publishing depth), riskiest assumptions.
-7. **[product/02-user-flows.md](product/02-user-flows.md)** — user flows per feature section, with happy paths, decision points, and edge cases.
-8. **[product/03-epics-and-stories.md](product/03-epics-and-stories.md)** — 12 epics (E0–E11) with stories, acceptance criteria, and sizing, sequenced against the roadmap phases.
-9. **[product/04-architecture-and-tech-stack.md](product/04-architecture-and-tech-stack.md)** — buildable detail: full stack table, data model, API/event contracts, node manifest schema, orchestrator internals.
-
----
+1. **[vision.md](vision.md)** — product thesis, target user, differentiation, principles, and boundaries.
+2. **[the-canvas.md](the-canvas.md)** — the studio information architecture and visual grammar.
+3. **[architecture.md](architecture.md)** — Mac application, harness, data, security, agent, and deployment architecture.
+4. **[memory-and-learning.md](memory-and-learning.md)** — creator model, memory types, reflection, skill evolution, and governance.
+5. **[mcp-ecosystem.md](mcp-ecosystem.md)** — MCP client/server roles, capability adapters, skills, and social integration strategy.
+6. **[roadmap.md](roadmap.md)** — cumulative product strata and whole-product delivery gates; no throwaway MVP.
+7. **[research-basis.md](research-basis.md)** — current external evidence and competitive reality behind the v2 decisions.
+8. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
 
 ## One-Line Pitch
 
-> **Clark Pro turns a single brain-dump into a week of published, on-brand, multi-platform content — and you watch every step happen on a canvas instead of copy-pasting from a chat.**
+> **Clark Pro is the Mac studio that remembers how you create, coordinates every tool you use, shows its work on a living canvas, and turns proven experience into reusable creative capability.**
 
----
+## Current Status
 
-## Status
-
-Vision + full product plan stage (PRD, user flows, epics/stories, detailed architecture in [product/](product/)). **No code yet.** Next step: **Epic E0 — the weekend spike** (headless Brain Dump → Script → Reel via Higgsfield MCP). See [product/03-epics-and-stories.md](product/03-epics-and-stories.md).
+Product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system. The current gate is product coherence: the thesis, canvas grammar, harness, memory model, MCP boundary, security model, and cumulative delivery plan must agree before implementation begins.
