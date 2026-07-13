@@ -1,7 +1,7 @@
 # Clark Pro — Ground Evidence Status
 
 **Generated from:** `evidence/ground-ledger.json`
-**Reviewed:** 2026-07-12T20:20:00-05:00
+**Reviewed:** 2026-07-12T20:45:00-05:00
 **Gate:** OPEN
 **Signoff:** pending
 
@@ -15,16 +15,16 @@ A passing verifier means the ledger is internally honest and its referenced file
 | defined | 3 |
 | human_evidence_pending | 16 |
 | missing | 7 |
-| specified_not_verified | 5 |
+| prototype_verified | 2 |
+| specified_not_verified | 3 |
 
-## Open Ground requirements (28)
+## Open Ground requirements (26)
 
 Some entries share one future evidence run—for example, the five creator sessions cover the aggregate objective and multiple Canvas/business requirements. Counts are requirement-level, not separate recruiting tasks.
 
 | ID | Area | Result | Owner | Next action |
 |---|---|---|---|---|
 | OBJ-03 | objective | human_evidence_pending | Product + Design + Research Leads | Run five observed walkthroughs, synthesize the matrix, redesign every failed critical gate, and retest before Ground signoff. |
-| OBJ-05 | objective | specified_not_verified | Connect + Domain + Security Leads | Add versioned Bridge schemas, a command/receipt fixture, and an interactive state-equivalence scenario to the prototype and verifier. |
 | OBJ-07 | objective | specified_not_verified | Memory/Skills + Security Leads | Define the package contract, build the Class B sandbox spike, and run traversal, network, environment, resource, and credential canaries. |
 | OBJ-08 | objective | human_evidence_pending | Memory/Skills + Product + Research Leads | Measure memory comprehension in the five walkthroughs, then define the retrieval/leakage/correction/forget evaluation corpus. |
 | CANVAS-01 | canvas | human_evidence_pending | Design + Research Leads | Run task 1 in five observed sessions and record assistance, wrong turns, completion, and explanation. |
@@ -33,7 +33,6 @@ Some entries share one future evidence run—for example, the five creator sessi
 | CANVAS-04 | canvas | human_evidence_pending | Design + Research Leads | Use representative creator media in observed comparison tasks and record time, wrong turns, confidence, and current-tool baseline. |
 | CANVAS-05 | canvas | human_evidence_pending | Memory/Skills + Design + Research Leads | Run the memory task with an intentionally weak proposal and record whether participants inspect evidence before acting. |
 | CANVAS-06 | canvas | human_evidence_pending | Design + Research Leads | Run the orientation task with pointer and keyboard paths and record hidden-edge misunderstandings and All Structure discoverability. |
-| CANVAS-07 | canvas | specified_not_verified | Connect + Domain + Design Leads | Add the Bridge command/receipt contract and an interactive state-equivalence scenario before closing the Canvas gate. |
 | CANVAS-08 | canvas | human_evidence_pending | Memory/Skills + Design + Research Leads | Ask participants to explain each memory field aloud before permitting Promote or Reject. |
 | CANVAS-09 | canvas | human_evidence_pending | Product + Design + Security + Research Leads | Run the authority classification task and redesign any category that participants confuse. |
 | BIZ-01 | business | human_evidence_pending | Product + Research Leads | Recruit and conduct ten problem/replacement interviews with behavioral examples and current-tool costs. |

@@ -19,7 +19,7 @@
 | Durable harness and loops | `architecture.md`, `roadmap.md`, ADR-0003, `contracts/` | Defined and contract-verified | Production run state machine and forced-recovery tests |
 | Canvas must be strong before implementation | `the-canvas.md`, `prototype/`, ADR-0009 | Prototype-verified; human evidence pending | Five observed sessions must pass the canvas rubric and failed gates must be redesigned |
 | Clark consumes MCP capabilities | `mcp-ecosystem.md`, ADR-0004, capability manifests | Defined and contract-verified | Hostile-server and transport conformance suite |
-| Clark exposes its own MCP server | Clark Bridge in `mcp-ecosystem.md`, ADR-0004 | Defined | Bridge tool/resource schemas, client-scope tests, UI/Bridge state-equivalence test |
+| Clark exposes its own MCP server | Clark Bridge docs, ADR-0004, Bridge exchange schema/fixture, interactive capture/replay | Contract- and prototype-verified at Ground | Production MCP transport, token registry, revocation, hostile live-client, and event-store/projection equivalence tests |
 | Social-media connectivity | `mcp-ecosystem.md`, ADR-0006 | Defined | Recorded/sandbox adapter fixtures, real account capability matrix, platform approval evidence |
 | Installable skills | `memory-and-learning.md`, ADR-0007 | Defined | Package schema, quarantine sandbox choice, malicious-package and regression suite |
 | Hermes-like memory/personalization core | `memory-and-learning.md`, prototype Memory view, ADR-0007 | Prototype-verified at interaction level | Real creator retrieval value, leakage/poisoning evaluation, correction/forget proof |
@@ -60,6 +60,7 @@
 - Review approval remains version-specific and separate from publication.
 - Memory inspection exposes evidence, confidence, contradiction, scope, and retrieval status.
 - Connections explains MCP host/client, Clark Bridge, social adapters, skill trust, and effective autonomy.
+- A scoped Hermes Bridge capture creates one canonical Canvas object and receipt; replay emits no event, reload restores state, and Studio/Bridge hashes match.
 - Canvas supports bounded click-drag pan, zoom/fit, arrow-key lane navigation, Enter-to-inspect, command palette, and reversible staged/view state.
 - Review exposes a shared Reel A/B playhead with evidence, cost, policy, derivative impact, notes, selection, and approval.
 - Automated interaction checks pass; 320px and 390px viewports have no page-level horizontal overflow.

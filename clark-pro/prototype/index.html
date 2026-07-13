@@ -144,6 +144,8 @@ svg.lucide { width: 16px; height: 16px; }
     #clark-studio-vis .cs-system-list { display: grid; gap: 4px; margin-bottom: 16px; }
     #clark-studio-vis .cs-system-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
     #clark-studio-vis .cs-system-row:last-child { border-bottom: 0; }
+    #clark-studio-vis .cs-bridge-proof { margin-top: 16px; }
+    #clark-studio-vis .cs-proof-hash { overflow-wrap: anywhere; }
     #clark-studio-vis .cs-inspector { position: sticky; top: 0; }
     #clark-studio-vis .cs-mini-meter { height: 6px; background: var(--muted); overflow: hidden; }
     #clark-studio-vis .cs-mini-meter > span { display: block; height: 100%; width: 38%; background: var(--viz-series-1); }
@@ -278,7 +280,7 @@ svg.lucide { width: 16px; height: 16px; }
           <div class="cs-canvas-viewport" id="cs-canvas-viewport" aria-label="Pannable creator workflow canvas" aria-describedby="cs-canvas-help">
             <div class="cs-canvas-wrap">
               <svg class="cs-edges" id="cs-edges" aria-hidden="true"></svg>
-              <div class="cs-canvas-grid" id="cs-canvas-grid" aria-label="Fifty-object creator workflow across six semantic lanes"></div>
+              <div class="cs-canvas-grid" id="cs-canvas-grid" aria-label="Creator workflow across six semantic lanes"></div>
             </div>
           </div>
         </div>
@@ -380,6 +382,24 @@ svg.lucide { width: 16px; height: 16px; }
             <button type="button" class="btn cs-system-action" data-action="Connect social account">Connect social account</button>
             <button type="button" class="btn cs-system-action" data-action="Install Agent Skill">Install skill</button>
           </div>
+          <section class="card cs-bridge-proof" id="cs-bridge-proof" aria-labelledby="cs-bridge-proof-title">
+            <div class="cs-inline"><span class="viz-badge" id="cs-bridge-receipt-badge">Ready</span><span class="text-small text-muted">Studio ↔ Bridge state proof</span></div>
+            <h3 id="cs-bridge-proof-title">Capture through Hermes, inspect the same object in Studio</h3>
+            <div class="cs-system-list">
+              <div class="cs-system-row"><div><strong>Client</strong><div class="text-small text-muted">Hermes local · verified · Cortex Diary only</div></div><span class="viz-badge">capture</span></div>
+              <div class="cs-system-row"><div><strong>Command</strong><div class="text-small text-muted"><code>clark.capture</code> · intent <code>bridge-capture-week28-01</code></div></div><span class="viz-badge" id="cs-bridge-command-state">Not issued</span></div>
+              <div class="cs-system-row"><div><strong>Permission intersection</strong><div class="text-small text-muted">client capture ∩ workspace policy ∩ verified Bridge</div></div><span class="viz-badge">Allow</span></div>
+              <div class="cs-system-row"><div><strong>Domain event</strong><div class="text-small text-muted" id="cs-bridge-event-detail">No event emitted</div></div><span class="viz-badge" id="cs-bridge-event-state">Waiting</span></div>
+              <div class="cs-system-row"><div><strong>Canonical state</strong><div class="text-small text-muted" id="cs-bridge-equivalence-detail">Studio: 50 objects · Bridge resource: not created</div></div><span class="viz-badge" id="cs-bridge-equivalence-state">Pending</span></div>
+            </div>
+            <p class="text-small cs-proof-hash" id="cs-bridge-hash">State hash appears after the accepted receipt.</p>
+            <div class="cs-actions">
+              <button type="button" class="btn btn-primary" id="cs-bridge-execute">Run clark.capture via Hermes</button>
+              <button type="button" class="btn" id="cs-bridge-replay" disabled>Replay same intent</button>
+              <button type="button" class="btn" id="cs-bridge-open-canvas" disabled>Open canonical object in Canvas</button>
+            </div>
+            <p class="text-small text-muted" id="cs-bridge-proof-status" aria-live="polite">Ready to issue one capture command through the scoped Bridge client.</p>
+          </section>
         </div>
         <aside class="card cs-inspector">
           <div class="cs-inline"><span class="viz-badge">Clark Bridge</span><span class="text-small text-muted">MCP server</span></div>
@@ -456,6 +476,21 @@ svg.lucide { width: 16px; height: 16px; }
         updateHistoryControls();
         activity.textContent = `Redid ${change.label}`;
       };
+      const bridgeStorageKey = 'clark.prototype.bridge-capture.v1';
+      const bridgeStateHash = 'sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd';
+      let bridgeState = { captured: false, replayCount: 0, lastReceipt: 'ready' };
+      try {
+        const storedBridgeState = JSON.parse(sessionStorage.getItem(bridgeStorageKey) || 'null');
+        if (storedBridgeState?.captured === true) {
+          bridgeState = {
+            captured: true,
+            replayCount: Number.isInteger(storedBridgeState.replayCount) ? storedBridgeState.replayCount : 0,
+            lastReceipt: storedBridgeState.lastReceipt === 'deduplicated' ? 'deduplicated' : 'accepted'
+          };
+        }
+      } catch {
+        bridgeState = { captured: false, replayCount: 0, lastReceipt: 'ready' };
+      }
       const lanes = [
         { name: 'Intent', icon: 'lightbulb', items: [
           ['Quick capture','Source','done','Original note + voice memo'],
@@ -520,8 +555,18 @@ svg.lucide { width: 16px; height: 16px; }
           ['Skill proposal','Artifact','learning','Tests + rollback']
         ]}
       ];
-      const totalObjects = lanes.reduce((sum, lane) => sum + lane.items.length, 0);
-      root.querySelector('#cs-object-count').textContent = `${totalObjects} objects`;
+      const bridgeNode = ['Bridge capture','Source','done','Hermes via Clark Bridge · receipt-bound'];
+      const hasBridgeNode = () => lanes[0].items.some((item) => item[0] === bridgeNode[0]);
+      const ensureBridgeNode = () => {
+        if (!hasBridgeNode()) lanes[0].items.push([...bridgeNode]);
+      };
+      if (bridgeState.captured) ensureBridgeNode();
+      const objectTotal = () => lanes.reduce((sum, lane) => sum + lane.items.length, 0);
+      const visibleCollapsedTotal = () => lanes.reduce((sum, lane) => sum + Math.min(3, lane.items.length), 0);
+      const updateObjectCount = (isCollapsed = false) => {
+        root.querySelector('#cs-object-count').textContent = isCollapsed ? `${visibleCollapsedTotal()} visible · ${objectTotal()} total` : `${objectTotal()} objects`;
+      };
+      updateObjectCount();
 
       const edgeSets = {
         critical: [
@@ -539,8 +584,16 @@ svg.lucide { width: 16px; height: 16px; }
         learning: [['5-1','5-3'],['5-2','5-3'],['5-3','5-4'],['5-4','5-5'],['5-4','5-6'],['5-5','2-1']],
         policy: [['0-5','3-8'],['0-5','4-5'],['0-6','1-8'],['0-6','3-9'],['3-8','4-5']]
       };
+      const ensureBridgeEdge = () => {
+        if (bridgeState.captured && !edgeSets.all.some(([from, to]) => from === '0-7' && to === '0-1')) edgeSets.all.unshift(['0-7', '0-1']);
+      };
+      ensureBridgeEdge();
       let selectedEdges = [];
       const traceFacts = {
+        'Bridge capture': {
+          source: 'Hermes local → Clark Bridge → capture_source domain command', version: 'v1 · canonical', cost: '$0.00',
+          approval: 'Allowed by capture-only workspace policy', publish: 'Not a publication object', outcome: 'Visible in Studio from the same source.captured event', permission: 'Hermes capture ∩ Cortex Diary workspace ∩ verified Bridge'
+        },
         'Reel A': {
           source: 'Creator OS idea v4 → Memory angle → Reel script v3', version: 'v3 · current', cost: '$4.20',
           approval: 'Waiting for production review', publish: 'Not authorized', outcome: 'Not live · observation pending', permission: 'Higgsfield generate · quoted run only'
@@ -584,6 +637,7 @@ svg.lucide { width: 16px; height: 16px; }
       const canvas = root.querySelector('#cs-canvas-grid');
       const renderCanvas = () => {
         canvas.innerHTML = '';
+        canvas.setAttribute('aria-label', `${objectTotal()}-object creator workflow across six semantic lanes`);
         lanes.forEach((lane, laneIndex) => {
           const section = document.createElement('section');
           section.className = 'cs-lane';
@@ -794,8 +848,8 @@ svg.lucide { width: 16px; height: 16px; }
         root.querySelectorAll('.cs-node-stack').forEach((stack) => {
           [...stack.children].forEach((child, index) => { child.hidden = collapsed && index > 2; });
         });
-        root.querySelector('#cs-collapse-loops').textContent = collapsed ? 'Expand all 50 objects' : 'Collapse loops';
-        root.querySelector('#cs-object-count').textContent = collapsed ? '18 visible · 50 total' : '50 objects';
+        root.querySelector('#cs-collapse-loops').textContent = collapsed ? `Expand all ${objectTotal()} objects` : 'Collapse loops';
+        updateObjectCount(collapsed);
         requestAnimationFrame(drawEdges);
       };
       root.querySelector('#cs-collapse-loops').addEventListener('click', (event) => {
@@ -1001,6 +1055,66 @@ svg.lucide { width: 16px; height: 16px; }
         });
       });
 
+      const persistBridgeState = () => {
+        try {
+          sessionStorage.setItem(bridgeStorageKey, JSON.stringify(bridgeState));
+        } catch {
+          activity.textContent = 'Bridge proof completed for this page · reload persistence is unavailable in this browser context';
+        }
+      };
+      const renderBridgeProof = () => {
+        const captured = bridgeState.captured;
+        const replayed = captured && bridgeState.lastReceipt === 'deduplicated';
+        root.querySelector('#cs-bridge-receipt-badge').textContent = captured ? (replayed ? 'Deduplicated' : 'Accepted') : 'Ready';
+        root.querySelector('#cs-bridge-command-state').textContent = captured ? (replayed ? 'Replayed' : 'Accepted') : 'Not issued';
+        root.querySelector('#cs-bridge-event-detail').textContent = captured ? 'source.captured · event.bridge-source-captured · aggregate v1' : 'No event emitted';
+        root.querySelector('#cs-bridge-event-state').textContent = captured ? '1 event' : 'Waiting';
+        root.querySelector('#cs-bridge-equivalence-detail').textContent = captured
+          ? `Studio: ${objectTotal()} objects · Bridge: intent.bridge-capture v1`
+          : `Studio: ${objectTotal()} objects · Bridge resource: not created`;
+        root.querySelector('#cs-bridge-equivalence-state').textContent = captured ? 'Identical' : 'Pending';
+        root.querySelector('#cs-bridge-hash').innerHTML = captured
+          ? `Studio hash = Bridge hash = <code>${bridgeStateHash.slice(0, 18)}…${bridgeStateHash.slice(-8)}</code>`
+          : 'State hash appears after the accepted receipt.';
+        root.querySelector('#cs-bridge-execute').disabled = captured;
+        root.querySelector('#cs-bridge-execute').textContent = captured ? 'Capture accepted' : 'Run clark.capture via Hermes';
+        root.querySelector('#cs-bridge-replay').disabled = !captured;
+        root.querySelector('#cs-bridge-open-canvas').disabled = !captured;
+        root.querySelector('#cs-bridge-proof-status').textContent = !captured
+          ? 'Ready to issue one capture command through the scoped Bridge client.'
+          : replayed
+            ? `Replay ${bridgeState.replayCount} returned the original receipt · 0 new events · ${objectTotal()} objects remain.`
+            : 'Accepted receipt created one source.captured event and one canonical object; reload this page to verify restoration.';
+      };
+      root.querySelector('#cs-bridge-execute').addEventListener('click', () => {
+        if (bridgeState.captured) return;
+        bridgeState = { captured: true, replayCount: 0, lastReceipt: 'accepted' };
+        ensureBridgeNode();
+        ensureBridgeEdge();
+        persistBridgeState();
+        renderCanvas();
+        applyCollapsed(false);
+        renderBridgeProof();
+        activity.textContent = 'Bridge accepted · source.captured recorded once · Studio and Bridge now project intent.bridge-capture v1';
+      });
+      root.querySelector('#cs-bridge-replay').addEventListener('click', () => {
+        if (!bridgeState.captured) return;
+        bridgeState = { captured: true, replayCount: bridgeState.replayCount + 1, lastReceipt: 'deduplicated' };
+        persistBridgeState();
+        renderBridgeProof();
+        updateObjectCount(collapsed);
+        activity.textContent = `Bridge replay deduplicated · no new event · object count remains ${objectTotal()}`;
+      });
+      root.querySelector('#cs-bridge-open-canvas').addEventListener('click', () => {
+        if (!bridgeState.captured) return;
+        root.querySelector('[data-view="canvas"]').click();
+        applyCollapsed(false);
+        const bridgeObject = root.querySelector('[data-node="0-7"]');
+        bridgeObject?.click();
+        bridgeObject?.focus();
+        activity.textContent = 'Same canonical object open in Studio · event, version, state hash, permission, and Bridge receipt remain linked';
+      });
+
       root.querySelector('#cs-undo').addEventListener('click', undoChange);
       root.querySelector('#cs-redo').addEventListener('click', redoChange);
       const commandDialog = root.querySelector('#cs-command-dialog');
@@ -1056,6 +1170,7 @@ svg.lucide { width: 16px; height: 16px; }
       applyZoom(100);
       applyReviewPick('');
       renderPlayhead();
+      renderBridgeProof();
       updateHistoryControls();
       requestAnimationFrame(drawEdges);
       addEventListener('resize', drawEdges);

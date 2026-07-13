@@ -18,6 +18,7 @@ This directory is the machine-readable Ground layer shared by Studio, Harness, B
 | `schemas/project-fixture.schema.json` | Machine-readable project/canvas fixture with exact object state and lineage |
 | `schemas/failure-fixtures.schema.json` | Expected safety/recovery behavior for failure, abuse, and policy cases |
 | `schemas/ground-evidence-ledger.schema.json` | Ground requirement, proof class, result, limitation, blocker, release target, and attributable signoff records |
+| `schemas/bridge-exchange.schema.json` | Scoped Bridge client, command intent, permission decision, domain event, durable receipts, idempotent replay, and Studio/resource equivalence |
 
 ## Versioning rules
 
@@ -65,17 +66,18 @@ npm run verify
 npm audit --audit-level=moderate
 ```
 
-The verifier performs draft-2020 JSON Schema checks and semantic checks for event catalog membership/payloads, aggregate versions, exact fixture count, object/edge/port resolution, graph and run-plan cycles, nested loops, capability/action/permission alignment, egress references, human gates, publication idempotency/reconciliation, budget bounds, threat/event references, the Ground evidence ledger, secret-key prohibition, and expected negative-fixture rejection.
+The verifier performs draft-2020 JSON Schema checks and semantic checks for event catalog membership/payloads, aggregate versions, exact fixture count, object/edge/port resolution, graph and run-plan cycles, nested loops, capability/action/permission alignment, egress references, human gates, publication idempotency/reconciliation, Bridge scope/actor/intent/receipt/replay/state equivalence, budget bounds, threat/event references, the Ground evidence ledger, secret-key prohibition, and expected negative-fixture rejection.
 
 Current checked fixture evidence:
 
-- 11 schema files, including the 34-entry Ground evidence ledger contract;
+- 12 schema files, including the 34-entry Ground evidence ledger and Bridge exchange contracts;
 - 52 event types and 10 representative payload-bearing events;
 - 8 capability manifests;
 - 2 loops and an 11-step compiled run plan;
 - exactly 50 project objects and 46 lineage edges;
 - 10 failure/abuse cases referencing 15 threat IDs;
-- 3 schema-invalid and 3 semantic-invalid fixtures rejected;
+- 1 accepted Bridge capture/replay exchange plus 5 hostile semantic mutations rejected;
+- 3 schema-invalid and 4 semantic-invalid documents rejected;
 - zero dependency vulnerabilities at the configured audit threshold.
 
 The ledger's additional fail-closed semantic checks and generated status live in [`../evidence/`](../evidence/README.md).

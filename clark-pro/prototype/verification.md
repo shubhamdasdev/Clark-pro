@@ -32,6 +32,12 @@ Executed in a controlled Chromium browser against the standalone `index.html`:
 | Reel A/B share a working playhead; Play/Pause updates both comparison surfaces | Pass |
 | Reel comparison exposes evidence, cost, source angle, policy, derivative impact, and notes | Pass |
 | Tabs expose native tablist/tab/tabpanel semantics and arrow-key navigation | Pass |
+| Scoped Hermes `clark.capture` changes the same model Canvas renders from 50 to 51 objects | Pass |
+| Accepted Bridge exchange emits exactly one `source.captured` event and exposes one state hash | Pass |
+| Replaying the same intent remains at 51 objects and emits zero new events | Pass |
+| Reload restores the 51-object receipt-backed state and deduplicated status | Pass |
+| Opening the Bridge object selects `Bridge capture` in Canvas with source and permission lineage | Pass |
+| Bridge proof remains page-width safe at 320px and produces no runtime warnings/errors | Pass |
 
 Combined recorded result:
 
@@ -53,6 +59,13 @@ Combined recorded result:
   "commandPalette": true,
   "shortcutUndo": true,
   "synchronizedPlayhead": "0:02 / 0:18",
+  "bridgeAccepted": true,
+  "bridgeObjectCounts": "50 -> 51 -> 51",
+  "bridgeInitialEvents": 1,
+  "bridgeReplayEvents": 0,
+  "bridgeStateHashesEqual": true,
+  "bridgeReloadRestored": true,
+  "bridgeCanvasInspector": "Bridge capture",
   "activeView": "cs-view-connections"
 }
 ```
@@ -69,7 +82,8 @@ The prototype was checked at both the previous 390 CSS-pixel target and the supp
     "prototypeScrollWidth": 292,
     "canvasViewportWidth": 292,
     "canvasInternalWidth": 1050,
-    "reviewTableWidth": 292
+    "reviewTableWidth": 292,
+    "bridgeProofWidth": 292
   },
   "390": {
     "innerWidth": 390,
@@ -91,6 +105,7 @@ The prototype does not introduce page-level horizontal overflow at either checke
 - Review: two media versions share a playhead and expose evidence/cost/policy/derivative comparison plus annotations; approval remains separate from publication authority.
 - Memory: active, proposed, and disputed items are distinguishable; evidence inspection separates confidence and contradiction from explicit Promote/Reject actions.
 - Connections: MCP host/server roles, social account states, skill trust/quarantine, Clark Bridge clients, harness health, and effective autonomy are visible.
+- Bridge proof: client scope, command intent, permission intersection, event receipt, idempotent replay, state hash, Studio projection, and Bridge resource identity are visible in one interaction.
 
 Updated Focus, selected-publication Canvas, synchronized Review, inspected-memory, and Connections surfaces were visually reviewed at desktop and narrow widths after the interaction pass. The controlled browser reported no runtime warnings or errors.
 

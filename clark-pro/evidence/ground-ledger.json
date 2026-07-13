@@ -3,7 +3,7 @@
   "schemaVersion": "1.0.0",
   "ledgerId": "clark.evidence.ground",
   "stratum": "ground",
-  "reviewedAt": "2026-07-12T20:20:00-05:00",
+  "reviewedAt": "2026-07-12T20:45:00-05:00",
   "currentGate": "before-stratum-1-implementation",
   "gateState": "open",
   "entries": [
@@ -93,18 +93,21 @@
       "requirement": "Clark exposes its own scoped MCP server, Clark Bridge, over the same canonical project state used by Studio.",
       "ownerRole": "Connect + Domain + Security Leads",
       "proofRequired": ["design_document", "adr", "schema", "prototype", "automated_test"],
-      "result": "specified_not_verified",
+      "result": "prototype_verified",
       "evidence": [
         {"kind": "design_document", "location": "mcp-ecosystem.md", "claim": "Defines Bridge clients, tools, resources, prompts, scopes, jobs, and state-equivalence invariant.", "result": "pass"},
         {"kind": "adr", "location": "decisions/0004-capabilities-above-mcp.md", "claim": "Requires Clark to consume and expose MCP through canonical domain commands and queries.", "result": "pass"},
-        {"kind": "prototype", "location": "prototype/index.html", "claim": "Connections explains Bridge surface, clients, scopes, and one canonical workspace.", "result": "pass"}
+        {"kind": "schema", "location": "contracts/schemas/bridge-exchange.schema.json", "claim": "Versions client identity, scopes, command intent, permission decision, domain event, accepted/deduplicated receipts, and Studio/Bridge equivalence.", "result": "pass"},
+        {"kind": "fixture", "location": "contracts/fixtures/full-week/bridge.capture.exchange.json", "claim": "Represents one accepted clark.capture command and an idempotent replay over the Full-Week workspace.", "result": "pass"},
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Connections issues the Bridge capture, creates the same Canvas object, deduplicates replay, and restores the receipt-backed state after reload.", "result": "pass"},
+        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Checks scope, permission, actor, intent, event payload, aggregate version, receipts, idempotency, state hash, object count, and five hostile mutations.", "result": "pass", "command": "npm --prefix contracts run verify"}
       ],
       "acceptanceRule": "Before implementation fans out, Bridge tool/resource schemas and a clickable Studio-versus-Bridge state-equivalence scenario must exist and pass without a second state model.",
-      "limitations": ["No Bridge tool/resource schema fixture exists.", "The prototype describes Bridge but cannot issue a Bridge command and show the identical Studio state."],
-      "nextAction": "Add versioned Bridge schemas, a command/receipt fixture, and an interactive state-equivalence scenario to the prototype and verifier.",
+      "limitations": ["This proves Ground contract and interaction semantics, not a production MCP SDK transport, token registry, event store, or hostile live client."],
+      "nextAction": "Implement Clark Bridge in its later stratum through the same domain handler and run live MCP compatibility, scope, revocation, replay, and Studio-projection tests.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T20:45:00-05:00"
     },
     {
       "id": "OBJ-06",
@@ -317,17 +320,18 @@
       "requirement": "The same project can be operated through Studio and Clark Bridge without divergent state or authority.",
       "ownerRole": "Connect + Domain + Design Leads",
       "proofRequired": ["schema", "prototype", "automated_test"],
-      "result": "specified_not_verified",
+      "result": "prototype_verified",
       "evidence": [
-        {"kind": "prototype", "location": "prototype/index.html", "claim": "Connections describes Bridge clients, scopes, tools/resources/prompts, and one canonical workspace.", "result": "pass"},
-        {"kind": "design_document", "location": "mcp-ecosystem.md", "claim": "Requires Bridge and Studio to call the same domain commands and queries.", "result": "pass"}
+        {"kind": "schema", "location": "contracts/schemas/bridge-exchange.schema.json", "claim": "Requires one domain event and matching Studio projection/Bridge resource identity, version, event, and state hash.", "result": "pass"},
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "A scoped Hermes Bridge capture appends one object to the same lanes model Canvas renders; replay adds no event and reload restores it.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Records accepted capture, 50-to-51 projection, idempotent replay, reload restoration, Canvas inspection, responsive layout, and clean runtime console.", "result": "pass"}
       ],
       "acceptanceRule": "A versioned Bridge command fixture must create a receipt and update the exact same visible project state; UI state must remain identical after refresh/replay.",
-      "limitations": ["Bridge is explanatory only in the prototype.", "No Bridge command schema, receipt, or state-equivalence check exists."],
-      "nextAction": "Add the Bridge command/receipt contract and an interactive state-equivalence scenario before closing the Canvas gate.",
+      "limitations": ["Prototype reload uses session-backed receipt state rather than the future SQLite event store.", "No production MCP client has executed the scenario."],
+      "nextAction": "Preserve this interaction contract in the production Bridge/Event/Studio path and repeat it with a real MCP client and forced projection rebuild.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T20:45:00-05:00"
     },
     {
       "id": "CANVAS-08",

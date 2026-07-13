@@ -100,6 +100,20 @@ Clark Bridge supports MCP Tasks when negotiated. Because Tasks are experimental 
 
 Status, result, and cancellation remain available even when the client disconnects.
 
+### Command and receipt equivalence
+
+The versioned [`bridge-exchange` contract](contracts/schemas/bridge-exchange.schema.json) prevents Bridge from becoming a second automation backend. A mutating exchange binds:
+
+- registered client identity and trust revision;
+- workspace, tool, and action scopes;
+- request, command, intent, idempotency key, deadline, and approval behavior;
+- effective permission decision and policy revision;
+- the exact canonical domain event;
+- accepted or deduplicated durable receipts;
+- the Studio projection and Bridge resource object ID, aggregate version, event ID, and state hash.
+
+The representative [`clark.capture` exchange](contracts/fixtures/full-week/bridge.capture.exchange.json) adds one object to the Full-Week project. Replaying the same intent returns the original object with no new event. Cross-workspace execution, missing tool scope, replay duplication, actor mismatch, or Studio/Bridge state-hash divergence fails semantic verification.
+
 ## Capability Adapter Lifecycle
 
 Every connector supports the applicable subset of:

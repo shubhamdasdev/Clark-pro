@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/bridge-exchange.schema.json",
+  "title": "Clark Bridge Command and Receipt Exchange",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "exchangeId",
+    "transport",
+    "client",
+    "command",
+    "permissionDecision",
+    "domainEvent",
+    "initialReceipt",
+    "replayReceipt",
+    "equivalence"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "../../../schemas/bridge-exchange.schema.json"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "exchangeId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "transport": {
+      "enum": ["stdio", "streamable_http"]
+    },
+    "client": {
+      "$ref": "#/$defs/client"
+    },
+    "command": {
+      "$ref": "#/$defs/command"
+    },
+    "permissionDecision": {
+      "$ref": "#/$defs/permissionDecision"
+    },
+    "domainEvent": {
+      "$ref": "domain-event.schema.json"
+    },
+    "initialReceipt": {
+      "$ref": "#/$defs/receipt"
+    },
+    "replayReceipt": {
+      "$ref": "#/$defs/receipt"
+    },
+    "equivalence": {
+      "$ref": "#/$defs/equivalence"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "client": {
+      "type": "object",
+      "required": [
+        "clientId",
+        "displayName",
+        "registrationRevision",
+        "trust",
+        "workspaceScopes",
+        "toolScopes",
+        "actionScopes",
+        "expiresAt"
+      ],
+      "properties": {
+        "clientId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "registrationRevision": {
+          "$ref": "common.schema.json#/$defs/semver"
+        },
+        "trust": {
+          "enum": ["quarantined", "verified", "revoked"]
+        },
+        "workspaceScopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "toolScopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "actionScopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/actionClass"
+          }
+        },
+        "expiresAt": {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "captureArguments": {
+      "type": "object",
+      "required": ["captureKind", "text", "sensitivity", "classificationStatus"],
+      "properties": {
+        "captureKind": {
+          "const": "text"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10000
+        },
+        "sensitivity": {
+          "enum": ["workspace", "personal", "confidential"]
+        },
+        "classificationStatus": {
+          "enum": ["proposed", "confirmed", "inbox"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "command": {
+      "type": "object",
+      "required": [
+        "commandId",
+        "requestId",
+        "toolName",
+        "workspaceId",
+        "projectId",
+        "intentId",
+        "idempotencyKey",
+        "issuedAt",
+        "deadlineAt",
+        "approvalBehavior",
+        "expectedAggregateVersion",
+        "arguments"
+      ],
+      "properties": {
+        "commandId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "requestId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "toolName": {
+          "const": "clark.capture"
+        },
+        "workspaceId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "projectId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "intentId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 256
+        },
+        "issuedAt": {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        "deadlineAt": {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        },
+        "approvalBehavior": {
+          "enum": ["none", "policy", "always"]
+        },
+        "expectedAggregateVersion": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "arguments": {
+          "$ref": "#/$defs/captureArguments"
+        }
+      },
+      "additionalProperties": false
+    },
+    "permissionDecision": {
+      "type": "object",
+      "required": ["result", "policyRevision", "effectiveWorkspaceId", "effectiveToolScopes", "effectiveActionScopes", "reason"],
+      "properties": {
+        "result": {
+          "enum": ["allow", "ask", "deny"]
+        },
+        "policyRevision": {
+          "$ref": "common.schema.json#/$defs/revisionRef"
+        },
+        "effectiveWorkspaceId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "effectiveToolScopes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "effectiveActionScopes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/actionClass"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 600
+        }
+      },
+      "additionalProperties": false
+    },
+    "objectRef": {
+      "type": "object",
+      "required": ["objectId", "aggregateVersion", "stateHash", "resourceUri"],
+      "properties": {
+        "objectId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "aggregateVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "stateHash": {
+          "$ref": "common.schema.json#/$defs/contentHash"
+        },
+        "resourceUri": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 4096
+        }
+      },
+      "additionalProperties": false
+    },
+    "receipt": {
+      "type": "object",
+      "required": [
+        "receiptId",
+        "status",
+        "requestId",
+        "commandId",
+        "intentId",
+        "idempotencyKey",
+        "workspaceId",
+        "projectId",
+        "emittedEventIds",
+        "objectRef",
+        "recordedAt"
+      ],
+      "properties": {
+        "receiptId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "status": {
+          "enum": ["accepted", "deduplicated", "rejected"]
+        },
+        "requestId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "commandId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "intentId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 256
+        },
+        "workspaceId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "projectId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "emittedEventIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.schema.json#/$defs/id"
+          }
+        },
+        "objectRef": {
+          "$ref": "#/$defs/objectRef"
+        },
+        "recordedAt": {
+          "$ref": "common.schema.json#/$defs/timestamp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "projectionRef": {
+      "type": "object",
+      "required": ["objectId", "aggregateVersion", "eventId", "stateHash"],
+      "properties": {
+        "objectId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "aggregateVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "eventId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "stateHash": {
+          "$ref": "common.schema.json#/$defs/contentHash"
+        },
+        "resourceUri": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 4096
+        },
+        "visibleInView": {
+          "enum": ["focus", "canvas", "timeline", "review", "library", "memory", "connections"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "equivalence": {
+      "type": "object",
+      "required": [
+        "objectCountBefore",
+        "objectCountAfterInitial",
+        "objectCountAfterReplay",
+        "studioProjection",
+        "bridgeResource",
+        "assertions"
+      ],
+      "properties": {
+        "objectCountBefore": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "objectCountAfterInitial": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "objectCountAfterReplay": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "studioProjection": {
+          "$ref": "#/$defs/projectionRef"
+        },
+        "bridgeResource": {
+          "$ref": "#/$defs/projectionRef"
+        },
+        "assertions": {
+          "type": "array",
+          "minItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "same_object_id",
+              "same_aggregate_version",
+              "same_event_id",
+              "same_state_hash",
+              "replay_emits_no_event"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

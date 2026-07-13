@@ -1,0 +1,154 @@
+{
+  "$schema": "../../../schemas/bridge-exchange.schema.json",
+  "schemaVersion": 1,
+  "exchangeId": "bridge.exchange.capture-brief",
+  "transport": "stdio",
+  "client": {
+    "clientId": "bridge-client.hermes-local",
+    "displayName": "Hermes local",
+    "registrationRevision": "1.0.0",
+    "trust": "verified",
+    "workspaceScopes": ["workspace.cortex-diary"],
+    "toolScopes": ["clark.capture", "clark.search", "clark.start-run"],
+    "actionScopes": ["read", "capture"],
+    "expiresAt": "2026-07-13T02:30:00Z"
+  },
+  "command": {
+    "commandId": "command.bridge-capture",
+    "requestId": "request.bridge-capture",
+    "toolName": "clark.capture",
+    "workspaceId": "workspace.cortex-diary",
+    "projectId": "project.week28",
+    "intentId": "intent.bridge-capture",
+    "idempotencyKey": "bridge-capture-week28-01",
+    "issuedAt": "2026-07-12T20:30:00Z",
+    "deadlineAt": "2026-07-12T20:30:30Z",
+    "approvalBehavior": "policy",
+    "expectedAggregateVersion": 0,
+    "arguments": {
+      "captureKind": "text",
+      "text": "Add a creator-continuity brief captured through Hermes and Clark Bridge.",
+      "sensitivity": "workspace",
+      "classificationStatus": "inbox"
+    }
+  },
+  "permissionDecision": {
+    "result": "allow",
+    "policyRevision": {
+      "id": "policy.creator-default",
+      "revision": "1.0.0"
+    },
+    "effectiveWorkspaceId": "workspace.cortex-diary",
+    "effectiveToolScopes": ["clark.capture"],
+    "effectiveActionScopes": ["capture"],
+    "reason": "Verified local client has capture-only authority in this workspace; no model, credential, or external mutation is involved."
+  },
+  "domainEvent": {
+    "schemaVersion": 1,
+    "eventId": "event.bridge-source-captured",
+    "eventType": "source.captured",
+    "aggregate": {
+      "type": "artifact",
+      "id": "intent.bridge-capture",
+      "version": 1
+    },
+    "workspaceId": "workspace.cortex-diary",
+    "projectId": "project.week28",
+    "occurredAt": "2026-07-12T20:30:01Z",
+    "recordedAt": "2026-07-12T20:30:01Z",
+    "actor": {
+      "type": "bridge_client",
+      "id": "bridge-client.hermes-local",
+      "displayName": "Hermes local"
+    },
+    "commandId": "command.bridge-capture",
+    "correlationId": "correlation.bridge-capture",
+    "idempotencyKey": "bridge-capture-week28-01",
+    "sensitivity": "workspace",
+    "payload": {
+      "artifact": {
+        "artifactId": "intent.bridge-capture",
+        "versionId": "version.bridge-capture.v1",
+        "contentHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "captureKind": "text",
+      "originalHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "sensitivity": "workspace",
+      "classificationStatus": "inbox"
+    },
+    "integrity": {
+      "eventHash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "metadata": {
+      "source": "bridge",
+      "deviceId": "device.mac-primary",
+      "clientId": "bridge-client.hermes-local",
+      "policyRevision": {
+        "id": "policy.creator-default",
+        "revision": "1.0.0"
+      }
+    }
+  },
+  "initialReceipt": {
+    "receiptId": "receipt.bridge-capture.accepted",
+    "status": "accepted",
+    "requestId": "request.bridge-capture",
+    "commandId": "command.bridge-capture",
+    "intentId": "intent.bridge-capture",
+    "idempotencyKey": "bridge-capture-week28-01",
+    "workspaceId": "workspace.cortex-diary",
+    "projectId": "project.week28",
+    "emittedEventIds": ["event.bridge-source-captured"],
+    "objectRef": {
+      "objectId": "intent.bridge-capture",
+      "aggregateVersion": 1,
+      "stateHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "resourceUri": "clark://artifact/intent.bridge-capture"
+    },
+    "recordedAt": "2026-07-12T20:30:01Z"
+  },
+  "replayReceipt": {
+    "receiptId": "receipt.bridge-capture.deduplicated",
+    "status": "deduplicated",
+    "requestId": "request.bridge-capture",
+    "commandId": "command.bridge-capture",
+    "intentId": "intent.bridge-capture",
+    "idempotencyKey": "bridge-capture-week28-01",
+    "workspaceId": "workspace.cortex-diary",
+    "projectId": "project.week28",
+    "emittedEventIds": [],
+    "objectRef": {
+      "objectId": "intent.bridge-capture",
+      "aggregateVersion": 1,
+      "stateHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "resourceUri": "clark://artifact/intent.bridge-capture"
+    },
+    "recordedAt": "2026-07-12T20:30:10Z"
+  },
+  "equivalence": {
+    "objectCountBefore": 50,
+    "objectCountAfterInitial": 51,
+    "objectCountAfterReplay": 51,
+    "studioProjection": {
+      "objectId": "intent.bridge-capture",
+      "aggregateVersion": 1,
+      "eventId": "event.bridge-source-captured",
+      "stateHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "visibleInView": "canvas"
+    },
+    "bridgeResource": {
+      "objectId": "intent.bridge-capture",
+      "aggregateVersion": 1,
+      "eventId": "event.bridge-source-captured",
+      "stateHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "resourceUri": "clark://artifact/intent.bridge-capture"
+    },
+    "assertions": [
+      "same_object_id",
+      "same_aggregate_version",
+      "same_event_id",
+      "same_state_hash",
+      "replay_emits_no_event"
+    ]
+  }
+}

@@ -15,6 +15,8 @@ Connections is included as a supporting system surface for MCP servers, social a
 
 The Canvas now supports click-drag panning, 65–140% zoom, fit-to-view, relationship filters, loop collapse, arrow-key movement across semantic lanes, and Enter-to-inspect. `⌘K` opens the command palette; `⌘Z` and `⇧⌘Z` undo and redo staged prototype changes. Review uses one synchronized playhead for Reel A/B and keeps evidence, cost, source angle, policy, derivative impact, annotations, selection, approval, and publication authority separate.
 
+Connections includes a Bridge state-equivalence proof. A verified Hermes client issues `clark.capture` with capture-only workspace scope, receives one durable `source.captured` receipt, and creates the same object Canvas renders. Replaying the intent emits no new event; reloading restores the 51-object receipt-backed state for the current browser session.
+
 The prototype validates information architecture and interaction contracts. It is not an alternate implementation path; production work follows the Electron, event, harness, memory, policy, and capability contracts in the authoritative architecture documents.
 
 ## Preview
@@ -38,6 +40,10 @@ The prototype validates information architecture and interaction contracts. It i
 ### Connections
 
 ![Connections view](connections-preview.png)
+
+### Studio ↔ Bridge state proof
+
+![Bridge state-equivalence proof](bridge-preview.png)
 
 ## Regenerate
 

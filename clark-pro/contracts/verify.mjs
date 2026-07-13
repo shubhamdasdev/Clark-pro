@@ -33,6 +33,7 @@ const validate = (schemaFilename, dataFilename, shouldPass = true) => {
 const positiveTargets = [
   ["event-catalog.schema.json", "event-catalog.json"],
   ["ground-evidence-ledger.schema.json", "../evidence/ground-ledger.json"],
+  ["bridge-exchange.schema.json", "fixtures/full-week/bridge.capture.exchange.json"],
   ["loop-definition.schema.json", "fixtures/full-week/full-week.loop.json"],
   ["loop-definition.schema.json", "fixtures/full-week/reflection.loop.json"],
   ["run-plan.schema.json", "fixtures/full-week/run-plan.json"],
@@ -58,6 +59,88 @@ for (const [schema, data] of schemaNegativeTargets) validate(schema, data, false
 const catalog = read("event-catalog.json");
 unique(catalog.events.map((event) => `${event.eventType}@${event.schemaVersion}`), "Event catalog keys");
 const catalogByType = new Map(catalog.events.map((event) => [event.eventType, event]));
+
+const bridgeExchange = read("fixtures/full-week/bridge.capture.exchange.json");
+const validateBridgeExchange = (exchange) => {
+  const { client, command, permissionDecision, domainEvent, initialReceipt, replayReceipt, equivalence } = exchange;
+  assert(client.trust === "verified", "Bridge client is not verified");
+  assert(client.workspaceScopes.includes(command.workspaceId), "Bridge workspace scope mismatch");
+  assert(client.toolScopes.includes(command.toolName), "Bridge tool scope missing");
+  assert(client.actionScopes.includes("capture"), "Bridge capture action scope missing");
+  assert(permissionDecision.result === "allow", "Bridge permission decision is not allow");
+  assert(permissionDecision.effectiveWorkspaceId === command.workspaceId, "Bridge effective workspace differs from command");
+  assert(permissionDecision.effectiveToolScopes.includes(command.toolName), "Bridge effective tool scope missing");
+  assert(permissionDecision.effectiveActionScopes.includes("capture"), "Bridge effective capture scope missing");
+  assert(Date.parse(command.issuedAt) < Date.parse(command.deadlineAt), "Bridge command deadline is not after issue time");
+  assert(Date.parse(command.deadlineAt) < Date.parse(client.expiresAt), "Bridge client expires before command deadline");
+
+  assert(domainEvent.eventType === "source.captured", "Bridge capture emitted the wrong event type");
+  assert(domainEvent.actor.type === "bridge_client", "Bridge event actor type is not bridge_client");
+  assert(domainEvent.actor.id === client.clientId, "Bridge event actor does not match client");
+  assert(domainEvent.metadata?.source === "bridge", "Bridge event metadata source is not bridge");
+  assert(domainEvent.metadata?.clientId === client.clientId, "Bridge event metadata client does not match");
+  assert(domainEvent.commandId === command.commandId, "Bridge event command ID mismatch");
+  assert(domainEvent.idempotencyKey === command.idempotencyKey, "Bridge event idempotency key mismatch");
+  assert(domainEvent.workspaceId === command.workspaceId, "Bridge event workspace mismatch");
+  assert(domainEvent.projectId === command.projectId, "Bridge event project mismatch");
+  assert(domainEvent.aggregate.version === command.expectedAggregateVersion + 1, "Bridge aggregate version does not follow expectation");
+  const catalogEntry = catalogByType.get(domainEvent.eventType);
+  assert(catalogEntry, "Bridge event type is absent from the catalog");
+  assert(catalogEntry.aggregateType === domainEvent.aggregate.type, "Bridge event aggregate differs from catalog");
+  const payloadFragment = catalogEntry.payloadRef.split("#")[1];
+  const payloadValidator = ajv.getSchema(`https://schemas.clark.pro/v1/event-payloads.schema.json#${payloadFragment}`);
+  assert(payloadValidator?.(domainEvent.payload), `Bridge event payload invalid: ${JSON.stringify(payloadValidator?.errors)}`);
+  assert(domainEvent.payload.artifact.artifactId === domainEvent.aggregate.id, "Bridge payload artifact differs from aggregate");
+  assert(domainEvent.payload.sensitivity === command.arguments.sensitivity, "Bridge payload sensitivity differs from command");
+
+  const receiptFields = ["requestId", "commandId", "intentId", "idempotencyKey", "workspaceId", "projectId"];
+  for (const receipt of [initialReceipt, replayReceipt]) {
+    for (const field of receiptFields) assert(receipt[field] === command[field], `Bridge receipt ${field} mismatch`);
+    assert(receipt.objectRef.objectId === domainEvent.aggregate.id, "Bridge receipt object differs from event aggregate");
+    assert(receipt.objectRef.aggregateVersion === domainEvent.aggregate.version, "Bridge receipt aggregate version differs from event");
+    assert(receipt.objectRef.stateHash === domainEvent.payload.artifact.contentHash, "Bridge receipt state hash differs from artifact");
+  }
+  assert(initialReceipt.status === "accepted", "Initial Bridge receipt is not accepted");
+  assert(initialReceipt.emittedEventIds.length === 1 && initialReceipt.emittedEventIds[0] === domainEvent.eventId, "Initial Bridge receipt does not identify exactly one emitted event");
+  assert(replayReceipt.status === "deduplicated", "Replay Bridge receipt is not deduplicated");
+  assert(replayReceipt.emittedEventIds.length === 0, "Bridge deduplicated replay emitted an event");
+  assert(replayReceipt.objectRef.objectId === initialReceipt.objectRef.objectId, "Bridge replay returned a different object");
+  assert(replayReceipt.objectRef.stateHash === initialReceipt.objectRef.stateHash, "Bridge replay returned a different state hash");
+
+  const { studioProjection, bridgeResource } = equivalence;
+  assert(studioProjection.objectId === bridgeResource.objectId, "Studio and Bridge object IDs diverge");
+  assert(studioProjection.aggregateVersion === bridgeResource.aggregateVersion, "Studio and Bridge aggregate versions diverge");
+  assert(studioProjection.eventId === bridgeResource.eventId, "Studio and Bridge event IDs diverge");
+  assert(studioProjection.stateHash === bridgeResource.stateHash, "Studio and Bridge state hashes diverge");
+  assert(studioProjection.objectId === domainEvent.aggregate.id, "Studio projection does not reference Bridge event aggregate");
+  assert(studioProjection.eventId === domainEvent.eventId, "Studio projection does not reference Bridge event");
+  assert(studioProjection.stateHash === initialReceipt.objectRef.stateHash, "Studio projection state hash differs from receipt");
+  assert(equivalence.objectCountAfterInitial === equivalence.objectCountBefore + 1, "Initial Bridge capture did not add exactly one object");
+  assert(equivalence.objectCountAfterReplay === equivalence.objectCountAfterInitial, "Bridge replay changed object count");
+};
+validateBridgeExchange(bridgeExchange);
+
+const bridgeNegativeSuite = read("fixtures/negative/bridge.semantic-negative-cases.json");
+assert(bridgeNegativeSuite.baseFixture === "fixtures/full-week/bridge.capture.exchange.json", "Bridge negative suite points to wrong base fixture");
+unique(bridgeNegativeSuite.cases.map((item) => item.id), "Bridge semantic negative case IDs");
+const setPath = (target, dottedPath, value) => {
+  const segments = dottedPath.split(".");
+  const leaf = segments.pop();
+  const parent = segments.reduce((current, segment) => current[segment], target);
+  parent[leaf] = value;
+};
+for (const negativeCase of bridgeNegativeSuite.cases) {
+  const candidate = structuredClone(bridgeExchange);
+  setPath(candidate, negativeCase.path, negativeCase.value);
+  let rejection = null;
+  try {
+    validateBridgeExchange(candidate);
+  } catch (error) {
+    rejection = error;
+  }
+  assert(rejection, `${negativeCase.id} was not rejected`);
+  assert(rejection.message.includes(negativeCase.expectedReason), `${negativeCase.id} rejected for unexpected reason: ${rejection.message}`);
+}
 
 const stream = read("fixtures/full-week/events.json");
 unique(stream.events.map((event) => event.eventId), "Event IDs");
@@ -233,7 +316,9 @@ console.log(JSON.stringify({
   schemaFiles: fs.readdirSync(path.join(root, "schemas")).filter((name) => name.endsWith(".json")).length,
   positiveDocuments: positiveTargets.length,
   schemaNegativeDocumentsRejected: schemaNegativeTargets.length,
-  semanticNegativeDocumentsRejected: 3,
+  semanticNegativeDocumentsRejected: 4,
+  bridgeSemanticNegativeCasesRejected: bridgeNegativeSuite.cases.length,
+  bridgeExchanges: 1,
   eventTypes: catalog.events.length,
   eventPayloadsValidated: stream.events.length,
   capabilities: capabilities.length,

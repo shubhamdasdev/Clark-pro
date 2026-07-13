@@ -1,0 +1,36 @@
+{
+  "fixtureVersion": 1,
+  "baseFixture": "fixtures/full-week/bridge.capture.exchange.json",
+  "cases": [
+    {
+      "id": "bridge-cross-workspace",
+      "path": "command.workspaceId",
+      "value": "workspace.other",
+      "expectedReason": "workspace scope mismatch"
+    },
+    {
+      "id": "bridge-tool-scope-missing",
+      "path": "client.toolScopes",
+      "value": ["clark.search"],
+      "expectedReason": "tool scope missing"
+    },
+    {
+      "id": "bridge-replay-emits-event",
+      "path": "replayReceipt.emittedEventIds",
+      "value": ["event.bridge-source-captured"],
+      "expectedReason": "deduplicated replay emitted an event"
+    },
+    {
+      "id": "bridge-state-hash-diverges",
+      "path": "equivalence.bridgeResource.stateHash",
+      "value": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "expectedReason": "Studio and Bridge state hashes diverge"
+    },
+    {
+      "id": "bridge-actor-mismatch",
+      "path": "domainEvent.actor.id",
+      "value": "bridge-client.other",
+      "expectedReason": "event actor does not match client"
+    }
+  ]
+}
