@@ -1,2 +1,239 @@
 {
+  "app": {
+    "name": "Clark Pro",
+    "local_badge": "Local canonical workspace"
+  },
+  "nav": {
+    "focus": "Focus",
+    "canvas": "Canvas",
+    "timeline": "Timeline",
+    "review": "Review",
+    "library": "Library",
+    "memory": "Memory",
+    "connections": "Connections",
+    "observation": "Observation"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "back": "Back",
+    "retry": "Retry safely",
+    "diagnostics": "View diagnostics",
+    "loading": "Loading verified local state…"
+  },
+  "welcome_trust": {
+    "heading": "Your work stays yours",
+    "primary_cta": "Create a workspace",
+    "secondary_cta": "Import a workspace",
+    "safety_link": "View build and privacy details"
+  },
+  "workspace_setup": {
+    "heading": "Set up your Clark workspace",
+    "primary_cta": "Open Focus",
+    "optional_action": "Set up connections later",
+    "error": "Clark could not verify this workspace. Nothing was imported."
+  },
+  "safe_recovery": {
+    "heading": "Clark stopped before changing your workspace",
+    "primary_cta": "Retry safely",
+    "secondary_cta": "Open read-only",
+    "destructive_cta": "Roll back to last trusted version"
+  },
+  "focus": {
+    "heading": "Focus",
+    "primary_cta": "Run to review",
+    "dry_run_cta": "Check readiness",
+    "empty_state": "Capture an idea to begin."
+  },
+  "connections": {
+    "heading": "Connections",
+    "primary_cta": "Add a connection",
+    "empty_state": "No external capability has authority yet.",
+    "revoke_action": "Revoke access"
+  },
+  "capability_trust_review": {
+    "heading": "Review capability authority",
+    "primary_cta": "Continue to authorization",
+    "secondary_cta": "Keep disconnected",
+    "failure": "This capability failed a required trust check."
+  },
+  "credential_authorization": {
+    "heading": "Authorize this capability",
+    "primary_cta": "Authorize securely",
+    "secondary_cta": "Cancel",
+    "privacy_note": "Clark stores the secret in Keychain, not in your workspace."
+  },
+  "capability_health": {
+    "heading": "Capability health",
+    "primary_cta": "Finish setup",
+    "secondary_cta": "Run health check",
+    "success": "Capability is ready for governed use."
+  },
+  "tool_pack_library": {
+    "heading": "Tool Packs",
+    "primary_cta": "Evaluate a source",
+    "empty_state": "No Tool Pack is active. Clark can evaluate a supported source.",
+    "blocked_label": "Blocked upstream"
+  },
+  "tool_pack_review": {
+    "heading": "Tool Pack review",
+    "primary_cta": "Acquire to quarantine",
+    "blocked_cta": "Keep blocked",
+    "warning": "Installation does not grant execution authority."
+  },
+  "activation_decision": {
+    "heading": "Activate this exact revision?",
+    "primary_cta": "Activate revision",
+    "secondary_cta": "Keep in quarantine",
+    "rollback_cta": "Restore prior revision"
+  },
+  "skill_library": {
+    "heading": "Agent Skills",
+    "primary_cta": "Inspect a Skill",
+    "empty_state": "No Skill has been promoted for this workspace.",
+    "quarantine_label": "Quarantined"
+  },
+  "skill_review": {
+    "heading": "Skill review",
+    "primary_cta": "Review promotion",
+    "secondary_cta": "Keep quarantined",
+    "failure": "This Skill requests authority that is not available."
+  },
+  "skill_revision_diff": {
+    "heading": "Compare Skill revisions",
+    "primary_cta": "Review promotion",
+    "secondary_cta": "Keep current revision",
+    "expansion_warning": "This revision requests additional authority."
+  },
+  "skill_promotion": {
+    "heading": "Promote this Skill revision?",
+    "primary_cta": "Promote within this ceiling",
+    "secondary_cta": "Keep quarantined",
+    "rollback_cta": "Restore prior Skill"
+  },
+  "quick_capture": {
+    "heading": "Capture to Clark",
+    "primary_cta": "Save capture",
+    "secondary_cta": "Leave in Inbox",
+    "safety_note": "Capturing does not start research or generation."
+  },
+  "inbox": {
+    "heading": "Inbox",
+    "primary_cta": "Clarify intent",
+    "empty_state": "Inbox is clear.",
+    "archive_action": "Archive capture"
+  },
+  "run_approval": {
+    "heading": "Approve this run plan?",
+    "primary_cta": "Start approved run",
+    "secondary_cta": "Edit inputs",
+    "cancel_cta": "Cancel"
+  },
+  "canvas": {
+    "heading": "Canvas",
+    "primary_cta": "Preview downstream impact",
+    "empty_state": "The graph will appear after the first capture.",
+    "evidence_warning": "Evidence is still required."
+  },
+  "review": {
+    "heading": "Review",
+    "primary_cta": "Review decision",
+    "empty_state": "Nothing is waiting for review.",
+    "stale_warning": "This version changed upstream and needs a new decision."
+  },
+  "timeline": {
+    "heading": "Timeline",
+    "primary_cta": "Schedule approved work",
+    "empty_state": "Approved work will appear here.",
+    "reconciliation_label": "Needs reconciliation"
+  },
+  "impact_preview": {
+    "heading": "Preview downstream impact",
+    "primary_cta": "Regenerate selected branches",
+    "secondary_cta": "Preserve selected work",
+    "warning": "Existing approval will no longer authorize changed output."
+  },
+  "version_comparison": {
+    "heading": "Compare exact versions",
+    "primary_cta": "Choose this version",
+    "secondary_cta": "Back to review",
+    "media_action": "Play both"
+  },
+  "approval_decision": {
+    "heading": "Record this exact-version decision",
+    "primary_cta": "Approve version",
+    "secondary_cta": "Request changes",
+    "reject_cta": "Reject version"
+  },
+  "publication_approval": {
+    "heading": "Approve publication intent?",
+    "primary_cta": "Submit publication",
+    "secondary_cta": "Cancel",
+    "safety_note": "Clark will reconcile an ambiguous result before retrying."
+  },
+  "reconciliation": {
+    "heading": "Reconcile this external action",
+    "primary_cta": "Check provider state",
+    "secondary_cta": "Continue observing",
+    "warning": "Do not retry until Clark can prove the prior intent did not publish."
+  },
+  "export_package": {
+    "heading": "Publication export package",
+    "primary_cta": "Export complete package",
+    "secondary_cta": "Record assisted result",
+    "success": "Export verified and linked to this publication intent."
+  },
+  "observation": {
+    "heading": "Observation",
+    "primary_cta": "Add context",
+    "empty_state": "No comparable observations are available yet.",
+    "missingness_note": "Some platform fields are unavailable or not comparable."
+  },
+  "manual_observation": {
+    "heading": "Add observation context",
+    "primary_cta": "Save observation",
+    "secondary_cta": "Cancel",
+    "source_label": "Entered manually"
+  },
+  "memory": {
+    "heading": "Memory",
+    "primary_cta": "Review proposal",
+    "empty_state": "Clark has no active memory for this scope.",
+    "governance_note": "Clark never promotes memory without your decision."
+  },
+  "memory_proposal": {
+    "heading": "Review memory proposal",
+    "primary_cta": "Decide on proposal",
+    "secondary_cta": "Defer",
+    "safety_note": "This proposal is not used in retrieval yet."
+  },
+  "memory_decision": {
+    "heading": "Record memory decision",
+    "primary_cta": "Promote this revision",
+    "secondary_cta": "Keep inactive",
+    "reject_cta": "Reject proposal"
+  },
+  "client_pairing": {
+    "heading": "Pair an MCP client",
+    "primary_cta": "Pair with these scopes",
+    "secondary_cta": "Cancel",
+    "safety_note": "The client cannot approve work unless that scope is explicitly granted."
+  },
+  "memory_history": {
+    "heading": "Memory history and influence",
+    "primary_cta": "Correct this memory",
+    "destructive_cta": "Forget memory",
+    "caveat": "Backup retention is shown before deletion."
+  },
+  "forget_memory": {
+    "heading": "Forget this memory?",
+    "primary_cta": "Forget and remove from retrieval",
+    "secondary_cta": "Cancel",
+    "warning": "Clark will show any backup copy that remains under retention policy."
+  },
+  "recovery_summary": {
+    "heading": "Recovery summary",
+    "primary_cta": "Resume safe work",
+    "secondary_cta": "Leave paused",
+    "success": "Clark recovered your durable work without duplicating it."
+  }
 }

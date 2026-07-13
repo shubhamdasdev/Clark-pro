@@ -8,6 +8,7 @@
 **Priority:** P0
 **Phase:** P-002-01
 **Version:** 1.0
+**Analytics:** AE-001
 **Created:** 2026-07-13
 **Updated:** 2026-07-13
 **Sources:** [Authoritative epics](../../research/history/import-2026-07-13/product/03-epics-and-stories.md), [Whole-product roadmap](../../research/history/import-2026-07-13/roadmap.md)
