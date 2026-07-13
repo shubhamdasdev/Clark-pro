@@ -67,7 +67,7 @@ h3 { margin-top: 0; }
 .btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--secondary); color: var(--secondary-foreground); cursor: pointer; text-decoration: none; white-space: normal; }
 .btn:hover { background: var(--accent); color: var(--accent-foreground); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn-primary, .btn[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.btn-primary, .btn[aria-pressed="true"], .btn[aria-selected="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
 .viz-tile { min-height: 42px; align-self: stretch; }
 .viz-badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px; background: var(--muted); color: var(--foreground); font-size: 12px; }
 .viz-controls { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -75,6 +75,8 @@ h3 { margin-top: 0; }
 .text-muted { color: var(--muted-foreground); }
 .form-label { display: grid; gap: 4px; color: var(--muted-foreground); }
 .form-select { min-height: 34px; padding: 4px 28px 4px 8px; border: 1px solid var(--input); border-radius: 7px; background: var(--card); color: var(--card-foreground); }
+.form-control { width: 100%; min-height: 64px; padding: 8px; border: 1px solid var(--input); border-radius: 7px; background: var(--card); color: var(--card-foreground); resize: vertical; }
+.form-range { width: min(420px, 100%); accent-color: var(--primary); }
 .form-check { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; }
 .form-check-input { width: 18px; height: 18px; }
 svg.lucide { width: 16px; height: 16px; }
@@ -100,7 +102,9 @@ svg.lucide { width: 16px; height: 16px; }
     #clark-studio-vis .cs-main { padding-top: 12px; }
     #clark-studio-vis .cs-view[hidden] { display: none; }
     #clark-studio-vis .cs-two { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(220px, .8fr); gap: 14px; align-items: start; }
-    #clark-studio-vis .cs-canvas-wrap { position: relative; min-width: 0; }
+    #clark-studio-vis .cs-canvas-viewport { max-width: 100%; overflow: auto; cursor: grab; overscroll-behavior: contain; scrollbar-gutter: stable; border-block: 1px solid var(--border); padding-block: 8px; }
+    #clark-studio-vis .cs-canvas-viewport.is-panning { cursor: grabbing; user-select: none; }
+    #clark-studio-vis .cs-canvas-wrap { position: relative; min-width: 1050px; transform-origin: top left; }
     #clark-studio-vis .cs-canvas-grid { position: relative; z-index: 1; }
     #clark-studio-vis .cs-edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
     #clark-studio-vis .cs-edges path { fill: none; stroke: var(--border); stroke-width: 1.5; }
@@ -129,6 +133,10 @@ svg.lucide { width: 16px; height: 16px; }
     #clark-studio-vis .cs-slot strong { display: block; }
     #clark-studio-vis .cs-review-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
     #clark-studio-vis .cs-review-media { min-height: 140px; display: grid; place-items: center; background: color-mix(in srgb, var(--viz-series-1) 10%, transparent); }
+    #clark-studio-vis .cs-review-media.is-playing { background: color-mix(in srgb, var(--viz-series-2) 14%, transparent); }
+    #clark-studio-vis .cs-compare-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    #clark-studio-vis .cs-compare-table th, #clark-studio-vis .cs-compare-table td { padding: 7px 8px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+    #clark-studio-vis .cs-compare-table th { font-weight: 500; }
     #clark-studio-vis .cs-library { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
     #clark-studio-vis .cs-artifact { padding: 8px 0; border-bottom: 1px solid var(--border); }
     #clark-studio-vis .cs-memory-list { display: grid; gap: 8px; }
@@ -141,9 +149,13 @@ svg.lucide { width: 16px; height: 16px; }
     #clark-studio-vis .cs-mini-meter > span { display: block; height: 100%; width: 38%; background: var(--viz-series-1); }
     #clark-studio-vis .cs-activity { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); color: var(--muted-foreground); }
     #clark-studio-vis .cs-spacer-top { margin-top: 10px; }
+    #clark-studio-vis .cs-dialog { width: min(520px, calc(100% - 28px)); color: var(--card-foreground); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    #clark-studio-vis .cs-dialog::backdrop { background: color-mix(in srgb, var(--foreground) 32%, transparent); }
+    #clark-studio-vis .cs-command-list { display: grid; gap: 6px; margin-top: 10px; }
+    #clark-studio-vis .cs-command-list .btn { justify-content: space-between; width: 100%; }
     @media (max-width: 980px) {
       #clark-studio-vis .cs-edges { display: none; }
-      #clark-studio-vis .cs-canvas-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      #clark-studio-vis .cs-canvas-grid { grid-template-columns: repeat(6, minmax(140px, 1fr)); }
       #clark-studio-vis .cs-lane + .cs-lane { border-left: 0; padding-left: 0; }
       #clark-studio-vis .cs-lane:nth-child(2),
       #clark-studio-vis .cs-lane:nth-child(3),
@@ -160,7 +172,7 @@ svg.lucide { width: 16px; height: 16px; }
       #clark-studio-vis .cs-two,
       #clark-studio-vis .cs-review-grid,
       #clark-studio-vis .cs-choice-grid { grid-template-columns: 1fr; }
-      #clark-studio-vis .cs-canvas-grid { grid-template-columns: 1fr; }
+      #clark-studio-vis .cs-canvas-grid { grid-template-columns: repeat(6, minmax(140px, 1fr)); }
       #clark-studio-vis .cs-lane { border-left: 0 !important; padding-left: 0 !important; }
       #clark-studio-vis .cs-day { grid-template-columns: 64px 1fr; }
       #clark-studio-vis .cs-library { grid-template-columns: 1fr; }
@@ -177,23 +189,26 @@ svg.lucide { width: 16px; height: 16px; }
     <div class="cs-actions">
       <span class="viz-badge" id="cs-object-count">50 objects</span>
       <span class="viz-badge" id="cs-budget">$19.20 / $50</span>
+      <button type="button" class="btn" id="cs-undo" disabled aria-label="Undo last change">Undo</button>
+      <button type="button" class="btn" id="cs-redo" disabled aria-label="Redo last change">Redo</button>
+      <button type="button" class="btn" id="cs-command-palette" aria-keyshortcuts="Meta+K Control+K"><i data-lucide="command" aria-hidden="true"></i> Commands</button>
       <button type="button" class="btn" id="cs-dry-run"><i data-lucide="shield-check" aria-hidden="true"></i> Dry run</button>
       <button type="button" class="btn btn-primary" id="cs-run"><i data-lucide="play" aria-hidden="true"></i> Run to review</button>
     </div>
   </div>
 
-  <nav class="cs-nav" aria-label="Clark Studio views">
-    <button type="button" class="btn cs-tab" data-view="focus" aria-pressed="true"><i data-lucide="circle-dot" aria-hidden="true"></i> Focus</button>
-    <button type="button" class="btn cs-tab" data-view="canvas" aria-pressed="false"><i data-lucide="workflow" aria-hidden="true"></i> Canvas</button>
-    <button type="button" class="btn cs-tab" data-view="timeline" aria-pressed="false"><i data-lucide="calendar-days" aria-hidden="true"></i> Timeline</button>
-    <button type="button" class="btn cs-tab" data-view="review" aria-pressed="false"><i data-lucide="scan-eye" aria-hidden="true"></i> Review <span class="viz-badge" id="cs-review-count">3</span></button>
-    <button type="button" class="btn cs-tab" data-view="library" aria-pressed="false"><i data-lucide="library" aria-hidden="true"></i> Library</button>
-    <button type="button" class="btn cs-tab" data-view="memory" aria-pressed="false"><i data-lucide="brain" aria-hidden="true"></i> Memory <span class="viz-badge" id="cs-memory-count">2</span></button>
-    <button type="button" class="btn cs-tab" data-view="connections" aria-pressed="false"><i data-lucide="cable" aria-hidden="true"></i> Connections</button>
+  <nav class="cs-nav" aria-label="Clark Studio views" role="tablist">
+    <button type="button" class="btn cs-tab" id="cs-tab-focus" role="tab" data-view="focus" aria-selected="true" aria-controls="cs-view-focus"><i data-lucide="circle-dot" aria-hidden="true"></i> Focus</button>
+    <button type="button" class="btn cs-tab" id="cs-tab-canvas" role="tab" data-view="canvas" aria-selected="false" aria-controls="cs-view-canvas"><i data-lucide="workflow" aria-hidden="true"></i> Canvas</button>
+    <button type="button" class="btn cs-tab" id="cs-tab-timeline" role="tab" data-view="timeline" aria-selected="false" aria-controls="cs-view-timeline"><i data-lucide="calendar-days" aria-hidden="true"></i> Timeline</button>
+    <button type="button" class="btn cs-tab" id="cs-tab-review" role="tab" data-view="review" aria-selected="false" aria-controls="cs-view-review"><i data-lucide="scan-eye" aria-hidden="true"></i> Review <span class="viz-badge" id="cs-review-count">3</span></button>
+    <button type="button" class="btn cs-tab" id="cs-tab-library" role="tab" data-view="library" aria-selected="false" aria-controls="cs-view-library"><i data-lucide="library" aria-hidden="true"></i> Library</button>
+    <button type="button" class="btn cs-tab" id="cs-tab-memory" role="tab" data-view="memory" aria-selected="false" aria-controls="cs-view-memory"><i data-lucide="brain" aria-hidden="true"></i> Memory <span class="viz-badge" id="cs-memory-count">2</span></button>
+    <button type="button" class="btn cs-tab" id="cs-tab-connections" role="tab" data-view="connections" aria-selected="false" aria-controls="cs-view-connections"><i data-lucide="cable" aria-hidden="true"></i> Connections</button>
   </nav>
 
   <main class="cs-main">
-    <section class="cs-view" id="cs-view-focus" role="tabpanel" aria-label="Focus view">
+    <section class="cs-view" id="cs-view-focus" role="tabpanel" aria-labelledby="cs-tab-focus">
       <div class="cs-two">
         <div class="card">
           <div class="cs-inline">
@@ -235,7 +250,7 @@ svg.lucide { width: 16px; height: 16px; }
       </div>
     </section>
 
-    <section class="cs-view" id="cs-view-canvas" role="tabpanel" aria-label="Canvas view" hidden>
+    <section class="cs-view" id="cs-view-canvas" role="tabpanel" aria-labelledby="cs-tab-canvas" hidden>
       <div class="viz-controls">
         <label class="form-label" for="cs-edge-mode">Show
           <select class="form-select" id="cs-edge-mode">
@@ -252,11 +267,20 @@ svg.lucide { width: 16px; height: 16px; }
           <span class="form-check-label">Preview angle-change impact</span>
         </label>
         <button type="button" class="btn" id="cs-collapse-loops">Collapse loops</button>
+        <button type="button" class="btn" id="cs-zoom-out" aria-label="Zoom Canvas out">−</button>
+        <span class="viz-badge" id="cs-zoom-label" aria-live="polite">100%</span>
+        <button type="button" class="btn" id="cs-zoom-in" aria-label="Zoom Canvas in">+</button>
+        <button type="button" class="btn" id="cs-zoom-fit">Fit</button>
       </div>
       <div class="cs-two">
-        <div class="cs-canvas-wrap">
-          <svg class="cs-edges" id="cs-edges" aria-hidden="true"></svg>
-          <div class="cs-canvas-grid" id="cs-canvas-grid" aria-label="Fifty-object creator workflow across six semantic lanes"></div>
+        <div>
+          <p class="text-small text-muted" id="cs-canvas-help">Drag empty space to pan. Use zoom controls. With an object focused, arrow keys move within and across lanes; Enter inspects it.</p>
+          <div class="cs-canvas-viewport" id="cs-canvas-viewport" aria-label="Pannable creator workflow canvas" aria-describedby="cs-canvas-help">
+            <div class="cs-canvas-wrap">
+              <svg class="cs-edges" id="cs-edges" aria-hidden="true"></svg>
+              <div class="cs-canvas-grid" id="cs-canvas-grid" aria-label="Fifty-object creator workflow across six semantic lanes"></div>
+            </div>
+          </div>
         </div>
         <aside class="card cs-inspector" id="cs-node-inspector" aria-live="polite">
           <h3>Select an object</h3>
@@ -265,18 +289,25 @@ svg.lucide { width: 16px; height: 16px; }
       </div>
     </section>
 
-    <section class="cs-view" id="cs-view-timeline" role="tabpanel" aria-label="Timeline view" hidden>
+    <section class="cs-view" id="cs-view-timeline" role="tabpanel" aria-labelledby="cs-tab-timeline" hidden>
       <div class="cs-statusline"><span class="viz-badge">Week 28</span><span class="text-small text-muted">Production state and publication truth share one timeline.</span></div>
       <div class="cs-timeline" id="cs-timeline"></div>
     </section>
 
-    <section class="cs-view" id="cs-view-review" role="tabpanel" aria-label="Review view" hidden>
+    <section class="cs-view" id="cs-view-review" role="tabpanel" aria-labelledby="cs-tab-review" hidden>
+      <div class="viz-controls">
+        <button type="button" class="btn" id="cs-compare-play"><i data-lucide="play" aria-hidden="true"></i> Play both</button>
+        <label class="form-label" for="cs-review-scrubber">Synchronized playhead <span id="cs-review-time">0:00 / 0:18</span>
+          <input class="form-range" type="range" id="cs-review-scrubber" min="0" max="18" value="0">
+        </label>
+      </div>
       <div class="cs-review-grid">
         <article class="card" data-review-card="A">
           <div class="cs-inline"><span class="viz-badge">Reel A</span><span class="text-small text-muted">$4.20 · Seedance · v3</span></div>
           <div class="cs-review-media"><div><i data-lucide="play-circle" aria-hidden="true"></i><br>Memory, not generation</div></div>
           <p><strong>Hook:</strong> “The next creator tool won’t win because it generates more. It’ll win because it remembers why you rejected the last draft.”</p>
           <p class="text-small text-muted">6/6 claims supported · AI disclosure present · 1 brand warning resolved</p>
+          <label class="form-label" for="cs-note-a">Reviewer note<textarea class="form-control" id="cs-note-a" placeholder="What is stronger or weaker in Reel A?"></textarea></label>
           <button type="button" class="btn cs-pick-review" data-pick="A" aria-pressed="false">Select Reel A</button>
         </article>
         <article class="card" data-review-card="B">
@@ -284,9 +315,20 @@ svg.lucide { width: 16px; height: 16px; }
           <div class="cs-review-media"><div><i data-lucide="play-circle" aria-hidden="true"></i><br>The canvas is not the moat</div></div>
           <p><strong>Hook:</strong> “A node canvas looked differentiated six months ago. Now the moat is the history of decisions behind every node.”</p>
           <p class="text-small text-muted">5/6 claims supported · competitive citation needs confirmation</p>
+          <label class="form-label" for="cs-note-b">Reviewer note<textarea class="form-control" id="cs-note-b" placeholder="What is stronger or weaker in Reel B?"></textarea></label>
           <button type="button" class="btn cs-pick-review" data-pick="B" aria-pressed="false">Select Reel B</button>
         </article>
       </div>
+      <table class="cs-compare-table" aria-label="Reel comparison">
+        <thead><tr><th>Decision factor</th><th>Reel A · v3</th><th>Reel B · v2</th></tr></thead>
+        <tbody>
+          <tr><th>Evidence</th><td>6/6 claims supported</td><td>5/6; citation unresolved</td></tr>
+          <tr><th>Cost</th><td>$4.20</td><td>$3.85</td></tr>
+          <tr><th>Source angle</th><td>Memory is the moat</td><td>Canvas is commoditized</td></tr>
+          <tr><th>Policy</th><td>Disclosure present; brand warning resolved</td><td>Disclosure present; competitive claim blocked</td></tr>
+          <tr><th>Derivative impact</th><td>Instagram + TikTok adaptations ready</td><td>Rewrites both adaptations</td></tr>
+        </tbody>
+      </table>
       <div class="cs-actions cs-spacer-top">
         <button type="button" class="btn" id="cs-request-change">Request targeted change</button>
         <button type="button" class="btn btn-primary" id="cs-approve-review" disabled>Approve selected version</button>
@@ -294,12 +336,12 @@ svg.lucide { width: 16px; height: 16px; }
       <p class="text-small text-muted" id="cs-review-note">Approval is version-specific and does not authorize publication.</p>
     </section>
 
-    <section class="cs-view" id="cs-view-library" role="tabpanel" aria-label="Library view" hidden>
+    <section class="cs-view" id="cs-view-library" role="tabpanel" aria-labelledby="cs-tab-library" hidden>
       <div class="cs-statusline"><span class="viz-badge">128 artifacts</span><span class="viz-badge">14 sources</span><span class="viz-badge">7 loops</span><span class="text-small text-muted">Canonical local library · content-addressed assets</span></div>
       <div class="cs-library" id="cs-library"></div>
     </section>
 
-    <section class="cs-view" id="cs-view-memory" role="tabpanel" aria-label="Memory view" hidden>
+    <section class="cs-view" id="cs-view-memory" role="tabpanel" aria-labelledby="cs-tab-memory" hidden>
       <div class="cs-two">
         <div>
           <div class="cs-statusline"><span class="viz-badge">Creator model</span><span class="text-small text-muted">2 proposals need review · no silent promotion</span></div>
@@ -313,7 +355,7 @@ svg.lucide { width: 16px; height: 16px; }
       </div>
     </section>
 
-    <section class="cs-view" id="cs-view-connections" role="tabpanel" aria-label="Connections and system view" hidden>
+    <section class="cs-view" id="cs-view-connections" role="tabpanel" aria-labelledby="cs-tab-connections" hidden>
       <div class="cs-statusline"><span class="viz-badge">Harness healthy</span><span class="viz-badge">Bridge on</span><span class="viz-badge">4 MCP servers</span><span class="viz-badge">6 social accounts</span><span class="viz-badge">12 trusted skills</span></div>
       <div class="cs-two">
         <div>
@@ -362,10 +404,58 @@ svg.lucide { width: 16px; height: 16px; }
 
   <div class="cs-activity text-small" id="cs-activity" aria-live="polite">Harness ready · all credentials healthy · no external mutations pending</div>
 
+  <dialog class="cs-dialog" id="cs-command-dialog" aria-labelledby="cs-command-title">
+    <div class="cs-topbar">
+      <div><strong id="cs-command-title">Clark commands</strong><div class="text-small text-muted">Navigate and inspect without leaving the keyboard.</div></div>
+      <button type="button" class="btn" id="cs-command-close">Close</button>
+    </div>
+    <div class="cs-command-list">
+      <button type="button" class="btn" data-command="focus"><span>Open Focus</span><span class="text-small text-muted">1</span></button>
+      <button type="button" class="btn" data-command="canvas"><span>Open Canvas</span><span class="text-small text-muted">2</span></button>
+      <button type="button" class="btn" data-command="review"><span>Compare Reel A and B</span><span class="text-small text-muted">3</span></button>
+      <button type="button" class="btn" data-command="memory"><span>Inspect Memory</span><span class="text-small text-muted">4</span></button>
+      <button type="button" class="btn" data-command="connections"><span>Open Connections</span><span class="text-small text-muted">5</span></button>
+      <button type="button" class="btn" data-command="impact"><span>Preview downstream impact</span><span class="text-small text-muted">I</span></button>
+    </div>
+  </dialog>
+
   <script>
     (() => {
       const root = document.getElementById('clark-studio-vis');
       const activity = root.querySelector('#cs-activity');
+      const undoStack = [];
+      const redoStack = [];
+      const updateHistoryControls = () => {
+        const undo = root.querySelector('#cs-undo');
+        const redo = root.querySelector('#cs-redo');
+        undo.disabled = undoStack.length === 0;
+        redo.disabled = redoStack.length === 0;
+        undo.setAttribute('aria-label', undoStack.length ? `Undo ${undoStack[undoStack.length - 1].label}` : 'Undo last change');
+        redo.setAttribute('aria-label', redoStack.length ? `Redo ${redoStack[redoStack.length - 1].label}` : 'Redo last change');
+      };
+      const commitChange = (label, before, after, apply) => {
+        if (JSON.stringify(before) === JSON.stringify(after)) return;
+        apply(after);
+        undoStack.push({ label, before, after, apply });
+        redoStack.length = 0;
+        updateHistoryControls();
+      };
+      const undoChange = () => {
+        const change = undoStack.pop();
+        if (!change) return;
+        change.apply(change.before);
+        redoStack.push(change);
+        updateHistoryControls();
+        activity.textContent = `Undid ${change.label} · project history remains append-only`;
+      };
+      const redoChange = () => {
+        const change = redoStack.pop();
+        if (!change) return;
+        change.apply(change.after);
+        undoStack.push(change);
+        updateHistoryControls();
+        activity.textContent = `Redid ${change.label}`;
+      };
       const lanes = [
         { name: 'Intent', icon: 'lightbulb', items: [
           ['Quick capture','Source','done','Original note + voice memo'],
@@ -497,6 +587,8 @@ svg.lucide { width: 16px; height: 16px; }
         lanes.forEach((lane, laneIndex) => {
           const section = document.createElement('section');
           section.className = 'cs-lane';
+          section.setAttribute('role', 'group');
+          section.setAttribute('aria-label', `${lane.name} lane, ${lane.items.length} objects`);
           section.innerHTML = `<div class="cs-lane-header"><i data-lucide="${lane.icon}" aria-hidden="true"></i><strong>${lane.name}</strong><span class="text-small text-muted">${lane.items.length}</span></div><div class="cs-node-stack"></div>`;
           const stack = section.querySelector('.cs-node-stack');
           lane.items.forEach((item, itemIndex) => {
@@ -554,41 +646,64 @@ svg.lucide { width: 16px; height: 16px; }
       root.querySelectorAll('.cs-tab').forEach((button) => {
         button.addEventListener('click', () => {
           const view = button.dataset.view;
-          root.querySelectorAll('.cs-tab').forEach((tab) => tab.setAttribute('aria-pressed', String(tab === button)));
+          root.querySelectorAll('.cs-tab').forEach((tab) => tab.setAttribute('aria-selected', String(tab === button)));
           root.querySelectorAll('.cs-view').forEach((panel) => { panel.hidden = panel.id !== `cs-view-${view}`; });
           if (view === 'canvas') requestAnimationFrame(drawEdges);
           activity.textContent = `${button.textContent.trim()} view · same canonical project state`;
         });
+        button.addEventListener('keydown', (event) => {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+          event.preventDefault();
+          const tabs = [...root.querySelectorAll('.cs-tab')];
+          const index = tabs.indexOf(button);
+          const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+          tabs[nextIndex].focus();
+          tabs[nextIndex].click();
+        });
       });
 
       let selectedAngle = '';
+      let angleRecorded = false;
+      const applyAngleState = (state) => {
+        selectedAngle = state.value;
+        angleRecorded = state.recorded;
+        root.querySelectorAll('[data-angle]').forEach((choice) => choice.setAttribute('aria-pressed', String(choice.dataset.angle === selectedAngle)));
+        root.querySelector('#cs-angle-status').textContent = angleRecorded ? 'Recorded' : selectedAngle ? 'Chosen' : 'Waiting';
+        root.querySelector('#cs-continue').disabled = !selectedAngle || angleRecorded;
+        root.querySelector('#cs-focus-summary').textContent = selectedAngle
+          ? `${angleRecorded ? 'Recorded' : 'Selected'}: “${selectedAngle}.” Four production branches ${angleRecorded ? 'are compiled' : 'become ready'}; estimated additional spend is $14.60.`
+          : 'Clark found three supportable directions. One matches your build-in-public evidence and prior creator corrections without overclaiming audience performance.';
+      };
       root.querySelectorAll('[data-angle]').forEach((button) => {
         button.addEventListener('click', () => {
-          selectedAngle = button.dataset.angle;
-          root.querySelectorAll('[data-angle]').forEach((choice) => choice.setAttribute('aria-pressed', String(choice === button)));
-          root.querySelector('#cs-angle-status').textContent = 'Chosen';
-          root.querySelector('#cs-continue').disabled = false;
-          root.querySelector('#cs-focus-summary').textContent = `Selected: “${selectedAngle}.” Four production branches become ready; estimated additional spend is $14.60.`;
+          const before = { value: selectedAngle, recorded: angleRecorded };
+          const after = { value: button.dataset.angle, recorded: false };
+          commitChange('angle selection', before, after, applyAngleState);
           activity.textContent = `Decision staged · ${selectedAngle} · not yet committed`;
         });
       });
 
       root.querySelector('#cs-continue').addEventListener('click', () => {
+        const before = { value: selectedAngle, recorded: angleRecorded };
+        const after = { value: selectedAngle, recorded: true };
+        commitChange('angle decision', before, after, applyAngleState);
         activity.textContent = `Decision recorded · production plan compiled for “${selectedAngle}”`;
-        root.querySelector('#cs-angle-status').textContent = 'Recorded';
       });
 
       root.querySelector('#cs-open-evidence').addEventListener('click', () => {
         root.querySelector('[data-view="canvas"]').click();
-        root.querySelector('#cs-edge-mode').value = 'evidence';
-        drawEdges();
+        applyEdgeMode('evidence');
         activity.textContent = 'Evidence edges visible · 8 sources support 6 claims';
       });
 
+      const applyImpact = (checked) => {
+        root.querySelector('#cs-impact-toggle').checked = checked;
+        root.querySelectorAll('#cs-canvas-grid .cs-lane:nth-child(n+4) .btn').forEach((node) => node.classList.toggle('is-stale', checked));
+        requestAnimationFrame(drawEdges);
+      };
       root.querySelector('#cs-preview-impact').addEventListener('click', () => {
         root.querySelector('[data-view="canvas"]').click();
-        root.querySelector('#cs-impact-toggle').checked = true;
-        root.querySelectorAll('#cs-canvas-grid .cs-lane:nth-child(n+4) .btn').forEach((node) => node.classList.add('is-stale'));
+        commitChange('impact preview', root.querySelector('#cs-impact-toggle').checked, true, applyImpact);
         activity.textContent = 'Impact preview · 18 downstream objects stale · $14.60 estimated regeneration';
       });
 
@@ -613,42 +728,128 @@ svg.lucide { width: 16px; height: 16px; }
           frontier = next;
         }
         selectedEdges = collected;
-        root.querySelector('#cs-edge-mode').value = 'selected';
-        drawEdges();
+        applyEdgeMode('selected');
         const facts = factsFor(item, Number(button.dataset.lane));
         root.querySelector('#cs-node-inspector').innerHTML = `<div class="cs-inline"><span class="viz-badge">${item[1]}</span><span class="viz-badge">${item[2]}</span></div><h3>${item[0]}</h3><p class="text-small"><strong>Source:</strong> ${facts.source}<br><strong>Version:</strong> ${facts.version}<br><strong>Cost:</strong> ${facts.cost}<br><strong>Approval:</strong> ${facts.approval}<br><strong>Publish:</strong> ${facts.publish}<br><strong>Outcome:</strong> ${facts.outcome}<br><strong>Permission:</strong> ${facts.permission}</p><p class="text-small text-muted">${item[3]} · append-only revision and decision receipts</p><button type="button" class="btn cs-trace-lineage" data-trace-node="${selectedId}">Trace source to outcome</button>`;
         activity.textContent = `Selected lineage · ${item[1].toLowerCase()} · ${item[0]} · ${selectedEdges.length} nearby relationships`;
       });
 
+      root.querySelector('#cs-canvas-grid').addEventListener('keydown', (event) => {
+        const current = event.target.closest('button[data-node]');
+        if (!current) return;
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          current.click();
+          return;
+        }
+        if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        let laneIndex = Number(current.dataset.lane);
+        let itemIndex = Number(current.dataset.item);
+        if (event.key === 'ArrowUp') itemIndex -= 1;
+        if (event.key === 'ArrowDown') itemIndex += 1;
+        if (event.key === 'ArrowLeft') laneIndex -= 1;
+        if (event.key === 'ArrowRight') laneIndex += 1;
+        if (event.key === 'Home') itemIndex = 0;
+        if (event.key === 'End') itemIndex = lanes[laneIndex].items.length - 1;
+        laneIndex = Math.max(0, Math.min(lanes.length - 1, laneIndex));
+        itemIndex = Math.max(0, Math.min(lanes[laneIndex].items.length - 1, itemIndex));
+        const next = root.querySelector(`[data-node="${laneIndex}-${itemIndex}"]`);
+        if (!next || next.hidden) return;
+        next.focus();
+        next.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        activity.textContent = `Canvas keyboard navigation · ${lanes[laneIndex].name} · ${lanes[laneIndex].items[itemIndex][0]} · press Enter to inspect`;
+      });
+
       root.querySelector('#cs-node-inspector').addEventListener('click', (event) => {
         const trace = event.target.closest('.cs-trace-lineage');
         if (!trace) return;
-        root.querySelector('#cs-edge-mode').value = 'selected';
-        drawEdges();
+        applyEdgeMode('selected');
         activity.textContent = `Provenance trace ready · source, current revision, decision, publication state, and outcome remain one canonical lineage`;
       });
 
       root.querySelector('#cs-impact-toggle').addEventListener('change', (event) => {
-        root.querySelectorAll('#cs-canvas-grid .cs-lane:nth-child(n+4) .btn').forEach((node) => node.classList.toggle('is-stale', event.target.checked));
+        const before = !event.target.checked;
+        commitChange('impact preview', before, event.target.checked, applyImpact);
         activity.textContent = event.target.checked ? 'Impact preview · downstream production, distribution, and outcomes dimmed' : 'Impact preview cleared';
       });
 
+      const applyEdgeMode = (mode) => {
+        const select = root.querySelector('#cs-edge-mode');
+        select.value = mode;
+        select.dataset.previousValue = mode;
+        requestAnimationFrame(drawEdges);
+      };
       root.querySelector('#cs-edge-mode').addEventListener('change', (event) => {
-        drawEdges();
+        const before = event.target.dataset.previousValue || 'critical';
+        const after = event.target.value;
+        commitChange('relationship filter', before, after, applyEdgeMode);
+        event.target.dataset.previousValue = after;
         activity.textContent = `${event.target.options[event.target.selectedIndex].text} relationships selected`;
       });
 
       let collapsed = false;
-      root.querySelector('#cs-collapse-loops').addEventListener('click', (event) => {
-        collapsed = !collapsed;
+      const applyCollapsed = (value) => {
+        collapsed = value;
         root.querySelectorAll('.cs-node-stack').forEach((stack) => {
           [...stack.children].forEach((child, index) => { child.hidden = collapsed && index > 2; });
         });
-        event.target.textContent = collapsed ? 'Expand all 50 objects' : 'Collapse loops';
+        root.querySelector('#cs-collapse-loops').textContent = collapsed ? 'Expand all 50 objects' : 'Collapse loops';
         root.querySelector('#cs-object-count').textContent = collapsed ? '18 visible · 50 total' : '50 objects';
         requestAnimationFrame(drawEdges);
+      };
+      root.querySelector('#cs-collapse-loops').addEventListener('click', (event) => {
+        commitChange('loop collapse', collapsed, !collapsed, applyCollapsed);
         activity.textContent = collapsed ? 'Loops collapsed to working summaries' : 'All workflow objects expanded';
       });
+
+      const canvasViewport = root.querySelector('#cs-canvas-viewport');
+      const canvasWrap = root.querySelector('.cs-canvas-wrap');
+      let canvasZoom = 100;
+      const applyZoom = (value) => {
+        canvasZoom = Math.max(65, Math.min(140, value));
+        canvasWrap.style.zoom = `${canvasZoom}%`;
+        root.querySelector('#cs-zoom-label').textContent = `${canvasZoom}%`;
+        requestAnimationFrame(drawEdges);
+      };
+      root.querySelector('#cs-zoom-out').addEventListener('click', () => {
+        const next = Math.max(65, canvasZoom - 10);
+        commitChange('Canvas zoom', canvasZoom, next, applyZoom);
+        activity.textContent = `Canvas zoom · ${canvasZoom}%`;
+      });
+      root.querySelector('#cs-zoom-in').addEventListener('click', () => {
+        const next = Math.min(140, canvasZoom + 10);
+        commitChange('Canvas zoom', canvasZoom, next, applyZoom);
+        activity.textContent = `Canvas zoom · ${canvasZoom}%`;
+      });
+      root.querySelector('#cs-zoom-fit').addEventListener('click', () => {
+        const next = Math.max(65, Math.min(100, Math.floor((canvasViewport.clientWidth / 1050) * 100 / 5) * 5));
+        commitChange('Canvas fit', canvasZoom, next, applyZoom);
+        canvasViewport.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
+        activity.textContent = `Canvas fitted · ${canvasZoom}% · all six lanes remain available`;
+      });
+
+      let panOrigin = null;
+      canvasViewport.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0 || event.target.closest('button, input, select, textarea, label')) return;
+        panOrigin = { x: event.clientX, y: event.clientY, left: canvasViewport.scrollLeft, top: canvasViewport.scrollTop };
+        canvasViewport.classList.add('is-panning');
+        canvasViewport.setPointerCapture(event.pointerId);
+      });
+      canvasViewport.addEventListener('pointermove', (event) => {
+        if (!panOrigin) return;
+        canvasViewport.scrollLeft = panOrigin.left - (event.clientX - panOrigin.x);
+        canvasViewport.scrollTop = panOrigin.top - (event.clientY - panOrigin.y);
+      });
+      const stopPan = (event) => {
+        if (!panOrigin) return;
+        panOrigin = null;
+        canvasViewport.classList.remove('is-panning');
+        if (canvasViewport.hasPointerCapture(event.pointerId)) canvasViewport.releasePointerCapture(event.pointerId);
+        activity.textContent = 'Canvas panned · object positions are presentation-only; canonical graph is unchanged';
+      };
+      canvasViewport.addEventListener('pointerup', stopPan);
+      canvasViewport.addEventListener('pointercancel', stopPan);
 
       const timelineData = [
         ['Mon','LinkedIn','Script review','Reel','Rendering','—','—'],
@@ -668,12 +869,18 @@ svg.lucide { width: 16px; height: 16px; }
       });
 
       let reviewPick = '';
+      const applyReviewPick = (value) => {
+        reviewPick = value;
+        root.querySelectorAll('.cs-pick-review').forEach((pick) => pick.setAttribute('aria-pressed', String(pick.dataset.pick === reviewPick)));
+        root.querySelector('#cs-approve-review').disabled = !reviewPick;
+        root.querySelector('#cs-review-note').textContent = reviewPick
+          ? `Reel ${reviewPick} selected. Approval will pin this exact artifact version.`
+          : 'Approval is version-specific and does not authorize publication.';
+      };
       root.querySelectorAll('.cs-pick-review').forEach((button) => {
         button.addEventListener('click', () => {
-          reviewPick = button.dataset.pick;
-          root.querySelectorAll('.cs-pick-review').forEach((pick) => pick.setAttribute('aria-pressed', String(pick === button)));
-          root.querySelector('#cs-approve-review').disabled = false;
-          root.querySelector('#cs-review-note').textContent = `Reel ${reviewPick} selected. Approval will pin this exact artifact version.`;
+          commitChange('review selection', reviewPick, button.dataset.pick, applyReviewPick);
+          activity.textContent = `Reel ${reviewPick} selected · synchronized evidence, cost, policy, and derivative impact remain visible`;
         });
       });
       root.querySelector('#cs-approve-review').addEventListener('click', () => {
@@ -683,6 +890,43 @@ svg.lucide { width: 16px; height: 16px; }
       });
       root.querySelector('#cs-request-change').addEventListener('click', () => {
         activity.textContent = 'Targeted change prepared · only selected Reel branch will become stale';
+      });
+
+      const reviewScrubber = root.querySelector('#cs-review-scrubber');
+      const comparePlay = root.querySelector('#cs-compare-play');
+      let compareTimer = null;
+      const renderPlayhead = () => {
+        const seconds = Number(reviewScrubber.value);
+        root.querySelector('#cs-review-time').textContent = `0:${String(seconds).padStart(2, '0')} / 0:18`;
+      };
+      const stopComparison = () => {
+        if (compareTimer) clearInterval(compareTimer);
+        compareTimer = null;
+        comparePlay.innerHTML = '<i data-lucide="play" aria-hidden="true"></i> Play both';
+        root.querySelectorAll('.cs-review-media').forEach((media) => media.classList.remove('is-playing'));
+        if (globalThis.lucide) lucide.createIcons({ attrs: { width: 16, height: 16 } });
+      };
+      comparePlay.addEventListener('click', () => {
+        if (compareTimer) {
+          stopComparison();
+          activity.textContent = `Synchronized comparison paused · ${root.querySelector('#cs-review-time').textContent}`;
+          return;
+        }
+        if (Number(reviewScrubber.value) >= 18) reviewScrubber.value = '0';
+        comparePlay.innerHTML = '<i data-lucide="pause" aria-hidden="true"></i> Pause both';
+        root.querySelectorAll('.cs-review-media').forEach((media) => media.classList.add('is-playing'));
+        if (globalThis.lucide) lucide.createIcons({ attrs: { width: 16, height: 16 } });
+        compareTimer = setInterval(() => {
+          const next = Number(reviewScrubber.value) + 1;
+          reviewScrubber.value = String(Math.min(18, next));
+          renderPlayhead();
+          if (next >= 18) stopComparison();
+        }, 700);
+        activity.textContent = 'Synchronized Reel A/B comparison playing · one playhead, two versions';
+      });
+      reviewScrubber.addEventListener('input', () => {
+        renderPlayhead();
+        activity.textContent = `Synchronized playhead · ${root.querySelector('#cs-review-time').textContent}`;
       });
 
       const artifacts = [
@@ -757,6 +1001,40 @@ svg.lucide { width: 16px; height: 16px; }
         });
       });
 
+      root.querySelector('#cs-undo').addEventListener('click', undoChange);
+      root.querySelector('#cs-redo').addEventListener('click', redoChange);
+      const commandDialog = root.querySelector('#cs-command-dialog');
+      const openCommands = () => {
+        if (!commandDialog.open) commandDialog.showModal();
+        commandDialog.querySelector('[data-command="focus"]').focus();
+      };
+      root.querySelector('#cs-command-palette').addEventListener('click', openCommands);
+      root.querySelector('#cs-command-close').addEventListener('click', () => commandDialog.close());
+      commandDialog.querySelector('.cs-command-list').addEventListener('click', (event) => {
+        const command = event.target.closest('[data-command]');
+        if (!command) return;
+        const action = command.dataset.command;
+        commandDialog.close();
+        if (action === 'impact') {
+          root.querySelector('#cs-preview-impact').click();
+          return;
+        }
+        root.querySelector(`[data-view="${action}"]`)?.click();
+        activity.textContent = `${command.textContent.trim()} · opened from command palette`;
+      });
+      root.addEventListener('keydown', (event) => {
+        const editing = event.target.matches('input, textarea, select');
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+          event.preventDefault();
+          openCommands();
+          return;
+        }
+        if (!editing && (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') {
+          event.preventDefault();
+          if (event.shiftKey) redoChange(); else undoChange();
+        }
+      });
+
       const previewParams = new URLSearchParams(location.search);
       const initialView = previewParams.get('view');
       const initialTab = initialView ? root.querySelector(`[data-view="${initialView}"]`) : null;
@@ -772,6 +1050,13 @@ svg.lucide { width: 16px; height: 16px; }
         root.querySelector(`.cs-memory-inspect[data-memory="${initialMemory}"]`)?.click();
       }
       if (previewParams.get('impact') === '1') root.querySelector('#cs-impact-toggle')?.click();
+      applyAngleState({ value: '', recorded: false });
+      applyEdgeMode(root.querySelector('#cs-edge-mode').value);
+      applyCollapsed(false);
+      applyZoom(100);
+      applyReviewPick('');
+      renderPlayhead();
+      updateHistoryControls();
       requestAnimationFrame(drawEdges);
       addEventListener('resize', drawEdges);
     })();

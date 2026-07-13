@@ -70,7 +70,7 @@ h3 { margin-top: 0; }
 .btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--secondary); color: var(--secondary-foreground); cursor: pointer; text-decoration: none; white-space: normal; }
 .btn:hover { background: var(--accent); color: var(--accent-foreground); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn-primary, .btn[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.btn-primary, .btn[aria-pressed="true"], .btn[aria-selected="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
 .viz-tile { min-height: 42px; align-self: stretch; }
 .viz-badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px; background: var(--muted); color: var(--foreground); font-size: 12px; }
 .viz-controls { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -78,6 +78,8 @@ h3 { margin-top: 0; }
 .text-muted { color: var(--muted-foreground); }
 .form-label { display: grid; gap: 4px; color: var(--muted-foreground); }
 .form-select { min-height: 34px; padding: 4px 28px 4px 8px; border: 1px solid var(--input); border-radius: 7px; background: var(--card); color: var(--card-foreground); }
+.form-control { width: 100%; min-height: 64px; padding: 8px; border: 1px solid var(--input); border-radius: 7px; background: var(--card); color: var(--card-foreground); resize: vertical; }
+.form-range { width: min(420px, 100%); accent-color: var(--primary); }
 .form-check { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; }
 .form-check-input { width: 18px; height: 18px; }
 svg.lucide { width: 16px; height: 16px; }

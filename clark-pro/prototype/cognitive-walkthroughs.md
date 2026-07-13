@@ -52,9 +52,9 @@ Roles, assignments, encrypted synchronization, and shared approval queues are re
 | Run common loop without graph knowledge | Pass by inspection | Focus begins at one judgment with context, run contract, impact preview, and continuation. |
 | Find lineage and current state within ten seconds | Ready for human timing | A single object selection now presents the complete provenance contract and bounded lineage. |
 | Understand downstream impact before spend | Pass by inspection | Angle-impact preview marks affected branches and quotes $14.60 before mutation. |
-| Compare versions more easily than separate tools | Ready for human comparison | Review keeps versions, claims, cost, provider, and approval together; actual creator timing remains untested. |
+| Compare versions more easily than separate tools | Ready for human comparison | Review now uses one playhead and keeps evidence, cost, source angle, policy, derivative impact, notes, selection, and approval together; actual creator media and timing remain untested. |
 | Inspect and govern a memory proposal | Pass by interaction | Evidence, confidence, contradiction, scope, Promote, and Reject are in one view. |
-| Navigate a 50-object project | Ready for human orientation test | Focus, critical path, bounded lineage, collapse, and edge filters are implemented. |
+| Navigate a 50-object project | Ready for human orientation test | Focus, bounded pan/zoom, fit, keyboard lane movement, critical path, bounded lineage, collapse, commands, undo/redo, and edge filters are implemented. |
 | Distinguish approval from publication | Pass by interaction | Version approval changes review state while publication remains separately gated. |
 | Explain MCP, social, Bridge, skills, and authority | Pass by inspection | Connections exposes capability trust, account coverage, Bridge clients, skill quarantine, and effective autonomy. |
 

@@ -59,15 +59,17 @@
 - Review approval remains version-specific and separate from publication.
 - Memory inspection exposes evidence, confidence, contradiction, scope, and retrieval status.
 - Connections explains MCP host/client, Clark Bridge, social adapters, skill trust, and effective autonomy.
-- Automated interaction checks pass and a 390px viewport has no horizontal overflow.
+- Canvas supports bounded click-drag pan, zoom/fit, arrow-key lane navigation, Enter-to-inspect, command palette, and reversible staged/view state.
+- Review exposes a shared Reel A/B playhead with evidence, cost, policy, derivative impact, notes, selection, and approval.
+- Automated interaction checks pass; 320px and 390px viewports have no page-level horizontal overflow.
 
 ### Not proven by the current artifact
 
 - A new creator can complete the loop without facilitator help.
 - An expert can find lineage within ten measured seconds.
 - The canvas is better than the creator's current coordination system.
-- Media comparison is superior with real video, audio, text, and image artifacts.
-- Pan, zoom, drag, rewire, undo, keyboard operation, screen-reader use, and Mac-native behavior are usable.
+- Media comparison is superior with real video, audio, text, and image artifacts rather than representative cards.
+- Node-position drag, graph rewire, durable edits, VoiceOver/screen-reader use, and Mac-native behavior are usable.
 - Studio and a real Bridge client remain consistent under concurrent commands.
 - The system delivers first-week value strong enough to change behavior or earn payment.
 

@@ -11,7 +11,9 @@ This is the Ground-stratum clickable prototype for the six-view Mac product mode
 
 Connections is included as a supporting system surface for MCP servers, social accounts, Clark Bridge clients, skills, trust, and harness health.
 
-`index.html` is a standalone artifact generated from the thread visualization source. Open it in a browser to exercise the 50-object Full-Week fixture, angle decisions, downstream-impact preview, object-level provenance contracts, version approval, timeline, artifact library, governed memory evidence, run authority, and Connections.
+`index.html` is the standalone Ground interaction artifact. Open it in a browser to exercise the 50-object Full-Week fixture, angle decisions, downstream-impact preview, object-level provenance contracts, reversible view/decision state, version comparison and approval, timeline, artifact library, governed memory evidence, run authority, and Connections.
+
+The Canvas now supports click-drag panning, 65–140% zoom, fit-to-view, relationship filters, loop collapse, arrow-key movement across semantic lanes, and Enter-to-inspect. `⌘K` opens the command palette; `⌘Z` and `⇧⌘Z` undo and redo staged prototype changes. Review uses one synchronized playhead for Reel A/B and keeps evidence, cost, source angle, policy, derivative impact, annotations, selection, approval, and publication authority separate.
 
 The prototype validates information architecture and interaction contracts. It is not an alternate implementation path; production work follows the Electron, event, harness, memory, policy, and capability contracts in the authoritative architecture documents.
 

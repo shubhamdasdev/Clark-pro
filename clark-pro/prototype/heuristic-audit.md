@@ -18,14 +18,16 @@
 | Provenance scanability | The inspector did not satisfy the stated ten-second lineage gate because it omitted source, canonical version, cumulative cost, approval, publication, and outcome fields. | High | Every selection now exposes a consistent provenance contract; representative posts contain concrete values and a source-to-outcome trace action. |
 | Memory evidence | Proposal evidence was present only as a short caption and did not expose contradiction, scope, or confidence. | High | Added an evidence inspection path for every memory item with separate evidence, contradiction, confidence, scope, and retrieval state. |
 | Effective authority | Policy, budget, connector trust, and publication approval were individually visible but did not form one understandable autonomy contract. | High | Focus now states automatic, budget-bound, always-ask, never-automatic, and remote-data boundaries; Connections shows the permission intersection. |
+| Keyboard and spatial control | The advanced Canvas could be inspected only through pointer selection and offered no demonstrated navigation or reversible presentation state. | High | Added semantic tabs, arrow-key lane/object navigation, Enter-to-inspect, `⌘K` commands, bounded drag-pan, zoom/fit, and `⌘Z`/redo for staged decisions and Canvas view state. |
+| Media comparison | Two decorative Reel cards did not prove the branch-and-compare contract. | High | Added one synchronized playhead, annotations, and a decision table for evidence, cost, source angle, policy, and derivative impact; selection and approval remain separate. |
 
 ## Remaining limitations before human testing
 
-1. Prototype does not implement pan, zoom, drag, rewire, undo, or a dedicated media editor; these are production interaction requirements, not necessary to test the current information architecture.
+1. Prototype now demonstrates pan, zoom, keyboard movement, command access, reversible staged state, and synchronized comparison. It still does not implement node-position drag, graph rewiring, durable annotation events, or a production media editor.
 2. Critical-path and selected-lineage policies are heuristic; walkthroughs must test whether users understand hidden relationships and discover “All structure” when needed.
 3. Connections currently demonstrates trust and scope concepts but does not run a full OAuth, MCP installation, or skill-permission review flow.
 4. The prototype uses representative content rather than a participant's own live workspace.
-5. Mac-native menu, Share extension, notification, Keychain prompt, and window behaviors require a later native interaction prototype.
+5. Mac-native menu roles, VoiceOver testing, Share extension, notification, Keychain prompt, and window behaviors require a later native interaction prototype.
 6. The five-workflow expert rehearsal in `cognitive-walkthroughs.md` removes obvious failures but is not participant evidence.
 
 ## Expert decision
