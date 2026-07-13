@@ -25,7 +25,7 @@ The same canonical workspace must be usable from Clark Studio and Clark Bridge, 
 ### Deliverables
 
 - authoritative vision, canvas grammar, harness architecture, memory model, MCP boundary, and security model;
-- clickable Mac studio prototype covering Focus, Canvas, Review, Timeline, Library, and Memory;
+- clickable Mac studio prototype covering Focus, Canvas, Review, Timeline, Library, Memory, and supporting Connections;
 - versioned domain event and JSON schema catalog;
 - capability adapter contract;
 - loop definition contract;
@@ -268,9 +268,9 @@ No stratum is complete because screens exist. Completion requires:
 Before implementation begins:
 
 1. Convert the authoritative documents into versioned domain schemas and ADRs.
-2. Produce the clickable six-view Mac prototype using the Full-Week fixture.
+2. Produce the clickable seven-surface Mac prototype using the Full-Week fixture.
 3. Run five creator walkthroughs focused on Focus-vs-Canvas comprehension, provenance, memory evidence, and authority.
 4. Recruit three design partners for a real multi-channel week and a binding willingness-to-pay test.
 5. Convert ADR-0011 through ADR-0020 into owned executable test specifications, enable private vulnerability reporting, and assign named incident responders.
 6. Review and lock the v1 event, loop, capability, run-plan, and fixture contracts with every owning team; derive generated types and conformance test plans without forking schema semantics.
-7. Assign named people, capacity, and dates to `team-delivery-plan.md`; create the Ground evidence ledger without weakening any acceptance gate.
+7. Assign named people, capacity, and dates to `team-delivery-plan.md`; close and sign the machine-checked Ground ledger in `evidence/` without weakening any acceptance gate.

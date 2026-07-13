@@ -22,6 +22,8 @@ An opinion is context. A behavior is evidence. A binding action is commercial ev
 - A refundable deposit, paid pilot, signed order, or equivalent binding purchase action can support willingness to pay.
 - Expert walkthroughs and automated checks remain design/technical evidence and are never counted as participant evidence.
 
+Completed participant, design-partner, and binding-action records must be reviewed before the corresponding entries in [`../evidence/ground-ledger.json`](../evidence/ground-ledger.json) change status. The ledger verifier rejects a completed claim when its required evidence class is absent; it never generates or infers a participant result.
+
 ## Privacy rule
 
 Participants must not paste real credentials or secret client/employer material into the prototype. Representative content may be redacted or duplicated into a test workspace. Recording is optional and requires explicit consent; notes must distinguish direct observation from facilitator inference.

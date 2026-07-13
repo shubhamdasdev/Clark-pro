@@ -17,6 +17,7 @@ This directory is the machine-readable Ground layer shared by Studio, Harness, B
 | `schemas/run-plan.schema.json` | Compiled immutable run plan with pinned revisions, steps, gates, egress, quote, and policy decisions |
 | `schemas/project-fixture.schema.json` | Machine-readable project/canvas fixture with exact object state and lineage |
 | `schemas/failure-fixtures.schema.json` | Expected safety/recovery behavior for failure, abuse, and policy cases |
+| `schemas/ground-evidence-ledger.schema.json` | Ground requirement, proof class, result, limitation, blocker, release target, and attributable signoff records |
 
 ## Versioning rules
 
@@ -64,11 +65,11 @@ npm run verify
 npm audit --audit-level=moderate
 ```
 
-The verifier performs draft-2020 JSON Schema checks and semantic checks for event catalog membership/payloads, aggregate versions, exact fixture count, object/edge/port resolution, graph and run-plan cycles, nested loops, capability/action/permission alignment, egress references, human gates, publication idempotency/reconciliation, budget bounds, threat/event references, secret-key prohibition, and expected negative-fixture rejection.
+The verifier performs draft-2020 JSON Schema checks and semantic checks for event catalog membership/payloads, aggregate versions, exact fixture count, object/edge/port resolution, graph and run-plan cycles, nested loops, capability/action/permission alignment, egress references, human gates, publication idempotency/reconciliation, budget bounds, threat/event references, the Ground evidence ledger, secret-key prohibition, and expected negative-fixture rejection.
 
 Current checked fixture evidence:
 
-- 10 schema files;
+- 11 schema files, including the 34-entry Ground evidence ledger contract;
 - 52 event types and 10 representative payload-bearing events;
 - 8 capability manifests;
 - 2 loops and an 11-step compiled run plan;
@@ -76,3 +77,5 @@ Current checked fixture evidence:
 - 10 failure/abuse cases referencing 15 threat IDs;
 - 3 schema-invalid and 3 semantic-invalid fixtures rejected;
 - zero dependency vulnerabilities at the configured audit threshold.
+
+The ledger's additional fail-closed semantic checks and generated status live in [`../evidence/`](../evidence/README.md).

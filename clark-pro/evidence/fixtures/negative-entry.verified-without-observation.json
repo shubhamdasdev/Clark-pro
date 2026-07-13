@@ -1,0 +1,22 @@
+{
+  "id": "CANVAS-99",
+  "area": "canvas",
+  "requirement": "A fabricated gate claims creator comprehension without any observed participant evidence.",
+  "ownerRole": "Quality Lead",
+  "proofRequired": ["prototype", "observed_session"],
+  "result": "verified",
+  "evidence": [
+    {
+      "kind": "prototype",
+      "location": "prototype/index.html",
+      "claim": "The prototype exists, which cannot prove creator comprehension.",
+      "result": "pass"
+    }
+  ],
+  "acceptanceRule": "Verification must fail because an observed session is required but absent.",
+  "limitations": ["This is a deliberately invalid semantic fixture."],
+  "nextAction": "Reject this entry rather than upgrading its status.",
+  "groundBlocking": true,
+  "releaseTarget": "ground",
+  "updatedAt": "2026-07-12T20:20:00-05:00"
+}

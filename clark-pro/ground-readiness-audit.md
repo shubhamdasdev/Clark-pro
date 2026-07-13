@@ -1,7 +1,7 @@
 # Clark Pro — Ground Readiness Audit
 
 **Date:** July 12, 2026  
-**Decision:** Ground is not yet closed. Product direction and architecture are coherent; human product evidence and executable contracts remain mandatory before implementation fans out.
+**Decision:** Ground is not yet closed. Product direction and architecture are coherent; human/commercial evidence, Bridge and skill proof, native accessibility, contract governance, named capacity, security-test ownership, and leadership signoff remain mandatory before implementation fans out.
 
 ## Evidence vocabulary
 
@@ -46,6 +46,7 @@
 | Platform, domain, credential, execution, recovery, and release ADRs | ADR-0001 through ADR-0020 | Defined | Verification gates remain future production evidence |
 | Business/category architecture | `positioning-and-business.md` | Defined as hypotheses | Ten interviews, three real-week design partners, binding willingness-to-pay |
 | Team-owned release plan | `team-delivery-plan.md` defines ten workstreams, dependencies, decision/contract ownership, readiness/done, and evidence ledger | Defined by role | Assign named people, capacity, dates, and Ground evidence signoff |
+| Machine-checked Ground evidence ledger | `evidence/ground-ledger.json`, JSON Schema, semantic negative fixture, verifier, generated status | Defined and verifier-checked open | Resolve blocking proof, keep statuses evidence-bound, and obtain seven-role named signoff |
 
 ## Canvas evidence audit
 
@@ -94,6 +95,6 @@ The stack is not yet *proven*. Its highest engineering risks are sandboxing thir
 3. Test a binding purchase action and first-week replacement value.
 4. Implement and verify ADR-0011 through ADR-0020; enable private vulnerability reporting and assign executable security/conformance tests.
 5. Review and lock v1 contracts across owning teams; generate implementation types from the schemas without semantic forks.
-6. Assign named people, capacity, and dates to the defined workstreams and produce the Ground evidence ledger signoff.
+6. Assign named people, capacity, and dates to the defined workstreams; resolve and sign the machine-checked ledger in `evidence/` without reclassifying missing proof as accepted risk by default.
 
 Implementation can begin only after product leadership explicitly accepts any remaining Ground risk; it cannot be inferred from document volume or a functioning prototype.

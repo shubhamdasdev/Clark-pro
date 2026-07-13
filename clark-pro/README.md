@@ -62,10 +62,11 @@ Read these in order:
 11. **[research-basis.md](research-basis.md)** — current external evidence and competitive reality behind the v2 decisions.
 12. **[positioning-and-business.md](positioning-and-business.md)** — category, buyer, replacement target, packaging, economics, acquisition, and commercial validation gates.
 13. **[ground-readiness-audit.md](ground-readiness-audit.md)** — requirement-by-requirement evidence and remaining blockers before implementation.
-14. **[validation/](validation/README.md)** — observed creator, real-week design-partner, and binding purchase protocols with precommitted decision rules.
-15. **[team-delivery-plan.md](team-delivery-plan.md)** — workstream ownership, dependencies, contract governance, readiness/done, and release evidence.
-16. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
-17. **[prototype/](prototype/README.md)** — clickable six-view studio concept using a 50-object Full-Week fixture and a structured evaluation guide.
+14. **[evidence/](evidence/README.md)** — versioned 34-entry Ground evidence ledger, anti-fabrication verifier, open blockers, and required signoff.
+15. **[validation/](validation/README.md)** — observed creator, real-week design-partner, and binding purchase protocols with precommitted decision rules.
+16. **[team-delivery-plan.md](team-delivery-plan.md)** — workstream ownership, dependencies, contract governance, readiness/done, and release evidence.
+17. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
+18. **[prototype/](prototype/README.md)** — clickable seven-surface studio concept using a 50-object Full-Week fixture and a structured evaluation guide.
 
 ## One-Line Pitch
 
@@ -73,4 +74,4 @@ Read these in order:
 
 ## Current Status
 
-Ground-stratum product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system, and the first clickable Focus/Canvas/Timeline/Review/Library/Memory prototype now exists. The remaining canvas gate is behavioral evidence from five representative creator walkthroughs; implementation should not fan out until those results are recorded and required redesigns are resolved.
+Ground-stratum product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system, with a clickable Focus/Canvas/Timeline/Review/Library/Memory/Connections prototype, twenty accepted ADRs, and versioned contracts. The machine-checked Ground ledger remains open: creator/commercial evidence, Studio/Bridge state equivalence, skill-sandbox proof, native accessibility, contract governance, named team capacity, security-test ownership, and leadership signoff are not yet proven. Implementation should not fan out by treating documents or prototype checks as substitutes for those gates.

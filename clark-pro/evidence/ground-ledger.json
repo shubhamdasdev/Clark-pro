@@ -1,0 +1,641 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/ground-evidence-ledger.schema.json",
+  "schemaVersion": "1.0.0",
+  "ledgerId": "clark.evidence.ground",
+  "stratum": "ground",
+  "reviewedAt": "2026-07-12T20:20:00-05:00",
+  "currentGate": "before-stratum-1-implementation",
+  "gateState": "open",
+  "entries": [
+    {
+      "id": "OBJ-01",
+      "area": "objective",
+      "requirement": "Clark begins as a Mac-first application with a permanent desktop process and security topology.",
+      "ownerRole": "Desktop + Design Leads",
+      "proofRequired": ["design_document", "adr"],
+      "result": "defined",
+      "evidence": [
+        {"kind": "design_document", "location": "architecture.md", "claim": "Defines Studio, main, renderer, Harness, media workers, Keychain, Share capture, and direct Mac distribution topology.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0001-mac-desktop-and-process-topology.md", "claim": "Accepts the Mac-first Electron topology and privileged process boundaries.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0011-mac-entitlements-and-share-extension.md", "claim": "Accepts Developer ID, notarization, Hardened Runtime, and the Share-extension boundary.", "result": "pass"}
+      ],
+      "acceptanceRule": "Ground requires an accepted permanent Mac topology. Signed runtime, entitlements, notarization, native QA, and release evidence belong to Stratum 1.",
+      "limitations": ["No signed Mac runtime exists yet."],
+      "nextAction": "Build the signed Stratum 1 vertical slice through the accepted process topology without creating a browser-only production path.",
+      "groundBlocking": false,
+      "releaseTarget": "stratum-1",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "OBJ-02",
+      "area": "objective",
+      "requirement": "Clark has a provider-neutral durable Harness with explicit loops, checkpoints, budgets, recovery, and bounded agent work.",
+      "ownerRole": "Harness Lead",
+      "proofRequired": ["design_document", "adr", "schema", "fixture", "automated_test"],
+      "result": "contract_verified",
+      "evidence": [
+        {"kind": "design_document", "location": "architecture.md", "claim": "Defines durable run, step, recovery, agent, and provider-neutral execution behavior.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0003-provider-neutral-durable-harness.md", "claim": "Accepts a durable Harness above replaceable providers.", "result": "pass"},
+        {"kind": "schema", "location": "contracts/schemas/loop-definition.schema.json", "claim": "Versions loop graphs, gates, permissions, budgets, and policies.", "result": "pass"},
+        {"kind": "fixture", "location": "contracts/fixtures/full-week/run-plan.json", "claim": "Compiles the Full-Week loop into an eleven-step plan with approval, egress, budget, idempotency, and reconciliation data.", "result": "pass"},
+        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Validates both loops, every compiled step, DAG integrity, permissions, budget, gates, and publishing safety.", "result": "pass", "command": "npm --prefix contracts run verify"}
+      ],
+      "acceptanceRule": "Ground requires one coherent and executable contract model; production restart, chaos, cost, and provider conformance proof belongs to later strata.",
+      "limitations": ["No production run engine or forced-recovery test exists."],
+      "nextAction": "Generate runtime types and implement the event-backed run state machine in Stratum 2.",
+      "groundBlocking": false,
+      "releaseTarget": "stratum-2",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "OBJ-03",
+      "area": "objective",
+      "requirement": "The Focus and Canvas interaction model is proven strong enough before implementation fans out.",
+      "ownerRole": "Product + Design + Research Leads",
+      "proofRequired": ["prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Implements Focus, the 50-object Canvas, lineage, impact, comparison, memory, Connections, keyboard control, and reversible staged state.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Records controlled-browser interaction, runtime, and 320/390 responsive checks.", "result": "pass"},
+        {"kind": "expert_review", "location": "prototype/cognitive-walkthroughs.md", "claim": "Records five expert workflow rehearsals while explicitly excluding them from participant evidence.", "result": "pass"}
+      ],
+      "acceptanceRule": "Five representative creators must pass the precommitted Canvas rubric; expert review and automated checks cannot substitute for observed behavior.",
+      "limitations": ["Zero representative creator sessions have been recorded."],
+      "nextAction": "Run five observed walkthroughs, synthesize the matrix, redesign every failed critical gate, and retest before Ground signoff.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "OBJ-04",
+      "area": "objective",
+      "requirement": "Clark consumes MCP servers through a capability contract that remains safe across transports and providers.",
+      "ownerRole": "Connect + Security Leads",
+      "proofRequired": ["design_document", "adr", "schema", "fixture", "automated_test"],
+      "result": "contract_verified",
+      "evidence": [
+        {"kind": "design_document", "location": "mcp-ecosystem.md", "claim": "Defines Clark as an MCP host/client with negotiation, trust, lifecycle, and capability adaptation.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0004-capabilities-above-mcp.md", "claim": "Places the Clark capability contract above MCP transport semantics.", "result": "pass"},
+        {"kind": "schema", "location": "contracts/schemas/capability-manifest.schema.json", "claim": "Versions capability inputs, outputs, permissions, cost, approval, async, trust, and lifecycle.", "result": "pass"},
+        {"kind": "fixture", "location": "contracts/fixtures/full-week/capabilities/research.search.mcp.json", "claim": "Represents a read-only research MCP capability.", "result": "pass"},
+        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Validates eight capability revisions and their use in loops and the compiled run plan.", "result": "pass", "command": "npm --prefix contracts run verify"}
+      ],
+      "acceptanceRule": "Ground requires versioned capability semantics and representative valid/invalid fixtures; hostile live-server conformance is a separate blocking delivery item.",
+      "limitations": ["No hostile stdio/HTTP MCP conformance runner exists."],
+      "nextAction": "Produce the hostile MCP plan and then implement it with exact-command, scope, revocation, timeout, and malformed-response fixtures.",
+      "groundBlocking": false,
+      "releaseTarget": "stratum-3",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "OBJ-05",
+      "area": "objective",
+      "requirement": "Clark exposes its own scoped MCP server, Clark Bridge, over the same canonical project state used by Studio.",
+      "ownerRole": "Connect + Domain + Security Leads",
+      "proofRequired": ["design_document", "adr", "schema", "prototype", "automated_test"],
+      "result": "specified_not_verified",
+      "evidence": [
+        {"kind": "design_document", "location": "mcp-ecosystem.md", "claim": "Defines Bridge clients, tools, resources, prompts, scopes, jobs, and state-equivalence invariant.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0004-capabilities-above-mcp.md", "claim": "Requires Clark to consume and expose MCP through canonical domain commands and queries.", "result": "pass"},
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Connections explains Bridge surface, clients, scopes, and one canonical workspace.", "result": "pass"}
+      ],
+      "acceptanceRule": "Before implementation fans out, Bridge tool/resource schemas and a clickable Studio-versus-Bridge state-equivalence scenario must exist and pass without a second state model.",
+      "limitations": ["No Bridge tool/resource schema fixture exists.", "The prototype describes Bridge but cannot issue a Bridge command and show the identical Studio state."],
+      "nextAction": "Add versioned Bridge schemas, a command/receipt fixture, and an interactive state-equivalence scenario to the prototype and verifier.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "OBJ-06",
+      "area": "objective",
+      "requirement": "Clark connects creator work to broad social distribution through Postiz-first, selective direct adapters, and permanent export fallback.",
+      "ownerRole": "Distribution + Connect Leads",
+      "proofRequired": ["design_document", "adr", "schema", "fixture", "automated_test"],
+      "result": "contract_verified",
+      "evidence": [
+        {"kind": "design_document", "location": "mcp-ecosystem.md", "claim": "Defines Postiz-first breadth, direct strategic adapters, reconciliation, capability state, and export fallback.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0006-social-distribution-strategy.md", "claim": "Accepts the layered distribution strategy without claiming universal direct support.", "result": "pass"},
+        {"kind": "schema", "location": "contracts/schemas/capability-manifest.schema.json", "claim": "Represents social publish and observation capabilities with permissions and approval.", "result": "pass"},
+        {"kind": "fixture", "location": "contracts/fixtures/full-week/capabilities/social.publish.postiz.json", "claim": "Defines versioned Postiz publication behavior for the representative loop.", "result": "pass"},
+        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Proves publish approval, idempotency, reconciliation, egress, and capability references at contract level.", "result": "pass", "command": "npm --prefix contracts run verify"}
+      ],
+      "acceptanceRule": "Ground requires honest integration architecture and contract fixtures; real platform approval, account matrices, and reliability are later release evidence.",
+      "limitations": ["No real social account has been connected or mutated."],
+      "nextAction": "Build recorded/sandbox adapter fixtures and the real-account capability matrix in the distribution stratum.",
+      "groundBlocking": false,
+      "releaseTarget": "stratum-4",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "OBJ-07",
+      "area": "objective",
+      "requirement": "Installable and learned skills are governed packages with quarantine, effective permissions, tests, promotion, rollback, and a real executable sandbox boundary.",
+      "ownerRole": "Memory/Skills + Security Leads",
+      "proofRequired": ["design_document", "adr", "schema", "prototype", "automated_test"],
+      "result": "specified_not_verified",
+      "evidence": [
+        {"kind": "design_document", "location": "memory-and-learning.md", "claim": "Defines skill sources, package shape, proposals, tests, promotion, regression, trust, and rollback.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0017-skill-execution-sandbox.md", "claim": "Accepts declarative skills by default and Wasmtime/WASI for untrusted executable components.", "result": "pass"},
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Connections exposes trusted, quarantined, and learned skill states.", "result": "pass"}
+      ],
+      "acceptanceRule": "Ground requires a versioned skill package schema plus a hostile Wasmtime/WASI prototype proving deny-all capability behavior and resource termination.",
+      "limitations": ["No skill package schema exists.", "No executable Wasmtime/WASI hostile-component evidence exists."],
+      "nextAction": "Define the package contract, build the Class B sandbox spike, and run traversal, network, environment, resource, and credential canaries.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "OBJ-08",
+      "area": "objective",
+      "requirement": "Memory and personalization are the governed product core, with evidence, contradiction, scope, confidence, correction, forgetting, and explicit promotion.",
+      "ownerRole": "Memory/Skills + Product + Research Leads",
+      "proofRequired": ["design_document", "adr", "prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "design_document", "location": "memory-and-learning.md", "claim": "Defines the structured creator model, retrieval, proposals, correction, forgetting, reflection, and safety evaluation.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0007-governed-memory-and-skills.md", "claim": "Prohibits silent learning and accepts evidence-bound, reversible memory/skill evolution.", "result": "pass"},
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Shows active/proposed/disputed memory, evidence, confidence, contradiction, scope, retrieval, promotion, and rejection.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Records memory inspection and promotion interaction checks.", "result": "pass"}
+      ],
+      "acceptanceRule": "Representative creators must understand memory evidence and authority, and later real-corpus evaluation must prove helpful retrieval without leakage or poisoning.",
+      "limitations": ["No creator has been observed using the memory surface.", "No real creator corpus evaluation exists."],
+      "nextAction": "Measure memory comprehension in the five walkthroughs, then define the retrieval/leakage/correction/forget evaluation corpus.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "OBJ-09",
+      "area": "objective",
+      "requirement": "Clark is planned as one whole product rather than a throwaway MVP or disconnected feature set.",
+      "ownerRole": "Product Lead + Chief Architect",
+      "proofRequired": ["design_document", "adr"],
+      "result": "defined",
+      "evidence": [
+        {"kind": "design_document", "location": "roadmap.md", "claim": "Defines cumulative product strata from Ground through Team without an alternate MVP architecture.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0010-cumulative-whole-product-delivery.md", "claim": "Accepts permanent contracts and cumulative delivery across the whole product.", "result": "pass"}
+      ],
+      "acceptanceRule": "Every later stratum must extend the same domain, security, event, capability, and evidence paths; this is re-proven at each release.",
+      "limitations": ["Whole-product implementation evidence does not exist before implementation."],
+      "nextAction": "Enforce Definition of Ready/Done and reject any prototype-only production shortcut during each stratum.",
+      "groundBlocking": false,
+      "releaseTarget": "stratum-6",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "OBJ-10",
+      "area": "objective",
+      "requirement": "The architecture grows incrementally from Ground through local, intelligence, distribution, remote, and team strata.",
+      "ownerRole": "Chief Architect + Quality Lead",
+      "proofRequired": ["design_document", "adr"],
+      "result": "defined",
+      "evidence": [
+        {"kind": "design_document", "location": "roadmap.md", "claim": "Defines ordered strata with cumulative entry and exit evidence.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0010-cumulative-whole-product-delivery.md", "claim": "Requires each stratum to preserve and prove the permanent base.", "result": "pass"}
+      ],
+      "acceptanceRule": "A higher stratum cannot start by bypassing an unproven lower trust, state, or product invariant.",
+      "limitations": ["No implementation stratum has executed yet."],
+      "nextAction": "Close the Ground blockers and obtain explicit signoff before committed Stratum 1 implementation begins.",
+      "groundBlocking": false,
+      "releaseTarget": "stratum-6",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+
+    {
+      "id": "CANVAS-01",
+      "area": "canvas",
+      "requirement": "A new creator can run the Full-Week loop from Focus without understanding graphs.",
+      "ownerRole": "Design + Research Leads",
+      "proofRequired": ["prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Focus begins with one bounded decision, context packet, run contract, evidence, impact, and continuation.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Angle selection and continuation interactions pass.", "result": "pass"}
+      ],
+      "acceptanceRule": "At least four of five representative creators complete the Focus task without critical assistance under the walkthrough protocol.",
+      "limitations": ["No participant completion data exists."],
+      "nextAction": "Run task 1 in five observed sessions and record assistance, wrong turns, completion, and explanation.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "CANVAS-02",
+      "area": "canvas",
+      "requirement": "An expert identifies source, version, cost, approval, publication state, and outcome lineage for a post within ten seconds.",
+      "ownerRole": "Design + Research Leads",
+      "proofRequired": ["prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Selecting a post exposes the complete provenance contract and bounded lineage.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Representative publication selection exposes every required field.", "result": "pass"}
+      ],
+      "acceptanceRule": "At least four of five creators identify every field correctly within ten measured seconds without critical assistance.",
+      "limitations": ["No human timing data exists."],
+      "nextAction": "Time the lineage task in every walkthrough and redesign if the threshold or comprehension rule fails.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "CANVAS-03",
+      "area": "canvas",
+      "requirement": "Editing an angle explains downstream invalidation and cost before any paid regeneration.",
+      "ownerRole": "Design + Product Leads",
+      "proofRequired": ["prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Impact preview marks downstream Production, Distribution, and Outcomes and quotes $14.60 before mutation.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Impact state is interactive, visible, and reversible.", "result": "pass"}
+      ],
+      "acceptanceRule": "At least four of five creators correctly predict affected branches and understand that spend has not occurred.",
+      "limitations": ["No participant comprehension data exists."],
+      "nextAction": "Run the impact-prediction task and record whether cost, staleness, and reversibility are understood.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "CANVAS-04",
+      "area": "canvas",
+      "requirement": "Comparing two scripts and two reels is easier than coordinating the same decision across separate tools.",
+      "ownerRole": "Design + Research Leads",
+      "proofRequired": ["prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Review provides one Reel playhead, evidence/cost/source/policy/impact comparison, notes, selection, and approval.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Play/Pause updates both surfaces and the comparison remains responsive.", "result": "pass"}
+      ],
+      "acceptanceRule": "Representative creators complete the comparison correctly with fewer wrong turns and lower stated reconstruction effort than their current workflow.",
+      "limitations": ["Cards are representative rather than real participant media.", "No comparative timing or effort evidence exists."],
+      "nextAction": "Use representative creator media in observed comparison tasks and record time, wrong turns, confidence, and current-tool baseline.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "CANVAS-05",
+      "area": "canvas",
+      "requirement": "A memory proposal exposes its evidence and can be corrected, rejected, or promoted in place.",
+      "ownerRole": "Memory/Skills + Design + Research Leads",
+      "proofRequired": ["prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Memory items expose evidence and explicit Promote/Reject actions without silent activation.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Inspection and promotion interactions pass and proposal count changes correctly.", "result": "pass"}
+      ],
+      "acceptanceRule": "At least four of five creators distinguish proposal from active memory and complete the intended governance action without critical assistance.",
+      "limitations": ["No observed creator governance behavior exists."],
+      "nextAction": "Run the memory task with an intentionally weak proposal and record whether participants inspect evidence before acting.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "CANVAS-06",
+      "area": "canvas",
+      "requirement": "A 50-object project remains legible through Focus, lanes, pan/zoom, filters, bounded lineage, collapse, and keyboard navigation.",
+      "ownerRole": "Design + Research Leads",
+      "proofRequired": ["prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Renders the exact 50-object fixture across six semantic lanes with focus, filtering, pan/zoom/fit, collapse, and keyboard movement.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Records 50 nodes, drag-pan, zoom/undo, keyboard selection, and 320/390 page-width checks.", "result": "pass"}
+      ],
+      "acceptanceRule": "At least four of five creators orient, find the requested object, and explain hidden-versus-visible structure without critical assistance.",
+      "limitations": ["No participant orientation or discoverability data exists.", "VoiceOver is untested."],
+      "nextAction": "Run the orientation task with pointer and keyboard paths and record hidden-edge misunderstandings and All Structure discoverability.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "CANVAS-07",
+      "area": "canvas",
+      "requirement": "The same project can be operated through Studio and Clark Bridge without divergent state or authority.",
+      "ownerRole": "Connect + Domain + Design Leads",
+      "proofRequired": ["schema", "prototype", "automated_test"],
+      "result": "specified_not_verified",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Connections describes Bridge clients, scopes, tools/resources/prompts, and one canonical workspace.", "result": "pass"},
+        {"kind": "design_document", "location": "mcp-ecosystem.md", "claim": "Requires Bridge and Studio to call the same domain commands and queries.", "result": "pass"}
+      ],
+      "acceptanceRule": "A versioned Bridge command fixture must create a receipt and update the exact same visible project state; UI state must remain identical after refresh/replay.",
+      "limitations": ["Bridge is explanatory only in the prototype.", "No Bridge command schema, receipt, or state-equivalence check exists."],
+      "nextAction": "Add the Bridge command/receipt contract and an interactive state-equivalence scenario before closing the Canvas gate.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "CANVAS-08",
+      "area": "canvas",
+      "requirement": "Before promotion, a creator can inspect evidence, contradiction, confidence, scope, and retrieval state behind a memory proposal.",
+      "ownerRole": "Memory/Skills + Design + Research Leads",
+      "proofRequired": ["prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Memory inspection exposes all five required dimensions before promotion.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Records inspection state and evidence-preserving promotion behavior.", "result": "pass"}
+      ],
+      "acceptanceRule": "At least four of five creators correctly explain confidence versus contradiction and proposal-only retrieval before promotion.",
+      "limitations": ["No observed comprehension evidence exists."],
+      "nextAction": "Ask participants to explain each memory field aloud before permitting Promote or Reject.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "CANVAS-09",
+      "area": "canvas",
+      "requirement": "Before a run, the creator understands automatic, budget-bound, always-ask, prohibited, and off-Mac data behavior.",
+      "ownerRole": "Product + Design + Security + Research Leads",
+      "proofRequired": ["prototype", "automated_test", "observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Focus states the run contract and remote-data boundary; Connections states effective permission intersection.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Records visible automatic, approval, prohibition, budget, and egress categories.", "result": "pass"}
+      ],
+      "acceptanceRule": "At least four of five creators correctly classify each action and identify what data may leave the Mac without facilitator correction.",
+      "limitations": ["No observed authority or egress comprehension evidence exists."],
+      "nextAction": "Run the authority classification task and redesign any category that participants confuse.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+
+    {
+      "id": "BIZ-01",
+      "area": "business",
+      "requirement": "At least ten target creators independently identify continuity and coordination as a costly current problem.",
+      "ownerRole": "Product + Research Leads",
+      "proofRequired": ["observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "design_document", "location": "positioning-and-business.md", "claim": "Defines the target creator, replacement target, and precommitted interview gate.", "result": "pass"}
+      ],
+      "acceptanceRule": "Ten target creators describe the costly problem without being led; feature enthusiasm does not count.",
+      "limitations": ["No target-creator interview records exist."],
+      "nextAction": "Recruit and conduct ten problem/replacement interviews with behavioral examples and current-tool costs.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "BIZ-02",
+      "area": "business",
+      "requirement": "Five target creators complete the Canvas walkthrough and understand lineage, authority, memory evidence, and Connections.",
+      "ownerRole": "Research + Design Leads",
+      "proofRequired": ["observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "design_document", "location": "validation/creator-walkthrough-protocol.md", "claim": "Defines recruitment, tasks, timing, assistance, thresholds, analysis, and redesign rules.", "result": "pass"}
+      ],
+      "acceptanceRule": "Five completed session records and one analysis matrix must meet every precommitted critical threshold.",
+      "limitations": ["No participant record exists."],
+      "nextAction": "Run and record five sessions using the existing protocol and templates.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "BIZ-03",
+      "area": "business",
+      "requirement": "At least three design partners operate a representative real multi-channel week using their content and current tools.",
+      "ownerRole": "Product + Research Leads",
+      "proofRequired": ["design_partner_record"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "design_document", "location": "validation/design-partner-week.md", "claim": "Defines participant criteria, baseline, week operation, metrics, failures, memory burden, and weekly evidence.", "result": "pass"}
+      ],
+      "acceptanceRule": "Three qualified partners complete representative weeks; demo content or free-form feedback does not count.",
+      "limitations": ["No design partner has been recruited or recorded."],
+      "nextAction": "Recruit three qualified partners and schedule baseline plus four weekly evidence reviews.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "BIZ-04",
+      "area": "business",
+      "requirement": "Creators choose Clark over their prior coordination layer for four consecutive weeks because reconstruction work is materially lower.",
+      "ownerRole": "Product + Research Leads",
+      "proofRequired": ["design_partner_record"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "design_document", "location": "validation/design-partner-week.md", "claim": "Defines recurring replacement-value and coordination-reconstruction measurement.", "result": "pass"}
+      ],
+      "acceptanceRule": "Observed return behavior and baseline deltas persist for four weeks; stated intent alone does not count.",
+      "limitations": ["No longitudinal usage evidence exists."],
+      "nextAction": "Track return, prior-tool fallback, coordination time, reconstruction time, and reasons for four consecutive weeks.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "BIZ-05",
+      "area": "business",
+      "requirement": "At least three target creators make a binding purchase action at a sustainable package and price.",
+      "ownerRole": "Product Lead",
+      "proofRequired": ["binding_action"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "design_document", "location": "validation/purchase-signal.md", "claim": "Defines acceptable binding signals, disclosure, recording, and precommitted pass/fail rules.", "result": "pass"}
+      ],
+      "acceptanceRule": "Three binding actions are required and at least two occur without a custom feature promise that changes the product core.",
+      "limitations": ["No deposit, paid pilot, order, or equivalent binding action exists."],
+      "nextAction": "Run the purchase protocol only after representative use and record offer, price, action, conditions, and later cancellation/refund.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "BIZ-06",
+      "area": "business",
+      "requirement": "Target creators explain Clark's value without relying on the words canvas, MCP, or a model vendor.",
+      "ownerRole": "Product + Research Leads",
+      "proofRequired": ["observed_session"],
+      "result": "human_evidence_pending",
+      "evidence": [
+        {"kind": "design_document", "location": "positioning-and-business.md", "claim": "Defines creator continuity and the decision graph as the value thesis above commodity features.", "result": "pass"}
+      ],
+      "acceptanceRule": "Participants independently describe continuity, retained judgment, coordination, provenance, or compounding capability rather than a technical feature label.",
+      "limitations": ["No participant language evidence exists."],
+      "nextAction": "Ask every walkthrough and design partner to explain Clark to a peer without prompting and code the response.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "BIZ-07",
+      "area": "business",
+      "requirement": "Provider spend, support, distribution, and Relay costs support a sustainable package without hidden fees or data lock-in.",
+      "ownerRole": "Product + Finance + Architecture Leads",
+      "proofRequired": ["design_document", "design_partner_record", "binding_action"],
+      "result": "specified_not_verified",
+      "evidence": [
+        {"kind": "design_document", "location": "positioning-and-business.md", "claim": "Defines packaging, pass-through spend, margin hypotheses, and sustainability gate.", "result": "pass"}
+      ],
+      "acceptanceRule": "Measured usage and support cost at accepted prices must leave a sustainable package while preserving export and clear provider-spend separation.",
+      "limitations": ["No measured usage, support, Relay, or accepted-price cohort exists."],
+      "nextAction": "Capture cost and support data during design-partner weeks and test it against the exact binding offer.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+
+    {
+      "id": "GROUND-01",
+      "area": "delivery",
+      "requirement": "Every owning workstream reviews and signs off the v1 event, loop, capability, run-plan, failure, and fixture contracts.",
+      "ownerRole": "Chief Architect + W2-W10 Leads",
+      "proofRequired": ["signoff"],
+      "result": "missing",
+      "evidence": [
+        {"kind": "schema", "location": "contracts/README.md", "claim": "Documents the current contract set and reproducible verifier but contains no cross-team approval record.", "result": "pass"}
+      ],
+      "acceptanceRule": "Each producer and consumer owner signs the same v1 semantics; no private dialect or unresolved compatibility objection remains.",
+      "limitations": ["No named workstream signoff exists."],
+      "nextAction": "Run a contract review with W2-W10, record decisions and required changes, rerun fixtures, and capture named approvals.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "GROUND-02",
+      "area": "delivery",
+      "requirement": "Generated implementation types and the event upcaster/schema-evolution approach are selected without forking contract semantics.",
+      "ownerRole": "Domain Lead + Chief Architect",
+      "proofRequired": ["schema", "automated_test", "signoff"],
+      "result": "missing",
+      "evidence": [
+        {"kind": "schema", "location": "contracts/schemas/domain-event.schema.json", "claim": "Defines versioned event envelopes but no generated types or upcaster implementation choice.", "result": "pass"}
+      ],
+      "acceptanceRule": "A repeatable generator produces the chosen language types, schema drift fails CI, and an upcaster fixture proves one historical migration.",
+      "limitations": ["No generated types, drift check, or upcaster fixture exists."],
+      "nextAction": "Choose the TypeScript generation/upcaster toolchain, commit generated artifacts and one migration fixture, and obtain Domain/Architecture signoff.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "GROUND-03",
+      "area": "delivery",
+      "requirement": "A concrete hostile MCP and capability conformance plan names cases, tools, owners, severity, and blocking policy.",
+      "ownerRole": "Connect + Security + Quality Leads",
+      "proofRequired": ["design_document", "signoff"],
+      "result": "missing",
+      "evidence": [
+        {"kind": "design_document", "location": "mcp-ecosystem.md", "claim": "Defines the boundary and risks but not an owned executable conformance test plan.", "result": "pass"}
+      ],
+      "acceptanceRule": "The plan covers hostile stdio/HTTP servers, malformed schemas/results, auth/scope, timeout, cancellation, replay, secret/egress canaries, UI state, and quarantine.",
+      "limitations": ["No test-case inventory, harness choice, named owner, or severity policy exists."],
+      "nextAction": "Write the conformance specification and assign Connect, Security, and Quality owners before MCP implementation begins.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "GROUND-04",
+      "area": "delivery",
+      "requirement": "ADR-0011 through ADR-0020 have owned executable security test specifications and named incident-response roles.",
+      "ownerRole": "Security + Quality + Release Leads",
+      "proofRequired": ["design_document", "signoff"],
+      "result": "specified_not_verified",
+      "evidence": [
+        {"kind": "design_document", "location": "security-and-threat-model.md", "claim": "Maps threats and accepted security decisions to verification gates and remaining implementation evidence.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0020-vulnerability-and-support-policy.md", "claim": "Defines disclosure, support, incident, and responder requirements.", "result": "pass"}
+      ],
+      "acceptanceRule": "Every ADR verification gate maps to a named test owner, environment, tool, severity/blocking rule, artifact destination, and responder; private reporting is enabled before beta.",
+      "limitations": ["Owners are roles rather than named people.", "Executable test specifications and incident responders are not assigned."],
+      "nextAction": "Create the threat/ADR-to-test plan, assign primary/backup owners, and rehearse the reporting path before beta.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "GROUND-05",
+      "area": "delivery",
+      "requirement": "A Mac-native interaction and accessibility prototype covers menu roles, VoiceOver, keyboard conventions, window behavior, and native trust prompts.",
+      "ownerRole": "Desktop + Design + Quality Leads",
+      "proofRequired": ["prototype", "automated_test", "expert_review"],
+      "result": "missing",
+      "evidence": [
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "The web prototype demonstrates keyboard semantics and responsive interaction but is not a signed native Mac interaction artifact.", "result": "pass"}
+      ],
+      "acceptanceRule": "The native prototype passes keyboard and VoiceOver task checks and demonstrates menu, window, Share, notification, Keychain/TCC, and update trust language.",
+      "limitations": ["No Electron/Swift native prototype or VoiceOver evidence exists."],
+      "nextAction": "Build a bounded signed Mac interaction shell using the accepted topology and run keyboard/VoiceOver/native-prompt checks before full Studio implementation.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "GROUND-06",
+      "area": "delivery",
+      "requirement": "Named people, capacity, dates, dependencies, and backups are assigned to all leadership roles and ten workstreams.",
+      "ownerRole": "Product Lead",
+      "proofRequired": ["signoff"],
+      "result": "missing",
+      "evidence": [
+        {"kind": "design_document", "location": "team-delivery-plan.md", "claim": "Defines roles, workstreams, dependencies, contracts, readiness, done, cadence, and evidence—but intentionally contains no invented staffing.", "result": "pass"}
+      ],
+      "acceptanceRule": "Every role/workstream has one named accountable person, realistic capacity/date, critical dependency commitment, and backup/escalation path.",
+      "limitations": ["No people, capacity, or dates are assigned."],
+      "nextAction": "Product leadership must assign the real team and record capacity/dependency commitments without collapsing accountabilities.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "GROUND-07",
+      "area": "delivery",
+      "requirement": "The Wasmtime/WASI Class B skill sandbox is exercised against hostile components and resource-exhaustion cases.",
+      "ownerRole": "Memory/Skills + Security + Quality Leads",
+      "proofRequired": ["prototype", "automated_test"],
+      "result": "missing",
+      "evidence": [
+        {"kind": "adr", "location": "decisions/0017-skill-execution-sandbox.md", "claim": "Selects the sandbox architecture and verification gates but is not executable evidence.", "result": "pass"}
+      ],
+      "acceptanceRule": "Traversal, symlink escape, undeclared imports, network, environment, process, resource, terminal, and credential canaries fail within declared limits and produce receipts.",
+      "limitations": ["No Wasmtime embedding, WIT host interface, hostile component, or resource-metering result exists."],
+      "nextAction": "Build the narrow Class B spike and malicious fixture suite before installable executable skills enter implementation.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    },
+    {
+      "id": "GROUND-08",
+      "area": "delivery",
+      "requirement": "The Ground evidence ledger is reviewed and signed by Product, Design, Architecture, Security, Quality, Release, and Research.",
+      "ownerRole": "Quality Lead",
+      "proofRequired": ["signoff"],
+      "result": "missing",
+      "evidence": [
+        {"kind": "schema", "location": "contracts/schemas/ground-evidence-ledger.schema.json", "claim": "Defines the versioned evidence-ledger contract.", "result": "pass"},
+        {"kind": "automated_test", "location": "evidence/verify.mjs", "claim": "Fails closed on missing proof, missing files, fabricated verification, stale gate state, and incomplete signoff.", "result": "pass", "command": "npm --prefix evidence run verify"}
+      ],
+      "acceptanceRule": "All required roles approve after blocking entries pass, or explicitly approve a bounded risk under the escalation rule; the gate cannot self-close from document creation.",
+      "limitations": ["The ledger is unsigned and contains open blockers."],
+      "nextAction": "Resolve blocking entries, rerun verification, then record named approvals without editing evidence status beyond what artifacts prove.",
+      "groundBlocking": true,
+      "releaseTarget": "ground",
+      "updatedAt": "2026-07-12T20:20:00-05:00"
+    }
+  ],
+  "signoff": {
+    "state": "pending",
+    "requiredRoles": [
+      "Product Lead",
+      "Design Lead",
+      "Chief Architect",
+      "Security Lead",
+      "Quality Lead",
+      "Release Lead",
+      "Research Lead"
+    ],
+    "approvals": []
+  }
+}

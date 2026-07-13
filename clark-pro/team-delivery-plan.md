@@ -129,7 +129,9 @@ Frequency is set by the team, but no workstream may remain unintegrated for an e
 
 ## Release evidence ledger
 
-For every stratum, W10 maintains one table:
+For Ground, W10 maintains the versioned, machine-checked ledger in [`evidence/`](evidence/README.md). Its generated status is the current gate summary; a passing verifier proves ledger integrity, not release readiness.
+
+For every later stratum, W10 maintains the same minimum fields:
 
 | Requirement/invariant | Owner | Evidence artifact/run | Result | Environment/version | Open limitation | Blocking? |
 |---|---|---|---|---|---|---:|
@@ -142,6 +144,7 @@ Rules:
 - A unit test cannot prove renderer isolation, restart recovery, tenant isolation, or creator comprehension.
 - A document proves a design decision, not runtime enforcement.
 - A failed or missing critical control blocks release; it is not converted into “known risk” without explicit Product/Security/Architecture acceptance and a bounded exposure plan.
+- Human, commercial, runtime, and signoff evidence classes cannot be inferred from a document, prototype, fixture, or automated unit check.
 
 ## Change and escalation rules
 

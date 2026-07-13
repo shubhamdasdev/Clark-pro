@@ -32,6 +32,7 @@ const validate = (schemaFilename, dataFilename, shouldPass = true) => {
 
 const positiveTargets = [
   ["event-catalog.schema.json", "event-catalog.json"],
+  ["ground-evidence-ledger.schema.json", "../evidence/ground-ledger.json"],
   ["loop-definition.schema.json", "fixtures/full-week/full-week.loop.json"],
   ["loop-definition.schema.json", "fixtures/full-week/reflection.loop.json"],
   ["run-plan.schema.json", "fixtures/full-week/run-plan.json"],

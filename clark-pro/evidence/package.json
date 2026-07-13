@@ -1,0 +1,10 @@
+{
+  "name": "@clark/evidence",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node verify.mjs",
+    "status": "node verify.mjs --write-status"
+  }
+}
