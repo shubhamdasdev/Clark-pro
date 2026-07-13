@@ -350,6 +350,36 @@
       },
       "additionalProperties": false
     },
+    "toolPackageRevisionStateChanged": {
+      "type": "object",
+      "required": ["toolPackageRevision", "manifestHash", "sourceRevision", "sourceHash", "from", "to", "capabilityRevisions", "adapterRevisions", "evidenceStatus"],
+      "properties": {
+        "toolPackageRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "manifestHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "sourceRevision": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "sourceHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "from": { "enum": ["unseen", "discovered", "blocked_upstream", "quarantined", "testing", "active", "suspended", "failed"] },
+        "to": { "enum": ["discovered", "blocked_upstream", "quarantined", "testing", "active", "suspended", "failed", "rolled_back"] },
+        "capabilityRevisions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/revisionRef" }, "uniqueItems": true },
+        "adapterRevisions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/revisionRef" }, "uniqueItems": true },
+        "evidenceStatus": {
+          "type": "object",
+          "required": ["license", "dependencies", "sbom", "vulnerability", "activation"],
+          "properties": {
+            "license": { "enum": ["pending", "pass", "fail", "not_applicable"] },
+            "dependencies": { "enum": ["pending", "pass", "fail", "not_applicable"] },
+            "sbom": { "enum": ["pending", "pass", "fail", "not_applicable"] },
+            "vulnerability": { "enum": ["not_run", "pass", "fail"] },
+            "activation": { "enum": ["not_run", "pass", "fail", "blocked"] }
+          },
+          "additionalProperties": false
+        },
+        "decisionId": { "$ref": "common.schema.json#/$defs/id" },
+        "rollbackRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
     "connectionStateChanged": {
       "type": "object",
       "required": ["connectionId", "provider", "from", "to", "credentialRef", "scopes"],

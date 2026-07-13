@@ -118,6 +118,7 @@ The model is event-backed and versioned.
 - `Observation` — metrics, comments, qualitative judgment, or external event.
 - `MemoryItem` and `MemoryProposal` — governed creator-model state.
 - `SkillPackage` and `SkillRevision` — installed or learned procedures.
+- `ToolPackage` and `ToolPackageRevision` — pinned external-tool source, legal/supply-chain evidence, adapters, capabilities, compatibility, and lifecycle.
 - `Policy` — permissions, disclosure, budget, confidentiality, and autonomy.
 
 ### Important invariants
@@ -130,6 +131,7 @@ The model is event-backed and versioned.
 6. Publishing intent, provider submission, and verified live publication are distinct states.
 7. Deleting local content produces explicit tombstones and asset-retention decisions.
 8. Every schema and event carries a version.
+9. External tool schemas and databases never become Clark's canonical creator, workflow, approval, memory, publication-intent, or provenance model.
 
 ## Event Log and Projections
 
@@ -268,6 +270,31 @@ reliability:
 
 An adapter implements lifecycle hooks for auth, validation, quote, execute, observe, cancel, reconcile, and health. Simple MCP tools can use a generic adapter; complex providers can ship a driver without changing core domain logic.
 
+## Tool Packs and the Reuse Boundary
+
+Clark owns creator continuity, not every specialized engine. Before a workstream builds a video editor, renderer, scheduler, caption engine, design surface, browser worker, model runtime, or analytics backend, it performs the reuse review accepted in [ADR-0022](decisions/0022-governed-tool-packs-and-reuse-first-integration.md).
+
+A governed [`ToolPackage`](contracts/schemas/tool-package.schema.json) is the installable Clark Kit unit above capabilities and skills:
+
+```text
+immutable upstream source/release + license/SBOM/provenance
+                              │
+                     quarantined Tool Pack
+                              │
+          ┌───────────────────┼────────────────────┐
+          ▼                   ▼                    ▼
+ typed capability       governed skills     safe UI/converters
+ manifests/adapters     that use them        without canonical drift
+```
+
+The default integration order is MCP, headless CLI, HTTP API, supported library, WASM component, supervised sidecar, typed file handoff, isolated browser automation, and finally a maintained fork. A pack records exceptions and ownership explicitly.
+
+Tool Pack installation never means trust. Source and artifacts are hash-pinned; acquisition is staged; license and dependencies are reviewed; SBOM, vulnerability, compatibility, permission-diff, migration, activation, upgrade, and rollback evidence are retained. Updates return to quarantine. The Harness grants only the intersection of package declarations, component capabilities, workspace policy, and current run approval.
+
+UI contributions are declarative, Clark-rendered, sandboxed web origins, or explicit external-app handoffs. They receive no preload, filesystem, credential, shell, or unrestricted navigation authority. Converters translate external formats at the boundary and report unsupported or lossy fields; external schemas remain replaceable.
+
+The pinned OpenCut fixture is a candidate, not an integration. Its public rewrite direction supports the engine-first thesis, but the exact reviewed revision exposes no stable Editor API, MCP server, headless interface, or plugin host. It therefore remains `blocked_upstream` with zero installed components until real conformance evidence exists.
+
 ## Storage
 
 ### SQLite databases
@@ -277,6 +304,7 @@ Separate logical stores reduce blast radius:
 - `clark.db` — projects, graphs, artifacts, runs, publications, policies, projections.
 - `memory.db` — creator-model items, evidence links, proposals, retrieval feedback.
 - `skills.db` — installed packages, revisions, tests, trust and promotion state.
+- `packages.db` — Tool Pack manifests, source/artifact hashes, legal and supply-chain evidence, adapters, compatibility, quarantine, update, and rollback state.
 
 They may begin as one physical database with separate schemas/tables, but repository boundaries remain explicit.
 
@@ -367,12 +395,13 @@ clark-pro/
     mcp-server/              # Clark Bridge
     connectors/              # Higgsfield, Postiz, direct providers
     media/                   # ffmpeg, validation, previews, exports
-    plugin-sdk/              # manifests, drivers, renderers, tests
+    plugin-sdk/              # Tool Pack SDK, manifests, adapters, converters, safe UI, tests
     observability/           # structured events, traces, diagnostics
   skills/                    # bundled Agent Skills packages
   templates/                 # bundled loops and project templates
   schemas/                   # published versioned JSON schemas
   contract-runtime/          # generated TS namespaces, offline drift gate, event upcasters
+  tool-packages/             # bundled/verified package manifests and compatibility fixtures
 ```
 
 ## Quality and Security Gates
@@ -389,3 +418,4 @@ The architecture is not production-ready until it proves:
 8. Connector conformance tests with recorded provider fixtures.
 9. Budget reservation and reconciliation under failure.
 10. A 50-object canvas remains responsive and legible on the oldest supported Mac.
+11. Tool Pack acquisition, activation, upgrade, and rollback reject substitution, license/SBOM gaps, permission expansion, incompatible schemas, and unsafe UI/runtime boundaries.

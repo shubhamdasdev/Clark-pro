@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/event-catalog.schema.json
- * Source SHA-256: 6c9a63848003d1ebe5973d5aaa806f5bf4744f69bddf0453e5ff9dde8176fd7d
+ * Source SHA-256: e66ee9e1f29431257f1b370bdbce2f2efc0813cac89c3a4c73430bbc12bc2b67
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -29,6 +29,7 @@ export interface ClarkEventCatalog {
         | "observation"
         | "memory"
         | "skill"
+        | "tool_package"
         | "capability"
         | "account_connection"
         | "bridge_client"
@@ -58,6 +59,7 @@ export interface ClarkEventCatalog {
         | "observation"
         | "memory"
         | "skill"
+        | "tool_package"
         | "capability"
         | "account_connection"
         | "bridge_client"

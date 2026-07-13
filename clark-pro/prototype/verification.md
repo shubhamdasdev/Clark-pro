@@ -24,6 +24,8 @@ Executed in a controlled Chromium browser against the standalone `index.html`:
 | Connections exposes effective autonomy and the permission intersection | Pass |
 | Expanding the skill receipt distinguishes requested, effective, and denied permissions | Pass |
 | Skill receipt exposes Class A/B/C boundaries and the 19-case Wasmtime Ground result | Pass |
+| OpenCut Tool Pack remains visibly upstream-blocked with zero installed authority | Pass |
+| Expanding the Tool Pack receipt exposes the reuse ladder, canonical boundary, incomplete legal/supply-chain evidence, and 11 rejected activation attacks | Pass |
 | Canvas renders all 50 objects inside a bounded pannable surface | Pass |
 | Click-drag pans the Canvas without mutating canonical object position | Pass |
 | Zoom out changes 100% → 90%; Undo restores 100%; Redo becomes available | Pass |
@@ -71,6 +73,11 @@ Combined recorded result:
   "skillReceiptOpen": true,
   "skillClassesVisible": 3,
   "skillHostileCases": "19 / 19 pass",
+  "toolPackReceiptOpen": true,
+  "toolPackLifecycle": "blocked_upstream",
+  "toolPackStableInterfaces": "0 / 3",
+  "toolPackInstalledAuthority": 0,
+  "toolPackActivationAttacks": "11 / 11 reject",
   "activeView": "cs-view-connections"
 }
 ```
@@ -83,20 +90,28 @@ The prototype was checked at both the previous 390 CSS-pixel target and the supp
 {
   "320": {
     "innerWidth": 320,
+    "documentClientWidth": 305,
     "bodyScrollWidth": 320,
     "prototypeScrollWidth": 292,
     "canvasViewportWidth": 292,
     "canvasInternalWidth": 1050,
     "reviewTableWidth": 292,
-    "bridgeProofWidth": 292
+    "bridgeProofWidth": 292,
+    "toolPackProofWidth": 277,
+    "connectionsRootScrollWidth": 305,
+    "connectionsHorizontalOverflow": false
   },
   "390": {
     "innerWidth": 390,
+    "documentClientWidth": 375,
     "bodyScrollWidth": 390,
     "prototypeScrollWidth": 362,
     "canvasViewportWidth": 362,
     "canvasInternalWidth": 1050,
-    "reviewTableWidth": 362
+    "reviewTableWidth": 362,
+    "toolPackProofWidth": 347,
+    "connectionsRootScrollWidth": 375,
+    "connectionsHorizontalOverflow": false
   }
 }
 ```
@@ -109,7 +124,8 @@ The prototype does not introduce page-level horizontal overflow at either checke
 - Canvas: all 50 objects render across six semantic lanes; pan, zoom, fit, critical-path, selected-lineage, evidence, learning, policy, all-structure, impact dimming, collapse, type icons, keyboard movement, and a complete object provenance contract are available.
 - Review: two media versions share a playhead and expose evidence/cost/policy/derivative comparison plus annotations; approval remains separate from publication authority.
 - Memory: active, proposed, and disputed items are distinguishable; evidence inspection separates confidence and contradiction from explicit Promote/Reject actions.
-- Connections: MCP host/server roles, social account states, skill trust/quarantine, Clark Bridge clients, harness health, and effective autonomy are visible.
+- Connections: MCP host/server roles, social account states, Tool Pack readiness/authority, skill trust/quarantine, Clark Bridge clients, harness health, and effective autonomy are visible.
+- Tool Pack proof: pinned OpenCut source, blocked upstream interfaces, incomplete legal/supply-chain evidence, zero installed components, reuse order, canonical ownership, and hostile activation results are visible without implying working compatibility.
 - Skill proof: Class A/B/C trust is visibly distinct; the effective permission intersection, denied authority, hostile-case result, and Ground-to-production limitations are inspectable in a native disclosure control.
 - Bridge proof: client scope, command intent, permission intersection, event receipt, idempotent replay, state hash, Studio projection, and Bridge resource identity are visible in one interaction.
 

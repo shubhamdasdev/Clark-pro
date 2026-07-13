@@ -11,7 +11,7 @@
 | Mac desktop | Electron, signed/notarized, hardened renderer |
 | Renderer | React, TypeScript, Vite, React Flow, Zustand |
 | Harness | Isolated TypeScript utility process/local daemon |
-| Validation | Zod plus published versioned JSON Schemas |
+| Validation | Canonical JSON Schema 2020-12, generated TypeScript, and Ajv runtime validation |
 | Persistence | SQLite/WAL through repositories; immutable events + projections |
 | Assets | Content-addressed local store with checksums and previews |
 | Secrets | macOS Keychain credential broker |
@@ -45,11 +45,12 @@ packages/mcp-host
 packages/mcp-server
 packages/connectors
 packages/media
-packages/plugin-sdk
+packages/plugin-sdk    Tool Pack manifests, adapters, converters, safe UI, tests
 packages/observability
 schemas/
 skills/
 templates/
+tool-packages/
 ```
 
 ## 3. Command and Event Contract
@@ -177,6 +178,22 @@ skill_revisions
   id, package_id, source_hash, manifest_json, permission_json,
   test_result_json, state, created_at
 
+tool_packages
+  id, publisher_id, active_revision_id, lifecycle_state, installed,
+  created_at, updated_at
+
+tool_package_revisions
+  id, package_id, revision, source_revision, source_hash, manifest_hash,
+  license_json, supply_chain_json, compatibility_json, state, created_at
+
+tool_package_components
+  package_revision_id, component_kind, component_id, component_revision,
+  content_hash, activation_state
+
+tool_package_evidence
+  package_revision_id, evidence_kind, result, artifact_ref,
+  observed_at, reviewer_ref
+
 credentials are not stored here; credential_ref points to Keychain.
 ```
 
@@ -192,6 +209,7 @@ Every artifact version records:
   "sourceRefs": ["source_1"],
   "memoryRevisionRefs": ["memrev_3"],
   "skillRevisionRef": "skillrev_4",
+  "toolPackageRevisionRefs": ["toolpackrev_1"],
   "capabilityRevisionRefs": ["caprev_2"],
   "model": { "provider": "...", "id": "..." },
   "runId": "run_1",

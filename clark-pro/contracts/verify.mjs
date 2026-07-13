@@ -51,6 +51,12 @@ const capabilityFilenames = fs.readdirSync(path.join(root, "fixtures/full-week/c
 for (const filename of capabilityFilenames) {
   positiveTargets.push(["capability-manifest.schema.json", `fixtures/full-week/capabilities/${filename}`]);
 }
+const toolPackageFilenames = fs.readdirSync(path.join(root, "fixtures/tool-packages"))
+  .filter((name) => name.endsWith(".json"))
+  .sort();
+for (const filename of toolPackageFilenames) {
+  positiveTargets.push(["tool-package.schema.json", `fixtures/tool-packages/${filename}`]);
+}
 for (const [schema, data] of positiveTargets) validate(schema, data, true);
 
 const schemaNegativeTargets = [
@@ -60,13 +66,19 @@ const schemaNegativeTargets = [
   ["skill-package.schema.json", "fixtures/negative/class-a-executable.skill.invalid.json"],
   ["skill-package.schema.json", "fixtures/negative/class-b-network.skill.invalid.json"],
   ["skill-package.schema.json", "fixtures/negative/class-b-raw-credential.skill.invalid.json"],
-  ["skill-package.schema.json", "fixtures/negative/class-c-remote.skill.invalid.json"]
+  ["skill-package.schema.json", "fixtures/negative/class-c-remote.skill.invalid.json"],
+  ["tool-package.schema.json", "fixtures/negative/active-without-adapter.tool-package.invalid.json"]
 ];
 for (const [schema, data] of schemaNegativeTargets) validate(schema, data, false);
 
 const catalog = read("event-catalog.json");
 unique(catalog.events.map((event) => `${event.eventType}@${event.schemaVersion}`), "Event catalog keys");
 const catalogByType = new Map(catalog.events.map((event) => [event.eventType, event]));
+for (const event of catalog.events) {
+  const payloadFragment = event.payloadRef.split("#")[1];
+  const payloadValidator = ajv.getSchema(`https://schemas.clark.pro/v1/event-payloads.schema.json#${payloadFragment}`);
+  assert(payloadValidator, `Catalog event ${event.eventType} references missing payload ${event.payloadRef}`);
+}
 
 const bridgeExchange = read("fixtures/full-week/bridge.capture.exchange.json");
 const validateBridgeExchange = (exchange) => {
@@ -167,6 +179,122 @@ for (const key of permissionKeys) {
   assert(JSON.stringify(calculated) === JSON.stringify([...skillReceipt.effective[key]].sort()), `Skill effective ${key} is not the four-way intersection`);
   const denied = skillReceipt.sources.skillRequest[key].filter((value) => !calculated.includes(value)).sort();
   assert(JSON.stringify(denied) === JSON.stringify([...skillReceipt.denied[key]].sort()), `Skill denied ${key} is not the request remainder`);
+}
+
+const toolPackages = toolPackageFilenames.map((filename) => read(`fixtures/tool-packages/${filename}`));
+const toolPackValidator = ajv.getSchema(schemaId("tool-package.schema.json"));
+assert(toolPackValidator, "Missing Tool Package validator");
+const integrationPreference = ["mcp", "headless_cli", "http_api", "library", "wasm_component", "local_sidecar", "file_handoff", "browser_automation", "forked_vendor"];
+const validateToolPackageSemantics = (toolPack) => {
+  unique(toolPack.license.noticeFiles.map((item) => item.path), `${toolPack.id} notice file paths`);
+  unique(toolPack.integration.interfaceCandidates.map((item) => item.id), `${toolPack.id} interface candidate IDs`);
+  unique(toolPack.install.artifacts.map((item) => item.id), `${toolPack.id} artifact IDs`);
+  unique(toolPack.integration.adapters.map((item) => item.id), `${toolPack.id} adapter IDs`);
+  unique(toolPack.components.capabilityRevisions.map((item) => item.id), `${toolPack.id} capability IDs`);
+  unique(toolPack.components.skillRevisions.map((item) => item.id), `${toolPack.id} skill IDs`);
+  unique(toolPack.components.converters.map((item) => item.id), `${toolPack.id} converter IDs`);
+  unique(toolPack.components.uiContributions.map((item) => item.id), `${toolPack.id} UI contribution IDs`);
+  unique(toolPack.tests.map((item) => item.id), `${toolPack.id} test IDs`);
+  assert(toolPack.source.immutableRef, `${toolPack.id} source is mutable`);
+  assert(toolPack.source.revision === toolPack.compatibility.upstreamRevision, `${toolPack.id} source and compatibility revisions differ`);
+  if (toolPack.source.kind === "git") assert(toolPack.source.evidenceUri.includes(toolPack.source.revision), `${toolPack.id} evidence URI is not commit-pinned`);
+  assert(toolPack.integration.preferredPath === toolPack.integration.ladder[0], `${toolPack.id} preferred integration path is not first in its ladder`);
+  let previousPreference = -1;
+  for (const pathName of toolPack.integration.ladder) {
+    const preference = integrationPreference.indexOf(pathName);
+    assert(preference >= 0, `${toolPack.id} ladder contains unknown path ${pathName}`);
+    assert(preference > previousPreference, `${toolPack.id} ladder puts ${pathName} before a safer supported path`);
+    previousPreference = preference;
+  }
+  if (toolPack.integration.ladder.includes("forked_vendor")) assert(toolPack.integration.ladder.at(-1) === "forked_vendor", `${toolPack.id} fork is not the final integration fallback`);
+  const fileHandoffIndex = toolPack.integration.ladder.indexOf("file_handoff");
+  const browserIndex = toolPack.integration.ladder.indexOf("browser_automation");
+  if (fileHandoffIndex >= 0 && browserIndex >= 0) assert(browserIndex > fileHandoffIndex, `${toolPack.id} browser automation precedes typed file handoff`);
+  const degradedAdapters = toolPack.integration.adapters.filter((item) => ["browser_automation", "forked_vendor"].includes(item.path));
+  if (degradedAdapters.length > 0) {
+    assert(toolPack.integration.degradedPathApproval, `${toolPack.id} uses a degraded adapter without attributable approval`);
+    assert(degradedAdapters.some((item) => item.path === toolPack.integration.degradedPathApproval.path), `${toolPack.id} degraded-path approval does not match an installed adapter`);
+  }
+  const componentCapabilities = new Map(toolPack.components.capabilityRevisions.map((item) => [item.id, item]));
+  for (const adapter of toolPack.integration.adapters) {
+    assert(toolPack.integration.ladder.includes(adapter.path), `${adapter.id} uses a path outside ${toolPack.id}'s ladder`);
+    for (const capabilityRef of adapter.capabilityRevisions) {
+      const componentRef = componentCapabilities.get(capabilityRef.id);
+      assert(componentRef, `${adapter.id} references an unbundled capability ${capabilityRef.id}`);
+      assert(componentRef.revision === capabilityRef.revision, `${adapter.id}/${capabilityRef.id} revision differs from the component inventory`);
+      if (componentRef.contentHash && capabilityRef.contentHash) assert(componentRef.contentHash === capabilityRef.contentHash, `${adapter.id}/${capabilityRef.id} hash differs from the component inventory`);
+    }
+  }
+  for (const contribution of toolPack.components.uiContributions) {
+    if (!contribution.capabilityRevision) continue;
+    const capabilityRef = componentCapabilities.get(contribution.capabilityRevision.id);
+    assert(capabilityRef, `${contribution.id} UI contribution references an unbundled capability`);
+    assert(capabilityRef.revision === contribution.capabilityRevision.revision, `${contribution.id} UI contribution capability revision differs`);
+  }
+  const stableInterfaceCount = toolPack.integration.interfaceCandidates.filter((item) => item.status === "stable").length;
+  if (toolPack.lifecycle.state === "active" && toolPack.integration.interfaceRequirement === "any_stable") assert(stableInterfaceCount > 0, `${toolPack.id} is active without any stable required interface`);
+  if (toolPack.lifecycle.state === "active" && toolPack.integration.interfaceRequirement === "all_stable") assert(stableInterfaceCount === toolPack.integration.interfaceCandidates.length, `${toolPack.id} is active before every required interface is stable`);
+  if (toolPack.lifecycle.state === "blocked_upstream" && toolPack.integration.interfaceRequirement === "any_stable") assert(stableInterfaceCount === 0, `${toolPack.id} claims a stable interface while upstream-blocked`);
+};
+toolPackages.forEach(validateToolPackageSemantics);
+
+const openCutToolPack = toolPackages.find((item) => item.id === "clark.toolpack.opencut.rewrite");
+assert(openCutToolPack, "Missing pinned OpenCut Tool Pack fixture");
+assert(openCutToolPack.source.kind === "git", "OpenCut Tool Pack is not pinned to git source");
+assert(openCutToolPack.lifecycle.state === "blocked_upstream", "OpenCut Tool Pack is not honestly upstream-blocked");
+assert(!openCutToolPack.lifecycle.installed, "OpenCut Tool Pack is installed despite upstream block");
+assert(openCutToolPack.install.mode === "none_until_ready", "OpenCut Tool Pack has an acquisition mode despite upstream block");
+assert(openCutToolPack.integration.adapters.length === 0, "OpenCut Tool Pack exposes an adapter despite upstream block");
+assert(openCutToolPack.components.capabilityRevisions.length === 0, "OpenCut Tool Pack exposes capabilities despite upstream block");
+assert(openCutToolPack.components.skillRevisions.length === 0, "OpenCut Tool Pack exposes skills despite upstream block");
+assert(openCutToolPack.components.converters.length === 0, "OpenCut Tool Pack exposes converters despite upstream block");
+assert(openCutToolPack.components.uiContributions.length === 0, "OpenCut Tool Pack exposes UI contributions despite upstream block");
+const activationGate = openCutToolPack.tests.find((item) => item.kind === "activation");
+assert(activationGate?.expected === "block" && activationGate.result === "pass", "OpenCut activation block is not contract-proven");
+const readinessGate = openCutToolPack.tests.find((item) => item.kind === "upstream_readiness");
+assert(readinessGate?.automation === "planned" && readinessGate.result === "blocked", "OpenCut upstream readiness is not represented as blocked planned evidence");
+const dishonestActivation = structuredClone(openCutToolPack);
+dishonestActivation.lifecycle = {
+  ...dishonestActivation.lifecycle,
+  state: "active",
+  installed: true,
+  trustBasis: "source_reviewed",
+  rollbackRevision: "0.0.1"
+};
+assert(!toolPackValidator(dishonestActivation), "OpenCut lifecycle-only activation mutation unexpectedly passed schema validation");
+
+const validActiveToolPack = read("fixtures/negative/active-without-adapter.tool-package.invalid.json");
+validActiveToolPack.integration.adapters = [
+  {
+    id: "fixture.adapter.http",
+    revision: "1.0.0",
+    path: "http_api",
+    status: "verified",
+    executionBoundary: "harness_managed",
+    entrypointRef: "https://example.invalid/api",
+    contentHash: "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    capabilityRevisions: structuredClone(validActiveToolPack.components.capabilityRevisions)
+  }
+];
+assert(toolPackValidator(validActiveToolPack), `Synthetic valid-active Tool Pack failed validation: ${JSON.stringify(toolPackValidator.errors)}`);
+validateToolPackageSemantics(validActiveToolPack);
+const activationAttacks = [
+  ["mutable-source", (item) => { item.source.immutableRef = false; }],
+  ["license-review-pending", (item) => { item.license.dependencyReview = "pending"; }],
+  ["sbom-pending", (item) => { item.supplyChain.sbom.status = "pending"; }],
+  ["vulnerability-not-run", (item) => { item.supplyChain.vulnerabilityScan.result = "not_run"; }],
+  ["provenance-source-only", (item) => { item.supplyChain.provenance.status = "source_only"; }],
+  ["interface-not-stable", (item) => { item.integration.interfaceCandidates[0].status = "experimental"; }],
+  ["adapter-not-verified", (item) => { item.integration.adapters[0].status = "proposed"; }],
+  ["degraded-adapter-unapproved", (item) => { item.integration.adapters[0].path = "browser_automation"; }],
+  ["capability-inventory-empty", (item) => { item.components.capabilityRevisions = []; }],
+  ["capability-hash-missing", (item) => { delete item.components.capabilityRevisions[0].contentHash; }],
+  ["activation-test-failed", (item) => { item.tests[0].result = "fail"; }]
+];
+for (const [id, mutate] of activationAttacks) {
+  const candidate = structuredClone(validActiveToolPack);
+  mutate(candidate);
+  assert(!toolPackValidator(candidate), `Tool Pack activation attack ${id} unexpectedly passed schema validation`);
 }
 
 const stream = read("fixtures/full-week/events.json");
@@ -363,6 +491,9 @@ console.log(JSON.stringify({
   mcpCriticalNonblockingMutationsRejected: 1,
   bridgeSemanticNegativeCasesRejected: bridgeNegativeSuite.cases.length,
   bridgeExchanges: 1,
+  toolPackages: toolPackages.length,
+  upstreamBlockedToolPackages: toolPackages.filter((item) => item.lifecycle.state === "blocked_upstream").length,
+  toolPackageActivationMutationsRejected: activationAttacks.length,
   skillPackages: 2,
   skillPermissionReceipts: 1,
   mcpConformanceCases: mcpPlan.cases.length,

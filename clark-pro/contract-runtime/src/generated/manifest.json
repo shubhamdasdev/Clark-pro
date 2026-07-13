@@ -19,7 +19,7 @@
       "source": "bridge-exchange.schema.json",
       "sourceSha256": "7145647121c8b4d6f61a27ed6a80f7d33642586d0e56d2446c5d4e14a530601a",
       "generated": "bridge-exchange.ts",
-      "generatedSha256": "693b2bbf132b856ce94b9077471228c7c9d60f54bc05048ead7a731fa438fae9"
+      "generatedSha256": "ab0443fc59aaeba5bdf5c7bad6801dd00bc420fe39304935f474ebab16ea5180"
     },
     {
       "source": "capability-manifest.schema.json",
@@ -35,27 +35,27 @@
     },
     {
       "source": "domain-event.schema.json",
-      "sourceSha256": "f70e2ca9e475cea906d1fe2a5732e3629dbe8a1c0f4edfa3161eb6ff05339b94",
+      "sourceSha256": "eae14ee3e5b020f0b95f2fd6883e4cb842307ae1e2673f39bd896fb51ffb430a",
       "generated": "domain-event.ts",
-      "generatedSha256": "ac3fd6efde84bd6db860acf629f4d70a7ce15bcf48a73c152b3d2d17acf10883"
+      "generatedSha256": "4e3c7eb7f3fcf9e4b96f9646c40ea4439fd376f16394d243fc627e3d0b6f6a1f"
     },
     {
       "source": "event-catalog.schema.json",
-      "sourceSha256": "6c9a63848003d1ebe5973d5aaa806f5bf4744f69bddf0453e5ff9dde8176fd7d",
+      "sourceSha256": "e66ee9e1f29431257f1b370bdbce2f2efc0813cac89c3a4c73430bbc12bc2b67",
       "generated": "event-catalog.ts",
-      "generatedSha256": "63a3b51f1ff1296adea5531229c5666cc6587569150c98fa37729dd4fc321492"
+      "generatedSha256": "d370d7d5302de3db0a9be68ca9f6ea4ad5424e3de3c3d0a4ca588d1837afea93"
     },
     {
       "source": "event-payloads.schema.json",
-      "sourceSha256": "8baa894cfe1d56fbdc59bef30407151b184b3d10af5b52ceb529ea5853305cee",
+      "sourceSha256": "40b8eaa90001c4c4061a6209097a9b6d8335d1937ecbadecbb70f3025be95081",
       "generated": "event-payloads.ts",
-      "generatedSha256": "e339a9e008fea6aefac88b94de8640a3791851954a87fed36180168c4b2144e8"
+      "generatedSha256": "1f3e93d2c35fa23cf53b257e261fbbd9ebdf526cf47bf1e13c6c9d5d094495f2"
     },
     {
       "source": "event-stream.schema.json",
       "sourceSha256": "084239359b0eaa4773ac817cccbb9b142a38043b2b004d391192158f88d88440",
       "generated": "event-stream.ts",
-      "generatedSha256": "93b18990b81d29767041ad77c5656d059f6b9391e20e4aea829fbe6609c7db03"
+      "generatedSha256": "d750d63c0d448da6c2e79589d805b4f0904744e4527a2436c742efac94f45c29"
     },
     {
       "source": "failure-fixtures.schema.json",
@@ -104,6 +104,12 @@
       "sourceSha256": "c1b258a5b0501047f94faf9d359b2c9e7fb2b5999f278ec27dc9ddd565d20901",
       "generated": "skill-permission-receipt.ts",
       "generatedSha256": "4e5ddb17d230aed9b408411c64f7590c56c1b1725a97d8b824639779a4cc5f37"
+    },
+    {
+      "source": "tool-package.schema.json",
+      "sourceSha256": "6a9eca39f02c643113882d4604c4d1d6ebb05e790b65c80f34064b8029f20011",
+      "generated": "tool-package.ts",
+      "generatedSha256": "6c40c37a52f0fd8bd636cd7d1958393f409f3c934161cfde5c76f6c60969c84f"
     }
   ]
 }

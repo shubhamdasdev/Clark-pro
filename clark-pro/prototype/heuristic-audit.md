@@ -21,12 +21,13 @@
 | Keyboard and spatial control | The advanced Canvas could be inspected only through pointer selection and offered no demonstrated navigation or reversible presentation state. | High | Added semantic tabs, arrow-key lane/object navigation, Enter-to-inspect, `⌘K` commands, bounded drag-pan, zoom/fit, and `⌘Z`/redo for staged decisions and Canvas view state. |
 | Media comparison | Two decorative Reel cards did not prove the branch-and-compare contract. | High | Added one synchronized playhead, annotations, and a decision table for evidence, cost, source angle, policy, and derivative impact; selection and approval remain separate. |
 | Bridge state equivalence | Connections described Clark Bridge but did not prove that an external MCP client and Studio use one canonical state path. | High | Added a scoped Hermes capture with command intent, permission intersection, one domain event, accepted/deduplicated receipts, equal Studio/Bridge hashes, reload restoration, and direct Canvas inspection. |
+| Open-source optimism | A repository name or “plugin-first” roadmap could be mistaken for a safe, installable Clark integration. | High | Added a governed Tool Pack receipt that pins OpenCut evidence, shows 0/3 stable interfaces, incomplete legal/supply-chain review, zero installed authority, the reuse ladder, canonical ownership, and 11 rejected activation attacks. |
 
 ## Remaining limitations before human testing
 
 1. Prototype now demonstrates pan, zoom, keyboard movement, command access, reversible staged state, and synchronized comparison. It still does not implement node-position drag, graph rewiring, durable annotation events, or a production media editor.
 2. Critical-path and selected-lineage policies are heuristic; walkthroughs must test whether users understand hidden relationships and discover “All structure” when needed.
-3. Connections now proves one Bridge capture/replay state path but does not run a production MCP SDK transport, OAuth, server installation, client token registry, revocation, or skill-permission review flow.
+3. Connections now proves one Bridge capture/replay state path and one blocked Tool Pack decision, but it does not run a production MCP SDK transport, OAuth, package installer, client token registry, revocation, supply-chain scanner, or skill-permission review flow.
 4. The prototype uses representative content rather than a participant's own live workspace.
 5. Mac-native menu roles, VoiceOver testing, Share extension, notification, Keychain prompt, and window behaviors require a later native interaction prototype.
 6. The five-workflow expert rehearsal in `cognitive-walkthroughs.md` removes obvious failures but is not participant evidence.

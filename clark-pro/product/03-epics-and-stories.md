@@ -17,7 +17,7 @@
 
 - Versioned schemas for events, artifacts, graph, loops, runs, capabilities, decisions, publications, observations, memory, skills, and policies.
 - Architecture decision records.
-- Maintain the authoritative [threat model](../security-and-threat-model.md) and [ADR registry](../decisions/README.md) for renderer, harness, connectors, skills, MCP clients/servers, credentials, updates, and remote workers.
+- Maintain the authoritative [threat model](../security-and-threat-model.md) and [ADR registry](../decisions/README.md) for renderer, harness, connectors, Tool Packs, skills, MCP clients/servers, credentials, updates, and remote workers.
 
 **Acceptance:** schema compatibility and migration policy documented; no unresolved trust boundary blocks foundation work.
 
@@ -192,10 +192,11 @@
 
 ### E24 — Clark Kit and Conformance
 
-- SDK for capabilities, adapters, renderers, loops, templates, policies, and skills.
-- Validation CLI, fixtures, sandbox, compatibility matrix, signed packages, rollback.
+- SDK for governed Tool Packs, capabilities, adapters, converters, isolated UI renderers, loops, templates, policies, and skills.
+- Reuse-review template and MCP/headless/API/library/WASM/sidecar/file/browser/fork integration ladder.
+- Validation CLI, fixtures, sandbox, license/SBOM/provenance checks, compatibility matrix, signed packages, migration preview, and rollback.
 
-**Acceptance:** third-party package can be built without core changes and cannot exceed declared/trusted permissions.
+**Acceptance:** a third-party Tool Pack can be built without core changes, cannot exceed declared/trusted permissions, cannot replace Clark's canonical model, and cannot activate without immutable source/artifact identity plus complete legal, supply-chain, compatibility, adapter/capability, migration, and rollback evidence.
 
 ### E25 — External Agent Integrations
 

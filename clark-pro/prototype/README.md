@@ -9,7 +9,7 @@ This is the Ground-stratum clickable prototype for the six-view Mac product mode
 - Library
 - Memory
 
-Connections is included as a supporting system surface for MCP servers, social accounts, Clark Bridge clients, skills, trust, and harness health.
+Connections is included as a supporting system surface for MCP servers, social accounts, Clark Bridge clients, governed Tool Packs, skills, trust, and harness health.
 
 `index.html` is the standalone Ground interaction artifact. Open it in a browser to exercise the 50-object Full-Week fixture, angle decisions, downstream-impact preview, object-level provenance contracts, reversible view/decision state, version comparison and approval, timeline, artifact library, governed memory evidence, run authority, and Connections.
 
@@ -18,6 +18,8 @@ The Canvas now supports click-drag panning, 65–140% zoom, fit-to-view, relatio
 Connections includes a Bridge state-equivalence proof. A verified Hermes client issues `clark.capture` with capture-only workspace scope, receives one durable `source.captured` receipt, and creates the same object Canvas renders. Replaying the intent emits no new event; reloading restores the 51-object receipt-backed state for the current browser session.
 
 Connections also exposes the governed skill execution classes and an inspectable Class B receipt. The receipt distinguishes requested from effective permissions, shows the four-way intersection, and reports the 19 hostile Wasmtime Ground cases without presenting the Ground spike as the production component sandbox.
+
+Connections now exposes the pinned OpenCut Tool Pack candidate without presenting it as installed. The receipt shows exact source evidence, incomplete legal/supply-chain gates, zero adapters/capabilities/skills/converters/UI authority, the reuse-first integration ladder, Clark's canonical-state boundary, and 11 rejected activation attacks. OpenCut remains visibly `blocked_upstream` until a stable supported interface and complete quarantine evidence exist.
 
 The prototype validates information architecture and interaction contracts. It is not an alternate implementation path; production work follows the Electron, event, harness, memory, policy, and capability contracts in the authoritative architecture documents.
 

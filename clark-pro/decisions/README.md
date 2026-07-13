@@ -34,6 +34,7 @@ These records turn the product's resolved technology choices into team-owned dec
 | [0019](0019-portable-encrypted-backups.md) | Portable age-encrypted backups with user-held recovery | Accepted | Export, restore, and disaster recovery |
 | [0020](0020-vulnerability-and-support-policy.md) | Private vulnerability reporting and explicit security support lifecycle | Accepted | Release and incident response |
 | [0021](0021-generated-contracts-and-event-upcasters.md) | Canonical JSON Schemas generate namespaced TypeScript; immutable events use sequential fail-closed upcasters | Accepted | Every implementation package and historical projection |
+| [0022](0022-governed-tool-packs-and-reuse-first-integration.md) | Governed Tool Packs make reuse-first external tools installable without surrendering Clark's canonical model | Accepted | Harness, Connect, Clark Kit, creation tools, supply chain |
 
 ## Dependency order
 
@@ -53,6 +54,8 @@ The records form one base-to-top stack:
 0010 + 0020 govern how every layer is delivered, supported, and proven
                               ↓
 0021 keeps implementation types and historical interpretation on the same canonical contracts
+                              ↓
+0022 composes external engines through governed, replaceable Tool Packs
 ```
 
 ## Change rule

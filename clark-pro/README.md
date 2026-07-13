@@ -16,7 +16,7 @@ Clark is not another AI content generator and not a scheduler with a chat box. I
 | **Clark Connect** | MCP client + connector runtime for Higgsfield, Postiz, research, analytics, files, browsers, and direct APIs. |
 | **Clark Bridge** | Clark's own MCP server so Claude, Codex, ChatGPT, Hermes, and other clients can use Clark as a tool. |
 | **Clark Skills** | Installable Agent Skills plus creator-specific skills proposed from successful runs and promoted only through review. |
-| **Clark Kit** | SDK and manifests for capabilities, renderers, connectors, templates, policies, and skills. |
+| **Clark Kit** | SDK and governed Tool Packs for capabilities, adapters, converters, renderers, templates, policies, and skills. |
 
 ## The Strongest Wedge
 
@@ -44,6 +44,7 @@ The result is not merely more content. It is a studio that becomes more aligned,
 6. **The canvas cannot become spaghetti.** Templates, lanes, groups, Focus mode, and automatic layout are first-class.
 7. **Publishing is policy-bound.** Platform rules, account permissions, AI disclosure, human approval, and fallback export are enforced by the harness.
 8. **No throwaway architecture.** Delivery is incremental, but each stratum uses the production contracts, event log, migrations, security model, and observability foundation.
+9. **Reuse engines; own creator truth.** Mature open-source tools enter through pinned, licensed, tested, reversible Tool Packs and never replace Clark's canonical creator, workflow, approval, memory, or provenance model.
 
 ## Authoritative Documents
 
@@ -76,4 +77,4 @@ Read these in order:
 
 ## Current Status
 
-Ground-stratum product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system, with a clickable Focus/Canvas/Timeline/Review/Library/Memory/Connections prototype, twenty-one accepted ADRs, and versioned contracts. Bridge state equivalence, governed skill packages, the 19-case Wasmtime spike, the 36-case hostile MCP suite, and deterministic generated contracts/upcasting now pass at their stated Ground proof level. The machine-checked Ground ledger remains open: creator/commercial evidence, native Mac accessibility, named contract/team ownership, broader security-test ownership, and leadership signoff are not yet proven. Implementation should not fan out by treating Ground harnesses or prototype checks as production evidence.
+Ground-stratum product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system, with a clickable Focus/Canvas/Timeline/Review/Library/Memory/Connections prototype, twenty-two accepted ADRs, and versioned contracts. Bridge state equivalence, governed skills and Tool Packs, the 19-case Wasmtime spike, the 36-case hostile MCP suite, and deterministic generated contracts/upcasting now pass at their stated Ground proof level. The OpenCut candidate is deliberately upstream-blocked rather than presented as a working integration. The machine-checked Ground ledger remains open: creator/commercial evidence, native Mac accessibility, named contract/team ownership, broader security-test ownership, and leadership signoff are not yet proven. Implementation should not fan out by treating Ground harnesses or prototype checks as production evidence.

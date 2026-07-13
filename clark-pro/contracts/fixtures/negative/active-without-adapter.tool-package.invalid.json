@@ -1,0 +1,136 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/tool-package.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.toolpack.invalid.active",
+  "name": "Invalid Active Tool Pack",
+  "description": "Negative fixture proving an active package cannot omit its verified adapter.",
+  "revision": "1.0.0",
+  "publisher": {
+    "id": "fixture.publisher",
+    "name": "Fixture Publisher",
+    "trust": "verified",
+    "website": "https://example.invalid"
+  },
+  "source": {
+    "kind": "release_archive",
+    "uri": "https://example.invalid/tool.tar.gz",
+    "revision": "1.0.0",
+    "immutableRef": true,
+    "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "hashBasis": "release_asset",
+    "observedAt": "2026-07-12T22:10:00-05:00",
+    "evidenceUri": "https://example.invalid/releases/1.0.0"
+  },
+  "license": {
+    "spdxExpression": "MIT",
+    "declaredByUpstream": true,
+    "noticeFiles": [
+      {
+        "path": "LICENSE",
+        "contentHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "commercialUse": "approved",
+    "redistribution": "approved",
+    "dependencyReview": "passed",
+    "trademarkReview": "not_required"
+  },
+  "supplyChain": {
+    "sbom": {
+      "status": "verified",
+      "format": "spdx_json",
+      "location": "sbom.spdx.json",
+      "contentHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "vulnerabilityScan": {
+      "result": "pass",
+      "tool": "fixture-scanner",
+      "observedAt": "2026-07-12T22:10:00-05:00",
+      "reportHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    "signature": { "status": "verified", "scheme": "fixture", "identity": "fixture.publisher" },
+    "provenance": {
+      "status": "verified",
+      "attestationRef": "provenance.json",
+      "contentHash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "build": {
+      "reproducibility": "reproducible",
+      "networkPolicy": "offline",
+      "recipeRef": "build.md",
+      "toolchainLockHash": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  },
+  "install": {
+    "mode": "remote_service",
+    "requiresAdmin": false,
+    "declaredNetworkDomains": ["example.invalid"],
+    "artifacts": [],
+    "updatePolicy": {
+      "mode": "manual_review",
+      "allowUnreviewed": false,
+      "permissionDiffRequired": true,
+      "migrationPreviewRequired": true,
+      "rollbackRequired": true
+    }
+  },
+  "integration": {
+    "preferredPath": "http_api",
+    "ladder": ["http_api", "file_handoff", "browser_automation", "forked_vendor"],
+    "forkPolicy": "upstream_interface_exhausted",
+    "degradedPathApproval": null,
+    "canonicalBoundary": {
+      "clarkOwns": ["workflow_state", "approvals", "permissions", "provenance", "artifact_lineage"],
+      "toolOwns": ["remote_execution"],
+      "stateSync": "typed_commands_and_receipts",
+      "externalSchemaIsCanonical": false
+    },
+    "interfaceRequirement": "any_stable",
+    "interfaceCandidates": [
+      {
+        "id": "fixture.http.api",
+        "kind": "http_api",
+        "status": "stable",
+        "version": "1.0.0",
+        "evidenceUri": "https://example.invalid/api",
+        "blocker": null
+      }
+    ],
+    "adapters": []
+  },
+  "components": {
+    "capabilityRevisions": [
+      {
+        "id": "fixture.capability.execute",
+        "revision": "1.0.0",
+        "contentHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    ],
+    "skillRevisions": [],
+    "converters": [],
+    "uiContributions": []
+  },
+  "tests": [
+    {
+      "id": "fixture.activation",
+      "kind": "activation",
+      "automation": "executable",
+      "fixture": "fixture",
+      "expected": "pass",
+      "result": "pass"
+    }
+  ],
+  "lifecycle": {
+    "state": "active",
+    "installed": true,
+    "trustBasis": "source_reviewed",
+    "rollbackRevision": "0.9.0",
+    "statusReason": "Intentionally invalid because no adapter is present."
+  },
+  "compatibility": {
+    "clarkApi": "1.0.0",
+    "platforms": ["macos-arm64"],
+    "upstreamRevision": "1.0.0"
+  },
+  "limitations": ["Negative fixture only."]
+}

@@ -21,7 +21,7 @@ All views operate on the same objects, versions, runs, and permissions.
 
 Focus is the default. Canvas is one click away. A blank canvas is never the onboarding experience.
 
-**Connections** is a supporting system surface rather than a seventh creative view. It exposes MCP servers, social accounts, capability health, Clark Bridge clients, installed skills, trust, scopes, and quarantine state without mixing infrastructure setup into daily creative work.
+**Connections** is a supporting system surface rather than a seventh creative view. It exposes MCP servers, social accounts, capability health, Clark Bridge clients, Tool Pack candidates/install/activation state, installed skills, trust, scopes, legal/supply-chain evidence, and quarantine state without mixing infrastructure setup into daily creative work.
 
 ## The Canvas Layout
 
@@ -36,7 +36,7 @@ Each lane can collapse into a summary group. Cross-lane dependencies are allowed
 ### Persistent chrome
 
 - **Top run bar:** run, pause, resume, stop, dry-run, active policy, budget, estimated cost, model mode, and current run health.
-- **Left studio rail:** projects, templates, capability palette, installed skills, connected accounts, and search.
+- **Left studio rail:** projects, templates, capability palette, active Tool Packs, installed skills, connected accounts, and search.
 - **Right inspector:** selected object's content, versions, configuration, inputs, outputs, permissions, cost, evidence, and history.
 - **Bottom activity strip:** run events, async jobs, scheduled work, notifications, and logs.
 - **Command field:** natural-language steering that always resolves to a visible proposed graph change or run command before execution.
@@ -93,6 +93,7 @@ Decision cards make judgment explicit:
 - approve a post;
 - resolve a policy warning;
 - promote a memory;
+- inspect, activate, suspend, update, or roll back a Tool Pack;
 - install or update a skill.
 
 A decision shows who or what made it, alternatives considered, evidence shown, and whether it can be reversed.
@@ -194,7 +195,7 @@ During a run, operators show queued, waiting, running, streaming, blocked, retry
 
 ### Dry-run
 
-Dry-run compiles the graph without paid or mutating calls. It checks capability availability, credentials, permissions, port types, platform rules, budgets, and expected human gates.
+Dry-run compiles the graph without paid or mutating calls. It checks capability and Tool Pack revision availability, adapter health, credentials, permissions, port types, platform rules, budgets, and expected human gates.
 
 ### Intervention
 
@@ -202,7 +203,7 @@ The creator can pause a branch, edit an artifact, redirect an agent, change a mo
 
 ### Explain mode
 
-Every recommendation and proposed mutation has a “Why?” affordance showing retrieved memories, sources, policies, skill versions, and uncertainty.
+Every recommendation and proposed mutation has a “Why?” affordance showing retrieved memories, sources, policies, Tool Pack/adapter/capability revisions, skill versions, and uncertainty.
 
 ## Avoiding Canvas Failure Modes
 

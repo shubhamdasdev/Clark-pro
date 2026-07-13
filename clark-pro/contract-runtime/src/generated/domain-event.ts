@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/domain-event.schema.json
- * Source SHA-256: f70e2ca9e475cea906d1fe2a5732e3629dbe8a1c0f4edfa3161eb6ff05339b94
+ * Source SHA-256: eae14ee3e5b020f0b95f2fd6883e4cb842307ae1e2673f39bd896fb51ffb430a
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -23,6 +23,7 @@ export interface ClarkDomainEventEnvelope {
       | "observation"
       | "memory"
       | "skill"
+      | "tool_package"
       | "capability"
       | "account_connection"
       | "bridge_client"

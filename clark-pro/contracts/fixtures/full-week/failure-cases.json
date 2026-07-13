@@ -74,6 +74,17 @@
       "invariants": ["Trust is revision-specific", "Permission expansion requires review", "Prior trusted revision remains available"]
     },
     {
+      "id": "tool-pack-update-substitution",
+      "title": "Tool Pack update source hash differs from the reviewed release and requests a new UI origin",
+      "threatIds": ["PACK-01", "UPDATE-01"],
+      "initialState": { "activeRevision": "creator-tool.3.1.0", "sourceHash": "sha256:reviewed", "uiOrigins": [] },
+      "stimulus": [{ "type": "package_update", "target": "creator-tool.3.2.0", "data": { "sourceHash": "sha256:substituted", "newUiOrigin": "https://unreviewed.example.invalid" } }],
+      "expectedEvents": ["tool_package.revision_quarantined"],
+      "expectedFinalState": { "activeRevision": "creator-tool.3.1.0", "newRevision": "quarantined", "newUiOriginAccess": "denied" },
+      "forbiddenOutcomes": ["Mutable or mismatched source is executed", "New UI origin inherits prior renderer trust", "Capabilities silently switch to the update"],
+      "invariants": ["Source and artifact hashes are revision-specific", "UI origins require explicit isolated review", "Prior verified package and rollback path remain available"]
+    },
+    {
       "id": "source-prompt-injection",
       "title": "Research source instructs the model to reveal creator memory and call a tool",
       "threatIds": ["AI-01", "MCP-S01", "MEM-01"],

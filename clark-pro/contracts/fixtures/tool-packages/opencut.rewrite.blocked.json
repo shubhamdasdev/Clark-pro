@@ -1,0 +1,177 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/tool-package.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.toolpack.opencut.rewrite",
+  "name": "OpenCut Rewrite",
+  "description": "Pinned compatibility candidate for OpenCut's plugin-first rewrite. It is intentionally not installable until an upstream Editor API, MCP server, headless interface, or stable equivalent exists.",
+  "revision": "0.1.0",
+  "publisher": {
+    "id": "opencut.app",
+    "name": "OpenCut",
+    "trust": "community_unverified",
+    "website": "https://github.com/OpenCut-app/OpenCut"
+  },
+  "source": {
+    "kind": "git",
+    "uri": "https://github.com/OpenCut-app/OpenCut.git",
+    "revision": "bab8af831b354a0b5a98a4a6e818ab7d633b94df",
+    "immutableRef": true,
+    "contentHash": "sha256:27cdf4a2b37747b15481009684870e47d999ceaaccde0545b41a03f5b83f8ecc",
+    "hashBasis": "git_archive",
+    "treeRevision": "caeb690c2e4c48609820f5223e14ce9f6e78b564",
+    "observedAt": "2026-07-12T22:10:00-05:00",
+    "evidenceUri": "https://github.com/OpenCut-app/OpenCut/tree/bab8af831b354a0b5a98a4a6e818ab7d633b94df"
+  },
+  "license": {
+    "spdxExpression": "MIT",
+    "declaredByUpstream": true,
+    "noticeFiles": [
+      {
+        "path": "LICENSE",
+        "contentHash": "sha256:05ab02fd3151198e3c0a698a3b7abfa6149c7bec26230f47c80c4dc5b6dc263f"
+      }
+    ],
+    "commercialUse": "approved",
+    "redistribution": "approved",
+    "dependencyReview": "pending",
+    "trademarkReview": "separate_review_required"
+  },
+  "supplyChain": {
+    "sbom": { "status": "pending" },
+    "vulnerabilityScan": { "result": "not_run" },
+    "signature": { "status": "not_available" },
+    "provenance": { "status": "source_only" },
+    "build": {
+      "reproducibility": "unknown",
+      "networkPolicy": "not_applicable",
+      "recipeRef": null
+    }
+  },
+  "install": {
+    "mode": "none_until_ready",
+    "requiresAdmin": false,
+    "declaredNetworkDomains": [],
+    "artifacts": [],
+    "updatePolicy": {
+      "mode": "manual_review",
+      "allowUnreviewed": false,
+      "permissionDiffRequired": true,
+      "migrationPreviewRequired": true,
+      "rollbackRequired": true
+    }
+  },
+  "integration": {
+    "preferredPath": "mcp",
+    "ladder": [
+      "mcp",
+      "headless_cli",
+      "http_api",
+      "library",
+      "wasm_component",
+      "local_sidecar",
+      "file_handoff",
+      "browser_automation",
+      "forked_vendor"
+    ],
+    "forkPolicy": "upstream_interface_exhausted",
+    "degradedPathApproval": null,
+    "canonicalBoundary": {
+      "clarkOwns": [
+        "creator_context",
+        "workflow_state",
+        "approvals",
+        "permissions",
+        "provenance",
+        "artifact_lineage",
+        "memory",
+        "skills"
+      ],
+      "toolOwns": ["video_editing", "timeline_rendering", "video_export"],
+      "stateSync": "none_until_ready",
+      "externalSchemaIsCanonical": false
+    },
+    "interfaceRequirement": "any_stable",
+    "interfaceCandidates": [
+      {
+        "id": "opencut.mcp.server",
+        "kind": "mcp",
+        "status": "planned",
+        "evidenceUri": "https://github.com/OpenCut-app/OpenCut/issues/811",
+        "blocker": "The upstream rewrite tracker lists the MCP server as unfinished and exposes no stable tool contract."
+      },
+      {
+        "id": "opencut.headless.api",
+        "kind": "headless_cli",
+        "status": "planned",
+        "evidenceUri": "https://github.com/OpenCut-app/OpenCut/issues/811",
+        "blocker": "Headless mode is planned but no supported executable or versioned automation schema is present on the pinned revision."
+      },
+      {
+        "id": "opencut.editor.api",
+        "kind": "library_api",
+        "status": "planned",
+        "evidenceUri": "https://github.com/OpenCut-app/OpenCut/issues/811",
+        "blocker": "The Editor API and plugin host remain unchecked roadmap items, so Clark must not depend on internal editor types."
+      }
+    ],
+    "adapters": []
+  },
+  "components": {
+    "capabilityRevisions": [],
+    "skillRevisions": [],
+    "converters": [],
+    "uiContributions": []
+  },
+  "tests": [
+    {
+      "id": "opencut.source.pin",
+      "kind": "source_integrity",
+      "automation": "shared_contract",
+      "fixture": "contracts/fixtures/tool-packages/opencut.rewrite.blocked.json",
+      "expected": "pass",
+      "result": "pass"
+    },
+    {
+      "id": "opencut.license.declared",
+      "kind": "license",
+      "automation": "shared_contract",
+      "fixture": "MIT declaration and pinned LICENSE hash only; dependency and trademark review remain open",
+      "expected": "pass",
+      "result": "pass"
+    },
+    {
+      "id": "opencut.activation.blocked",
+      "kind": "activation",
+      "automation": "shared_contract",
+      "fixture": "blocked_upstream lifecycle with no adapter or capability revisions",
+      "expected": "block",
+      "result": "pass"
+    },
+    {
+      "id": "opencut.upstream.readiness",
+      "kind": "upstream_readiness",
+      "automation": "planned",
+      "fixture": "stable Editor API, MCP, headless, or equivalent interface plus conformance evidence",
+      "expected": "block",
+      "result": "blocked"
+    }
+  ],
+  "lifecycle": {
+    "state": "blocked_upstream",
+    "installed": false,
+    "trustBasis": "source_review_pending",
+    "rollbackRevision": null,
+    "statusReason": "OpenCut validates Clark's engine-first direction, but the pinned rewrite is scaffolding and its extension surfaces are roadmap items. Activation would fabricate compatibility."
+  },
+  "compatibility": {
+    "clarkApi": "1.0.0",
+    "platforms": ["macos-arm64", "macos-x64"],
+    "upstreamRevision": "bab8af831b354a0b5a98a4a6e818ab7d633b94df"
+  },
+  "limitations": [
+    "No stable OpenCut Editor API, MCP server, headless API, plugin host, or project interchange contract exists at the pinned revision.",
+    "The MIT repository declaration does not complete dependency, asset, model, or trademark review.",
+    "OpenCut Classic contains substantial editor internals but no supported automation boundary, so browser automation and private-type coupling remain rejected defaults.",
+    "No OpenCut code or binary is bundled, installed, executed, or represented as a verified Clark capability by this fixture."
+  ]
+}

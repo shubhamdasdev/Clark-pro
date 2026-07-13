@@ -1,0 +1,482 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/tool-package.schema.json",
+  "title": "Clark Governed Tool Package",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "id",
+    "name",
+    "description",
+    "revision",
+    "publisher",
+    "source",
+    "license",
+    "supplyChain",
+    "install",
+    "integration",
+    "components",
+    "tests",
+    "lifecycle",
+    "compatibility",
+    "limitations"
+  ],
+  "properties": {
+    "$schema": { "const": "https://schemas.clark.pro/v1/tool-package.schema.json" },
+    "schemaVersion": { "const": 1 },
+    "id": { "$ref": "common.schema.json#/$defs/id" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "description": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "revision": { "$ref": "common.schema.json#/$defs/semver" },
+    "publisher": {
+      "type": "object",
+      "required": ["id", "name", "trust", "website"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "trust": { "enum": ["bundled_verified", "verified", "community_unverified", "local_development"] },
+        "website": { "type": "string", "format": "uri", "maxLength": 4096 }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": ["kind", "uri", "revision", "immutableRef", "contentHash", "hashBasis", "observedAt", "evidenceUri"],
+      "properties": {
+        "kind": { "enum": ["git", "release_archive", "package_registry", "bundled", "local"] },
+        "uri": { "type": "string", "format": "uri-reference", "minLength": 1, "maxLength": 4096 },
+        "revision": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "immutableRef": { "type": "boolean" },
+        "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "hashBasis": { "enum": ["git_archive", "release_asset", "package_tarball", "directory_tree"] },
+        "treeRevision": { "type": "string", "pattern": "^[a-f0-9]{40,64}$" },
+        "observedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "evidenceUri": { "type": "string", "format": "uri", "maxLength": 4096 },
+        "subdirectory": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$", "maxLength": 500 }
+      },
+      "additionalProperties": false
+    },
+    "license": {
+      "type": "object",
+      "required": ["spdxExpression", "declaredByUpstream", "noticeFiles", "commercialUse", "redistribution", "dependencyReview", "trademarkReview"],
+      "properties": {
+        "spdxExpression": { "type": "string", "pattern": "^[A-Za-z0-9.+() -]{2,200}$" },
+        "declaredByUpstream": { "type": "boolean" },
+        "noticeFiles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["path", "contentHash"],
+            "properties": {
+              "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$", "maxLength": 500 },
+              "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "commercialUse": { "enum": ["approved", "review_required", "forbidden", "not_applicable"] },
+        "redistribution": { "enum": ["approved", "review_required", "forbidden", "not_applicable"] },
+        "dependencyReview": { "enum": ["pending", "passed", "failed", "not_applicable"] },
+        "trademarkReview": { "enum": ["not_required", "separate_review_required", "passed", "failed"] },
+        "reviewedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "reviewerRef": { "$ref": "common.schema.json#/$defs/id" }
+      },
+      "additionalProperties": false
+    },
+    "supplyChain": {
+      "type": "object",
+      "required": ["sbom", "vulnerabilityScan", "signature", "provenance", "build"],
+      "properties": {
+        "sbom": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "enum": ["pending", "generated", "verified", "failed", "not_applicable"] },
+            "format": { "enum": ["spdx_json", "cyclonedx_json"] },
+            "location": { "type": "string", "format": "uri-reference", "maxLength": 4096 },
+            "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" }
+          },
+          "additionalProperties": false
+        },
+        "vulnerabilityScan": {
+          "type": "object",
+          "required": ["result"],
+          "properties": {
+            "result": { "enum": ["not_run", "pass", "fail"] },
+            "tool": { "type": "string", "minLength": 1, "maxLength": 160 },
+            "observedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+            "reportHash": { "$ref": "common.schema.json#/$defs/contentHash" }
+          },
+          "additionalProperties": false
+        },
+        "signature": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "enum": ["not_available", "not_applicable", "verified", "failed"] },
+            "scheme": { "type": "string", "minLength": 1, "maxLength": 160 },
+            "identity": { "type": "string", "minLength": 1, "maxLength": 500 }
+          },
+          "additionalProperties": false
+        },
+        "provenance": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": { "enum": ["source_only", "generated", "verified", "failed", "not_applicable"] },
+            "attestationRef": { "type": "string", "format": "uri-reference", "maxLength": 4096 },
+            "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" }
+          },
+          "additionalProperties": false
+        },
+        "build": {
+          "type": "object",
+          "required": ["reproducibility", "networkPolicy"],
+          "properties": {
+            "reproducibility": { "enum": ["unknown", "best_effort", "reproducible", "not_applicable"] },
+            "networkPolicy": { "enum": ["offline", "pinned_registries", "declared_domains", "not_applicable"] },
+            "recipeRef": { "type": ["string", "null"], "maxLength": 1000 },
+            "toolchainLockHash": { "$ref": "common.schema.json#/$defs/contentHash" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "install": {
+      "type": "object",
+      "required": ["mode", "requiresAdmin", "declaredNetworkDomains", "artifacts", "updatePolicy"],
+      "properties": {
+        "mode": { "enum": ["none_until_ready", "remote_service", "verified_release", "build_from_source", "system_dependency", "user_supplied", "bundled"] },
+        "requiresAdmin": { "type": "boolean" },
+        "declaredNetworkDomains": { "type": "array", "items": { "type": "string", "format": "hostname" }, "uniqueItems": true },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "platform", "architecture", "kind", "location", "contentHash", "executable", "signatureStatus"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "platform": { "enum": ["macos", "remote", "portable"] },
+              "architecture": { "enum": ["arm64", "x64", "universal", "wasm32", "not_applicable"] },
+              "kind": { "enum": ["binary", "app_bundle", "wasm_component", "library", "configuration", "license_notice", "sbom"] },
+              "location": { "type": "string", "format": "uri-reference", "minLength": 1, "maxLength": 4096 },
+              "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+              "executable": { "type": "boolean" },
+              "signatureStatus": { "enum": ["not_available", "not_applicable", "verified", "failed"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "updatePolicy": {
+          "type": "object",
+          "required": ["mode", "allowUnreviewed", "permissionDiffRequired", "migrationPreviewRequired", "rollbackRequired"],
+          "properties": {
+            "mode": { "enum": ["manual_review", "verified_candidate_channel", "disabled"] },
+            "allowUnreviewed": { "const": false },
+            "permissionDiffRequired": { "const": true },
+            "migrationPreviewRequired": { "type": "boolean" },
+            "rollbackRequired": { "const": true }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "integration": {
+      "type": "object",
+      "required": ["preferredPath", "ladder", "forkPolicy", "degradedPathApproval", "canonicalBoundary", "interfaceRequirement", "interfaceCandidates", "adapters"],
+      "properties": {
+        "preferredPath": { "$ref": "#/$defs/integrationPath" },
+        "ladder": { "type": "array", "items": { "$ref": "#/$defs/integrationPath" }, "minItems": 1, "uniqueItems": true },
+        "forkPolicy": { "enum": ["never", "security_patch_only", "upstream_interface_exhausted", "maintainer_rejected_extension"] },
+        "degradedPathApproval": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["path", "reason", "ownerRole", "decisionId", "expiresAt"],
+              "properties": {
+                "path": { "enum": ["browser_automation", "forked_vendor"] },
+                "reason": { "type": "string", "minLength": 20, "maxLength": 1000 },
+                "ownerRole": { "type": "string", "minLength": 3, "maxLength": 200 },
+                "decisionId": { "$ref": "common.schema.json#/$defs/id" },
+                "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "canonicalBoundary": {
+          "type": "object",
+          "required": ["clarkOwns", "toolOwns", "stateSync", "externalSchemaIsCanonical"],
+          "properties": {
+            "clarkOwns": { "type": "array", "items": { "enum": ["creator_context", "workflow_state", "approvals", "permissions", "provenance", "artifact_lineage", "publication_intent", "memory", "skills"] }, "minItems": 1, "uniqueItems": true },
+            "toolOwns": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true },
+            "stateSync": { "enum": ["none_until_ready", "typed_commands_and_receipts", "file_conversion", "observation_and_reconciliation"] },
+            "externalSchemaIsCanonical": { "const": false }
+          },
+          "additionalProperties": false
+        },
+        "interfaceRequirement": { "enum": ["any_stable", "all_stable", "none"] },
+        "interfaceCandidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "kind", "status", "evidenceUri", "blocker"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "kind": { "enum": ["mcp", "headless_cli", "http_api", "library_api", "plugin_api", "wasm_component", "file_format"] },
+              "status": { "enum": ["missing", "planned", "experimental", "stable", "deprecated"] },
+              "version": { "type": "string", "minLength": 1, "maxLength": 256 },
+              "evidenceUri": { "type": "string", "format": "uri", "maxLength": 4096 },
+              "blocker": { "type": ["string", "null"], "maxLength": 1000 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "adapters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "revision", "path", "status", "executionBoundary", "entrypointRef", "contentHash", "capabilityRevisions"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "revision": { "$ref": "common.schema.json#/$defs/semver" },
+              "path": { "$ref": "#/$defs/integrationPath" },
+              "status": { "enum": ["proposed", "quarantined", "verified", "disabled"] },
+              "executionBoundary": { "enum": ["harness_managed", "wasm_sandbox", "isolated_sidecar", "isolated_browser", "external_app_handoff"] },
+              "entrypointRef": { "type": "string", "format": "uri-reference", "minLength": 1, "maxLength": 4096 },
+              "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+              "capabilityRevisions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/revisionRef" }, "minItems": 1 }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "components": {
+      "type": "object",
+      "required": ["capabilityRevisions", "skillRevisions", "converters", "uiContributions"],
+      "properties": {
+        "capabilityRevisions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/revisionRef" }, "uniqueItems": true },
+        "skillRevisions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/revisionRef" }, "uniqueItems": true },
+        "converters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "revision", "direction", "inputSchemaRef", "outputSchemaRef", "lossPolicy", "contentHash"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "revision": { "$ref": "common.schema.json#/$defs/semver" },
+              "direction": { "enum": ["import", "export", "bidirectional"] },
+              "inputSchemaRef": { "$ref": "common.schema.json#/$defs/schemaRef" },
+              "outputSchemaRef": { "$ref": "common.schema.json#/$defs/schemaRef" },
+              "lossPolicy": { "enum": ["lossless", "declared_loss", "reject_unsupported"] },
+              "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "uiContributions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "kind", "isolation", "rendererRef", "previewSafe", "allowedOrigins"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "kind": { "enum": ["command", "card", "inspector", "panel", "menu", "open_external", "embedded_origin"] },
+              "isolation": { "enum": ["declarative", "clark_renderer", "sandboxed_web", "external_app"] },
+              "rendererRef": { "$ref": "common.schema.json#/$defs/id" },
+              "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+              "previewSafe": { "type": "boolean" },
+              "allowedOrigins": { "type": "array", "items": { "type": "string", "format": "uri" }, "uniqueItems": true }
+            },
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": { "properties": { "isolation": { "const": "sandboxed_web" } }, "required": ["isolation"] },
+                "then": { "properties": { "allowedOrigins": { "minItems": 1 } } },
+                "else": { "properties": { "allowedOrigins": { "maxItems": 0 } } }
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "automation", "fixture", "expected", "result"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/id" },
+          "kind": { "enum": ["source_integrity", "license", "sbom", "vulnerability", "install", "activation", "capability", "converter", "ui_isolation", "upgrade", "rollback", "upstream_readiness"] },
+          "automation": { "enum": ["executable", "shared_contract", "planned"] },
+          "fixture": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "expected": { "enum": ["pass", "deny", "quarantine", "block"] },
+          "result": { "enum": ["pass", "fail", "blocked", "not_run"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["state", "installed", "trustBasis", "rollbackRevision", "statusReason"],
+      "properties": {
+        "state": { "enum": ["discovered", "blocked_upstream", "quarantined", "testing", "active", "suspended", "rolled_back"] },
+        "installed": { "type": "boolean" },
+        "trustBasis": { "enum": ["source_review_pending", "source_reviewed", "signed_release", "sandbox_verified", "bundled_verified", "developer_mode"] },
+        "rollbackRevision": { "type": ["string", "null"], "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$" },
+        "statusReason": { "type": "string", "minLength": 1, "maxLength": 2000 }
+      },
+      "additionalProperties": false
+    },
+    "compatibility": {
+      "type": "object",
+      "required": ["clarkApi", "platforms", "upstreamRevision"],
+      "properties": {
+        "clarkApi": { "$ref": "common.schema.json#/$defs/semver" },
+        "platforms": { "type": "array", "items": { "enum": ["macos-arm64", "macos-x64"] }, "minItems": 1, "uniqueItems": true },
+        "upstreamRevision": { "type": "string", "minLength": 1, "maxLength": 256 }
+      },
+      "additionalProperties": false
+    },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 1000 }, "minItems": 1, "uniqueItems": true },
+    "extensions": { "$ref": "common.schema.json#/$defs/extensions" }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "source": { "properties": { "kind": { "const": "git" } }, "required": ["kind"] } }, "required": ["source"] },
+      "then": {
+        "properties": {
+          "source": {
+            "properties": {
+              "revision": { "pattern": "^[a-f0-9]{40}$" },
+              "immutableRef": { "const": true },
+              "hashBasis": { "const": "git_archive" },
+              "treeRevision": { "pattern": "^[a-f0-9]{40}$" }
+            },
+            "required": ["treeRevision"]
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "lifecycle": { "properties": { "state": { "const": "blocked_upstream" } }, "required": ["state"] } }, "required": ["lifecycle"] },
+      "then": {
+        "properties": {
+          "lifecycle": { "properties": { "installed": { "const": false }, "trustBasis": { "const": "source_review_pending" }, "rollbackRevision": { "type": "null" } } },
+          "install": { "properties": { "mode": { "const": "none_until_ready" }, "artifacts": { "maxItems": 0 } } },
+          "integration": {
+            "properties": {
+              "interfaceRequirement": { "enum": ["any_stable", "all_stable"] },
+              "interfaceCandidates": { "minItems": 1, "contains": { "type": "object", "properties": { "status": { "enum": ["missing", "planned", "experimental"] } }, "required": ["status"] } },
+              "adapters": { "maxItems": 0 }
+            }
+          },
+          "components": { "properties": { "capabilityRevisions": { "maxItems": 0 }, "skillRevisions": { "maxItems": 0 }, "converters": { "maxItems": 0 }, "uiContributions": { "maxItems": 0 } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "lifecycle": { "properties": { "state": { "const": "active" } }, "required": ["state"] } }, "required": ["lifecycle"] },
+      "then": {
+        "properties": {
+          "source": { "properties": { "immutableRef": { "const": true } } },
+          "lifecycle": { "properties": { "installed": { "const": true }, "trustBasis": { "not": { "const": "source_review_pending" } } } },
+          "license": { "properties": { "commercialUse": { "const": "approved" }, "redistribution": { "enum": ["approved", "not_applicable"] }, "dependencyReview": { "enum": ["passed", "not_applicable"] }, "trademarkReview": { "enum": ["not_required", "passed"] } } },
+          "supplyChain": {
+            "properties": {
+              "sbom": { "properties": { "status": { "enum": ["verified", "not_applicable"] } } },
+              "vulnerabilityScan": { "properties": { "result": { "const": "pass" } } },
+              "provenance": { "properties": { "status": { "enum": ["verified", "not_applicable"] } } }
+            }
+          },
+          "install": { "properties": { "mode": { "not": { "const": "none_until_ready" } } } },
+          "integration": {
+            "properties": {
+              "adapters": {
+                "minItems": 1,
+                "items": {
+                  "properties": {
+                    "status": { "const": "verified" },
+                    "capabilityRevisions": { "items": { "required": ["contentHash"] } }
+                  }
+                }
+              }
+            }
+          },
+          "components": {
+            "properties": {
+              "capabilityRevisions": { "minItems": 1, "items": { "required": ["contentHash"] } },
+              "skillRevisions": { "items": { "required": ["contentHash"] } }
+            }
+          },
+          "tests": { "contains": { "type": "object", "properties": { "kind": { "const": "activation" }, "result": { "const": "pass" } }, "required": ["kind", "result"] } }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle": { "properties": { "state": { "const": "active" } }, "required": ["state"] },
+          "integration": { "properties": { "interfaceRequirement": { "const": "any_stable" } }, "required": ["interfaceRequirement"] }
+        },
+        "required": ["lifecycle", "integration"]
+      },
+      "then": { "properties": { "integration": { "properties": { "interfaceCandidates": { "contains": { "type": "object", "properties": { "status": { "const": "stable" } }, "required": ["status"] } } } } } }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle": { "properties": { "state": { "const": "active" } }, "required": ["state"] },
+          "integration": { "properties": { "interfaceRequirement": { "const": "all_stable" } }, "required": ["interfaceRequirement"] }
+        },
+        "required": ["lifecycle", "integration"]
+      },
+      "then": { "properties": { "integration": { "properties": { "interfaceCandidates": { "minItems": 1, "items": { "properties": { "status": { "const": "stable" } } } } } } } }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle": { "properties": { "state": { "const": "blocked_upstream" } }, "required": ["state"] },
+          "integration": { "properties": { "interfaceRequirement": { "const": "any_stable" } }, "required": ["interfaceRequirement"] }
+        },
+        "required": ["lifecycle", "integration"]
+      },
+      "then": { "properties": { "integration": { "properties": { "interfaceCandidates": { "items": { "properties": { "status": { "not": { "const": "stable" } } } } } } } } }
+    },
+    {
+      "if": {
+        "properties": {
+          "integration": {
+            "properties": {
+              "adapters": {
+                "contains": {
+                  "type": "object",
+                  "properties": { "path": { "enum": ["browser_automation", "forked_vendor"] } },
+                  "required": ["path"]
+                }
+              }
+            },
+            "required": ["adapters"]
+          }
+        },
+        "required": ["integration"]
+      },
+      "then": { "properties": { "integration": { "properties": { "degradedPathApproval": { "type": "object" } } } } }
+    }
+  ],
+  "$defs": {
+    "integrationPath": {
+      "enum": ["mcp", "headless_cli", "http_api", "library", "wasm_component", "local_sidecar", "file_handoff", "browser_automation", "forked_vendor"]
+    }
+  }
+}

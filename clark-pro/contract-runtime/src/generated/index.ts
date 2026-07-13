@@ -13,3 +13,4 @@ export type * as ProjectFixture from "./project-fixture.js";
 export type * as RunPlan from "./run-plan.js";
 export type * as SkillPackage from "./skill-package.js";
 export type * as SkillPermissionReceipt from "./skill-permission-receipt.js";
+export type * as ToolPackage from "./tool-package.js";

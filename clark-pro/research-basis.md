@@ -43,6 +43,23 @@ Direct social publishing still carries provider approval, audit, account-type, O
 - https://developers.google.com/youtube/v3/docs/videos/insert
 - https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access
 
+## Open-Source Tool Reuse and OpenCut
+
+OpenCut's current rewrite is useful architectural evidence, not yet an integration dependency. Its pinned `bab8af831b354a0b5a98a4a6e818ab7d633b94df` tree separates web, desktop, and API scaffolds and declares a future Rust engine serving Editor API, plugins, MCP, headless mode, and scripting. The public rewrite tracker still leaves architecture documentation, engine core, Editor API, Plugin API/host, storage, built-in plugins, MCP, headless, scripting, and platform applications unchecked.
+
+- https://github.com/OpenCut-app/OpenCut/tree/bab8af831b354a0b5a98a4a6e818ab7d633b94df
+- https://github.com/OpenCut-app/OpenCut/issues/811
+- https://github.com/OpenCut-app/OpenCut/blob/bab8af831b354a0b5a98a4a6e818ab7d633b94df/LICENSE
+
+OpenCut Classic is substantial and demonstrates internal `EditorCore` managers, commands, actions, definition registries, Rust/WASM crates, rendering, and browser persistence. Those internal registries are helpful design references but are not a supported third-party plugin, headless, or project-interchange contract. Clark therefore prefers a future supported MCP/headless/library boundary and rejects coupling to private browser DOM or TypeScript types as its default.
+
+- https://github.com/OpenCut-app/opencut-classic/blob/cf5e79e919144200294fb9fed22a222592a0aeea/AGENTS.md
+- https://github.com/OpenCut-app/opencut-classic/blob/cf5e79e919144200294fb9fed22a222592a0aeea/apps/web/src/core/index.ts
+- https://github.com/OpenCut-app/opencut-classic/blob/cf5e79e919144200294fb9fed22a222592a0aeea/apps/web/src/actions/registry.ts
+- https://github.com/OpenCut-app/opencut-classic/blob/cf5e79e919144200294fb9fed22a222592a0aeea/apps/web/src/effects/registry.ts
+
+The repository is MIT licensed, which permits commercial use and modification when the notice is retained. That does not settle licenses for every dependency/asset/model or use of upstream trademarks. ADR-0022 therefore makes source pinning, dependency/license review, SBOM, vulnerability/provenance evidence, quarantine, compatibility, and rollback part of Tool Pack activation rather than assuming “open source” means safe to embed.
+
 ## Mac and Electron Security
 
 Electron supports the chosen TypeScript/React/MCP architecture but requires an explicit security posture: current runtime, sandboxing, context isolation, restrictive preload APIs, validated IPC senders, CSP, no remote Node integration, and controlled navigation. On macOS, Electron safe storage uses Keychain-backed keys; Clark still places all secret access behind its credential broker.
@@ -128,5 +145,6 @@ The defensible Clark thesis is the integrated decision graph:
 5. reviewable skill evolution;
 6. Mac-local canonical ownership;
 7. one state model across Studio and MCP.
+8. a governed Tool Pack layer that reuses specialized engines without surrendering creator truth.
 
 These properties must be implemented deeply. If Clark becomes primarily a node canvas, generator catalog, or scheduler, it will be undifferentiated.

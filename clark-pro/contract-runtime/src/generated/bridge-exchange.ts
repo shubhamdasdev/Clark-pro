@@ -155,6 +155,7 @@ export interface ClarkDomainEventEnvelope {
       | "observation"
       | "memory"
       | "skill"
+      | "tool_package"
       | "capability"
       | "account_connection"
       | "bridge_client"

@@ -8,6 +8,7 @@ Clark participates in four ecosystems that must remain conceptually separate.
 |---|---|---|
 | **Capability** | A typed action Clark can plan, authorize, execute, observe, and reconcile. | Publish a LinkedIn post. |
 | **Transport/adapter** | How the capability is implemented. | Postiz MCP, direct LinkedIn API, CLI, local tool. |
+| **Tool Pack** | The governed install/update unit for an external project and its adapters, capabilities, converters, UI, evidence, and rollback. | A pinned OpenCut package once a stable API exists. |
 | **Skill** | Procedural knowledge for combining capabilities well. | Turn a technical article into a sourced LinkedIn carousel. |
 | **Loop** | Durable executable workflow with state, gates, recovery, and evaluation. | Weekly build-in-public production and distribution. |
 
@@ -132,6 +133,30 @@ Every connector supports the applicable subset of:
 
 Generic MCP tools can be wrapped automatically. Publishing, long media generation, and browser-assisted flows normally require explicit adapter behavior.
 
+## Reuse-First Tool Packs
+
+Clark does not win by reimplementing every open-source creator tool. It wins by preserving creator context and durable workflow truth while the best available engines remain replaceable.
+
+The governed [`tool-package` contract](contracts/schemas/tool-package.schema.json) binds:
+
+- exact publisher, upstream revision, archive/tree hash, and evidence URI;
+- license notices, commercial/redistribution disposition, dependency and trademark review;
+- SBOM, vulnerability scan, signature, build, and provenance state;
+- acquisition artifacts, network/admin requirements, and reviewed update/rollback policy;
+- ordered integration paths and the reason for any degraded browser/fork choice;
+- adapters and their exact capability revisions;
+- skills, converters, and isolated UI contributions;
+- compatibility, activation, conformance, migration, and rollback tests;
+- discovered, blocked, quarantined, testing, active, suspended, and rolled-back lifecycle.
+
+Installation preference is native MCP → headless CLI → HTTP API → supported library → WASM → supervised sidecar → typed file handoff → isolated browser automation → maintained fork. The Harness still evaluates every call through the capability contract; Tool Pack metadata cannot widen authority.
+
+### OpenCut disposition
+
+The [pinned OpenCut candidate](contracts/fixtures/tool-packages/opencut.rewrite.blocked.json) proves that Clark can track promising open-source work without claiming it works. At the reviewed revision, OpenCut's Editor API, MCP server, headless mode, plugin API, and plugin host are roadmap items. The candidate therefore installs nothing and exposes no capabilities or UI.
+
+Once one stable upstream boundary exists, it re-enters quarantine. Clark must complete dependency/asset/trademark review, produce an SBOM and vulnerability report, implement typed converters and capabilities, verify golden rendering and failure behavior, and prove upgrade/rollback before activation. Private browser DOM or internal TypeScript types do not count as supported interfaces.
+
 ## Social Integration Strategy
 
 Clark should not maintain dozens of social APIs before it has to. It should use a tiered mesh.
@@ -178,6 +203,7 @@ Every platform path ends with a deterministic export fallback containing media, 
 - Model gateway for scripts, research, adaptation, evaluation, and structured output.
 - ffmpeg local capability for validation, normalization, subtitles, thumbnails, and packaging.
 - Optional design adapters for Canva or other creator tools when their APIs or connectors support the needed workflow.
+- OpenCut as an upstream-blocked Tool Pack candidate, activatable only after a stable supported API and full package conformance.
 
 ### Research
 
@@ -270,7 +296,7 @@ External agent harnesses such as Hermes can operate Clark through Clark Bridge. 
 
 ## Ecosystem Conformance
 
-A connector or skill is production-ready only when it provides:
+A connector, Tool Pack, or skill is production-ready only when it provides:
 
 - versioned identity and source;
 - declared permissions and domains;
@@ -284,6 +310,8 @@ A connector or skill is production-ready only when it provides:
 - observability without secret leakage;
 - compatible license.
 
+Tool Packs additionally require dependency/license disposition, SBOM, vulnerability and provenance evidence, verified install/activation, isolated UI and runtime boundaries, migration preview, and rollback. A roadmap, repository star count, top-level license, or successful local build does not satisfy those gates.
+
 ### Ground hostile conformance boundary
 
 The versioned [`mcp-conformance` plan](mcp-conformance/conformance-plan.json) makes Clark's two MCP roles testable before production adapters fan out. It pins the stable protocol revision and SDK baseline, assigns primary/backup role ownership, defines severity and quarantine policy, and separates executable, shared-contract, and still-planned cases.
@@ -296,3 +324,4 @@ The current Ground report runs a real official-SDK stdio baseline plus raw hosti
 - Agent Skills standardizes `SKILL.md` packages with optional scripts, references, and assets; Clark adds trust, permission, revision, and regression layers.
 - Postiz currently exposes MCP tools and a CLI/API for broad publishing and analytics, making it a better first distribution dependency than rebuilding every platform integration.
 - Hermes demonstrates the value of persistent memory, agent-created skills, scheduled work, model neutrality, and multiple surfaces. Clark applies those harness lessons to the creator domain while keeping learning inspectable and policy-bound.
+- OpenCut's rewrite tracker demonstrates the useful one-engine/many-surfaces direction while also leaving its Editor API, Plugin API/host, MCP, headless, and scripting work unfinished; Clark records that distinction in the blocked candidate fixture rather than treating roadmap text as compatibility.

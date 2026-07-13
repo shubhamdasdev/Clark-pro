@@ -1,7 +1,7 @@
 # Clark Pro — Ground Evidence Status
 
 **Generated from:** `evidence/ground-ledger.json`
-**Reviewed:** 2026-07-12T22:45:00-05:00
+**Reviewed:** 2026-07-12T22:30:00-05:00
 **Gate:** OPEN
 **Signoff:** pending
 

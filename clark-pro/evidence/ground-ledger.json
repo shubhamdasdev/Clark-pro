@@ -3,7 +3,7 @@
   "schemaVersion": "1.0.0",
   "ledgerId": "clark.evidence.ground",
   "stratum": "ground",
-  "reviewedAt": "2026-07-12T22:45:00-05:00",
+  "reviewedAt": "2026-07-12T22:30:00-05:00",
   "currentGate": "before-stratum-1-implementation",
   "gateState": "open",
   "entries": [
@@ -69,24 +69,27 @@
     {
       "id": "OBJ-04",
       "area": "objective",
-      "requirement": "Clark consumes MCP servers through a capability contract that remains safe across transports and providers.",
+      "requirement": "Clark consumes MCP servers and reusable external tools through capability and Tool Pack contracts that remain safe across transports and providers.",
       "ownerRole": "Connect + Security Leads",
       "proofRequired": ["design_document", "adr", "schema", "fixture", "automated_test"],
       "result": "contract_verified",
       "evidence": [
         {"kind": "design_document", "location": "mcp-ecosystem.md", "claim": "Defines Clark as an MCP host/client with negotiation, trust, lifecycle, and capability adaptation.", "result": "pass"},
         {"kind": "adr", "location": "decisions/0004-capabilities-above-mcp.md", "claim": "Places the Clark capability contract above MCP transport semantics.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0022-governed-tool-packs-and-reuse-first-integration.md", "claim": "Accepts reuse-first integration while keeping external engines replaceable and Clark's canonical creator model authoritative.", "result": "pass"},
         {"kind": "schema", "location": "contracts/schemas/capability-manifest.schema.json", "claim": "Versions capability inputs, outputs, permissions, cost, approval, async, trust, and lifecycle.", "result": "pass"},
+        {"kind": "schema", "location": "contracts/schemas/tool-package.schema.json", "claim": "Versions immutable source, license/dependency disposition, supply chain, installation, adapters, capabilities, converters, UI isolation, compatibility, tests, activation, updates, and rollback.", "result": "pass"},
         {"kind": "fixture", "location": "contracts/fixtures/full-week/capabilities/research.search.mcp.json", "claim": "Represents a read-only research MCP capability.", "result": "pass"},
-        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Validates eight capability revisions and their use in loops and the compiled run plan.", "result": "pass", "command": "npm --prefix contracts run verify"},
+        {"kind": "fixture", "location": "contracts/fixtures/tool-packages/opencut.rewrite.blocked.json", "claim": "Pins OpenCut source/tree/archive/license evidence while exposing zero installed authority until a stable upstream interface and complete activation evidence exist.", "result": "pass"},
+        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Auto-discovers Tool Packs, validates integration-ladder/source/component/readiness semantics, proves a synthetic valid-active shape, and rejects active-without-adapter plus eleven hostile activation mutations.", "result": "pass", "command": "npm --prefix contracts run verify"},
         {"kind": "automated_test", "location": "mcp-conformance/verify.mjs", "claim": "Passes all thirty-two executable hostile/runtime cases plus four shared Bridge contract cases against the pinned protocol and SDK baseline.", "result": "pass", "command": "npm --prefix mcp-conformance run verify"}
       ],
-      "acceptanceRule": "Ground requires versioned capability semantics and representative valid/invalid fixtures; hostile live-server conformance is a separate blocking delivery item.",
-      "limitations": ["The Ground runner is not the production Connect runtime.", "Real-provider compatibility, remote network-fault, production credential-broker, and production Tasks evidence remains unbuilt."],
-      "nextAction": "Carry the full thirty-six-case matrix into the production Connect/Bridge runtime and real-server compatibility matrix.",
+      "acceptanceRule": "Ground requires versioned capability and Tool Pack semantics plus representative valid/invalid fixtures; hostile live-server and production installer evidence remain dependent-stratum work.",
+      "limitations": ["The Ground runner is not the production Connect or Tool Pack installer runtime.", "OpenCut has no stable upstream interface at the pinned revision and is not an installed integration.", "Real-provider compatibility, package acquisition/rollback, remote network-fault, production credential-broker, and production Tasks evidence remains unbuilt."],
+      "nextAction": "Carry the full thirty-six-case MCP matrix and Tool Pack acquisition/activation/upgrade/rollback gates into production, then activate only external tools with stable supported interfaces and complete evidence.",
       "groundBlocking": false,
       "releaseTarget": "stratum-3",
-      "updatedAt": "2026-07-12T22:15:00-05:00"
+      "updatedAt": "2026-07-12T22:30:00-05:00"
     },
     {
       "id": "OBJ-05",
@@ -358,20 +361,20 @@
     {
       "id": "CANVAS-09",
       "area": "canvas",
-      "requirement": "Before a run, the creator understands automatic, budget-bound, always-ask, prohibited, and off-Mac data behavior.",
+      "requirement": "Before a run, the creator understands automatic, budget-bound, always-ask, prohibited, and off-Mac data behavior and distinguishes candidate, installed, verified, and active tool/skill authority.",
       "ownerRole": "Product + Design + Security + Research Leads",
       "proofRequired": ["prototype", "automated_test", "observed_session"],
       "result": "human_evidence_pending",
       "evidence": [
-        {"kind": "prototype", "location": "prototype/index.html", "claim": "Focus states the run contract and remote-data boundary; Connections states effective permission intersection.", "result": "pass"},
-        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Records visible automatic, approval, prohibition, budget, and egress categories.", "result": "pass"}
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Focus states the run contract and remote-data boundary; Connections states effective permission intersection and shows OpenCut as upstream-blocked with zero installed authority.", "result": "pass"},
+        {"kind": "automated_test", "location": "prototype/verification.md", "claim": "Records visible automatic, approval, prohibition, budget, egress, Tool Pack readiness, canonical boundary, and activation-denial categories at desktop, 390px, and 320px layouts.", "result": "pass"}
       ],
-      "acceptanceRule": "At least four of five creators correctly classify each action and identify what data may leave the Mac without facilitator correction.",
-      "limitations": ["No observed authority or egress comprehension evidence exists."],
+      "acceptanceRule": "At least four of five creators correctly classify each action and package state, explain why OpenCut is not installed, and identify what data may leave the Mac without facilitator correction.",
+      "limitations": ["No observed action, package-authority, or egress comprehension evidence exists."],
       "nextAction": "Run the authority classification task and redesign any category that participants confuse.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T22:30:00-05:00"
     },
 
     {
@@ -497,7 +500,7 @@
     {
       "id": "GROUND-01",
       "area": "delivery",
-      "requirement": "Every owning workstream reviews and signs off the v1 event, loop, capability, run-plan, failure, and fixture contracts.",
+      "requirement": "Every owning workstream reviews and signs off the v1 event, loop, capability, Tool Pack, run-plan, failure, and fixture contracts.",
       "ownerRole": "Chief Architect + W2-W10 Leads",
       "proofRequired": ["signoff"],
       "result": "missing",
@@ -521,7 +524,7 @@
       "evidence": [
         {"kind": "schema", "location": "contracts/schemas/domain-event.schema.json", "claim": "Remains the canonical event envelope used by generation and destination validation.", "result": "pass"},
         {"kind": "adr", "location": "decisions/0021-generated-contracts-and-event-upcasters.md", "claim": "Accepts canonical JSON Schema, offline namespaced TypeScript generation, committed hashes, runtime Ajv validation, and pure sequential immutable upcasters.", "result": "pass"},
-        {"kind": "fixture", "location": "contract-runtime/src/generated/manifest.json", "claim": "Records all fifteen source schemas, generated modules, source/output hashes, and pinned generator/compiler versions.", "result": "pass"},
+        {"kind": "fixture", "location": "contract-runtime/src/generated/manifest.json", "claim": "Records all sixteen source schemas, generated modules, source/output hashes, and pinned generator/compiler versions.", "result": "pass"},
         {"kind": "fixture", "location": "contract-runtime/fixtures/historical/source-captured.v0.json", "claim": "Represents one historical source.captured version-zero event with a schema and exact version-one expectation.", "result": "pass"},
         {"kind": "automated_test", "location": "contract-runtime/tests/upcaster.test.ts", "claim": "Proves zero generated drift, hostile drift rejection, strict compilation, immutable source.captured@0→1 upcasting, current cloning, missing-step rejection, future-version rejection, and mandatory destination validation failure.", "result": "pass", "command": "npm --prefix contract-runtime run verify"}
       ],
@@ -555,20 +558,21 @@
     {
       "id": "GROUND-04",
       "area": "delivery",
-      "requirement": "ADR-0011 through ADR-0020 have owned executable security test specifications and named incident-response roles.",
+      "requirement": "ADR-0011 through ADR-0022 have owned executable security test specifications and named incident-response roles.",
       "ownerRole": "Security + Quality + Release Leads",
       "proofRequired": ["design_document", "signoff"],
       "result": "specified_not_verified",
       "evidence": [
         {"kind": "design_document", "location": "security-and-threat-model.md", "claim": "Maps threats and accepted security decisions to verification gates and remaining implementation evidence.", "result": "pass"},
-        {"kind": "adr", "location": "decisions/0020-vulnerability-and-support-policy.md", "claim": "Defines disclosure, support, incident, and responder requirements.", "result": "pass"}
+        {"kind": "adr", "location": "decisions/0020-vulnerability-and-support-policy.md", "claim": "Defines disclosure, support, incident, and responder requirements.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0022-governed-tool-packs-and-reuse-first-integration.md", "claim": "Adds external package substitution, license/SBOM/provenance, activation, UI isolation, compatibility, upgrade, and rollback gates that still need named executable owners.", "result": "pass"}
       ],
       "acceptanceRule": "Every ADR verification gate maps to a named test owner, environment, tool, severity/blocking rule, artifact destination, and responder; private reporting is enabled before beta.",
       "limitations": ["Owners are roles rather than named people.", "Executable test specifications and incident responders are not assigned."],
       "nextAction": "Create the threat/ADR-to-test plan, assign primary/backup owners, and rehearse the reporting path before beta.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T22:30:00-05:00"
     },
     {
       "id": "GROUND-05",

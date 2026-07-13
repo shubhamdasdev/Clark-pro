@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/event-payloads.schema.json
- * Source SHA-256: 8baa894cfe1d56fbdc59bef30407151b184b3d10af5b52ceb529ea5853305cee
+ * Source SHA-256: 40b8eaa90001c4c4061a6209097a9b6d8335d1937ecbadecbb70f3025be95081
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -468,6 +468,30 @@ export interface SkillRevisionStateChanged {
   testStatus: "not_run" | "passed" | "failed";
   decisionId?: string;
   rollbackRevision?: RevisionRef;
+}
+/**
+ * This interface was referenced by `ClarkDomainEventPayloads`'s JSON-Schema
+ * via the `definition` "toolPackageRevisionStateChanged".
+ */
+export interface ToolPackageRevisionStateChanged {
+  toolPackageRevision: RevisionRef;
+  manifestHash: string;
+  sourceRevision: string;
+  sourceHash: string;
+  from: "unseen" | "discovered" | "blocked_upstream" | "quarantined" | "testing" | "active" | "suspended" | "failed";
+  to: "discovered" | "blocked_upstream" | "quarantined" | "testing" | "active" | "suspended" | "failed" | "rolled_back";
+  capabilityRevisions: RevisionRef[];
+  adapterRevisions: RevisionRef[];
+  evidenceStatus: {
+    license: "pending" | "pass" | "fail" | "not_applicable";
+    dependencies: "pending" | "pass" | "fail" | "not_applicable";
+    sbom: "pending" | "pass" | "fail" | "not_applicable";
+    vulnerability: "not_run" | "pass" | "fail";
+    activation: "not_run" | "pass" | "fail" | "blocked";
+  };
+  decisionId?: string;
+  rollbackRevision?: RevisionRef;
+  reason?: string;
 }
 /**
  * This interface was referenced by `ClarkDomainEventPayloads`'s JSON-Schema

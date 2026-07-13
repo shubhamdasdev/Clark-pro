@@ -25,6 +25,7 @@ The ledger deliberately distinguishes:
 | `../skills-sandbox/evidence/latest-sandbox-receipt.json` | Attributable pinned-runtime result for the hostile Class B Ground suite |
 | `../mcp-conformance/evidence/latest-report.json` | Attributable complete 36-case Ground MCP result with production-boundary limitations |
 | `../contract-runtime/src/generated/manifest.json` | Pinned source/output hashes for every generated implementation contract |
+| `../contracts/fixtures/tool-packages/opencut.rewrite.blocked.json` | Pinned OpenCut candidate that proves upstream readiness is blocked and grants no installed authority |
 
 ## Run
 

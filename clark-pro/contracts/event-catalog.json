@@ -455,6 +455,46 @@
       "description": "Restores a prior trusted skill revision after failure or regression."
     },
     {
+      "eventType": "tool_package.revision_discovered",
+      "schemaVersion": 1,
+      "aggregateType": "tool_package",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/toolPackageRevisionStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Pins an external tool candidate and its evidence without granting installation or execution authority."
+    },
+    {
+      "eventType": "tool_package.revision_quarantined",
+      "schemaVersion": 1,
+      "aggregateType": "tool_package",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/toolPackageRevisionStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Stages an acquired Tool Pack revision for license, supply-chain, compatibility, permission, and conformance review."
+    },
+    {
+      "eventType": "tool_package.revision_activated",
+      "schemaVersion": 1,
+      "aggregateType": "tool_package",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/toolPackageRevisionStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Activates a verified Tool Pack revision and its exact capability and adapter inventory after policy approval."
+    },
+    {
+      "eventType": "tool_package.revision_rolled_back",
+      "schemaVersion": 1,
+      "aggregateType": "tool_package",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/toolPackageRevisionStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Disables a failed or unsafe Tool Pack revision and restores its last verified compatible revision."
+    },
+    {
       "eventType": "account_connection.added",
       "schemaVersion": 1,
       "aggregateType": "account_connection",

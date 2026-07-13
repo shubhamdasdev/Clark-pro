@@ -107,7 +107,8 @@ The primary user is a professional operator-creator building a multi-channel per
 - Propose skills from successful or corrected trajectories.
 - Clark Connect hosts external MCP servers and capability adapters.
 - Clark Bridge exposes permissioned tools, resources, prompts, and durable jobs.
-- Clark Kit supports connectors, capabilities, renderers, loops, templates, policies, and skills.
+- Clark Kit supports governed Tool Packs containing pinned external sources, adapters, capabilities, converters, isolated UI, loops, templates, policies, and skills.
+- Reuse reviews prefer supported MCP/headless/API/library/WASM boundaries before browser automation, maintained forks, or internal replacement builds.
 
 ### F11 — Team and elastic execution
 
@@ -136,7 +137,7 @@ The primary user is a professional operator-creator building a multi-channel per
 
 - Renderer has no direct secrets, shell, filesystem, or arbitrary network authority.
 - Credentials live in macOS Keychain behind scopes and leases.
-- MCP servers, skills, and connectors are untrusted until reviewed.
+- MCP servers, skills, Tool Packs, external binaries, UI contributions, and connectors are untrusted until reviewed.
 - Remote context obeys sensitivity and workspace policy.
 - Clark Bridge is localhost-only by default with explicit scoped clients.
 

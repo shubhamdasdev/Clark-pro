@@ -13,7 +13,7 @@ This model covers:
 - signed/notarized Mac application, renderer, main process, harness, and media workers;
 - local databases, asset store, backups, imports, and diagnostics;
 - model providers, MCP servers, direct APIs, Postiz, browsers, and social accounts;
-- Agent Skills and Clark Kit packages;
+- Agent Skills, governed Tool Packs, external binaries, and Clark Kit packages;
 - Clark Bridge clients;
 - optional Relay workers, synchronization, and Team tenancy;
 - updates, build artifacts, and third-party dependencies.
@@ -133,6 +133,7 @@ Maturity values are **Specified**, **Implemented**, or **Verified**. Every row i
 | MCP-S01 | Malicious server descriptions, prompts, schemas, output, sampling request, or tool behavior manipulates Clark or exfiltrates data | Critical | untrusted metadata, schema limits, trust levels, capability ACL, egress policy, output sanitization, cancellation/timeouts | hostile MCP conformance server and prompt-injection fixtures | Specified |
 | MCP-C01 | Clark Bridge client becomes a confused deputy and uses Clark's credentials outside its scope | Critical | explicit client registration, scoped tokens, domain command reuse, intent IDs, approval behavior, audit, revocation | cross-workspace/sensitivity/account/action and replay attempts | Specified |
 | SKILL-01 | Skill package hides executable behavior, expands tools on update, reads secrets/files, or reaches undeclared domains | Critical | pinned source hash, quarantine, static/dynamic scan, declared domains/tools, permission intersection, sandbox, tests, promotion/rollback | malicious package suite and update permission-diff tests | Specified |
+| PACK-01 | Tool Pack source, dependency, binary, converter, adapter, or UI contribution is substituted, mislicensed, compromised, or gains undeclared authority | Critical | immutable source/artifact hashes, license/dependency review, SBOM, provenance/signature, vulnerability scan, quarantine, capability intersection, UI/process isolation, migration preview, rollback | substitution/archive/dependency-confusion/license/permission/UI escape/incompatible-upgrade and rollback suite | Specified |
 | AI-01 | Source prompt injection or model output requests tools/data beyond the creator's intent | Critical | source/data instruction separation, bounded context compiler, tool allowlist, policy before every call, egress preview, no model-granted permission | indirect injection corpus across web, PDF, image OCR, memory, and tool results | Specified |
 | MEM-01 | Sensitive or irrelevant memory leaks to a provider, client, team member, or output | Critical | typed sensitivity, scoped retrieval, provider/data policy, minimum context, remote packet preview, retrieval audit | cross-scope and canary leakage evaluation | Specified |
 | MEM-02 | Weak outcome, malicious source, or mistaken inference poisons permanent memory/strategy | High | proposal-only learning, evidence/contradiction/confidence, explicit promotion, expiry, dispute, rollback | poisoned evidence cannot become active without attributable approval | Specified |
@@ -225,7 +226,7 @@ The model never sees raw secret values, credential references it can resolve, un
 - Electron, Node, native media binaries, MCP SDK, database extensions, and updater remain on explicit supported versions.
 - Update manifest and package signatures are verified before install.
 - Staged rollout, migration preview, backup checkpoint, health check, and automatic/read-only rollback path.
-- Skills, connectors, templates with scripts, and Clark Kit packages retain publisher, source revision, hash, compatibility, permission diff, test results, and quarantine state.
+- Skills, connectors, governed Tool Packs, templates with scripts, and Clark Kit packages retain publisher, source revision, hashes, license/dependency disposition, SBOM/provenance, compatibility, permission diff, test results, and quarantine state.
 - A trusted prior version remains available until the new revision passes post-update health and migration checks.
 
 ## 11. Security verification matrix
@@ -239,6 +240,7 @@ The model never sees raw secret values, credential references it can resolve, un
 | Secret containment | ADR-0005 + credential flows | canary scans, OAuth attacks, lease/revocation tests | Security + Desktop |
 | Publication authority | ADR-0006 + ledger states | stale/duplicate/wrong-account/reconciliation tests | Distribution + Quality |
 | Memory/skill governance | ADR-0007 + proposal/permission model | leakage, poisoning, malicious-package, rollback tests | Memory + Skills + Security |
+| Tool Pack supply chain | ADR-0022 + package schema/blocked OpenCut fixture | substitution, license/SBOM, activation, UI isolation, compatibility, upgrade and rollback suite | Clark Kit + Connect + Security + Release |
 | Remote/team isolation | ADR-0008 + envelope/sync protocol | tenant isolation, tamper/replay, compromised-worker suite | Relay + Security |
 | Human authority comprehension | ADR-0009 + prototype rubric | five observed creator walkthroughs | Product + Research |
 | Release integrity | ADR-0010 + release gates | provenance, notarization, update and rollback drills | Release Engineering |
@@ -255,7 +257,7 @@ No row moves to Verified from a document review alone. Verification requires the
 4. Rotate and reauthorize; reconcile external mutations made during the uncertainty window.
 5. Preserve an incident receipt and redacted diagnostics.
 
-### Malicious skill, connector, or MCP server
+### Malicious skill, Tool Pack, connector, or MCP server
 
 1. Quarantine revision and terminate active processes/calls.
 2. Revoke credential and workspace grants.

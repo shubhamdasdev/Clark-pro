@@ -19,8 +19,9 @@ Use this only for observed creator sessions. The full recruitment, facilitation,
 5. Find when the newsletter is scheduled and identify one blocked distribution item.
 6. Find the evidence behind a proposed memory and reject or promote it.
 7. Explain the difference between an artifact, operator, decision, gate, and loop.
-8. Open Connections and explain how Clark is simultaneously an MCP host, an MCP server, a social integration layer, and a governed skill host.
-9. State what this run may do automatically, what is budget-bound, what always requires approval, and what data may leave the Mac.
+8. Open Connections and explain how Clark is simultaneously an MCP host, an MCP server, a social integration layer, a governed Tool Pack host, and a governed skill host.
+9. Inspect OpenCut and explain why it is not installed, what authority it currently has, and what evidence would be required before activation.
+10. State what this run may do automatically, what is budget-bound, what always requires approval, and what data may leave the Mac.
 
 ## Evidence to record
 
@@ -32,7 +33,8 @@ Use this only for observed creator sessions. The full recruitment, facilitation,
 - Whether 50-object Canvas remained legible:
 - Whether approval vs publication was clear:
 - Whether memory evidence and promotion were clear:
-- Whether MCP, social-account, Bridge, and skill trust states were understandable:
+- Whether MCP, social-account, Bridge, Tool Pack, and skill trust states were understandable:
+- Whether the participant distinguished an upstream candidate from an installed/active tool and could explain the OpenCut block:
 - Whether the run contract and remote-data boundary were understandable:
 - What the participant expected but could not find:
 
@@ -49,7 +51,8 @@ Each item is Pass, Partial, or Fail with notes.
 | Inspect and govern a memory proposal |  |  |
 | Navigate a 50-object project without losing orientation |  |  |
 | Distinguish approval from publication authority |  |  |
-| Explain Clark Connect, Clark Bridge, social adapters, and skill trust |  |  |
+| Explain Clark Connect, Clark Bridge, social adapters, Tool Pack readiness, and skill trust |  |  |
+| Distinguish open-source candidate, installed package, verified adapter, and active capability |  |  |
 | Explain effective autonomy and remote-data boundaries |  |  |
 
 ## Decision

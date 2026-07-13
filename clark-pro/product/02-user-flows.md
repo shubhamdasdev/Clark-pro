@@ -27,7 +27,20 @@
 
 **Failure paths:** invalid metadata; expired scopes; provider does not support expected async/cancel behavior; duplicate tool name; untrusted annotations; conformance failure; revoked credentials.
 
-## Flow 3 — Install an Agent Skill
+## Flow 3 — Evaluate and install a Tool Pack
+
+1. Creator selects a bundled/verified/community candidate or provides an upstream repository/release.
+2. Clark shows the exact immutable revision and hashes, publisher trust, license notices, dependency/trademark disposition, SBOM, vulnerability/provenance evidence, compatibility, and known limitations.
+3. Clark evaluates supported boundaries in order: MCP, headless CLI, HTTP API, library, WASM, supervised sidecar, typed file handoff, isolated browser, then maintained fork.
+4. If no required stable interface exists, the candidate remains `blocked_upstream` with no adapter, capability, skill, converter, UI, credential, filesystem, or network authority.
+5. An eligible candidate acquires into quarantine; Clark verifies source/artifact identity before unpack/build and records admin/network/build requirements.
+6. Creator reviews adapter capabilities, permission/egress diff, converters and declared loss, UI isolation/origins, workspace scope, compatibility, migration preview, tests, and rollback revision.
+7. Clark runs install, capability, converter, UI-isolation, hostile, upgrade, and rollback conformance before activation is offered.
+8. Activation appends the exact Tool Pack, adapter, and capability revisions. Updates return to quarantine; the prior verified revision remains available.
+
+**Failure paths:** mutable source; hash/signature substitution; archive escape; dependency confusion; incompatible or forbidden license; missing SBOM/provenance; known vulnerability; unstable interface; capability or UI-origin expansion; converter loss not declared; failed activation/migration/rollback. Every failure preserves the prior trusted state and explains whether to block, quarantine, hand off, or remove the candidate.
+
+## Flow 4 — Install an Agent Skill
 
 1. Creator selects a package source or drops a skill folder.
 2. Clark validates the Agent Skills structure and locks the source revision.
@@ -39,7 +52,7 @@
 
 **Failure paths:** invalid frontmatter; hidden executable; unavailable capability; overly broad tools; network request outside declaration; regression failure; incompatible update.
 
-## Flow 4 — Quick capture
+## Flow 5 — Quick capture
 
 1. Creator invokes global shortcut, Share action, drag/drop, or menu-bar capture.
 2. Adds text, URL, screenshot, file, selected content, or voice memo.
@@ -49,12 +62,12 @@
 
 No research or generation runs merely because an item was captured.
 
-## Flow 5 — Run the Full-Week loop
+## Flow 6 — Run the Full-Week loop
 
 1. Creator opens a project and chooses Full Week.
 2. Focus shows inputs, selected Brand Constitution, accounts, budget, time window, and expected review gates.
 3. Creator runs dry-run.
-4. Harness validates credentials, capabilities, platform schemas, costs, permissions, and graph contracts.
+4. Harness validates credentials, active Tool Pack/adapter/capability revisions, platform schemas, costs, permissions, and graph contracts.
 5. Creator starts the run.
 6. Sensemaking branch imports sources, searches, builds claim ledger, retrieves relevant memory, and marks uncertainty.
 7. Angle decision arrives in Focus; Canvas shows alternatives and evidence.
@@ -66,7 +79,7 @@ No research or generation runs merely because an item was captured.
 
 At every step the creator can open Canvas, inspect lineage, pause a branch, replace a capability, or lower permissions.
 
-## Flow 6 — Change an upstream decision
+## Flow 7 — Change an upstream decision
 
 1. Creator edits or promotes a different angle.
 2. Harness computes downstream input-hash impact.
@@ -75,7 +88,7 @@ At every step the creator can open Canvas, inspect lineage, pause a branch, repl
 5. New artifact versions are appended; old versions remain.
 6. Decisions and schedule are reconciled before any new publication.
 
-## Flow 7 — Compare and approve
+## Flow 8 — Compare and approve
 
 1. Review shows paired text diffs or synchronized media previews.
 2. Creator sees sources, model/provider, skill revision, memory references, policy results, cost, and prior annotations.
@@ -85,7 +98,7 @@ At every step the creator can open Canvas, inspect lineage, pause a branch, repl
 
 **Edge cases:** source becomes disputed; disclosure missing; brand policy conflict; model output includes unsafe claim; media validation failure; approval occurs after upstream staleness.
 
-## Flow 8 — Schedule and publish
+## Flow 9 — Schedule and publish
 
 1. Timeline shows approved artifacts and account/platform requirements.
 2. Creator schedules or chooses immediate publish.
@@ -97,7 +110,7 @@ At every step the creator can open Canvas, inspect lineage, pause a branch, repl
 8. On ambiguous failure, publication enters reconciliation—not blind retry.
 9. If automation cannot proceed, Clark produces a complete export package.
 
-## Flow 9 — Observe outcomes
+## Flow 10 — Observe outcomes
 
 1. Observation loop wakes according to platform and campaign policy.
 2. Clark pulls Postiz/direct analytics and flags unavailable fields.
@@ -106,7 +119,7 @@ At every step the creator can open Canvas, inspect lineage, pause a branch, repl
 5. Review shows distributions and comparable cohorts with sample counts.
 6. No memory changes occur yet.
 
-## Flow 10 — Reflect and promote memory
+## Flow 11 — Reflect and promote memory
 
 1. Reflection loop reads recent evidence, decisions, corrections, failures, and active memory.
 2. It returns no change or a small set of scoped proposals.
@@ -115,7 +128,7 @@ At every step the creator can open Canvas, inspect lineage, pause a branch, repl
 5. Promoted revision becomes retrievable and is linked to the promotion decision.
 6. Later outputs show when the memory influenced context.
 
-## Flow 11 — Learn or revise a skill
+## Flow 12 — Learn or revise a skill
 
 1. A successful or corrected trajectory triggers a skill proposal.
 2. Clark extracts stable procedure, inputs, outputs, tools, permissions, compatibility, and recovery behavior.
@@ -124,7 +137,7 @@ At every step the creator can open Canvas, inspect lineage, pause a branch, repl
 5. On promotion, the revision is pinned for future runs.
 6. Reliability monitoring can propose rollback; it cannot silently rewrite the active skill.
 
-## Flow 12 — External agent uses Clark Bridge
+## Flow 13 — External agent uses Clark Bridge
 
 1. Creator registers an MCP client and grants workspace/tool/resource scopes.
 2. External agent calls `clark.capture` or `clark.start_run` with an intent ID.
@@ -135,7 +148,7 @@ At every step the creator can open Canvas, inspect lineage, pause a branch, repl
 7. External client retrieves result/resource; event history remains canonical in Clark.
 8. Revocation immediately blocks further client access.
 
-## Flow 13 — Correct or forget personal data
+## Flow 14 — Correct or forget personal data
 
 1. Creator searches Memory and opens an item.
 2. Sees statement, revisions, evidence, retrieval history, and influenced outputs.
@@ -143,7 +156,7 @@ At every step the creator can open Canvas, inspect lineage, pause a branch, repl
 4. Forget produces an audit/tombstone event, removes item from retrieval, and deletes derived search/vector material.
 5. Clark shows completion and any legal/backup retention caveat.
 
-## Flow 14 — Mac sleeps, quits, or crashes
+## Flow 15 — Mac sleeps, quits, or crashes
 
 1. Harness checkpoints local state before suspension where possible.
 2. Remote jobs continue only if explicitly delegated; local-only jobs pause.

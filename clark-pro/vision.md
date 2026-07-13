@@ -64,7 +64,7 @@ A creator can begin with a rough thought and finish with a coordinated body of p
 
 ## The Differentiation
 
-Clark does not claim to be the only visual AI workspace or the only social MCP integration. Those categories already exist. Clark wins by combining four properties deeply:
+Clark does not claim to be the only visual AI workspace or the only social MCP integration. Those categories already exist. Clark wins by combining five properties deeply:
 
 | Property | Clark's position |
 |---|---|
@@ -72,6 +72,7 @@ Clark does not claim to be the only visual AI workspace or the only social MCP i
 | **Operational continuity** | Durable loops survive restarts, reconnect to async jobs, and preserve approvals, budgets, and lineage. |
 | **Creative provenance** | Every artifact traces back through sources, choices, skill versions, tools, models, edits, and outcomes. |
 | **Protocol openness** | Clark is an MCP client, an MCP server, an Agent Skills host, and a capability SDK without making any protocol its internal domain model. |
+| **Composable leverage** | Mature open-source and commercial engines enter through governed Tool Packs while Clark retains canonical creator, workflow, approval, memory, and provenance truth. |
 
 The durable moat is not model access, a list of integrations, or a blank node editor. It is the creator's accumulated **decision graph**: the connected history of intent, evidence, artifacts, judgment, distribution, outcomes, and promoted lessons.
 
@@ -88,7 +89,7 @@ The Mac application with six coordinated views over one underlying project graph
 - **Library** — projects, artifacts, templates, sources, and past outputs.
 - **Memory** — what Clark believes, why it believes it, and how to change it.
 
-Connections remains a supporting system surface for MCP, social accounts, skills, Clark Bridge, permissions, and harness health rather than another creative mode.
+Connections remains a supporting system surface for MCP, social accounts, governed Tool Packs, skills, Clark Bridge, permissions, and harness health rather than another creative mode.
 
 ### Clark Harness
 
@@ -100,7 +101,7 @@ The creator model with separate identity, semantic, episodic, procedural, and pe
 
 ### Clark Connect and Clark Bridge
 
-Clark Connect consumes MCP servers, direct APIs, local tools, and skills. Clark Bridge exposes Clark's projects, memory, workflows, review queue, and publishing capabilities as a permissioned MCP server to other agents.
+Clark Connect consumes MCP servers, direct APIs, local tools, governed Tool Packs, and skills. Clark Bridge exposes Clark's projects, memory, workflows, review queue, and publishing capabilities as a permissioned MCP server to other agents.
 
 ## The Core Loops
 
@@ -141,6 +142,10 @@ Canonical identity, memory, credentials, and project history stay on the Mac. Cl
 ### Replaceable intelligence
 
 Models are selected per task through a provider-neutral gateway. No core product behavior depends on one vendor's agent SDK.
+
+### Own the orchestration; reuse the engines
+
+Clark builds the creator model, Harness, policy, provenance, canonical state, Canvas, and integration contracts deeply. Specialized editors, renderers, schedulers, caption engines, design tools, browsers, and model runtimes should be reused through immutable, licensed, tested, reversible Tool Packs whenever a stable supported boundary exists. A fork or internal rebuild must earn its permanent ownership cost.
 
 ## Boundaries
 

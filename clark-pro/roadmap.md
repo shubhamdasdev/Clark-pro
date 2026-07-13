@@ -28,10 +28,11 @@ The same canonical workspace must be usable from Clark Studio and Clark Bridge, 
 - clickable Mac studio prototype covering Focus, Canvas, Review, Timeline, Library, Memory, and supporting Connections;
 - versioned domain event and JSON schema catalog;
 - capability adapter contract;
+- governed Tool Pack contract, integration preference ladder, source/license/supply-chain lifecycle, and one honestly blocked external-tool candidate;
 - loop definition contract;
 - authoritative threat model, trust boundaries, credential flows, and threat-to-test matrix;
 - representative Full-Week project fixture with realistic artifacts and failure cases;
-- accepted architecture decision records for desktop shell/processes, canonical state, harness, MCP/capabilities, credentials, distribution, memory/skills, remote/team topology, interaction model, and delivery governance.
+- accepted architecture decision records for desktop shell/processes, canonical state, harness, MCP/capabilities, credentials, distribution, memory/skills, remote/team topology, interaction model, and delivery governance;
 - positioning, packaging, replacement target, economic principles, and explicit commercial failure conditions.
 
 ### Gate
@@ -59,7 +60,8 @@ The same canonical workspace must be usable from Clark Studio and Clark Bridge, 
 - graph compiler and dry-run;
 - durable run engine with pause, retry, cancellation, checkpointing, and restart recovery;
 - model gateway with at least two providers or one provider plus local test adapter;
-- observability, diagnostics bundle, crash recovery, and update rollback.
+- observability, diagnostics bundle, crash recovery, and update rollback;
+- Tool Pack repository/quarantine substrate with source/artifact verification, license/SBOM evidence, permission diffs, and activation/update/rollback state; no community execution is enabled by default.
 
 ### Vertical proof
 
@@ -115,7 +117,8 @@ The same idea is developed twice: once without creator context and once with the
 - ffmpeg validation, normalization, previews, subtitles, and packaging;
 - dedicated media comparison and version review;
 - brand, evidence, cost, accessibility, disclosure, and confidentiality gates;
-- full creator templates: Short-Form Series, Long-Form Atomic, Build-in-Public, and Full Week.
+- full creator templates: Short-Form Series, Long-Form Atomic, Build-in-Public, and Full Week;
+- first production creation Tool Packs selected through the reuse review and activated only over stable supported interfaces; OpenCut is included only if its upstream boundary passes the same gates.
 
 ### Vertical proof
 
@@ -198,6 +201,7 @@ Run four real weekly cycles. Clark must produce a useful review that identifies 
 - MCP Tasks mapping when negotiated;
 - client registration, scopes, revocation, and audit;
 - Clark Kit for capability adapters, UI renderers, loops, templates, policies, and skills;
+- public Tool Pack SDK for adapters, converters, isolated UI contributions, manifests, conformance, compatibility, and rollback;
 - conformance CLI and fixture harness;
 - signed/verified package channel plus community installation;
 - sample integrations for Hermes, Claude, Codex, and another MCP client;
@@ -213,7 +217,8 @@ An external agent captures an idea, starts a permitted loop, waits through a dur
 - client scopes prevent cross-workspace and sensitive-memory access;
 - disconnect/reconnect does not lose long-running work;
 - malicious manifests and skills cannot escape quarantine permissions;
-- packages can upgrade and roll back without corrupting projects.
+- packages can upgrade and roll back without corrupting projects;
+- a Tool Pack cannot activate from a mutable source, incomplete license/SBOM/vulnerability evidence, missing adapter/capability, unsafe UI boundary, or unproven migration/rollback path.
 
 ## Stratum 7 — Team and Elastic Execution
 
@@ -271,6 +276,6 @@ Before implementation begins:
 2. Produce the clickable seven-surface Mac prototype using the Full-Week fixture.
 3. Run five creator walkthroughs focused on Focus-vs-Canvas comprehension, provenance, memory evidence, and authority.
 4. Recruit three design partners for a real multi-channel week and a binding willingness-to-pay test.
-5. Convert ADR-0011 through ADR-0020 into owned executable test specifications, enable private vulnerability reporting, and assign named incident responders.
-6. Review and lock the v1 event, loop, capability, run-plan, and fixture contracts with every owning team; derive generated types and conformance test plans without forking schema semantics.
+5. Convert ADR-0011 through ADR-0022 into owned executable test specifications, enable private vulnerability reporting, and assign named incident responders.
+6. Review and lock the v1 event, loop, capability, Tool Pack, run-plan, and fixture contracts with every owning team; derive generated types and conformance test plans without forking schema semantics.
 7. Assign named people, capacity, and dates to `team-delivery-plan.md`; close and sign the machine-checked Ground ledger in `evidence/` without weakening any acceptance gate.

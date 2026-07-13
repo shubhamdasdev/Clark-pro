@@ -23,6 +23,7 @@ The pinned [`../contract-runtime/`](../contract-runtime/README.md) generates nam
 | `schemas/bridge-exchange.schema.json` | Scoped Bridge client, command intent, permission decision, domain event, durable receipts, idempotent replay, and Studio/resource equivalence |
 | `schemas/skill-package.schema.json` | Agent Skill Class A/B/C package inventory, hashes, entrypoint, permissions, lifecycle, compatibility, tests, and sandbox limits |
 | `schemas/skill-permission-receipt.schema.json` | Four-way requested/installed/workspace/run permission intersection with effective and denied authority |
+| `schemas/tool-package.schema.json` | Governed external-tool source/license/SBOM/install/adapters/capabilities/converters/UI/tests/update/rollback lifecycle |
 | `schemas/mcp-conformance-plan.schema.json` | Two-sided MCP host/Bridge cases, ownership, severity, automation, disposition, evidence, and release-blocking policy |
 
 ## Versioning rules
@@ -32,7 +33,7 @@ The pinned [`../contract-runtime/`](../contract-runtime/README.md) generates nam
 3. Removing a field, changing meaning, narrowing accepted values, or changing an invariant requires a new version and migration/upcaster.
 4. Events are immutable. An event payload is interpreted under the schema version recorded when it was written.
 5. Consumers must reject unknown required semantics; they may preserve unknown optional extension data only in explicitly named `extensions` objects.
-6. A loop, capability, policy, skill, and artifact version is pinned by ID + revision, not by mutable “latest.”
+6. A loop, capability, policy, skill, Tool Pack, and artifact version is pinned by ID + revision, not by mutable “latest.”
 7. JSON numbers are not used for currency. Money uses integer micros and an ISO-style currency code.
 8. Secrets are forbidden. Schemas permit opaque credential references, never raw keys or tokens.
 
@@ -57,6 +58,7 @@ JSON Schema proves shape, not graph or security truth. The future conformance ru
 - every paid/mutating step has quote, budget, intent, idempotency/reconciliation, and approval behavior;
 - every publication references one artifact version and account connection;
 - every active memory or skill revision references a promotion event;
+- every active Tool Pack resolves to immutable source/artifact hashes, reviewed legal/supply-chain evidence, at least one adapter and capability, compatible converters/UI boundaries, and passing activation/rollback gates;
 - the compiled run plan contains no unresolved capability, schema, policy, or approval ambiguity.
 
 ## Directory policy
@@ -79,22 +81,23 @@ npm --prefix ../contract-runtime run verify
 npm --prefix ../contract-runtime audit --audit-level=moderate
 ```
 
-The verifier performs draft-2020 JSON Schema checks and semantic checks for event catalog membership/payloads, aggregate versions, exact fixture count, object/edge/port resolution, graph and run-plan cycles, nested loops, capability/action/permission alignment, egress references, human gates, publication idempotency/reconciliation, Bridge scope/actor/intent/receipt/replay/state equivalence, budget bounds, threat/event references, the Ground evidence ledger, secret-key prohibition, and expected negative-fixture rejection.
+The verifier performs draft-2020 JSON Schema checks and semantic checks for event catalog membership/payload references, aggregate versions, exact fixture count, object/edge/port resolution, graph and run-plan cycles, nested loops, capability/action/permission alignment, Tool Pack source/interface/ladder/component/readiness truth, egress references, human gates, publication idempotency/reconciliation, Bridge scope/actor/intent/receipt/replay/state equivalence, budget bounds, threat/event references, the Ground evidence ledger, secret-key prohibition, and expected negative-fixture rejection.
 
 Current checked fixture evidence:
 
-- 15 schema files, including the 34-entry Ground evidence ledger, Bridge exchange, governed skill package, permission receipt, and MCP conformance-plan contracts;
-- 52 event types and 10 representative payload-bearing events;
+- 16 schema files, including the governed Tool Package contract and an honestly upstream-blocked OpenCut candidate;
+- 56 event types and 10 representative payload-bearing events, including explicit Tool Pack discovery/quarantine/activation/rollback transitions;
 - 8 capability manifests;
 - 2 loops and an 11-step compiled run plan;
 - exactly 50 project objects and 46 lineage edges;
-- 10 failure/abuse cases referencing 15 threat IDs;
+- 11 failure/abuse cases referencing 16 threat IDs, including Tool Pack substitution and unreviewed UI-origin expansion;
 - 1 accepted Bridge capture/replay exchange plus 5 hostile semantic mutations rejected;
 - 2 governed skill packages and 1 four-way effective-permission receipt;
+- 1 immutable OpenCut Tool Pack candidate with zero installed authority, 1 active-without-adapter negative package, and 11 hostile activation mutations rejected;
 - 36 owned MCP host/Bridge conformance cases, all executable or shared-contract and passing in the Ground harness;
-- 15 schemas deterministically generate 15 namespaced TypeScript modules plus a barrel/manifest with zero drift;
+- 16 schemas deterministically generate 16 namespaced TypeScript modules plus a barrel/manifest with zero drift;
 - 1 historical event migration passes 5 immutable/validated/fail-closed upcaster tests, and a hostile schema mutation fails drift checking;
-- 7 schema-invalid and 5 semantic-invalid documents rejected, including an exact mutation that marks a critical MCP case nonblocking;
+- 8 schema-invalid and 5 semantic-invalid documents rejected, plus lifecycle-only OpenCut activation and critical-MCP-nonblocking mutations rejected;
 - zero dependency vulnerabilities at the configured audit threshold.
 
 The ledger's additional fail-closed semantic checks and generated status live in [`../evidence/`](../evidence/README.md).
