@@ -96,6 +96,8 @@ Initial distribution hypotheses:
 
 The product thesis is commercially unproven until evidence passes all of these gates:
 
+Execution and evidence rules are defined in [`validation/`](validation/README.md); compliments and hypothetical willingness-to-pay answers do not count as gate evidence.
+
 1. At least ten target creators describe continuity/coordination as a current costly problem without being led to the answer.
 2. Five creators complete the canvas walkthrough and understand lineage, authority, memory evidence, and Connections.
 3. At least three design partners operate a real multi-channel week with representative content and existing tools.

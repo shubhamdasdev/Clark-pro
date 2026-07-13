@@ -45,7 +45,7 @@
 | Representative Full-Week fixture | Exact 50-object/46-edge project, two loops, 11-step run plan, events, eight capabilities, ten failure/abuse cases | Contract-verified | Real creator artifacts and production runtime replay |
 | Desktop/database/credential/model/distribution ADRs | ADR-0001 through ADR-0010 | Defined | Verification gates remain future production evidence |
 | Business/category architecture | `positioning-and-business.md` | Defined as hypotheses | Ten interviews, three real-week design partners, binding willingness-to-pay |
-| Team-owned release plan | Epics and cumulative roadmap | Partially defined | Named workstreams, dependency graph, capacity, definition of ready/done, release evidence owners |
+| Team-owned release plan | `team-delivery-plan.md` defines ten workstreams, dependencies, decision/contract ownership, readiness/done, and evidence ledger | Defined by role | Assign named people, capacity, dates, and Ground evidence signoff |
 
 ## Canvas evidence audit
 
@@ -92,6 +92,6 @@ The stack is not yet *proven*. Its highest engineering risks are sandboxing thir
 3. Test a binding purchase action and first-week replacement value.
 4. Resolve open threat-model decisions and assign executable security/conformance tests.
 5. Review and lock v1 contracts across owning teams; generate implementation types from the schemas without semantic forks.
-6. Convert epics into named team workstreams with dependency and evidence ownership.
+6. Assign named people, capacity, and dates to the defined workstreams and produce the Ground evidence ledger signoff.
 
 Implementation can begin only after product leadership explicitly accepts any remaining Ground risk; it cannot be inferred from document volume or a functioning prototype.

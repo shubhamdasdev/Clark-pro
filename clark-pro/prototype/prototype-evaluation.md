@@ -1,6 +1,6 @@
 # Clark Studio Prototype Evaluation
 
-Use this only for observed creator sessions. The prior expert rehearsal and its design changes are documented in [cognitive-walkthroughs.md](cognitive-walkthroughs.md); they do not count as participant evidence.
+Use this only for observed creator sessions. The full recruitment, facilitation, assistance, timing, threshold, and decision rules are in the [five-creator walkthrough protocol](../validation/creator-walkthrough-protocol.md). The prior expert rehearsal and its design changes are documented in [cognitive-walkthroughs.md](cognitive-walkthroughs.md); they do not count as participant evidence.
 
 ## Participant
 

@@ -61,8 +61,10 @@ Read these in order:
 10. **[research-basis.md](research-basis.md)** — current external evidence and competitive reality behind the v2 decisions.
 11. **[positioning-and-business.md](positioning-and-business.md)** — category, buyer, replacement target, packaging, economics, acquisition, and commercial validation gates.
 12. **[ground-readiness-audit.md](ground-readiness-audit.md)** — requirement-by-requirement evidence and remaining blockers before implementation.
-13. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
-14. **[prototype/](prototype/README.md)** — clickable six-view studio concept using a 50-object Full-Week fixture and a structured evaluation guide.
+13. **[validation/](validation/README.md)** — observed creator, real-week design-partner, and binding purchase protocols with precommitted decision rules.
+14. **[team-delivery-plan.md](team-delivery-plan.md)** — workstream ownership, dependencies, contract governance, readiness/done, and release evidence.
+15. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
+16. **[prototype/](prototype/README.md)** — clickable six-view studio concept using a 50-object Full-Week fixture and a structured evaluation guide.
 
 ## One-Line Pitch
 

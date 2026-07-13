@@ -273,4 +273,4 @@ Before implementation begins:
 4. Recruit three design partners for a real multi-channel week and a binding willingness-to-pay test.
 5. Resolve the open security decisions in `security-and-threat-model.md` and convert its register into owned executable test specifications.
 6. Review and lock the v1 event, loop, capability, run-plan, and fixture contracts with every owning team; derive generated types and conformance test plans without forking schema semantics.
-7. Convert the approved epics into team-owned release plans without weakening their acceptance gates.
+7. Assign named people, capacity, and dates to `team-delivery-plan.md`; create the Ground evidence ledger without weakening any acceptance gate.
