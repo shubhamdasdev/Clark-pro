@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/capability-runtime.schema.json",
+  "title": "Clark Capability Runtime Record",
+  "oneOf": [
+    { "$ref": "#/$defs/permissionReceipt" },
+    { "$ref": "#/$defs/capabilityLease" },
+    { "$ref": "#/$defs/invocationReceipt" },
+    { "$ref": "#/$defs/ideaAnalysisInput" },
+    { "$ref": "#/$defs/ideaAnalysisResult" },
+    { "$ref": "#/$defs/runtimeProfileResult" }
+  ],
+  "$defs": {
+    "effectiveAuthority": {
+      "type": "object",
+      "required": ["actionClasses", "systemScopes", "credentialScopes", "networkDomains", "fileAccess", "maximumSensitivity", "remoteExecution"],
+      "properties": {
+        "actionClasses": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/actionClass" }, "uniqueItems": true },
+        "systemScopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "credentialScopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "networkDomains": { "type": "array", "items": { "type": "string", "format": "hostname" }, "uniqueItems": true },
+        "fileAccess": { "enum": ["none", "explicit_inputs_readonly", "isolated_temp", "project_assets_write"] },
+        "maximumSensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+        "remoteExecution": { "enum": ["forbidden", "allowed"] }
+      },
+      "additionalProperties": false
+    },
+    "permissionReceipt": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "receiptId", "decision", "workspaceId", "projectId", "runId", "stepId", "capabilityRevision", "policyRevision", "requested", "effective", "reason", "evaluatedAt"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "const": "permission_receipt" },
+        "receiptId": { "$ref": "common.schema.json#/$defs/id" },
+        "decision": { "enum": ["allow", "ask", "deny"] },
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "projectId": { "$ref": "common.schema.json#/$defs/id" },
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "stepId": { "$ref": "common.schema.json#/$defs/id" },
+        "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "policyRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "requested": { "$ref": "#/$defs/effectiveAuthority" },
+        "effective": { "$ref": "#/$defs/effectiveAuthority" },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "evaluatedAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "capabilityLease": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "leaseId", "permissionReceiptId", "workspaceId", "projectId", "runId", "stepId", "capabilityRevision", "state", "effective", "issuedAt", "expiresAt"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "const": "capability_lease" },
+        "leaseId": { "$ref": "common.schema.json#/$defs/id" },
+        "permissionReceiptId": { "$ref": "common.schema.json#/$defs/id" },
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "projectId": { "$ref": "common.schema.json#/$defs/id" },
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "stepId": { "$ref": "common.schema.json#/$defs/id" },
+        "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "state": { "enum": ["active", "revoked", "expired"] },
+        "effective": { "$ref": "#/$defs/effectiveAuthority" },
+        "issuedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "revokedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "invocationReceipt": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "callId", "leaseId", "permissionReceiptId", "workspaceId", "projectId", "runId", "stepId", "capabilityRevision", "transport", "serverRef", "toolName", "inputHash", "status", "durationMs", "cost", "errorClass", "startedAt", "completedAt"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "const": "invocation_receipt" },
+        "callId": { "$ref": "common.schema.json#/$defs/id" },
+        "leaseId": { "$ref": "common.schema.json#/$defs/id" },
+        "permissionReceiptId": { "$ref": "common.schema.json#/$defs/id" },
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "projectId": { "$ref": "common.schema.json#/$defs/id" },
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "stepId": { "$ref": "common.schema.json#/$defs/id" },
+        "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "transport": { "enum": ["library", "mcp_stdio", "mcp_streamable_http", "http_api", "local_process", "browser"] },
+        "serverRef": { "$ref": "common.schema.json#/$defs/id" },
+        "toolName": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "inputHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "status": { "enum": ["succeeded", "failed", "cancelled", "ambiguous"] },
+        "resultRef": { "$ref": "common.schema.json#/$defs/id" },
+        "resultHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "cost": { "$ref": "common.schema.json#/$defs/money" },
+        "errorClass": { "enum": ["none", "validation", "auth", "rate_limit", "transient", "permanent", "policy", "ambiguous_external_state"] },
+        "startedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "completedAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "ideaAnalysisInput": {
+      "type": "object",
+      "required": ["schemaVersion", "ideaText"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "ideaText": { "type": "string", "minLength": 20, "maxLength": 12000 }
+      },
+      "additionalProperties": false
+    },
+    "ideaAnalysisResult": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "wordCount", "signals", "missingSignals", "disposition", "summary"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "const": "idea_analysis" },
+        "wordCount": { "type": "integer", "minimum": 1, "maximum": 12000 },
+        "signals": {
+          "type": "object",
+          "required": ["outcome", "user", "mechanism", "trust", "evidence"],
+          "properties": {
+            "outcome": { "type": "boolean" },
+            "user": { "type": "boolean" },
+            "mechanism": { "type": "boolean" },
+            "trust": { "type": "boolean" },
+            "evidence": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        "missingSignals": { "type": "array", "items": { "enum": ["outcome", "user", "mechanism", "trust", "evidence"] }, "uniqueItems": true },
+        "disposition": { "enum": ["structured", "needs_clarification"] },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 500 }
+      },
+      "additionalProperties": false
+    },
+    "runtimeProfileResult": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "serverId", "environmentKeys"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "const": "runtime_profile" },
+        "serverId": { "$ref": "common.schema.json#/$defs/id" },
+        "environmentKeys": { "type": "array", "items": { "type": "string", "pattern": "^[_A-Z][_A-Z0-9]*$", "maxLength": 100 }, "uniqueItems": true, "maxItems": 20 }
+      },
+      "additionalProperties": false
+    }
+  }
+}

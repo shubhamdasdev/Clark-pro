@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { compileIdeaRun, deriveRunIds, ideaLoopDefinition, structureIdea } from "../../src/idea-compiler.mjs";
+import { analyzeIdeaText } from "../../src/idea-inspector-contract.mjs";
 import { assertMessage, assertRequestFresh, contractValidator, createRequest, HarnessProtocolError, MAX_MESSAGE_BYTES } from "../../src/protocol.mjs";
 
 test("canonical idea loop and compiled plan preserve zero-egress creator control", () => {
@@ -13,7 +14,9 @@ test("canonical idea loop and compiled plan preserve zero-egress creator control
     compiledAt: "2026-07-13T04:10:00Z"
   });
   contractValidator.validateRunPlan(plan);
-  assert.equal(plan.steps.length, 3);
+  assert.equal(plan.steps.length, 4);
+  assert.deepEqual(plan.steps.find((step) => step.id === "step.structure").dependsOn, ["step.capture", "step.inspect"]);
+  assert.equal(plan.effectivePermissions.capabilityIds.includes("clark.idea.inspect.mcp"), true);
   assert.deepEqual(plan.effectivePermissions.networkDomains, []);
   assert.deepEqual(plan.effectivePermissions.credentialScopes, []);
   assert.equal(plan.quote.maximum.micros, 0);
@@ -23,9 +26,11 @@ test("canonical idea loop and compiled plan preserve zero-egress creator control
 
 test("deterministic structuring is stable and explicitly introduces no claims", () => {
   const idea = "Build a creator operating system that connects reusable tools while the creator retains memory and publication control.";
-  const first = structureIdea(idea);
-  assert.equal(first, structureIdea(idea));
+  const analysis = analyzeIdeaText(idea);
+  const first = structureIdea(idea, analysis);
+  assert.equal(first, structureIdea(idea, analysis));
   assert.match(first, /Creator intent/);
+  assert.match(first, /Governed MCP inspection/);
   assert.match(first, /introduces no research claims, model output, external data, or publication authority/);
 });
 

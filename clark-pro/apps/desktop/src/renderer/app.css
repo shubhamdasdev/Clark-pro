@@ -112,7 +112,7 @@ dt { color: var(--muted); } dd { margin: 0; text-align: right; }
 .connection-card { display: grid; grid-template-columns: 42px 1fr auto; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); }
 .connection-card h2 { margin: 0 0 4px; font-size: 14px; }.connection-card p { margin: 0; color: var(--muted); font-size: 12px; }
 .connection-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: #293040; font-weight: 820; }
-.connection-icon.opencut { background: #38231e; color: #ff8b60; }.connection-icon.skill { background: #1c342b; color: #7cdfaa; }.connection-icon.harness { background: #252d3e; color: #8fb5ff; }
+.connection-icon.opencut { background: #38231e; color: #ff8b60; }.connection-icon.skill { background: #1c342b; color: #7cdfaa; }.connection-icon.harness { background: #252d3e; color: #8fb5ff; }.connection-icon.bridge { background: #2e263d; color: #c2a8ff; }
 .state { border-radius: 999px; padding: 5px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: .07em; }
 .state.specified { background: #263249; color: #aec7f6; }.state.quarantine { background: #3d291d; color: #efbd72; }.state.tested { background: #1d382b; color: #83dbaa; }
 .native-prompts { margin-top: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }

@@ -69,6 +69,8 @@ export function createContractValidator() {
     validateHarnessMessage: (message) => validateSchema("harness-ipc.schema.json", message),
     validateRunPlan: (plan) => validateSchema("run-plan.schema.json", plan),
     validateLoopDefinition: (loop) => validateSchema("loop-definition.schema.json", loop),
+    validateCapabilityManifest: (manifest) => validateSchema("capability-manifest.schema.json", manifest),
+    validateCapabilityRuntime: (record) => validateSchema("capability-runtime.schema.json", record),
     validateDomainEvent
   });
 }

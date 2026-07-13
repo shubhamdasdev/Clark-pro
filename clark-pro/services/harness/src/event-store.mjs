@@ -31,7 +31,7 @@ export class EventStore {
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       ) STRICT;
-      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '1');
+      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '2');
       CREATE TABLE IF NOT EXISTS events (
         sequence INTEGER PRIMARY KEY AUTOINCREMENT,
         event_id TEXT NOT NULL UNIQUE,
@@ -90,6 +90,8 @@ export class EventStore {
         active_step_id TEXT,
         idea_artifact_id TEXT NOT NULL,
         idea_version_id TEXT NOT NULL,
+        analysis_artifact_id TEXT,
+        analysis_version_id TEXT,
         draft_artifact_id TEXT,
         draft_version_id TEXT,
         approval_id TEXT,
@@ -125,9 +127,85 @@ export class EventStore {
         created_at TEXT NOT NULL,
         completed_at TEXT
       ) STRICT;
+      CREATE TABLE IF NOT EXISTS capabilities (
+        workspace_id TEXT NOT NULL,
+        capability_id TEXT NOT NULL,
+        revision TEXT NOT NULL,
+        manifest_hash TEXT NOT NULL,
+        manifest_json TEXT NOT NULL,
+        state TEXT NOT NULL,
+        transport TEXT NOT NULL,
+        action_class TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY(workspace_id, capability_id, revision)
+      ) STRICT;
+      CREATE TABLE IF NOT EXISTS permission_receipts (
+        receipt_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        run_id TEXT NOT NULL,
+        step_id TEXT NOT NULL,
+        record_json TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      ) STRICT;
+      CREATE TABLE IF NOT EXISTS capability_leases (
+        lease_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        run_id TEXT NOT NULL,
+        step_id TEXT NOT NULL,
+        capability_id TEXT NOT NULL,
+        revision TEXT NOT NULL,
+        permission_receipt_id TEXT NOT NULL,
+        state TEXT NOT NULL,
+        effective_json TEXT NOT NULL,
+        issued_at TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      ) STRICT;
+      CREATE INDEX IF NOT EXISTS capability_leases_state ON capability_leases(state, expires_at);
+      CREATE TABLE IF NOT EXISTS tool_calls (
+        call_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        run_id TEXT NOT NULL,
+        step_id TEXT NOT NULL,
+        capability_id TEXT NOT NULL,
+        revision TEXT NOT NULL,
+        permission_receipt_id TEXT NOT NULL,
+        lease_id TEXT,
+        input_hash TEXT NOT NULL,
+        status TEXT NOT NULL,
+        result_ref TEXT,
+        result_hash TEXT,
+        duration_ms INTEGER,
+        error_class TEXT,
+        receipt_json TEXT,
+        updated_at TEXT NOT NULL
+      ) STRICT;
+      CREATE TABLE IF NOT EXISTS bridge_clients (
+        client_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        display_name TEXT NOT NULL,
+        state TEXT NOT NULL,
+        action_classes_json TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      ) STRICT;
     `);
-    const version = this.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get()?.value;
-    if (version !== "1") throw new Error(`Unsupported Harness database schema ${version}`);
+    let version = this.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get()?.value;
+    if (version === "1") {
+      const columns = new Set(this.database.prepare("PRAGMA table_info(runs)").all().map((column) => column.name));
+      this.database.exec("BEGIN IMMEDIATE");
+      try {
+        if (!columns.has("analysis_artifact_id")) this.database.exec("ALTER TABLE runs ADD COLUMN analysis_artifact_id TEXT");
+        if (!columns.has("analysis_version_id")) this.database.exec("ALTER TABLE runs ADD COLUMN analysis_version_id TEXT");
+        this.database.prepare("UPDATE metadata SET value = '2' WHERE key = 'schema_version'").run();
+        this.database.exec("COMMIT");
+      } catch (error) {
+        try { this.database.exec("ROLLBACK"); } catch {}
+        throw error;
+      }
+      version = "2";
+    }
+    if (version !== "2") throw new Error(`Unsupported Harness database schema ${version}`);
     const journalMode = this.database.prepare("PRAGMA journal_mode").get()?.journal_mode;
     if (journalMode !== "wal") throw new Error(`Harness database did not enter WAL mode: ${journalMode}`);
   }
@@ -185,7 +263,7 @@ export class EventStore {
       ...(specification.idempotencyKey ? { idempotencyKey: specification.idempotencyKey } : {}),
       sensitivity: specification.sensitivity ?? "workspace",
       payload: specification.payload,
-      metadata: { source: specification.source ?? "harness" }
+      metadata: { source: specification.source ?? "harness", ...(specification.metadata ?? {}) }
     };
     const hashInput = { previousEventHash: previousEventHash ?? null, event };
     event.integrity = {
@@ -234,8 +312,12 @@ export class EventStore {
         projectId: event.projectId ?? null, artifactType: event.payload.artifactType, contentHash: event.payload.assetHash,
         runId: event.payload.provenance?.runId ?? null, stepId: event.payload.provenance?.stepId ?? null, createdAt: updatedAt
       });
-      if (event.payload.provenance?.runId) {
+      if (event.payload.provenance?.runId && event.payload.artifactType === "brief") {
         this.database.prepare("UPDATE runs SET draft_artifact_id = ?, draft_version_id = ?, updated_at = ? WHERE run_id = ?")
+          .run(artifact.artifactId, artifact.versionId, updatedAt, event.payload.provenance.runId);
+      }
+      if (event.payload.provenance?.runId && event.payload.artifactType === "outcome_report") {
+        this.database.prepare("UPDATE runs SET analysis_artifact_id = ?, analysis_version_id = ?, updated_at = ? WHERE run_id = ?")
           .run(artifact.artifactId, artifact.versionId, updatedAt, event.payload.provenance.runId);
       }
       return;
@@ -274,6 +356,64 @@ export class EventStore {
       const state = event.payload.selectedOption === "approve" ? "approved" : "rejected";
       this.database.prepare("UPDATE runs SET approval_state = ?, updated_at = ? WHERE draft_artifact_id = ?")
         .run(state, updatedAt, event.payload.subjectRef);
+      return;
+    }
+    if (event.eventType === "capability.revision_registered" || event.eventType === "capability.health_changed") {
+      const existing = this.getCapability(event.workspaceId, event.payload.capabilityRevision.id, event.payload.capabilityRevision.revision);
+      const manifest = event.payload.manifest ?? existing?.manifest;
+      if (!manifest) throw new Error(`Capability ${event.payload.capabilityRevision.id} has no pinned manifest`);
+      contractValidator.validateCapabilityManifest(manifest);
+      if (manifest.id !== event.payload.capabilityRevision.id || manifest.version !== event.payload.capabilityRevision.revision || sha256(canonicalJson(manifest)) !== event.payload.manifestHash) {
+        throw new Error(`Capability ${event.payload.capabilityRevision.id} manifest scope or hash mismatch`);
+      }
+      const transport = manifest.transport.type === "mcp" ? `mcp_${manifest.transport.modes[0]}` : manifest.transport.type;
+      this.database.prepare(`INSERT INTO capabilities(workspace_id, capability_id, revision, manifest_hash, manifest_json, state, transport, action_class, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(workspace_id, capability_id, revision) DO UPDATE SET manifest_hash = excluded.manifest_hash, manifest_json = excluded.manifest_json, state = excluded.state, transport = excluded.transport, action_class = excluded.action_class, updated_at = excluded.updated_at`)
+        .run(event.workspaceId, manifest.id, manifest.version, event.payload.manifestHash, canonicalJson(manifest), event.payload.to, transport, manifest.permissions.actionClass, updatedAt);
+      return;
+    }
+    if (event.eventType === "capability.permission_evaluated") {
+      const receipt = event.payload.permissionReceipt;
+      contractValidator.validateCapabilityRuntime(receipt);
+      this.database.prepare(`INSERT INTO permission_receipts(receipt_id, workspace_id, run_id, step_id, record_json, created_at) VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(receipt_id) DO UPDATE SET record_json = excluded.record_json`)
+        .run(receipt.receiptId, event.workspaceId, receipt.runId, receipt.stepId, canonicalJson(receipt), receipt.evaluatedAt);
+      return;
+    }
+    if (event.eventType === "capability.lease_issued" || event.eventType === "capability.lease_revoked") {
+      const payload = event.payload;
+      contractValidator.validateCapabilityRuntime(payload.permissionReceipt);
+      this.database.prepare(`INSERT INTO permission_receipts(receipt_id, workspace_id, run_id, step_id, record_json, created_at) VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(receipt_id) DO UPDATE SET record_json = excluded.record_json`)
+        .run(payload.permissionReceiptId, event.workspaceId, payload.runId, payload.stepId, canonicalJson(payload.permissionReceipt), payload.permissionReceipt.evaluatedAt);
+      this.database.prepare(`INSERT INTO capability_leases(lease_id, workspace_id, run_id, step_id, capability_id, revision, permission_receipt_id, state, effective_json, issued_at, expires_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(lease_id) DO UPDATE SET state = excluded.state, effective_json = excluded.effective_json, updated_at = excluded.updated_at`)
+        .run(payload.leaseId, event.workspaceId, payload.runId, payload.stepId, payload.capabilityRevision.id, payload.capabilityRevision.revision, payload.permissionReceiptId, payload.to, canonicalJson(payload.effectiveAuthority), payload.issuedAt, payload.expiresAt, updatedAt);
+      return;
+    }
+    if (event.eventType === "tool.call_requested") {
+      const payload = event.payload;
+      this.database.prepare(`INSERT INTO tool_calls(call_id, workspace_id, run_id, step_id, capability_id, revision, permission_receipt_id, lease_id, input_hash, status, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested', ?)`)
+        .run(payload.callId, event.workspaceId, payload.runId, payload.stepId, payload.capabilityRevision.id, payload.capabilityRevision.revision, payload.permissionReceiptId, payload.leaseId ?? null, payload.inputHash, updatedAt);
+      return;
+    }
+    if (event.eventType === "tool.call_completed") {
+      const payload = event.payload;
+      if (payload.invocationReceipt) contractValidator.validateCapabilityRuntime(payload.invocationReceipt);
+      const changed = this.database.prepare("UPDATE tool_calls SET status = ?, result_ref = ?, result_hash = ?, duration_ms = ?, error_class = ?, receipt_json = ?, updated_at = ? WHERE call_id = ?")
+        .run(payload.status, payload.resultRef ?? null, payload.resultHash ?? null, payload.durationMs, payload.errorClass ?? "none", payload.invocationReceipt ? canonicalJson(payload.invocationReceipt) : null, updatedAt, payload.callId);
+      if (Number(changed.changes) !== 1) throw new Error(`Tool completion has no request: ${payload.callId}`);
+      return;
+    }
+    if (event.eventType === "bridge.client_registered" || event.eventType === "bridge.client_revoked") {
+      const payload = event.payload;
+      this.database.prepare(`INSERT INTO bridge_clients(client_id, workspace_id, display_name, state, action_classes_json, expires_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(client_id) DO UPDATE SET state = excluded.state, action_classes_json = excluded.action_classes_json, expires_at = excluded.expires_at, updated_at = excluded.updated_at`)
+        .run(payload.clientId, event.workspaceId, payload.displayName, payload.to, canonicalJson(payload.actionClasses), payload.expiresAt, updatedAt);
     }
   }
 
@@ -318,6 +458,49 @@ export class EventStore {
 
   getProject(projectId) {
     return this.database.prepare("SELECT * FROM projects WHERE project_id = ?").get(projectId);
+  }
+
+  getCapability(workspaceId, capabilityId, revision) {
+    const row = this.database.prepare("SELECT * FROM capabilities WHERE workspace_id = ? AND capability_id = ? AND revision = ?").get(workspaceId, capabilityId, revision);
+    return row ? { ...row, manifest: JSON.parse(row.manifest_json) } : undefined;
+  }
+
+  listCapabilities(workspaceId) {
+    return this.database.prepare("SELECT * FROM capabilities WHERE workspace_id = ? ORDER BY capability_id, revision").all(workspaceId)
+      .map((row) => ({ ...row, manifest: JSON.parse(row.manifest_json) }));
+  }
+
+  activeCapabilityLeases() {
+    return this.database.prepare("SELECT * FROM capability_leases WHERE state = 'active' ORDER BY issued_at").all();
+  }
+
+  getCapabilityLease(leaseId) {
+    return this.database.prepare("SELECT * FROM capability_leases WHERE lease_id = ?").get(leaseId);
+  }
+
+  getPermissionReceipt(receiptId) {
+    const row = this.database.prepare("SELECT * FROM permission_receipts WHERE receipt_id = ?").get(receiptId);
+    return row ? JSON.parse(row.record_json) : undefined;
+  }
+
+  getToolCall(callId) {
+    return this.database.prepare("SELECT * FROM tool_calls WHERE call_id = ?").get(callId);
+  }
+
+  requestedToolCallsForLease(leaseId) {
+    return this.database.prepare("SELECT * FROM tool_calls WHERE lease_id = ? AND status = 'requested' ORDER BY call_id").all(leaseId);
+  }
+
+  activeBridgeClients() {
+    return this.database.prepare("SELECT * FROM bridge_clients WHERE state = 'active' ORDER BY updated_at").all();
+  }
+
+  getBridgeClient(clientId) {
+    return this.database.prepare("SELECT * FROM bridge_clients WHERE client_id = ?").get(clientId);
+  }
+
+  listWorkspaces() {
+    return this.database.prepare("SELECT * FROM workspaces ORDER BY workspace_id").all();
   }
 
   listRunRows(workspaceId, limit = 20) {
@@ -405,7 +588,12 @@ export class EventStore {
       projects: select("projects", "project_id"),
       artifacts: select("artifacts", "artifact_id, version_id"),
       runs: select("runs", "run_id"),
-      steps: select("steps", "run_id, step_id")
+      steps: select("steps", "run_id, step_id"),
+      capabilities: select("capabilities", "workspace_id, capability_id, revision"),
+      permissionReceipts: select("permission_receipts", "receipt_id"),
+      capabilityLeases: select("capability_leases", "lease_id"),
+      toolCalls: select("tool_calls", "call_id"),
+      bridgeClients: select("bridge_clients", "client_id")
     };
   }
 
@@ -413,7 +601,7 @@ export class EventStore {
     const events = this.eventEnvelopes();
     const checkpoints = this.database.prepare("SELECT * FROM checkpoints ORDER BY event_sequence").all();
     this.transaction(() => {
-      this.database.exec("DELETE FROM steps; DELETE FROM runs; DELETE FROM artifacts; DELETE FROM projects; DELETE FROM workspaces;");
+      this.database.exec("DELETE FROM tool_calls; DELETE FROM capability_leases; DELETE FROM permission_receipts; DELETE FROM capabilities; DELETE FROM bridge_clients; DELETE FROM steps; DELETE FROM runs; DELETE FROM artifacts; DELETE FROM projects; DELETE FROM workspaces;");
       for (const event of events) this.applyProjection(event);
       const restore = this.database.prepare("INSERT OR REPLACE INTO checkpoints(checkpoint_id, run_id, event_sequence, state_json, created_at) VALUES (?, ?, ?, ?, ?)");
       for (const checkpoint of checkpoints) {

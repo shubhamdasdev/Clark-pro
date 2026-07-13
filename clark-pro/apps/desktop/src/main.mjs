@@ -85,11 +85,13 @@ function installIpc() {
     if (!harnessSupervisor || harnessSupervisor.state !== "ready") {
       return { available: false, state: harnessSupervisor?.state ?? "stopped", runs: [] };
     }
-    const [status, list] = await Promise.all([
+    const [status, list, capabilities, bridge] = await Promise.all([
       harnessSupervisor.request("harness.status", {}),
-      harnessSupervisor.request("run.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 10 })
+      harnessSupervisor.request("run.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 10 }),
+      harnessSupervisor.request("capability.list", { workspaceId: LOCAL_WORKSPACE_ID }),
+      harnessSupervisor.request("bridge.status", { workspaceId: LOCAL_WORKSPACE_ID })
     ]);
-    return { available: true, ...status, runs: list.runs };
+    return { available: true, ...status, runs: list.runs, capabilities: capabilities.capabilities, bridge };
   });
   ipcMain.handle("desktop:start-idea-loop", async (event, ideaText) => {
     assertTrustedSender(event, mainWindow?.webContents);
@@ -127,6 +129,7 @@ async function startHarness() {
   harnessSupervisor = new HarnessSupervisor({
     entryPath,
     dataDirectory: path.join(app.getPath("userData"), "harness"),
+    runtimeExecutable: process.execPath,
     environment: minimalHarnessEnvironment()
   });
   harnessSupervisor.on("event", (event) => mainWindow?.webContents.send("desktop:harness-event", event));

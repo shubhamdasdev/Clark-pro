@@ -535,6 +535,36 @@
       "description": "Records observed capability health without trusting provider self-description."
     },
     {
+      "eventType": "capability.permission_evaluated",
+      "schemaVersion": 1,
+      "aggregateType": "capability",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/capabilityPermissionEvaluated",
+      "compatibility": "additive",
+      "defaultSensitivity": "secret_reference",
+      "mutationClass": "security_state",
+      "description": "Records the requested and effective authority for an allowed, ask, or denied capability decision."
+    },
+    {
+      "eventType": "capability.lease_issued",
+      "schemaVersion": 1,
+      "aggregateType": "capability",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/capabilityLeaseChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "secret_reference",
+      "mutationClass": "security_state",
+      "description": "Issues one short-lived non-secret capability authority lease after policy intersection."
+    },
+    {
+      "eventType": "capability.lease_revoked",
+      "schemaVersion": 1,
+      "aggregateType": "capability",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/capabilityLeaseChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "secret_reference",
+      "mutationClass": "security_state",
+      "description": "Revokes or expires a capability lease without persisting any raw credential."
+    },
+    {
       "eventType": "bridge.client_registered",
       "schemaVersion": 1,
       "aggregateType": "bridge_client",

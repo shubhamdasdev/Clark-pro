@@ -26,7 +26,7 @@ Generation uses a custom offline resolver. References under `https://schemas.cla
 
 ## Generated surface
 
-All 17 canonical schemas produce 17 namespaced TypeScript modules, one namespace barrel, and one manifest. Consumers avoid helper-name collisions by importing namespaces:
+All 18 canonical schemas produce 18 namespaced TypeScript modules, one namespace barrel, and one manifest. Consumers avoid helper-name collisions by importing namespaces:
 
 ```ts
 import type * as Contracts from "@clark/contract-runtime/generated";

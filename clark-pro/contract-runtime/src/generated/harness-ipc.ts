@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/harness-ipc.schema.json
- * Source SHA-256: 411e1c1f3309dabd04420675d3a040ec01ec1b892d9f9276b2fce6ac081454aa
+ * Source SHA-256: 556d3e83b95fc60c79c3a15096d39e481b121323af51561716adac10932901c6
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -11,9 +11,24 @@ export type Response = {
   schemaVersion: 1;
   kind: "response";
   requestId: string;
-  method: "harness.status" | "workspace.ensure" | "loop.start" | "run.get" | "run.list" | "approval.resolve";
+  method:
+    | "harness.status"
+    | "workspace.ensure"
+    | "loop.start"
+    | "run.get"
+    | "run.list"
+    | "approval.resolve"
+    | "capability.list"
+    | "bridge.status";
   ok: boolean;
-  result?: StatusResult | WorkspaceResult | LoopStartResult | RunSummary | RunListResult;
+  result?:
+    | StatusResult
+    | WorkspaceResult
+    | LoopStartResult
+    | RunSummary
+    | RunListResult
+    | CapabilityListResult
+    | BridgeStatusResult;
   error?: Error;
 } & Response1;
 export type Response1 =
@@ -30,7 +45,14 @@ export interface Request {
   requestId: string;
   deadlineAt: string;
   command:
-    StatusCommand | WorkspaceEnsureCommand | LoopStartCommand | RunGetCommand | RunListCommand | ApprovalResolveCommand;
+    | StatusCommand
+    | WorkspaceEnsureCommand
+    | LoopStartCommand
+    | RunGetCommand
+    | RunListCommand
+    | ApprovalResolveCommand
+    | CapabilityListCommand
+    | BridgeStatusCommand;
 }
 export interface StatusCommand {
   method: "harness.status";
@@ -77,6 +99,18 @@ export interface ApprovalResolveCommand {
     idempotencyKey: string;
   };
 }
+export interface CapabilityListCommand {
+  method: "capability.list";
+  payload: {
+    workspaceId: string;
+  };
+}
+export interface BridgeStatusCommand {
+  method: "bridge.status";
+  payload: {
+    workspaceId: string;
+  };
+}
 export interface StatusResult {
   state: "ready" | "recovering";
   protocolVersion: 1;
@@ -104,6 +138,7 @@ export interface RunSummary {
   state: "planned" | "running" | "recovering" | "waiting_approval" | "completed" | "failed" | "cancelled";
   activeStepId: string | null;
   idea: AssetSummary;
+  analysis?: AssetSummary;
   draft?: AssetSummary;
   approval?: ApprovalSummary;
   eventCount: number;
@@ -132,6 +167,48 @@ export interface RunListResult {
    * @maxItems 50
    */
   runs: RunSummary[];
+}
+export interface CapabilityListResult {
+  /**
+   * @maxItems 100
+   */
+  capabilities: {
+    id: string;
+    version: string;
+    name: string;
+    state: "registered" | "healthy" | "degraded" | "offline" | "revoked";
+    transport: "library" | "mcp_stdio" | "mcp_streamable_http" | "http_api" | "local_process" | "browser";
+    actionClass:
+      | "read"
+      | "capture"
+      | "decision_record"
+      | "artifact_approve"
+      | "research"
+      | "local_transform"
+      | "model_generate"
+      | "media_generate"
+      | "external_write"
+      | "social_publish"
+      | "account_manage"
+      | "memory_mutate"
+      | "skill_mutate"
+      | "policy_override"
+      | "destructive";
+    networkDomains: string[];
+    credentialScopes: string[];
+    limitations: string[];
+  }[];
+}
+export interface BridgeStatusResult {
+  state: "disabled" | "starting" | "ready" | "failed";
+  transport: "streamable_http";
+  host: "127.0.0.1";
+  port?: number;
+  configured: boolean;
+  clientId: string | null;
+  expiresAt: string | null;
+  tools: string[];
+  resources: string[];
 }
 export interface Error {
   code: "invalid_request" | "deadline_exceeded" | "not_found" | "conflict" | "policy_denied" | "not_ready" | "internal";

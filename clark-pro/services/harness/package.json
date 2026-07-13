@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Clark's durable local run engine and Electron utility-process entry",
-  "files": ["src/"],
+  "files": [
+    "src/"
+  ],
   "exports": {
     ".": "./src/index.mjs",
     "./protocol": "./src/protocol.mjs",
@@ -16,6 +18,7 @@
   },
   "dependencies": {
     "@clark/contract-runtime": "file:../../contract-runtime",
-    "@clark/contracts": "file:../../contracts"
+    "@clark/contracts": "file:../../contracts",
+    "@modelcontextprotocol/sdk": "1.29.0"
   }
 }

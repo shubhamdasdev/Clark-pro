@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "kind": "idea_analysis",
+  "wordCount": 19,
+  "signals": { "outcome": true, "user": true, "mechanism": true, "trust": true, "evidence": false },
+  "missingSignals": ["evidence"],
+  "disposition": "needs_clarification",
+  "summary": "The idea states the user, outcome, mechanism, and trust boundary; measurable evidence is still missing."
+}

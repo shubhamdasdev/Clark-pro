@@ -48,13 +48,16 @@ const positiveTargets = [
   ["harness-ipc.schema.json", "fixtures/harness/status.response.json"],
   ["harness-ipc.schema.json", "fixtures/harness/approval-required.event.json"],
   ["loop-definition.schema.json", "fixtures/harness/idea-to-text.loop.json"],
-  ["run-plan.schema.json", "fixtures/harness/idea-to-text.run-plan.json"]
+  ["run-plan.schema.json", "fixtures/harness/idea-to-text.run-plan.json"],
+  ["capability-runtime.schema.json", "fixtures/harness/capability-permission.receipt.json"],
+  ["capability-runtime.schema.json", "fixtures/harness/capability.lease.json"],
+  ["capability-runtime.schema.json", "fixtures/harness/idea-analysis.result.json"]
 ];
-const capabilityFilenames = fs.readdirSync(path.join(root, "fixtures/full-week/capabilities"))
-  .filter((name) => name.endsWith(".json"))
+const capabilityPaths = ["fixtures/full-week/capabilities", "fixtures/harness/capabilities"]
+  .flatMap((directory) => fs.readdirSync(path.join(root, directory)).filter((name) => name.endsWith(".json")).map((name) => `${directory}/${name}`))
   .sort();
-for (const filename of capabilityFilenames) {
-  positiveTargets.push(["capability-manifest.schema.json", `fixtures/full-week/capabilities/${filename}`]);
+for (const capabilityPath of capabilityPaths) {
+  positiveTargets.push(["capability-manifest.schema.json", capabilityPath]);
 }
 const toolPackageFilenames = fs.readdirSync(path.join(root, "fixtures/tool-packages"))
   .filter((name) => name.endsWith(".json"))
@@ -344,7 +347,7 @@ const approvedObject = objectById.get(approvalAssertion.objectId);
 assert(approvedObject?.approvalState === approvalAssertion.approvalState, "Approval assertion state mismatch");
 assert(approvedObject?.publishState === approvalAssertion.publishState, "Approval/publish separation assertion mismatch");
 
-const capabilities = capabilityFilenames.map((filename) => read(`fixtures/full-week/capabilities/${filename}`));
+const capabilities = capabilityPaths.map(read);
 unique(capabilities.map((capability) => `${capability.id}@${capability.version}`), "Capability revisions");
 const capabilityById = new Map(capabilities.map((capability) => [capability.id, capability]));
 

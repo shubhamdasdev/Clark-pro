@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "kind": "permission_receipt",
+  "receiptId": "permission.run.idea.fixture.inspect.a1",
+  "decision": "allow",
+  "workspaceId": "workspace.local",
+  "projectId": "project.idea-lab",
+  "runId": "run.idea.fixture",
+  "stepId": "step.inspect",
+  "capabilityRevision": { "id": "clark.idea.inspect.mcp", "revision": "1.0.0" },
+  "policyRevision": { "id": "policy.creator-default", "revision": "1.0.0" },
+  "requested": {
+    "actionClasses": ["local_transform"], "systemScopes": [], "credentialScopes": [], "networkDomains": [],
+    "fileAccess": "none", "maximumSensitivity": "confidential", "remoteExecution": "forbidden"
+  },
+  "effective": {
+    "actionClasses": ["local_transform"], "systemScopes": [], "credentialScopes": [], "networkDomains": [],
+    "fileAccess": "none", "maximumSensitivity": "confidential", "remoteExecution": "forbidden"
+  },
+  "reason": "The bundled deterministic MCP server requests no network, credential, system, or file authority.",
+  "evaluatedAt": "2026-07-13T04:00:01Z"
+}

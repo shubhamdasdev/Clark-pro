@@ -231,6 +231,7 @@
         "actionClass": { "$ref": "common.schema.json#/$defs/actionClass" },
         "inputHash": { "$ref": "common.schema.json#/$defs/contentHash" },
         "permissionReceiptId": { "$ref": "common.schema.json#/$defs/id" },
+        "leaseId": { "$ref": "common.schema.json#/$defs/id" },
         "quotedCost": { "$ref": "common.schema.json#/$defs/money" },
         "egressSensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" }
       },
@@ -246,7 +247,8 @@
         "resultHash": { "$ref": "common.schema.json#/$defs/contentHash" },
         "durationMs": { "type": "integer", "minimum": 0 },
         "cost": { "$ref": "common.schema.json#/$defs/money" },
-        "errorClass": { "enum": ["none", "validation", "auth", "rate_limit", "transient", "permanent", "policy", "ambiguous_external_state"] }
+        "errorClass": { "enum": ["none", "validation", "auth", "rate_limit", "transient", "permanent", "policy", "ambiguous_external_state"] },
+        "invocationReceipt": { "$ref": "capability-runtime.schema.json#/$defs/invocationReceipt" }
       },
       "additionalProperties": false
     },
@@ -402,10 +404,38 @@
       "properties": {
         "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
         "manifestHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "manifest": { "$ref": "capability-manifest.schema.json" },
         "from": { "enum": ["unregistered", "registered", "healthy", "degraded", "offline", "revoked"] },
         "to": { "enum": ["registered", "healthy", "degraded", "offline", "revoked"] },
         "limitations": { "type": "array", "items": { "type": "string", "maxLength": 500 } },
         "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "capabilityLeaseChanged": {
+      "type": "object",
+      "required": ["leaseId", "permissionReceiptId", "permissionReceipt", "capabilityRevision", "runId", "stepId", "from", "to", "issuedAt", "expiresAt", "effectiveAuthority"],
+      "properties": {
+        "leaseId": { "$ref": "common.schema.json#/$defs/id" },
+        "permissionReceiptId": { "$ref": "common.schema.json#/$defs/id" },
+        "permissionReceipt": { "$ref": "capability-runtime.schema.json#/$defs/permissionReceipt" },
+        "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "stepId": { "$ref": "common.schema.json#/$defs/id" },
+        "from": { "enum": ["none", "active"] },
+        "to": { "enum": ["active", "revoked", "expired"] },
+        "issuedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "effectiveAuthority": { "$ref": "capability-runtime.schema.json#/$defs/effectiveAuthority" },
+        "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "capabilityPermissionEvaluated": {
+      "type": "object",
+      "required": ["permissionReceipt"],
+      "properties": {
+        "permissionReceipt": { "$ref": "capability-runtime.schema.json#/$defs/permissionReceipt" }
       },
       "additionalProperties": false
     },

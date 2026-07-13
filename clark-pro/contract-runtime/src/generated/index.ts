@@ -1,5 +1,6 @@
 export type * as BridgeExchange from "./bridge-exchange.js";
 export type * as CapabilityManifest from "./capability-manifest.js";
+export type * as CapabilityRuntime from "./capability-runtime.js";
 export type * as Common from "./common.js";
 export type * as DomainEvent from "./domain-event.js";
 export type * as EventCatalog from "./event-catalog.js";

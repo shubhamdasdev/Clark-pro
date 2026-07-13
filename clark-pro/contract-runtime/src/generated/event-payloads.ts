@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/event-payloads.schema.json
- * Source SHA-256: dfacae7474405d5ce360a1599086a0b2f68b1f1217861edfee8051cef1bb9069
+ * Source SHA-256: 73998dadfbf5c6d178424ed075fb543e4ac44091a3999d4085014d8880b62d6e
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -537,6 +537,7 @@ export interface ToolCallRequested {
     | "destructive";
   inputHash: string;
   permissionReceiptId: string;
+  leaseId?: string;
   quotedCost?: Money;
   egressSensitivity?: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
 }
@@ -553,6 +554,32 @@ export interface ToolCallCompleted {
   cost: Money;
   errorClass?:
     "none" | "validation" | "auth" | "rate_limit" | "transient" | "permanent" | "policy" | "ambiguous_external_state";
+  invocationReceipt?: InvocationReceipt;
+}
+export interface InvocationReceipt {
+  schemaVersion: 1;
+  kind: "invocation_receipt";
+  callId: string;
+  leaseId: string;
+  permissionReceiptId: string;
+  workspaceId: string;
+  projectId: string;
+  runId: string;
+  stepId: string;
+  capabilityRevision: RevisionRef;
+  transport: "library" | "mcp_stdio" | "mcp_streamable_http" | "http_api" | "local_process" | "browser";
+  serverRef: string;
+  toolName: string;
+  inputHash: string;
+  status: "succeeded" | "failed" | "cancelled" | "ambiguous";
+  resultRef?: string;
+  resultHash?: string;
+  durationMs: number;
+  cost: Money;
+  errorClass:
+    "none" | "validation" | "auth" | "rate_limit" | "transient" | "permanent" | "policy" | "ambiguous_external_state";
+  startedAt: string;
+  completedAt: string;
 }
 /**
  * This interface was referenced by `ClarkDomainEventPayloads`'s JSON-Schema
@@ -712,10 +739,237 @@ export interface ConnectionStateChanged {
 export interface CapabilityStateChanged {
   capabilityRevision: RevisionRef;
   manifestHash: string;
+  manifest?: ClarkCapabilityManifest;
   from: "unregistered" | "registered" | "healthy" | "degraded" | "offline" | "revoked";
   to: "registered" | "healthy" | "degraded" | "offline" | "revoked";
   limitations: string[];
   reason?: string;
+}
+export interface ClarkCapabilityManifest {
+  $schema?: string;
+  schemaVersion: 1;
+  id: string;
+  name: string;
+  description?: string;
+  version: string;
+  publisher: {
+    id: string;
+    name: string;
+    source: string;
+    sourceRevision: string;
+    sourceHash: string;
+    signature?: string;
+  };
+  kind: "read" | "generation" | "transformation" | "observation" | "mutation" | "publication" | "reconciliation";
+  /**
+   * This interface was referenced by `ClarkCapabilityManifest`'s JSON-Schema
+   * via the `definition` "transport".
+   */
+  transport:
+    | {
+        type: "mcp";
+        /**
+         * @minItems 1
+         */
+        modes: ["stdio" | "streamable_http", ...("stdio" | "streamable_http")[]];
+        serverRef: string;
+        toolName?: string;
+      }
+    | {
+        type: "http_api";
+        baseOrigin: string;
+        authScheme: "none" | "oauth_pkce" | "api_key_broker" | "delegated_token";
+      }
+    | {
+        type: "local_process";
+        executableRef: string;
+        argvTemplate: string[];
+        cwdPolicy: "isolated_temp" | "project_assets_readonly" | "explicit_project_write";
+      }
+    | {
+        type: "library";
+        moduleRef: string;
+      }
+    | {
+        type: "browser";
+        /**
+         * @minItems 1
+         */
+        allowedOrigins: [string, ...string[]];
+        profilePolicy: "isolated" | "user_confirmed_session";
+      };
+  inputSchemaRef: string;
+  outputSchemaRef: string;
+  /**
+   * @minItems 2
+   */
+  lifecycle: [
+    "auth" | "discover" | "validate" | "quote" | "execute" | "observe" | "cancel" | "reconcile" | "health" | "revoke",
+    "auth" | "discover" | "validate" | "quote" | "execute" | "observe" | "cancel" | "reconcile" | "health" | "revoke",
+    ...(
+      "auth" | "discover" | "validate" | "quote" | "execute" | "observe" | "cancel" | "reconcile" | "health" | "revoke"
+    )[]
+  ];
+  permissions: Permissions;
+  egress: Egress;
+  async: Async;
+  idempotency: Idempotency;
+  cost: Cost;
+  reliability: Reliability;
+  ui: {
+    renderer: string;
+    previewSafe: boolean;
+    supportsProgress?: boolean;
+    supportsDiff?: boolean;
+  };
+  limitations: {
+    code: string;
+    description: string;
+    fallback: "none" | "alternate_capability" | "assisted" | "export" | "manual";
+  }[];
+  extensions?: Extensions;
+}
+/**
+ * This interface was referenced by `ClarkCapabilityManifest`'s JSON-Schema
+ * via the `definition` "permissions".
+ */
+export interface Permissions {
+  actionClass:
+    | "read"
+    | "capture"
+    | "decision_record"
+    | "artifact_approve"
+    | "research"
+    | "local_transform"
+    | "model_generate"
+    | "media_generate"
+    | "external_write"
+    | "social_publish"
+    | "account_manage"
+    | "memory_mutate"
+    | "skill_mutate"
+    | "policy_override"
+    | "destructive";
+  systemScopes: string[];
+  credentialScopes: string[];
+  networkDomains: string[];
+  fileAccess: "none" | "explicit_inputs_readonly" | "isolated_temp" | "project_assets_write";
+  requiresUserPresence: boolean;
+}
+/**
+ * This interface was referenced by `ClarkCapabilityManifest`'s JSON-Schema
+ * via the `definition` "egress".
+ */
+export interface Egress {
+  maximumSensitivity: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
+  declaredFields: string[];
+  retentionPolicy: "none" | "transient" | "provider_declared" | "unknown";
+  trainingPolicy: "not_used" | "opt_out_configured" | "provider_declared" | "unknown";
+  region?: string;
+}
+/**
+ * This interface was referenced by `ClarkCapabilityManifest`'s JSON-Schema
+ * via the `definition` "async".
+ */
+export interface Async {
+  mode: "sync" | "stream" | "job" | "task";
+  cancellable: boolean;
+  observable: boolean;
+  reconnectByExternalId: boolean;
+}
+/**
+ * This interface was referenced by `ClarkCapabilityManifest`'s JSON-Schema
+ * via the `definition` "idempotency".
+ */
+export interface Idempotency {
+  strategy: "not_applicable" | "provider_key" | "clark_intent_ledger" | "provider_key_and_ledger";
+  reconciliation: "not_required" | "observe_provider" | "manual_check" | "export_only";
+}
+/**
+ * This interface was referenced by `ClarkCapabilityManifest`'s JSON-Schema
+ * via the `definition` "cost".
+ */
+export interface Cost {
+  quoteSupport: "exact" | "bounded" | "estimate" | "none";
+  metering: "none" | "tokens" | "duration" | "job" | "provider_reported" | "mixed";
+  currency?: string;
+}
+/**
+ * This interface was referenced by `ClarkCapabilityManifest`'s JSON-Schema
+ * via the `definition` "reliability".
+ */
+export interface Reliability {
+  timeoutSeconds: number;
+  retryPolicy: "never" | "safe_transient_only" | "idempotent_only";
+  maxAttempts: number;
+  healthCheck: "none" | "passive" | "non_mutating_active";
+  schemaDriftBehavior: "block" | "degrade_readonly" | "require_review";
+}
+/**
+ * This interface was referenced by `ClarkDomainEventPayloads`'s JSON-Schema
+ * via the `definition` "capabilityLeaseChanged".
+ */
+export interface CapabilityLeaseChanged {
+  leaseId: string;
+  permissionReceiptId: string;
+  permissionReceipt: PermissionReceipt;
+  capabilityRevision: RevisionRef;
+  runId: string;
+  stepId: string;
+  from: "none" | "active";
+  to: "active" | "revoked" | "expired";
+  issuedAt: string;
+  expiresAt: string;
+  effectiveAuthority: EffectiveAuthority;
+  reason?: string;
+}
+export interface PermissionReceipt {
+  schemaVersion: 1;
+  kind: "permission_receipt";
+  receiptId: string;
+  decision: "allow" | "ask" | "deny";
+  workspaceId: string;
+  projectId: string;
+  runId: string;
+  stepId: string;
+  capabilityRevision: RevisionRef;
+  policyRevision: RevisionRef;
+  requested: EffectiveAuthority;
+  effective: EffectiveAuthority;
+  reason: string;
+  evaluatedAt: string;
+}
+export interface EffectiveAuthority {
+  actionClasses: (
+    | "read"
+    | "capture"
+    | "decision_record"
+    | "artifact_approve"
+    | "research"
+    | "local_transform"
+    | "model_generate"
+    | "media_generate"
+    | "external_write"
+    | "social_publish"
+    | "account_manage"
+    | "memory_mutate"
+    | "skill_mutate"
+    | "policy_override"
+    | "destructive"
+  )[];
+  systemScopes: string[];
+  credentialScopes: string[];
+  networkDomains: string[];
+  fileAccess: "none" | "explicit_inputs_readonly" | "isolated_temp" | "project_assets_write";
+  maximumSensitivity: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
+  remoteExecution: "forbidden" | "allowed";
+}
+/**
+ * This interface was referenced by `ClarkDomainEventPayloads`'s JSON-Schema
+ * via the `definition` "capabilityPermissionEvaluated".
+ */
+export interface CapabilityPermissionEvaluated {
+  permissionReceipt: PermissionReceipt;
 }
 /**
  * This interface was referenced by `ClarkDomainEventPayloads`'s JSON-Schema

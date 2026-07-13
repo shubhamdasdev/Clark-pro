@@ -83,6 +83,10 @@ const harnessState = document.querySelector("#harness-state");
 const harnessRail = document.querySelector("#harness-rail-status span:last-child");
 const harnessConnectionState = document.querySelector("#harness-connection-state");
 const harnessConnectionDetail = document.querySelector("#harness-connection-detail");
+const capabilityConnectionState = document.querySelector("#capability-connection-state");
+const capabilityConnectionDetail = document.querySelector("#capability-connection-detail");
+const bridgeConnectionState = document.querySelector("#bridge-connection-state");
+const bridgeConnectionDetail = document.querySelector("#bridge-connection-detail");
 const ideaForm = document.querySelector("#idea-loop-form");
 const ideaInput = document.querySelector("#idea-input");
 const runButton = document.querySelector("#run-idea-loop");
@@ -109,6 +113,19 @@ function setHarnessAvailability(snapshot) {
   harnessConnectionState.textContent = ready ? "Live" : snapshot.state ?? "Unavailable";
   harnessConnectionState.className = `state ${ready ? "complete" : "waiting"}`;
   harnessConnectionDetail.textContent = ready ? `Supervised utility process · SQLite WAL · ${snapshot.database.eventCount} events` : "Supervised utility process unavailable";
+  const inspector = snapshot.capabilities?.find((capability) => capability.id === "clark.idea.inspect.mcp");
+  const inspectorLive = ready && inspector?.state === "healthy";
+  capabilityConnectionState.textContent = inspectorLive ? "Live" : inspector?.state ?? "Unavailable";
+  capabilityConnectionState.className = `state ${inspectorLive ? "complete" : "waiting"}`;
+  capabilityConnectionDetail.textContent = inspector
+    ? `Exact stdio · ${inspector.actionClass} · no network or credential scopes`
+    : "Exact stdio process unavailable";
+  const bridgeLive = ready && snapshot.bridge?.state === "ready";
+  bridgeConnectionState.textContent = bridgeLive ? "Live" : snapshot.bridge?.state ?? "Unavailable";
+  bridgeConnectionState.className = `state ${bridgeLive ? "complete" : "waiting"}`;
+  bridgeConnectionDetail.textContent = bridgeLive
+    ? `${snapshot.bridge.host}:${snapshot.bridge.port} · ${snapshot.bridge.tools.length} scoped tools · bearer kept outside renderer`
+    : "Authenticated localhost MCP unavailable";
   runButton.disabled = !ready;
 }
 

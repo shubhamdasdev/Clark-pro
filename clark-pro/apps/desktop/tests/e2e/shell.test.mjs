@@ -38,6 +38,11 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     await page.getByText(/Ready · \d+ events/).waitFor();
     await page.getByRole("button", { name: "Structure idea" }).click();
     await page.getByText("Waiting approval", { exact: true }).waitFor();
+    const liveSnapshot = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    assert.equal(liveSnapshot.capabilities.find((capability) => capability.id === "clark.idea.inspect.mcp").state, "healthy");
+    assert.equal(liveSnapshot.bridge.state, "ready");
+    assert.equal(liveSnapshot.bridge.host, "127.0.0.1");
+    assert.equal("token" in liveSnapshot.bridge, false);
     const draftHash = await page.locator("#run-integrity").innerText();
     assert.match(draftHash, /sha256:[a-f0-9]{64}/);
     assert.match(await page.locator("#draft-text").innerText(), /Strongest framing/);
@@ -74,6 +79,8 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     await page.getByRole("heading", { name: "Connections", level: 1 }).waitFor();
     await page.getByRole("button", { name: "Review trust" }).click();
     await page.getByRole("heading", { name: /3 decisions remain explicit/ }).waitFor();
+    assert.match(await page.getByRole("listitem").filter({ hasText: "Bundled MCP idea inspector" }).innerText(), /live/i);
+    assert.match(await page.getByRole("listitem").filter({ hasText: "Clark Bridge" }).innerText(), /live/i);
     assert.equal(await page.getByText("Signed flows not built").count(), 1);
 
     const webPreferences = await electronApp.evaluate(({ BrowserWindow }) => {

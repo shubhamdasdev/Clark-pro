@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { evaluateCapabilityLease } from "../../src/capability-policy.mjs";
 import { HarnessEngine } from "../../src/engine.mjs";
+import { analyzeIdeaText } from "../../src/idea-inspector-contract.mjs";
 
 const idea = "Build a local-first creator operating system that connects reusable tools while keeping memory, approval, and publication under creator control.";
 
@@ -27,7 +29,13 @@ test("idea loop is durable, idempotent, rebuildable, and approval-bound", async 
     assert.equal(started.run.state, "waiting_approval");
     assert.equal(started.run.approval.state, "waiting");
     assert.match(started.run.draft.text, /Strongest framing/);
+    assert.equal(JSON.parse(started.run.analysis.text).kind, "idea_analysis");
     assert.equal(started.run.draft.contentHash.startsWith("sha256:"), true);
+    assert.equal(engine.listCapabilities("workspace.local").capabilities[0].state, "healthy");
+    assert.equal(engine.store.database.prepare("SELECT COUNT(*) AS count FROM tool_calls WHERE status = 'succeeded'").get().count, 1);
+    assert.equal(engine.store.eventEnvelopes().some((event) => event.eventType === "capability.permission_evaluated"), true);
+    assert.equal(engine.store.database.prepare("SELECT COUNT(*) AS count FROM capability_leases WHERE state = 'revoked'").get().count, 1);
+    assert.equal(engine.store.activeCapabilityLeases().length, 0);
     assert.equal(engine.store.verifyHashChain(), true);
     const pinnedPlan = engine.store.getRunPlan(started.run.runId);
     assert.equal(pinnedPlan.runId, started.run.runId);
@@ -149,7 +157,8 @@ test("rejected brief records creator decision without granting approval", async 
 
 test("restart recovers a deterministic step left running without duplicate artifact mutation", async () => {
   const dataDirectory = await mkdtemp(path.join(os.tmpdir(), "clark-harness-recovery-"));
-  const first = new HarnessEngine({ dataDirectory, stepDelayMs: 350 });
+  const mcpAdapter = { analyze: async ({ ideaText }) => ({ result: analyzeIdeaText(ideaText), server: { name: "mcp.clark.idea-inspector" } }) };
+  const first = new HarnessEngine({ dataDirectory, stepDelayMs: 350, mcpAdapter });
   await first.initialize();
   first.ensureWorkspace({ workspaceId: "workspace.local", name: "Local creator workspace" });
   const pending = first.startIdeaLoop({ workspaceId: "workspace.local", projectId: "project.idea-lab", ideaText: idea, idempotencyKey: "intent-recovery-0001" });
@@ -175,3 +184,96 @@ test("restart recovers a deterministic step left running without duplicate artif
     await rm(dataDirectory, { recursive: true, force: true });
   }
 });
+
+test("restart revokes orphaned Bridge authority before accepting new work", async () => {
+  const dataDirectory = await mkdtemp(path.join(os.tmpdir(), "clark-harness-bridge-restart-"));
+  const first = new HarnessEngine({ dataDirectory });
+  await first.initialize();
+  first.ensureWorkspace({ workspaceId: "workspace.local", name: "Local creator workspace" });
+  first.registerBridgeClient({
+    workspaceId: "workspace.local",
+    clientId: "bridge.client.orphaned",
+    displayName: "Interrupted local client",
+    actionClasses: ["capture", "read"],
+    expiresAt: new Date(Date.now() + 60_000).toISOString()
+  });
+  first.close();
+
+  const second = new HarnessEngine({ dataDirectory });
+  try {
+    await second.initialize();
+    assert.equal(second.store.getBridgeClient("bridge.client.orphaned").state, "revoked");
+    assert.equal(second.store.activeBridgeClients().length, 0);
+    assert.equal(second.store.verifyHashChain(), true);
+  } finally {
+    second.close();
+    await rm(dataDirectory, { recursive: true, force: true });
+  }
+});
+
+test("denied capability policy is a durable terminal decision without a process lease", async () => {
+  const dataDirectory = await mkdtemp(path.join(os.tmpdir(), "clark-harness-policy-denial-"));
+  const capabilityPolicy = (arguments_) => {
+    const expanded = structuredClone(arguments_.manifest);
+    expanded.permissions.networkDomains = ["api.example.com"];
+    return evaluateCapabilityLease({ ...arguments_, manifest: expanded });
+  };
+  const engine = new HarnessEngine({ dataDirectory, capabilityPolicy });
+  try {
+    await engine.initialize();
+    engine.ensureWorkspace({ workspaceId: "workspace.local", name: "Local creator workspace" });
+    const result = await engine.startIdeaLoop({
+      workspaceId: "workspace.local", projectId: "project.idea-lab", ideaText: idea, idempotencyKey: "intent-policy-denial-0001"
+    });
+    assert.equal(result.run.state, "failed");
+    const permissionEvent = engine.store.eventEnvelopes().find((event) => event.eventType === "capability.permission_evaluated");
+    assert.equal(permissionEvent.payload.permissionReceipt.decision, "deny");
+    assert.deepEqual(permissionEvent.payload.permissionReceipt.effective.networkDomains, []);
+    assert.equal(engine.store.activeCapabilityLeases().length, 0);
+    assert.equal(engine.store.database.prepare("SELECT COUNT(*) AS count FROM tool_calls").get().count, 0);
+    assert.equal(engine.store.verifyHashChain(), true);
+  } finally {
+    engine.close();
+    await rm(dataDirectory, { recursive: true, force: true });
+  }
+});
+
+test("restart terminalizes an interrupted MCP call and retries under a new lease", async () => {
+  const dataDirectory = await mkdtemp(path.join(os.tmpdir(), "clark-harness-mcp-restart-"));
+  let rejectCall;
+  const stalledAdapter = { analyze: () => new Promise((_resolve, reject) => { rejectCall = reject; }) };
+  const first = new HarnessEngine({ dataDirectory, mcpAdapter: stalledAdapter });
+  await first.initialize();
+  first.ensureWorkspace({ workspaceId: "workspace.local", name: "Local creator workspace" });
+  const pending = first.startIdeaLoop({
+    workspaceId: "workspace.local", projectId: "project.idea-lab", ideaText: idea, idempotencyKey: "intent-mcp-recovery-0001"
+  });
+  await waitUntil(() => first.store.database.prepare("SELECT COUNT(*) AS count FROM tool_calls WHERE status = 'requested'").get().count === 1);
+  const runId = first.store.interruptedRunRows()[0].run_id;
+  first.close();
+  rejectCall(new Error("simulated process termination"));
+  await pending.catch(() => {});
+
+  const second = new HarnessEngine({ dataDirectory });
+  try {
+    await second.initialize();
+    const calls = second.store.database.prepare("SELECT status FROM tool_calls ORDER BY call_id").all().map((row) => row.status);
+    assert.deepEqual(calls, ["cancelled", "succeeded"]);
+    assert.equal(second.store.activeCapabilityLeases().length, 0);
+    assert.equal(second.getRun(runId).state, "waiting_approval");
+    assert.equal(second.store.getStep(runId, "step.inspect").attempt, 2);
+    assert.equal(second.store.verifyHashChain(), true);
+  } finally {
+    second.close();
+    await rm(dataDirectory, { recursive: true, force: true });
+  }
+});
+
+async function waitUntil(predicate, timeoutMs = 2_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (predicate()) return;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  assert.fail("Timed out waiting for Harness state");
+}

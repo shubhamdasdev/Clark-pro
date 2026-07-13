@@ -1,12 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
-import { harnessFixtureDirectory } from "@clark/contracts/paths";
+import { harnessCapabilityDirectory, harnessFixtureDirectory } from "@clark/contracts/paths";
 import { contractValidator } from "./protocol.mjs";
 import { canonicalJson, sha256, stableToken } from "./canonical.mjs";
 
 const loopDefinition = JSON.parse(fs.readFileSync(path.join(harnessFixtureDirectory, "idea-to-text.loop.json"), "utf8"));
 contractValidator.validateLoopDefinition(loopDefinition);
 const loopContentHash = sha256(loopDefinition);
+const ideaInspectorManifest = JSON.parse(fs.readFileSync(path.join(harnessCapabilityDirectory, "clark.idea.inspect.mcp.json"), "utf8"));
+contractValidator.validateCapabilityManifest(ideaInspectorManifest);
 
 export function deriveRunIds(idempotencyKey) {
   const token = stableToken(idempotencyKey);
@@ -16,6 +18,8 @@ export function deriveRunIds(idempotencyKey) {
     planId: `plan.idea.${token}`,
     ideaArtifactId: `artifact.idea.${token}`,
     ideaVersionId: `version.idea.${token}.v1`,
+    analysisArtifactId: `artifact.analysis.${token}`,
+    analysisVersionId: `version.analysis.${token}.v1`,
     draftArtifactId: `artifact.brief.${token}`,
     draftVersionId: `version.brief.${token}.v1`,
     approvalId: `approval.brief.${token}.v1`,
@@ -24,7 +28,7 @@ export function deriveRunIds(idempotencyKey) {
   });
 }
 
-export function compileIdeaRun({ runId, planId, workspaceId, projectId, ideaArtifactId, ideaVersionId, draftArtifactId, draftVersionId, compiledAt }) {
+export function compileIdeaRun({ runId, planId, workspaceId, projectId, ideaArtifactId, ideaVersionId, analysisArtifactId, analysisVersionId, draftArtifactId, draftVersionId, compiledAt }) {
   const plan = {
     $schema: "https://schemas.clark.pro/v1/run-plan.schema.json",
     schemaVersion: 1,
@@ -41,6 +45,7 @@ export function compileIdeaRun({ runId, planId, workspaceId, projectId, ideaArti
       creatorModelRevision: { id: "creator-model.local", revision: "1.0.0" },
       capabilityRevisions: [
         { id: "clark.capture.local", revision: "1.0.0" },
+        { id: "clark.idea.inspect.mcp", revision: "1.0.0" },
         { id: "clark.idea.structure.local", revision: "1.0.0" }
       ]
     },
@@ -56,8 +61,17 @@ export function compileIdeaRun({ runId, planId, workspaceId, projectId, ideaArti
         reconciliation: "not_required", executionLocation: "local", egressItemIds: [], timeoutSeconds: 30
       },
       {
-        id: "step.structure", nodeId: "structure", kind: "operator", dependsOn: ["step.capture"],
+        id: "step.inspect", nodeId: "inspect", kind: "operator", dependsOn: ["step.capture"],
         inputRefs: [{ artifactId: ideaArtifactId, versionId: ideaVersionId }],
+        outputContractRef: "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisResult",
+        capabilityRevision: { id: "clark.idea.inspect.mcp", revision: "1.0.0" }, actionClass: "local_transform", initialState: "pending",
+        permissionDecision: { result: "allow", policyRevisionId: "policy.creator-default", reason: "The bundled MCP process has no network, credential, system, or file authority." },
+        approval: { mode: "none" }, quote: zeroQuote("Bundled deterministic MCP inspection"), retryPolicy: "safe_transient_only", idempotency: "not_applicable",
+        reconciliation: "not_required", executionLocation: "local", egressItemIds: [], timeoutSeconds: 15
+      },
+      {
+        id: "step.structure", nodeId: "structure", kind: "operator", dependsOn: ["step.capture", "step.inspect"],
+        inputRefs: [{ artifactId: ideaArtifactId, versionId: ideaVersionId }, { artifactId: analysisArtifactId, versionId: analysisVersionId }],
         outputContractRef: "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief",
         capabilityRevision: { id: "clark.idea.structure.local", revision: "1.0.0" }, actionClass: "local_transform", initialState: "pending",
         permissionDecision: { result: "allow", policyRevisionId: "policy.creator-default", reason: "Deterministic local transform with no egress." },
@@ -78,7 +92,7 @@ export function compileIdeaRun({ runId, planId, workspaceId, projectId, ideaArti
     humanGates: [{ id: "gate.brief-review", stepId: "step.review", reason: "Approve the exact content-addressed brief.", actionClass: "artifact_approve", subjectRefs: [draftArtifactId], requiredActorType: "creator" }],
     quote: zeroQuote("All execution is local and deterministic."),
     budget: { ceiling: money(0), reserved: money(0), overageBehavior: "stop" },
-    effectivePermissions: { actionClasses: ["capture", "local_transform", "artifact_approve"], capabilityIds: ["clark.capture.local", "clark.idea.structure.local"], networkDomains: [], credentialScopes: [], maximumSensitivity: "confidential", remoteExecution: "forbidden" },
+    effectivePermissions: { actionClasses: ["capture", "local_transform", "artifact_approve"], capabilityIds: ["clark.capture.local", "clark.idea.inspect.mcp", "clark.idea.structure.local"], networkDomains: [], credentialScopes: [], maximumSensitivity: "confidential", remoteExecution: "forbidden" },
     egressPlan: [], warnings: []
   };
   plan.planHash = sha256(canonicalJson({ ...plan, planHash: undefined }));
@@ -89,7 +103,7 @@ export function compileIdeaRun({ runId, planId, workspaceId, projectId, ideaArti
 function money(micros) { return { currency: "USD", micros }; }
 function zeroQuote(basis) { return { minimum: money(0), maximum: money(0), confidence: "exact", basis }; }
 
-export function structureIdea(ideaText) {
+export function structureIdea(ideaText, analysis) {
   const normalized = String(ideaText).replace(/\s+/g, " ").trim();
   const shortIntent = normalized.length > 360 ? `${normalized.slice(0, 357)}…` : normalized;
   return [
@@ -105,6 +119,11 @@ export function structureIdea(ideaText) {
     "- **Trust:** Keep external mutation, credentials, memory promotion, and publication behind explicit authority.",
     "- **Proof:** Require observable behavior and replacement value before treating the idea as validated.",
     "",
+    "## Governed MCP inspection",
+    analysis.summary,
+    `- Explicit signals: ${Object.entries(analysis.signals).filter(([, present]) => present).map(([name]) => name).join(", ") || "none"}`,
+    `- Missing signals: ${analysis.missingSignals.join(", ") || "none"}`,
+    "",
     "## Product boundary",
     "The original idea remains the source. This local deterministic pass adds structure but introduces no research claims, model output, external data, or publication authority.",
     "",
@@ -118,4 +137,4 @@ export function structureIdea(ideaText) {
   ].join("\n");
 }
 
-export { loopDefinition as ideaLoopDefinition };
+export { ideaInspectorManifest, loopDefinition as ideaLoopDefinition };

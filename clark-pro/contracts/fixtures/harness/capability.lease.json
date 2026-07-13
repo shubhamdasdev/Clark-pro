@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "kind": "capability_lease",
+  "leaseId": "lease.run.idea.fixture.inspect.a1",
+  "permissionReceiptId": "permission.run.idea.fixture.inspect.a1",
+  "workspaceId": "workspace.local",
+  "projectId": "project.idea-lab",
+  "runId": "run.idea.fixture",
+  "stepId": "step.inspect",
+  "capabilityRevision": { "id": "clark.idea.inspect.mcp", "revision": "1.0.0" },
+  "state": "active",
+  "effective": {
+    "actionClasses": ["local_transform"], "systemScopes": [], "credentialScopes": [], "networkDomains": [],
+    "fileAccess": "none", "maximumSensitivity": "confidential", "remoteExecution": "forbidden"
+  },
+  "issuedAt": "2026-07-13T04:00:01Z",
+  "expiresAt": "2026-07-13T04:00:16Z"
+}

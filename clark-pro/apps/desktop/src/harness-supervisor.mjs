@@ -10,11 +10,12 @@ import { HarnessChannelGuard } from "./harness-channel-guard.mjs";
 const RESTART_DELAYS_MS = [50, 250, 1_000];
 
 export class HarnessSupervisor extends EventEmitter {
-  constructor({ entryPath, dataDirectory, environment = minimalHarnessEnvironment(), requestTimeoutMs = 5_000 } = {}) {
+  constructor({ entryPath, dataDirectory, runtimeExecutable, environment = minimalHarnessEnvironment(), requestTimeoutMs = 5_000 } = {}) {
     super();
-    if (!path.isAbsolute(entryPath) || !path.isAbsolute(dataDirectory)) throw new TypeError("Harness paths must be absolute");
+    if (!path.isAbsolute(entryPath) || !path.isAbsolute(dataDirectory) || !path.isAbsolute(runtimeExecutable)) throw new TypeError("Harness paths must be absolute");
     this.entryPath = entryPath;
     this.dataDirectory = dataDirectory;
+    this.runtimeExecutable = runtimeExecutable;
     this.environment = Object.freeze({ ...environment });
     this.requestTimeoutMs = requestTimeoutMs;
     this.state = "stopped";
@@ -41,7 +42,7 @@ export class HarnessSupervisor extends EventEmitter {
   }
 
   spawn() {
-    const child = utilityProcess.fork(this.entryPath, [`--data-dir=${this.dataDirectory}`], {
+    const child = utilityProcess.fork(this.entryPath, [`--data-dir=${this.dataDirectory}`, `--runtime=${this.runtimeExecutable}`], {
       env: this.environment,
       cwd: this.dataDirectory,
       stdio: "pipe",

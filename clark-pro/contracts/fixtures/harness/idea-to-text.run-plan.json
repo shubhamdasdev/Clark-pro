@@ -8,12 +8,13 @@
   "projectId": "project.idea-lab",
   "compiledAt": "2026-07-13T04:00:00Z",
   "compiledFrom": {
-    "loopRevision": { "id": "clark.loop.idea-to-approved-text", "revision": "1.0.0", "contentHash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd" },
+    "loopRevision": { "id": "clark.loop.idea-to-approved-text", "revision": "1.1.0", "contentHash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd" },
     "graphRevision": { "id": "graph.idea-lab", "revision": "1.0.0" },
     "policyRevision": { "id": "policy.creator-default", "revision": "1.0.0" },
     "creatorModelRevision": { "id": "creator-model.local", "revision": "1.0.0" },
     "capabilityRevisions": [
       { "id": "clark.capture.local", "revision": "1.0.0" },
+      { "id": "clark.idea.inspect.mcp", "revision": "1.0.0" },
       { "id": "clark.idea.structure.local", "revision": "1.0.0" }
     ]
   },
@@ -40,11 +41,34 @@
       "timeoutSeconds": 30
     },
     {
-      "id": "step.structure",
-      "nodeId": "structure",
+      "id": "step.inspect",
+      "nodeId": "inspect",
       "kind": "operator",
       "dependsOn": ["step.capture"],
       "inputRefs": [{ "artifactId": "artifact.idea.fixture", "versionId": "version.idea.fixture.v1" }],
+      "outputContractRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisResult",
+      "capabilityRevision": { "id": "clark.idea.inspect.mcp", "revision": "1.0.0" },
+      "actionClass": "local_transform",
+      "initialState": "pending",
+      "permissionDecision": { "result": "allow", "policyRevisionId": "policy.creator-default", "reason": "The bundled MCP process has no network, credential, system, or file authority." },
+      "approval": { "mode": "none" },
+      "quote": { "minimum": { "currency": "USD", "micros": 0 }, "maximum": { "currency": "USD", "micros": 0 }, "confidence": "exact", "basis": "Bundled deterministic MCP inspection" },
+      "retryPolicy": "safe_transient_only",
+      "idempotency": "not_applicable",
+      "reconciliation": "not_required",
+      "executionLocation": "local",
+      "egressItemIds": [],
+      "timeoutSeconds": 15
+    },
+    {
+      "id": "step.structure",
+      "nodeId": "structure",
+      "kind": "operator",
+      "dependsOn": ["step.capture", "step.inspect"],
+      "inputRefs": [
+        { "artifactId": "artifact.idea.fixture", "versionId": "version.idea.fixture.v1" },
+        { "artifactId": "artifact.analysis.fixture", "versionId": "version.analysis.fixture.v1" }
+      ],
       "outputContractRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief",
       "capabilityRevision": { "id": "clark.idea.structure.local", "revision": "1.0.0" },
       "actionClass": "local_transform",
@@ -85,7 +109,7 @@
   "budget": { "ceiling": { "currency": "USD", "micros": 0 }, "reserved": { "currency": "USD", "micros": 0 }, "overageBehavior": "stop" },
   "effectivePermissions": {
     "actionClasses": ["capture", "local_transform", "artifact_approve"],
-    "capabilityIds": ["clark.capture.local", "clark.idea.structure.local"],
+    "capabilityIds": ["clark.capture.local", "clark.idea.inspect.mcp", "clark.idea.structure.local"],
     "networkDomains": [],
     "credentialScopes": [],
     "maximumSensitivity": "confidential",

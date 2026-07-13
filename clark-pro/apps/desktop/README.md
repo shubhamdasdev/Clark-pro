@@ -12,7 +12,8 @@ This is the first executable desktop-and-Harness slice on Clark's permanent Elec
 - an app-supervised Electron `utilityProcess` connected only to main through a transferred, schema-validated MessagePort;
 - an explicit minimal child environment, bounded/redacted diagnostics, restart budget, request deadlines, message-size and in-flight limits, and stale/replayed channel rejection;
 - SQLite/WAL append-only events, transactional projections, checkpoints, command idempotency, per-workspace hash chains, pinned compiled plans, and content-addressed text assets;
-- a contract-compiled, zero-egress `Idea to Approved Text` loop with durable recovery and exact-version creator approval/rejection;
+- a contract-compiled, zero-egress `Idea to Approved Text` loop with a real bundled MCP inspection step, durable recovery, and exact-version creator approval/rejection;
+- live Connections state for the source-pinned stdio MCP capability and the authenticated localhost Clark Bridge, without exposing the Bridge bearer to the renderer;
 - live Focus and Connections projections that survive renderer reload, Harness death, application quit/relaunch, and packaged-ASAR execution;
 - automated boundary, persistence, recovery, menu, keyboard, semantic-accessibility, relaunch, and packaged-app tests.
 
@@ -21,7 +22,7 @@ This is the first executable desktop-and-Harness slice on Clark's permanent Elec
 - Developer ID signing, Hardened Runtime, notarization, stapling, Gatekeeper acceptance, or update signatures;
 - an observed VoiceOver task pass or expert design/accessibility review;
 - production Keychain, TCC notification, Share Extension, file-bookmark, or updater flows;
-- a general graph compiler, model/agent execution, MCP client/server execution, installed skills/Tool Packs, governed creator memory, social connections, or publishing authority;
+- a general graph compiler, model/agent execution, third-party MCP installation, installed skills/Tool Packs, governed creator memory, social connections, or publishing authority;
 - OpenCut execution or any third-party Tool Pack authority.
 
 The local `pack:mac` command produces an unsigned inspection bundle only. Release signing must use CI-held identity material and the gates in ADR-0011.

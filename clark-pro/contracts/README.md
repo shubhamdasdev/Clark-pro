@@ -16,6 +16,7 @@ The pinned [`../contract-runtime/`](../contract-runtime/README.md) generates nam
 | `event-catalog.json` | Event ownership, aggregate, schema version, sensitivity, mutation class, and payload reference |
 | `schemas/loop-definition.schema.json` | Durable loop entry/success contracts, typed graph, budgets, permissions, checkpoints, recovery, evaluation, and reflection |
 | `schemas/capability-manifest.schema.json` | Transport-neutral capability lifecycle, schemas, permissions, credentials, egress, async/idempotency, cost, reliability, and UI metadata |
+| `schemas/capability-runtime.schema.json` | Effective authority, permission receipts, expiring capability leases, invocation receipts, and the first bundled MCP tool input/output contracts |
 | `schemas/run-plan.schema.json` | Compiled immutable run plan with pinned revisions, steps, gates, egress, quote, and policy decisions |
 | `schemas/project-fixture.schema.json` | Machine-readable project/canvas fixture with exact object state and lineage |
 | `schemas/failure-fixtures.schema.json` | Expected safety/recovery behavior for failure, abuse, and policy cases |
@@ -86,17 +87,17 @@ The verifier performs draft-2020 JSON Schema checks and semantic checks for even
 
 Current checked fixture evidence:
 
-- 17 schema files, including governed Tool Package and private Harness IPC contracts plus an honestly upstream-blocked OpenCut candidate;
-- 56 event types and 10 representative payload-bearing events, including explicit Tool Pack discovery/quarantine/activation/rollback transitions;
-- 9 capability manifests, including a deterministic zero-egress idea-structuring operator;
-- 3 loops, an 11-step Full-Week plan, and a 3-step Idea-to-Approved-Text plan;
+- 18 schema files, including governed capability-runtime, Tool Package, and private Harness IPC contracts plus an honestly upstream-blocked OpenCut candidate;
+- 59 event types and 10 representative payload-bearing events, including explicit capability permission/lease and Tool Pack lifecycle transitions;
+- 10 capability manifests, including a source-pinned zero-egress MCP idea inspector;
+- 3 loops, an 11-step Full-Week plan, and a 4-step Idea-to-Approved-Text plan;
 - exactly 50 project objects and 46 lineage edges;
 - 11 failure/abuse cases referencing 16 threat IDs, including Tool Pack substitution and unreviewed UI-origin expansion;
 - 1 accepted Bridge capture/replay exchange plus 5 hostile semantic mutations rejected;
 - 2 governed skill packages and 1 four-way effective-permission receipt;
 - 1 immutable OpenCut Tool Pack candidate with zero installed authority, 1 active-without-adapter negative package, and 11 hostile activation mutations rejected;
 - 36 owned MCP host/Bridge conformance cases, all executable or shared-contract and passing in the Ground harness;
-- 17 schemas deterministically generate 17 namespaced TypeScript modules plus a barrel/manifest with zero drift;
+- 18 schemas deterministically generate 18 namespaced TypeScript modules plus a barrel/manifest with zero drift;
 - 1 historical event migration passes 5 immutable/validated/fail-closed upcaster tests, and a hostile schema mutation fails drift checking;
 - 9 schema-invalid and 5 semantic-invalid documents rejected, plus lifecycle-only OpenCut activation and critical-MCP-nonblocking mutations rejected;
 - zero dependency vulnerabilities at the configured audit threshold.

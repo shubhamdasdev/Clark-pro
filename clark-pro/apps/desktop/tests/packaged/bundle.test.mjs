@@ -25,6 +25,11 @@ test("packaged app contains and executes the supervised Harness", async () => {
     assert.equal(snapshot.available, true);
     assert.equal(snapshot.database.journalMode, "wal");
     assert.equal(snapshot.runs[0].state, "waiting_approval");
+    assert.equal(snapshot.runs[0].analysis.kind, undefined);
+    assert.equal(JSON.parse(snapshot.runs[0].analysis.text).kind, "idea_analysis");
+    assert.equal(snapshot.capabilities.find((capability) => capability.id === "clark.idea.inspect.mcp").state, "healthy");
+    assert.equal(snapshot.bridge.state, "ready");
+    assert.equal("token" in snapshot.bridge, false);
     assert.match(snapshot.runs[0].draft.contentHash, /^sha256:[a-f0-9]{64}$/);
   } finally {
     if (electronApp) await electronApp.close().catch(() => {});

@@ -23,7 +23,9 @@
             { "$ref": "#/$defs/loopStartCommand" },
             { "$ref": "#/$defs/runGetCommand" },
             { "$ref": "#/$defs/runListCommand" },
-            { "$ref": "#/$defs/approvalResolveCommand" }
+            { "$ref": "#/$defs/approvalResolveCommand" },
+            { "$ref": "#/$defs/capabilityListCommand" },
+            { "$ref": "#/$defs/bridgeStatusCommand" }
           ]
         }
       },
@@ -129,6 +131,34 @@
       },
       "additionalProperties": false
     },
+    "capabilityListCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "capability.list" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId"],
+          "properties": { "workspaceId": { "$ref": "common.schema.json#/$defs/id" } },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "bridgeStatusCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "bridge.status" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId"],
+          "properties": { "workspaceId": { "$ref": "common.schema.json#/$defs/id" } },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "response": {
       "type": "object",
       "required": ["schemaVersion", "kind", "requestId", "method", "ok"],
@@ -136,7 +166,7 @@
         "schemaVersion": { "const": 1 },
         "kind": { "const": "response" },
         "requestId": { "$ref": "common.schema.json#/$defs/id" },
-        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "run.get", "run.list", "approval.resolve"] },
+        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "run.get", "run.list", "approval.resolve", "capability.list", "bridge.status"] },
         "ok": { "type": "boolean" },
         "result": {
           "oneOf": [
@@ -144,7 +174,9 @@
             { "$ref": "#/$defs/workspaceResult" },
             { "$ref": "#/$defs/loopStartResult" },
             { "$ref": "#/$defs/runSummary" },
-            { "$ref": "#/$defs/runListResult" }
+            { "$ref": "#/$defs/runListResult" },
+            { "$ref": "#/$defs/capabilityListResult" },
+            { "$ref": "#/$defs/bridgeStatusResult" }
           ]
         },
         "error": { "$ref": "#/$defs/error" }
@@ -232,6 +264,49 @@
       },
       "additionalProperties": false
     },
+    "capabilityListResult": {
+      "type": "object",
+      "required": ["capabilities"],
+      "properties": {
+        "capabilities": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "required": ["id", "version", "name", "state", "transport", "actionClass", "networkDomains", "credentialScopes", "limitations"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "version": { "$ref": "common.schema.json#/$defs/semver" },
+              "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+              "state": { "enum": ["registered", "healthy", "degraded", "offline", "revoked"] },
+              "transport": { "enum": ["library", "mcp_stdio", "mcp_streamable_http", "http_api", "local_process", "browser"] },
+              "actionClass": { "$ref": "common.schema.json#/$defs/actionClass" },
+              "networkDomains": { "type": "array", "items": { "type": "string", "format": "hostname" }, "uniqueItems": true },
+              "credentialScopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+              "limitations": { "type": "array", "items": { "type": "string", "maxLength": 500 } }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "bridgeStatusResult": {
+      "type": "object",
+      "required": ["state", "transport", "host", "configured", "clientId", "expiresAt", "tools", "resources"],
+      "properties": {
+        "state": { "enum": ["disabled", "starting", "ready", "failed"] },
+        "transport": { "const": "streamable_http" },
+        "host": { "const": "127.0.0.1" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "configured": { "type": "boolean" },
+        "clientId": { "type": ["string", "null"] },
+        "expiresAt": { "type": ["string", "null"], "format": "date-time" },
+        "tools": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true },
+        "resources": { "type": "array", "items": { "type": "string", "format": "uri" }, "uniqueItems": true }
+      },
+      "additionalProperties": false
+    },
     "harnessReadyPayload": {
       "type": "object",
       "required": ["protocolVersion", "recoveredRuns"],
@@ -302,6 +377,7 @@
         "state": { "enum": ["planned", "running", "recovering", "waiting_approval", "completed", "failed", "cancelled"] },
         "activeStepId": { "type": ["string", "null"] },
         "idea": { "$ref": "#/$defs/assetSummary" },
+        "analysis": { "$ref": "#/$defs/assetSummary" },
         "draft": { "$ref": "#/$defs/assetSummary" },
         "approval": { "$ref": "#/$defs/approvalSummary" },
         "eventCount": { "type": "integer", "minimum": 1 },
