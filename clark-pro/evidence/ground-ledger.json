@@ -3,7 +3,7 @@
   "schemaVersion": "1.0.0",
   "ledgerId": "clark.evidence.ground",
   "stratum": "ground",
-  "reviewedAt": "2026-07-12T22:15:00-05:00",
+  "reviewedAt": "2026-07-12T22:45:00-05:00",
   "currentGate": "before-stratum-1-implementation",
   "gateState": "open",
   "entries": [
@@ -517,16 +517,20 @@
       "requirement": "Generated implementation types and the event upcaster/schema-evolution approach are selected without forking contract semantics.",
       "ownerRole": "Domain Lead + Chief Architect",
       "proofRequired": ["schema", "automated_test", "signoff"],
-      "result": "missing",
+      "result": "specified_not_verified",
       "evidence": [
-        {"kind": "schema", "location": "contracts/schemas/domain-event.schema.json", "claim": "Defines versioned event envelopes but no generated types or upcaster implementation choice.", "result": "pass"}
+        {"kind": "schema", "location": "contracts/schemas/domain-event.schema.json", "claim": "Remains the canonical event envelope used by generation and destination validation.", "result": "pass"},
+        {"kind": "adr", "location": "decisions/0021-generated-contracts-and-event-upcasters.md", "claim": "Accepts canonical JSON Schema, offline namespaced TypeScript generation, committed hashes, runtime Ajv validation, and pure sequential immutable upcasters.", "result": "pass"},
+        {"kind": "fixture", "location": "contract-runtime/src/generated/manifest.json", "claim": "Records all fifteen source schemas, generated modules, source/output hashes, and pinned generator/compiler versions.", "result": "pass"},
+        {"kind": "fixture", "location": "contract-runtime/fixtures/historical/source-captured.v0.json", "claim": "Represents one historical source.captured version-zero event with a schema and exact version-one expectation.", "result": "pass"},
+        {"kind": "automated_test", "location": "contract-runtime/tests/upcaster.test.ts", "claim": "Proves zero generated drift, hostile drift rejection, strict compilation, immutable source.captured@0→1 upcasting, current cloning, missing-step rejection, future-version rejection, and mandatory destination validation failure.", "result": "pass", "command": "npm --prefix contract-runtime run verify"}
       ],
       "acceptanceRule": "A repeatable generator produces the chosen language types, schema drift fails CI, and an upcaster fixture proves one historical migration.",
-      "limitations": ["No generated types, drift check, or upcaster fixture exists."],
-      "nextAction": "Choose the TypeScript generation/upcaster toolchain, commit generated artifacts and one migration fixture, and obtain Domain/Architecture signoff.",
+      "limitations": ["Real Domain Lead and Chief Architect signoff has not occurred.", "Production event-store replay, large-history performance, backup/restore preview, interruption recovery, and rollback remain implementation evidence."],
+      "nextAction": "Assign the real Domain/Architecture reviewers, approve the generated/upcaster contract, and carry the package into the first production persistence vertical slice.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T22:45:00-05:00"
     },
     {
       "id": "GROUND-03",

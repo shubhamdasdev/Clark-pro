@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "eventId": "event.historical-source-captured",
+  "eventType": "source.captured",
+  "aggregate": {"type": "artifact", "id": "artifact.historical-voice", "version": 1},
+  "workspaceId": "workspace.cortex-diary",
+  "projectId": "project.week28",
+  "occurredAt": "2026-06-30T14:02:00Z",
+  "recordedAt": "2026-06-30T14:02:00Z",
+  "actor": {"type": "creator", "id": "creator.shubham"},
+  "sensitivity": "personal",
+  "payload": {
+    "artifact": {
+      "artifactId": "artifact.historical-voice",
+      "versionId": "version.historical-voice.v1",
+      "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "captureKind": "voice_memo",
+    "originalHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sensitivity": "personal",
+    "classificationStatus": "confirmed"
+  },
+  "metadata": {
+    "source": "import",
+    "extensions": {
+      "clark.migration.source_version": 0,
+      "clark.migration.upcaster": "source.captured@0→1"
+    }
+  }
+}

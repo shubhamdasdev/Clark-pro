@@ -1,7 +1,7 @@
 # Clark Pro — Ground Evidence Status
 
 **Generated from:** `evidence/ground-ledger.json`
-**Reviewed:** 2026-07-12T22:15:00-05:00
+**Reviewed:** 2026-07-12T22:45:00-05:00
 **Gate:** OPEN
 **Signoff:** pending
 
@@ -14,9 +14,9 @@ A passing verifier means the ledger is internally honest and its referenced file
 | contract_verified | 3 |
 | defined | 3 |
 | human_evidence_pending | 16 |
-| missing | 5 |
+| missing | 4 |
 | prototype_verified | 4 |
-| specified_not_verified | 3 |
+| specified_not_verified | 4 |
 
 ## Open Ground requirements (24)
 
@@ -42,7 +42,7 @@ Some entries share one future evidence run—for example, the five creator sessi
 | BIZ-06 | business | human_evidence_pending | Product + Research Leads | Ask every walkthrough and design partner to explain Clark to a peer without prompting and code the response. |
 | BIZ-07 | business | specified_not_verified | Product + Finance + Architecture Leads | Capture cost and support data during design-partner weeks and test it against the exact binding offer. |
 | GROUND-01 | delivery | missing | Chief Architect + W2-W10 Leads | Run a contract review with W2-W10, record decisions and required changes, rerun fixtures, and capture named approvals. |
-| GROUND-02 | delivery | missing | Domain Lead + Chief Architect | Choose the TypeScript generation/upcaster toolchain, commit generated artifacts and one migration fixture, and obtain Domain/Architecture signoff. |
+| GROUND-02 | delivery | specified_not_verified | Domain Lead + Chief Architect | Assign the real Domain/Architecture reviewers, approve the generated/upcaster contract, and carry the package into the first production persistence vertical slice. |
 | GROUND-03 | delivery | specified_not_verified | Connect + Security + Quality Leads | Assign the real primary/backup people, run the matrix in the production boundary when implemented, and obtain attributable Connect/Security/Quality approval. |
 | GROUND-04 | delivery | specified_not_verified | Security + Quality + Release Leads | Create the threat/ADR-to-test plan, assign primary/backup owners, and rehearse the reporting path before beta. |
 | GROUND-05 | delivery | missing | Desktop + Design + Quality Leads | Build a bounded signed Mac interaction shell using the accepted topology and run keyboard/VoiceOver/native-prompt checks before full Studio implementation. |

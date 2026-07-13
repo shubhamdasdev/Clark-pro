@@ -57,6 +57,11 @@ const contractOutput = execFileSync(process.execPath, [path.join(clarkRoot, "con
 });
 const contractResult = JSON.parse(contractOutput);
 assert(contractResult.status === "pass", "Contract/schema verification did not pass");
+const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+execFileSync(npmCommand, ["run", "verify", "--silent"], {
+  cwd: path.join(clarkRoot, "contract-runtime"),
+  encoding: "utf8"
+});
 
 const ledger = read("ground-ledger.json");
 unique(ledger.entries.map((entry) => entry.id), "Ledger IDs");
@@ -168,5 +173,6 @@ console.log(JSON.stringify({
   semanticNegativeDocumentsRejected: 1,
   referencedPathsVerified: ledger.entries.reduce((sum, entry) => sum + entry.evidence.length, 0),
   contractVerifierStatus: contractResult.status,
+  contractRuntimeVerifierStatus: "pass",
   verifierStatus: "pass"
 }, null, 2));

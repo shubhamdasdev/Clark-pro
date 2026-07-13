@@ -33,6 +33,7 @@ These records turn the product's resolved technology choices into team-owned dec
 | [0018](0018-local-first-telemetry-and-crash-data.md) | Local-first diagnostics and explicit remote telemetry/crash consent | Accepted | Observability and support |
 | [0019](0019-portable-encrypted-backups.md) | Portable age-encrypted backups with user-held recovery | Accepted | Export, restore, and disaster recovery |
 | [0020](0020-vulnerability-and-support-policy.md) | Private vulnerability reporting and explicit security support lifecycle | Accepted | Release and incident response |
+| [0021](0021-generated-contracts-and-event-upcasters.md) | Canonical JSON Schemas generate namespaced TypeScript; immutable events use sequential fail-closed upcasters | Accepted | Every implementation package and historical projection |
 
 ## Dependency order
 
@@ -50,6 +51,8 @@ The records form one base-to-top stack:
 0011–0019 resolve platform, execution, egress, sync, observability, and recovery boundaries
                               ↓
 0010 + 0020 govern how every layer is delivered, supported, and proven
+                              ↓
+0021 keeps implementation types and historical interpretation on the same canonical contracts
 ```
 
 ## Change rule

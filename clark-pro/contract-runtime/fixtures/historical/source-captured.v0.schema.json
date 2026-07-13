@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/historical/source-captured.v0.schema.json",
+  "title": "Historical Source Captured Event Version 0",
+  "type": "object",
+  "required": ["schemaVersion", "eventId", "eventType", "entityId", "entityVersion", "workspaceId", "happenedAt", "actorId", "sensitivity", "capture"],
+  "properties": {
+    "$schema": { "const": "./source-captured.v0.schema.json" },
+    "schemaVersion": { "const": 0 },
+    "eventId": { "type": "string", "minLength": 3 },
+    "eventType": { "const": "source.captured" },
+    "entityId": { "type": "string", "minLength": 3 },
+    "entityVersion": { "type": "integer", "minimum": 1 },
+    "workspaceId": { "type": "string", "minLength": 3 },
+    "projectId": { "type": "string", "minLength": 3 },
+    "happenedAt": { "type": "string", "format": "date-time" },
+    "actorId": { "type": "string", "minLength": 3 },
+    "sensitivity": { "enum": ["public", "workspace", "personal", "confidential"] },
+    "capture": {
+      "type": "object",
+      "required": ["versionId", "sha256", "kind", "classification"],
+      "properties": {
+        "versionId": { "type": "string", "minLength": 3 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "kind": { "enum": ["text", "url", "file", "screenshot", "voice", "selection"] },
+        "classification": { "enum": ["pending", "accepted", "inbox"] },
+        "sourceUri": { "type": "string", "format": "uri-reference" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

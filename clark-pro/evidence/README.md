@@ -23,7 +23,8 @@ The ledger deliberately distinguishes:
 | `fixtures/negative-entry.verified-without-observation.json` | Proves that a prototype cannot be relabeled as verified human evidence |
 | `status.md` | Generated concise summary of current counts and blocking entries |
 | `../skills-sandbox/evidence/latest-sandbox-receipt.json` | Attributable pinned-runtime result for the hostile Class B Ground suite |
-| `../mcp-conformance/evidence/latest-report.json` | Attributable two-sided MCP conformance result that preserves planned release blockers |
+| `../mcp-conformance/evidence/latest-report.json` | Attributable complete 36-case Ground MCP result with production-boundary limitations |
+| `../contract-runtime/src/generated/manifest.json` | Pinned source/output hashes for every generated implementation contract |
 
 ## Run
 
@@ -31,6 +32,7 @@ Install the contract verifier dependencies once:
 
 ```bash
 npm --prefix contracts ci
+npm --prefix contract-runtime ci
 ```
 
 Verify without changing files:

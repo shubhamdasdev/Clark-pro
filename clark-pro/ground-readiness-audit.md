@@ -1,7 +1,7 @@
 # Clark Pro — Ground Readiness Audit
 
 **Date:** July 12, 2026  
-**Decision:** Ground is not yet closed. Product direction and architecture are coherent; human/commercial evidence, Bridge and skill proof, native accessibility, contract governance, named capacity, security-test ownership, and leadership signoff remain mandatory before implementation fans out.
+**Decision:** Ground is not yet closed. Product direction and architecture are coherent; human/commercial evidence, native accessibility, named contract/team ownership, broader security-test ownership, and leadership signoff remain mandatory before implementation fans out.
 
 ## Evidence vocabulary
 
@@ -18,10 +18,10 @@
 | Mac application first | `vision.md`, `architecture.md`, ADR-0001 | Defined | Native interaction prototype and signed runtime evidence in Stratum 1 |
 | Durable harness and loops | `architecture.md`, `roadmap.md`, ADR-0003, `contracts/` | Defined and contract-verified | Production run state machine and forced-recovery tests |
 | Canvas must be strong before implementation | `the-canvas.md`, `prototype/`, ADR-0009 | Prototype-verified; human evidence pending | Five observed sessions must pass the canvas rubric and failed gates must be redesigned |
-| Clark consumes MCP capabilities | `mcp-ecosystem.md`, ADR-0004, capability manifests | Defined and contract-verified | Hostile-server and transport conformance suite |
+| Clark consumes MCP capabilities | `mcp-ecosystem.md`, ADR-0004, capability manifests, 36-case MCP suite | Ground harness and contract-verified | Production Connect runtime, real-provider compatibility, and remote network-fault evidence |
 | Clark exposes its own MCP server | Clark Bridge docs, ADR-0004, Bridge exchange schema/fixture, interactive capture/replay | Contract- and prototype-verified at Ground | Production MCP transport, token registry, revocation, hostile live-client, and event-store/projection equivalence tests |
 | Social-media connectivity | `mcp-ecosystem.md`, ADR-0006 | Defined | Recorded/sandbox adapter fixtures, real account capability matrix, platform approval evidence |
-| Installable skills | `memory-and-learning.md`, ADR-0007 | Defined | Package schema, quarantine sandbox choice, malicious-package and regression suite |
+| Installable skills | `memory-and-learning.md`, ADR-0007/0017, package schemas, 19-case Wasmtime suite | Ground contract/prototype-verified | Production component/WIT host, signing, process isolation, advisory automation, fuzzing, and Mac QA |
 | Hermes-like memory/personalization core | `memory-and-learning.md`, prototype Memory view, ADR-0007 | Prototype-verified at interaction level | Real creator retrieval value, leakage/poisoning evaluation, correction/forget proof |
 | Whole product rather than throwaway MVP | `roadmap.md`, ADR-0010 | Defined | Every stratum must prove no alternate state/security path |
 | Incremental architecture from Ground upward | `roadmap.md`, ADR dependency stack | Defined | Versioned contracts and team-owned release plans |
@@ -35,15 +35,15 @@
 | Canvas grammar and interaction | `the-canvas.md`, standalone prototype, screenshots, automated checks | Prototype-verified; human evidence pending | Five observed walkthrough records |
 | Harness architecture | `architecture.md`, ADR-0003 | Defined | Executable run/step state-machine specification |
 | Memory and learning model | `memory-and-learning.md`, ADR-0007 | Defined | Retrieval/proposal evaluation protocol and real creator corpus |
-| MCP and capability boundary | `mcp-ecosystem.md`, ADR-0004 | Defined | Versioned JSON schemas and conformance fixtures |
-| Security model and trust boundaries | `security-and-threat-model.md`, ADR-0001/0005 and ADR-0011–0020 | Specified, not verified | Convert accepted security gates into owned executable tests and release evidence |
-| Architecture decisions | `decisions/` registry and twenty accepted ADRs | Defined | Team review/signoff; superseding ADR for any invariant change |
-| Versioned domain event catalog | 52 types in `contracts/event-catalog.json`, event/payload schemas, representative stream | Defined and contract-verified | Team signoff, upcaster implementations, full production event fixtures |
-| Versioned loop contract | Loop JSON Schema, Full-Week and Reflection definitions | Defined and contract-verified | Generated types and runtime graph/compiler conformance |
-| Capability adapter contract | Capability JSON Schema and eight transport/provider fixtures | Defined and contract-verified | Hostile transport fixtures and real adapter conformance runner |
-| Threat-to-test matrix | Section 11 of threat model | Specified, not verified | Concrete test cases, tools, owners, severity/blocking policy |
+| MCP and capability boundary | `mcp-ecosystem.md`, ADR-0004, `mcp-conformance/` | Ground contract/harness-verified | Production-boundary execution and named owner signoff |
+| Security model and trust boundaries | `security-and-threat-model.md`, ADR-0001/0005 and ADR-0011–0021 | Specified, with skill/MCP Ground suites | Convert every remaining accepted security gate into owned executable production tests and release evidence |
+| Architecture decisions | `decisions/` registry and twenty-one accepted ADRs | Defined | Team review/signoff; superseding ADR for any invariant change |
+| Versioned domain event catalog | 52 types, schemas, generated namespaces, representative stream, historical upcaster | Defined and Ground contract/runtime-verified | Team signoff and full production replay/restore evidence |
+| Versioned loop contract | Loop JSON Schema, generated types, Full-Week and Reflection definitions | Defined and contract-verified | Runtime graph/compiler conformance |
+| Capability adapter contract | Capability schema, generated types, eight provider fixtures, 36 hostile MCP cases | Defined and Ground conformance-verified | Real adapter/provider compatibility matrix |
+| Threat-to-test matrix | Threat model plus owned MCP and skill executable suites | Partially executable, not signed off | Complete ADR-to-test ownership and name primary/backup responders |
 | Representative Full-Week fixture | Exact 50-object/46-edge project, two loops, 11-step run plan, events, eight capabilities, ten failure/abuse cases | Contract-verified | Real creator artifacts and production runtime replay |
-| Platform, domain, credential, execution, recovery, and release ADRs | ADR-0001 through ADR-0020 | Defined | Verification gates remain future production evidence |
+| Platform, domain, credential, execution, recovery, and release ADRs | ADR-0001 through ADR-0021 | Defined | Verification gates remain future production evidence unless explicitly recorded in the ledger |
 | Business/category architecture | `positioning-and-business.md` | Defined as hypotheses | Ten interviews, three real-week design partners, binding willingness-to-pay |
 | Team-owned release plan | `team-delivery-plan.md` defines ten workstreams, dependencies, decision/contract ownership, readiness/done, and evidence ledger | Defined by role | Assign named people, capacity, dates, and Ground evidence signoff |
 | Machine-checked Ground evidence ledger | `evidence/ground-ledger.json`, JSON Schema, semantic negative fixture, verifier, generated status | Defined and verifier-checked open | Resolve blocking proof, keep statuses evidence-bound, and obtain seven-role named signoff |
@@ -87,15 +87,15 @@ The chosen stack is coherent with the product:
 - Postiz-first distribution plus direct strategic adapters and export is more credible than promising every platform directly.
 - Structured, governed memory and quarantined skills protect the actual moat: accumulated creator judgment.
 
-The stack is not yet *proven*. Its highest engineering risks are sandboxing third-party local code, durable external-mutation recovery, schema evolution, remote delegation, and team synchronization. Its highest overall risks remain creator adoption, proposal-review burden, and replacement value.
+The stack is not yet *proven*. Its highest engineering risks are production isolation of third-party code, durable external-mutation recovery, large-history migration/restore, remote delegation, and team synchronization. Its highest overall risks remain creator adoption, proposal-review burden, and replacement value.
 
 ## Next closure sequence
 
 1. Run and record five observed creator walkthroughs; redesign every failed or ambiguous canvas gate.
 2. Recruit three design partners and operate one real multi-channel week with their existing tools and representative content.
 3. Test a binding purchase action and first-week replacement value.
-4. Implement and verify ADR-0011 through ADR-0020; enable private vulnerability reporting and assign executable security/conformance tests.
-5. Review and lock v1 contracts across owning teams; generate implementation types from the schemas without semantic forks.
+4. Implement and verify remaining ADR-0011 through ADR-0021 gates; enable private vulnerability reporting and assign executable security/conformance owners.
+5. Review and lock v1 contracts plus generated namespaces/upcaster rules across owning teams without semantic forks.
 6. Assign named people, capacity, and dates to the defined workstreams; resolve and sign the machine-checked ledger in `evidence/` without reclassifying missing proof as accepted risk by default.
 
 Implementation can begin only after product leadership explicitly accepts any remaining Ground risk; it cannot be inferred from document volume or a functioning prototype.

@@ -1,6 +1,8 @@
 # Clark Pro Versioned Contracts
 
-This directory is the machine-readable Ground layer shared by Studio, Harness, Bridge, Connect, Memory, Relay, fixtures, import/export, and future SDKs. These files define product semantics; generated TypeScript/Zod types may implement them, but generated code does not become a second source of truth.
+This directory is the machine-readable Ground layer shared by Studio, Harness, Bridge, Connect, Memory, Relay, fixtures, import/export, and future SDKs. These files define product semantics; generated TypeScript types may implement them, but generated code does not become a second source of truth.
+
+The pinned [`../contract-runtime/`](../contract-runtime/README.md) generates namespaced TypeScript for every schema, records source/output hashes, fails on drift, and proves immutable sequential event upcasting. Runtime validation continues to use these JSON Schemas.
 
 ## Contract set
 
@@ -69,6 +71,14 @@ npm run verify
 npm audit --audit-level=moderate
 ```
 
+Verify generated implementation types and migrations separately:
+
+```bash
+npm --prefix ../contract-runtime ci
+npm --prefix ../contract-runtime run verify
+npm --prefix ../contract-runtime audit --audit-level=moderate
+```
+
 The verifier performs draft-2020 JSON Schema checks and semantic checks for event catalog membership/payloads, aggregate versions, exact fixture count, object/edge/port resolution, graph and run-plan cycles, nested loops, capability/action/permission alignment, egress references, human gates, publication idempotency/reconciliation, Bridge scope/actor/intent/receipt/replay/state equivalence, budget bounds, threat/event references, the Ground evidence ledger, secret-key prohibition, and expected negative-fixture rejection.
 
 Current checked fixture evidence:
@@ -82,6 +92,8 @@ Current checked fixture evidence:
 - 1 accepted Bridge capture/replay exchange plus 5 hostile semantic mutations rejected;
 - 2 governed skill packages and 1 four-way effective-permission receipt;
 - 36 owned MCP host/Bridge conformance cases, all executable or shared-contract and passing in the Ground harness;
+- 15 schemas deterministically generate 15 namespaced TypeScript modules plus a barrel/manifest with zero drift;
+- 1 historical event migration passes 5 immutable/validated/fail-closed upcaster tests, and a hostile schema mutation fails drift checking;
 - 7 schema-invalid and 5 semantic-invalid documents rejected, including an exact mutation that marks a critical MCP case nonblocking;
 - zero dependency vulnerabilities at the configured audit threshold.
 

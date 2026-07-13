@@ -54,6 +54,7 @@ Read these in order:
 3. **[architecture.md](architecture.md)** — Mac application, harness, data, security, agent, and deployment architecture.
 4. **[decisions/](decisions/README.md)** — accepted ADRs, rejected alternatives, invariants, revisit triggers, and verification gates.
 5. **[contracts/](contracts/README.md)** — versioned JSON Schemas, event catalog, loop/capability/run contracts, exact 50-object fixture, negative cases, and reproducible verifier.
+   - **[contract-runtime/](contract-runtime/README.md)** — offline generated TypeScript, drift enforcement, and immutable event upcasters.
 6. **[security-and-threat-model.md](security-and-threat-model.md)** — assets, trust boundaries, threat register, credential flows, incident behavior, and security evidence requirements.
 7. **[SECURITY.md](../SECURITY.md)** — private reporting path, supported-version policy, response objectives, and safe-testing rules.
 8. **[memory-and-learning.md](memory-and-learning.md)** — creator model, memory types, reflection, skill evolution, and governance.
@@ -75,4 +76,4 @@ Read these in order:
 
 ## Current Status
 
-Ground-stratum product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system, with a clickable Focus/Canvas/Timeline/Review/Library/Memory/Connections prototype, twenty accepted ADRs, and versioned contracts. Bridge state equivalence, governed skill packages, the 19-case Wasmtime Ground spike, and the 36-case hostile MCP host/Bridge Ground suite now pass at their stated proof level. The machine-checked Ground ledger remains open: creator/commercial evidence, native Mac accessibility, generated contract/upcaster governance, named team capacity, broader security-test ownership, and leadership signoff are not yet proven. Implementation should not fan out by treating Ground harnesses or prototype checks as production evidence.
+Ground-stratum product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system, with a clickable Focus/Canvas/Timeline/Review/Library/Memory/Connections prototype, twenty-one accepted ADRs, and versioned contracts. Bridge state equivalence, governed skill packages, the 19-case Wasmtime spike, the 36-case hostile MCP suite, and deterministic generated contracts/upcasting now pass at their stated Ground proof level. The machine-checked Ground ledger remains open: creator/commercial evidence, native Mac accessibility, named contract/team ownership, broader security-test ownership, and leadership signoff are not yet proven. Implementation should not fan out by treating Ground harnesses or prototype checks as production evidence.

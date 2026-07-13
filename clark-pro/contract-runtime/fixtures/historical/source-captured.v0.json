@@ -1,0 +1,19 @@
+{
+  "$schema": "./source-captured.v0.schema.json",
+  "schemaVersion": 0,
+  "eventId": "event.historical-source-captured",
+  "eventType": "source.captured",
+  "entityId": "artifact.historical-voice",
+  "entityVersion": 1,
+  "workspaceId": "workspace.cortex-diary",
+  "projectId": "project.week28",
+  "happenedAt": "2026-06-30T14:02:00Z",
+  "actorId": "creator.shubham",
+  "sensitivity": "personal",
+  "capture": {
+    "versionId": "version.historical-voice.v1",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "kind": "voice",
+    "classification": "accepted"
+  }
+}
