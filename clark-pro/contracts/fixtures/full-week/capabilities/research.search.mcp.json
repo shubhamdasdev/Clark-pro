@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "research.search.mcp",
+  "name": "Research Search and Source Fetch",
+  "version": "1.0.0",
+  "publisher": {
+    "id": "research-provider",
+    "name": "Verified Research Provider",
+    "source": "https://example.invalid/research-mcp",
+    "sourceRevision": "fixture-v1",
+    "sourceHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+  },
+  "kind": "read",
+  "transport": { "type": "mcp", "modes": ["streamable_http"], "serverRef": "mcp.research", "toolName": "search" },
+  "inputSchemaRef": "https://schemas.clark.pro/v1/research-query.schema.json",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/research-result.schema.json",
+  "lifecycle": ["auth", "discover", "validate", "quote", "execute", "health", "revoke"],
+  "permissions": {
+    "actionClass": "research",
+    "systemScopes": ["network.read"],
+    "credentialScopes": ["research.read"],
+    "networkDomains": ["research.example.invalid"],
+    "fileAccess": "none",
+    "requiresUserPresence": false
+  },
+  "egress": {
+    "maximumSensitivity": "workspace",
+    "declaredFields": ["query", "public_source_urls"],
+    "retentionPolicy": "provider_declared",
+    "trainingPolicy": "unknown"
+  },
+  "async": { "mode": "sync", "cancellable": true, "observable": true, "reconnectByExternalId": false },
+  "idempotency": { "strategy": "not_applicable", "reconciliation": "not_required" },
+  "cost": { "quoteSupport": "bounded", "metering": "provider_reported", "currency": "USD" },
+  "reliability": { "timeoutSeconds": 60, "retryPolicy": "safe_transient_only", "maxAttempts": 3, "healthCheck": "non_mutating_active", "schemaDriftBehavior": "block" },
+  "ui": { "renderer": "research.sources", "previewSafe": true, "supportsProgress": true, "supportsDiff": false },
+  "limitations": [
+    { "code": "provider-retention-unknown", "description": "Provider training policy is not independently verifiable in this fixture.", "fallback": "alternate_capability" }
+  ]
+}

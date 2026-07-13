@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "social.publish.postiz",
+  "name": "Postiz Publish and Schedule",
+  "version": "1.0.0",
+  "publisher": {
+    "id": "postiz",
+    "name": "Postiz",
+    "source": "https://docs.postiz.com/",
+    "sourceRevision": "fixture-v1",
+    "sourceHash": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+  },
+  "kind": "publication",
+  "transport": { "type": "mcp", "modes": ["streamable_http"], "serverRef": "mcp.postiz", "toolName": "create_post" },
+  "inputSchemaRef": "https://schemas.clark.pro/v1/publication-request.schema.json",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/publication-receipt.schema.json",
+  "lifecycle": ["auth", "discover", "validate", "quote", "execute", "observe", "cancel", "reconcile", "health", "revoke"],
+  "permissions": {
+    "actionClass": "social_publish",
+    "systemScopes": ["social.publish", "network.write"],
+    "credentialScopes": ["postiz.write"],
+    "networkDomains": ["api.postiz.com"],
+    "fileAccess": "explicit_inputs_readonly",
+    "requiresUserPresence": true
+  },
+  "egress": {
+    "maximumSensitivity": "workspace",
+    "declaredFields": ["approved_artifact", "media_assets", "destination_account", "schedule", "disclosure"],
+    "retentionPolicy": "provider_declared",
+    "trainingPolicy": "provider_declared"
+  },
+  "async": { "mode": "job", "cancellable": true, "observable": true, "reconnectByExternalId": true },
+  "idempotency": { "strategy": "provider_key_and_ledger", "reconciliation": "observe_provider" },
+  "cost": { "quoteSupport": "exact", "metering": "provider_reported", "currency": "USD" },
+  "reliability": { "timeoutSeconds": 300, "retryPolicy": "idempotent_only", "maxAttempts": 2, "healthCheck": "non_mutating_active", "schemaDriftBehavior": "block" },
+  "ui": { "renderer": "publication.receipt", "previewSafe": true, "supportsProgress": true, "supportsDiff": false },
+  "limitations": [
+    { "code": "platform-policy-varies", "description": "Account eligibility and platform-specific review can prevent automatic publication.", "fallback": "export" }
+  ]
+}

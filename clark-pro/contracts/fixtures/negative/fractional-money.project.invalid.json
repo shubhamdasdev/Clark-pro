@@ -1,0 +1,26 @@
+{
+  "$schema": "../../schemas/project-fixture.schema.json",
+  "schemaVersion": 1,
+  "fixtureId": "fixture.invalid-money",
+  "workspace": { "id": "workspace.test", "name": "Test", "localCanonical": true },
+  "project": { "id": "project.test", "name": "Test", "kind": "weekly_operation", "week": "2026-W28" },
+  "expectedObjectCount": 1,
+  "objects": [
+    {
+      "id": "artifact.test",
+      "name": "Test",
+      "lane": "creative",
+      "kind": "artifact",
+      "status": "ready",
+      "sensitivity": "workspace",
+      "sourceRefs": [],
+      "cost": { "currency": "USD", "micros": 4.2 },
+      "approvalState": "not_requested",
+      "publishState": "not_applicable",
+      "outcomeState": "not_applicable",
+      "permissions": ["workspace.read"]
+    }
+  ],
+  "edges": [],
+  "assertions": [{ "id": "invalid", "description": "Must fail fractional money validation.", "expected": false }]
+}

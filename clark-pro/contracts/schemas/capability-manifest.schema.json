@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/capability-manifest.schema.json",
+  "title": "Clark Capability Manifest",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "version",
+    "publisher",
+    "kind",
+    "transport",
+    "inputSchemaRef",
+    "outputSchemaRef",
+    "lifecycle",
+    "permissions",
+    "egress",
+    "async",
+    "idempotency",
+    "cost",
+    "reliability",
+    "ui",
+    "limitations"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "id": { "$ref": "common.schema.json#/$defs/id" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "version": { "$ref": "common.schema.json#/$defs/semver" },
+    "publisher": {
+      "type": "object",
+      "required": ["id", "name", "source", "sourceRevision", "sourceHash"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "source": { "type": "string", "format": "uri-reference", "maxLength": 4096 },
+        "sourceRevision": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "sourceHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "signature": { "type": "string", "minLength": 16, "maxLength": 4096 }
+      },
+      "additionalProperties": false
+    },
+    "kind": { "enum": ["read", "generation", "transformation", "observation", "mutation", "publication", "reconciliation"] },
+    "transport": { "$ref": "#/$defs/transport" },
+    "inputSchemaRef": { "$ref": "common.schema.json#/$defs/schemaRef" },
+    "outputSchemaRef": { "$ref": "common.schema.json#/$defs/schemaRef" },
+    "lifecycle": {
+      "type": "array",
+      "items": { "enum": ["auth", "discover", "validate", "quote", "execute", "observe", "cancel", "reconcile", "health", "revoke"] },
+      "uniqueItems": true,
+      "minItems": 2
+    },
+    "permissions": { "$ref": "#/$defs/permissions" },
+    "egress": { "$ref": "#/$defs/egress" },
+    "async": { "$ref": "#/$defs/async" },
+    "idempotency": { "$ref": "#/$defs/idempotency" },
+    "cost": { "$ref": "#/$defs/cost" },
+    "reliability": { "$ref": "#/$defs/reliability" },
+    "ui": {
+      "type": "object",
+      "required": ["renderer", "previewSafe"],
+      "properties": {
+        "renderer": { "$ref": "common.schema.json#/$defs/id" },
+        "previewSafe": { "type": "boolean" },
+        "supportsProgress": { "type": "boolean" },
+        "supportsDiff": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "description", "fallback"],
+        "properties": {
+          "code": { "$ref": "common.schema.json#/$defs/id" },
+          "description": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "fallback": { "enum": ["none", "alternate_capability", "assisted", "export", "manual"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "extensions": { "$ref": "common.schema.json#/$defs/extensions" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "transport": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "modes", "serverRef"],
+          "properties": {
+            "type": { "const": "mcp" },
+            "modes": { "type": "array", "items": { "enum": ["stdio", "streamable_http"] }, "uniqueItems": true, "minItems": 1 },
+            "serverRef": { "$ref": "common.schema.json#/$defs/id" },
+            "toolName": { "type": "string", "minLength": 1, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "baseOrigin", "authScheme"],
+          "properties": {
+            "type": { "const": "http_api" },
+            "baseOrigin": { "type": "string", "format": "uri" },
+            "authScheme": { "enum": ["none", "oauth_pkce", "api_key_broker", "delegated_token"] }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "executableRef", "argvTemplate", "cwdPolicy"],
+          "properties": {
+            "type": { "const": "local_process" },
+            "executableRef": { "$ref": "common.schema.json#/$defs/id" },
+            "argvTemplate": { "type": "array", "items": { "type": "string", "maxLength": 500 } },
+            "cwdPolicy": { "enum": ["isolated_temp", "project_assets_readonly", "explicit_project_write"] }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "moduleRef"],
+          "properties": {
+            "type": { "const": "library" },
+            "moduleRef": { "$ref": "common.schema.json#/$defs/id" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "allowedOrigins", "profilePolicy"],
+          "properties": {
+            "type": { "const": "browser" },
+            "allowedOrigins": { "type": "array", "items": { "type": "string", "format": "uri" }, "minItems": 1, "uniqueItems": true },
+            "profilePolicy": { "enum": ["isolated", "user_confirmed_session"] }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "permissions": {
+      "type": "object",
+      "required": ["actionClass", "systemScopes", "credentialScopes", "networkDomains", "fileAccess", "requiresUserPresence"],
+      "properties": {
+        "actionClass": { "$ref": "common.schema.json#/$defs/actionClass" },
+        "systemScopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "credentialScopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "networkDomains": { "type": "array", "items": { "type": "string", "format": "hostname" }, "uniqueItems": true },
+        "fileAccess": { "enum": ["none", "explicit_inputs_readonly", "isolated_temp", "project_assets_write"] },
+        "requiresUserPresence": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "egress": {
+      "type": "object",
+      "required": ["maximumSensitivity", "declaredFields", "retentionPolicy", "trainingPolicy"],
+      "properties": {
+        "maximumSensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+        "declaredFields": { "type": "array", "items": { "type": "string", "maxLength": 256 }, "uniqueItems": true },
+        "retentionPolicy": { "enum": ["none", "transient", "provider_declared", "unknown"] },
+        "trainingPolicy": { "enum": ["not_used", "opt_out_configured", "provider_declared", "unknown"] },
+        "region": { "type": "string", "maxLength": 100 }
+      },
+      "additionalProperties": false
+    },
+    "async": {
+      "type": "object",
+      "required": ["mode", "cancellable", "observable", "reconnectByExternalId"],
+      "properties": {
+        "mode": { "enum": ["sync", "stream", "job", "task"] },
+        "cancellable": { "type": "boolean" },
+        "observable": { "type": "boolean" },
+        "reconnectByExternalId": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "idempotency": {
+      "type": "object",
+      "required": ["strategy", "reconciliation"],
+      "properties": {
+        "strategy": { "enum": ["not_applicable", "provider_key", "clark_intent_ledger", "provider_key_and_ledger"] },
+        "reconciliation": { "enum": ["not_required", "observe_provider", "manual_check", "export_only"] }
+      },
+      "additionalProperties": false
+    },
+    "cost": {
+      "type": "object",
+      "required": ["quoteSupport", "metering"],
+      "properties": {
+        "quoteSupport": { "enum": ["exact", "bounded", "estimate", "none"] },
+        "metering": { "enum": ["none", "tokens", "duration", "job", "provider_reported", "mixed"] },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }
+      },
+      "additionalProperties": false
+    },
+    "reliability": {
+      "type": "object",
+      "required": ["timeoutSeconds", "retryPolicy", "maxAttempts", "healthCheck", "schemaDriftBehavior"],
+      "properties": {
+        "timeoutSeconds": { "type": "integer", "minimum": 1 },
+        "retryPolicy": { "enum": ["never", "safe_transient_only", "idempotent_only"] },
+        "maxAttempts": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "healthCheck": { "enum": ["none", "passive", "non_mutating_active"] },
+        "schemaDriftBehavior": { "enum": ["block", "degrade_readonly", "require_review"] }
+      },
+      "additionalProperties": false
+    }
+  }
+}

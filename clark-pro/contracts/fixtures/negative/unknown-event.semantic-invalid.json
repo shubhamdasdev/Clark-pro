@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/domain-event.schema.json",
+  "schemaVersion": 1,
+  "eventId": "event.unknown",
+  "eventType": "unsafe.secret_leaked",
+  "aggregate": { "type": "workspace", "id": "workspace.test", "version": 1 },
+  "workspaceId": "workspace.test",
+  "occurredAt": "2026-07-12T12:00:00Z",
+  "recordedAt": "2026-07-12T12:00:00Z",
+  "actor": { "type": "system", "id": "system.test" },
+  "payload": {},
+  "sensitivity": "secret_reference"
+}

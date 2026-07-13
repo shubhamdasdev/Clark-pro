@@ -1,0 +1,250 @@
+{
+  "$schema": "../../schemas/loop-definition.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.loop.full-week",
+  "name": "Full-Week Creator Operation",
+  "description": "Turns one creator intent into an evidence-backed, reviewed, distributed, observed, and reflectable multi-channel body of work.",
+  "revision": "1.0.0",
+  "entryContract": {
+    "inlineSchema": {
+      "type": "object",
+      "required": ["capture", "channels", "week", "budget"],
+      "properties": {
+        "capture": { "type": "object" },
+        "channels": { "type": "array", "items": { "enum": ["linkedin", "instagram", "tiktok", "youtube", "newsletter"] }, "minItems": 1, "uniqueItems": true },
+        "week": { "type": "string", "pattern": "^[0-9]{4}-W[0-9]{2}$" },
+        "budget": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "description": "One explicit creator capture, selected channels, operating week, and reviewed budget."
+  },
+  "successContract": {
+    "inlineSchema": {
+      "type": "object",
+      "required": ["approvedArtifacts", "publicationStates", "observationPlan", "reflectionState"],
+      "properties": {
+        "approvedArtifacts": { "type": "array", "minItems": 1 },
+        "publicationStates": { "type": "array", "minItems": 1 },
+        "observationPlan": { "type": "object" },
+        "reflectionState": { "enum": ["scheduled", "completed", "no_change", "proposals_pending"] }
+      },
+      "additionalProperties": false
+    },
+    "description": "Every selected channel ends in an explicit live, failed, cancelled, or export state and learning remains proposal-only."
+  },
+  "parameters": [
+    { "id": "channels", "schema": { "type": "array", "items": { "type": "string" } }, "required": true, "sensitivity": "workspace" },
+    { "id": "publish-window", "schema": { "type": "string" }, "required": true, "sensitivity": "workspace" },
+    { "id": "remote-media", "schema": { "type": "boolean" }, "required": false, "default": true, "sensitivity": "workspace" }
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "id": "capture",
+        "name": "Capture original intent",
+        "kind": "operator",
+        "inputs": [{ "id": "request", "schemaRef": "https://schemas.clark.pro/v1/capture-input.schema.json", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
+        "outputs": [{ "id": "idea", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/idea", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
+        "capabilityRevision": { "id": "clark.capture.local", "revision": "1.0.0" },
+        "actionClass": "capture",
+        "approval": { "mode": "none" },
+        "timeoutSeconds": 30,
+        "remoteEligible": false
+      },
+      {
+        "id": "research",
+        "name": "Build evidence and claim ledger",
+        "kind": "operator",
+        "inputs": [{ "id": "idea", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/idea", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" }],
+        "outputs": [{ "id": "evidence", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/claimLedger", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" }],
+        "capabilityRevision": { "id": "research.search.mcp", "revision": "1.0.0" },
+        "actionClass": "research",
+        "approval": { "mode": "policy", "actionClass": "research", "reason": "Remote query and public source URLs only." },
+        "timeoutSeconds": 600,
+        "remoteEligible": true
+      },
+      {
+        "id": "angle-generate",
+        "name": "Generate evidence-bounded angles",
+        "kind": "operator",
+        "inputs": [
+          { "id": "idea", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/idea", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" },
+          { "id": "evidence", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/claimLedger", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" }
+        ],
+        "outputs": [{ "id": "angles", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/angleSet", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" }],
+        "capabilityRevision": { "id": "model.structured.generate", "revision": "1.0.0" },
+        "actionClass": "model_generate",
+        "approval": { "mode": "policy", "actionClass": "model_generate", "reason": "Within reviewed quote and egress plan." },
+        "timeoutSeconds": 300,
+        "remoteEligible": true
+      },
+      {
+        "id": "angle-decision",
+        "name": "Choose canonical angle",
+        "kind": "decision",
+        "inputs": [
+          { "id": "angles", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/angleSet", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" },
+          { "id": "evidence", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/claimLedger", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" }
+        ],
+        "outputs": [{ "id": "selected-angle", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/angle", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" }],
+        "decisionType": "angle_select",
+        "approval": { "mode": "always", "actionClass": "decision_record", "reason": "Creator judgment controls downstream creative spend." },
+        "remoteEligible": false
+      },
+      {
+        "id": "script-generate",
+        "name": "Generate platform scripts and long form",
+        "kind": "operator",
+        "inputs": [
+          { "id": "selected-angle", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/angle", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" },
+          { "id": "evidence", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/claimLedger", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" }
+        ],
+        "outputs": [{ "id": "scripts", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/script", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" }],
+        "capabilityRevision": { "id": "model.structured.generate", "revision": "1.0.0" },
+        "actionClass": "model_generate",
+        "approval": { "mode": "policy", "actionClass": "model_generate", "reason": "Within approved angle branch and quote." },
+        "timeoutSeconds": 600,
+        "remoteEligible": true
+      },
+      {
+        "id": "video-generate",
+        "name": "Generate reel candidates",
+        "kind": "operator",
+        "inputs": [{ "id": "scripts", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/script", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" }],
+        "outputs": [{ "id": "videos", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/video", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" }],
+        "capabilityRevision": { "id": "higgsfield.video.generate", "revision": "1.0.0" },
+        "actionClass": "media_generate",
+        "approval": { "mode": "policy", "actionClass": "media_generate", "reason": "Paid async generation remains below reserved budget." },
+        "timeoutSeconds": 3600,
+        "remoteEligible": true
+      },
+      {
+        "id": "media-normalize",
+        "name": "Validate and normalize media",
+        "kind": "operator",
+        "inputs": [{ "id": "videos", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/video", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" }],
+        "outputs": [{ "id": "platform-media", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/video", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" }],
+        "capabilityRevision": { "id": "media.ffmpeg.transform", "revision": "1.0.0" },
+        "actionClass": "local_transform",
+        "approval": { "mode": "none" },
+        "timeoutSeconds": 1800,
+        "remoteEligible": false
+      },
+      {
+        "id": "production-review",
+        "name": "Review exact artifact versions",
+        "kind": "gate",
+        "inputs": [
+          { "id": "scripts", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/script", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" },
+          { "id": "platform-media", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/video", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" }
+        ],
+        "outputs": [{ "id": "approved-package", "schemaRef": "https://schemas.clark.pro/v1/review-package.schema.json", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" }],
+        "gateType": "human",
+        "approval": { "mode": "always", "actionClass": "artifact_approve", "reason": "Approval pins content versions but does not authorize publication." },
+        "remoteEligible": false
+      },
+      {
+        "id": "publish",
+        "name": "Publish approved package",
+        "kind": "operator",
+        "inputs": [{ "id": "approved-package", "schemaRef": "https://schemas.clark.pro/v1/review-package.schema.json", "cardinality": "one", "required": true, "sensitivityCeiling": "workspace" }],
+        "outputs": [{ "id": "publication-receipts", "schemaRef": "https://schemas.clark.pro/v1/publication-receipt.schema.json", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" }],
+        "capabilityRevision": { "id": "social.publish.postiz", "revision": "1.0.0" },
+        "actionClass": "social_publish",
+        "approval": { "mode": "always", "actionClass": "social_publish", "expiresAfterSeconds": 86400, "reason": "Publication is account-, destination-, and version-specific." },
+        "timeoutSeconds": 300,
+        "remoteEligible": true
+      },
+      {
+        "id": "observe",
+        "name": "Observe platform outcomes",
+        "kind": "operator",
+        "inputs": [{ "id": "publication-receipts", "schemaRef": "https://schemas.clark.pro/v1/publication-receipt.schema.json", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" }],
+        "outputs": [{ "id": "observations", "schemaRef": "https://schemas.clark.pro/v1/observation-result.schema.json", "cardinality": "many", "required": true, "sensitivityCeiling": "workspace" }],
+        "capabilityRevision": { "id": "social.observe.postiz", "revision": "1.0.0" },
+        "actionClass": "read",
+        "approval": { "mode": "policy", "actionClass": "read", "reason": "Read-only account analytics within granted scope." },
+        "timeoutSeconds": 120,
+        "remoteEligible": true
+      },
+      {
+        "id": "reflect",
+        "name": "Reflect and propose governed learning",
+        "kind": "loop",
+        "inputs": [{ "id": "observations", "schemaRef": "https://schemas.clark.pro/v1/observation-result.schema.json", "cardinality": "many", "required": true, "sensitivityCeiling": "personal" }],
+        "outputs": [{ "id": "proposals", "schemaRef": "https://schemas.clark.pro/v1/learning-proposal.schema.json", "cardinality": "many", "required": false, "sensitivityCeiling": "personal" }],
+        "nestedLoopRevision": { "id": "clark.loop.reflection", "revision": "1.0.0" },
+        "remoteEligible": false
+      }
+    ],
+    "edges": [
+      { "id": "edge-capture-research", "type": "data", "from": { "nodeId": "capture", "portId": "idea" }, "to": { "nodeId": "research", "portId": "idea" } },
+      { "id": "edge-capture-angle", "type": "data", "from": { "nodeId": "capture", "portId": "idea" }, "to": { "nodeId": "angle-generate", "portId": "idea" } },
+      { "id": "edge-research-angle", "type": "evidence", "from": { "nodeId": "research", "portId": "evidence" }, "to": { "nodeId": "angle-generate", "portId": "evidence" } },
+      { "id": "edge-angle-options", "type": "data", "from": { "nodeId": "angle-generate", "portId": "angles" }, "to": { "nodeId": "angle-decision", "portId": "angles" } },
+      { "id": "edge-evidence-decision", "type": "evidence", "from": { "nodeId": "research", "portId": "evidence" }, "to": { "nodeId": "angle-decision", "portId": "evidence" } },
+      { "id": "edge-decision-script", "type": "control", "from": { "nodeId": "angle-decision", "portId": "selected-angle" }, "to": { "nodeId": "script-generate", "portId": "selected-angle" } },
+      { "id": "edge-evidence-script", "type": "evidence", "from": { "nodeId": "research", "portId": "evidence" }, "to": { "nodeId": "script-generate", "portId": "evidence" } },
+      { "id": "edge-script-video", "type": "data", "from": { "nodeId": "script-generate", "portId": "scripts" }, "to": { "nodeId": "video-generate", "portId": "scripts" } },
+      { "id": "edge-video-normalize", "type": "data", "from": { "nodeId": "video-generate", "portId": "videos" }, "to": { "nodeId": "media-normalize", "portId": "videos" } },
+      { "id": "edge-script-review", "type": "data", "from": { "nodeId": "script-generate", "portId": "scripts" }, "to": { "nodeId": "production-review", "portId": "scripts" } },
+      { "id": "edge-media-review", "type": "data", "from": { "nodeId": "media-normalize", "portId": "platform-media" }, "to": { "nodeId": "production-review", "portId": "platform-media" } },
+      { "id": "edge-review-publish", "type": "control", "from": { "nodeId": "production-review", "portId": "approved-package" }, "to": { "nodeId": "publish", "portId": "approved-package" } },
+      { "id": "edge-publish-observe", "type": "data", "from": { "nodeId": "publish", "portId": "publication-receipts" }, "to": { "nodeId": "observe", "portId": "publication-receipts" } },
+      { "id": "edge-observe-reflect", "type": "learning", "from": { "nodeId": "observe", "portId": "observations" }, "to": { "nodeId": "reflect", "portId": "observations" } }
+    ]
+  },
+  "permissions": {
+    "actionClasses": ["capture", "decision_record", "artifact_approve", "research", "local_transform", "model_generate", "media_generate", "social_publish", "read", "memory_mutate", "skill_mutate"],
+    "capabilityAllowlist": ["clark.capture.local", "clark.reflect.local", "research.search.mcp", "model.structured.generate", "higgsfield.video.generate", "media.ffmpeg.transform", "social.publish.postiz", "social.observe.postiz"],
+    "networkDomains": ["research.example.invalid", "api.model.example.invalid", "higgsfield.ai", "api.postiz.com"],
+    "credentialScopes": ["research.read", "model.generate", "higgsfield.generate", "postiz.write", "postiz.read"],
+    "maximumSensitivity": "personal",
+    "remoteExecution": "explicit_only"
+  },
+  "budget": {
+    "costCeiling": { "currency": "USD", "micros": 50000000 },
+    "tokenCeiling": 100000,
+    "durationSeconds": 604800,
+    "maxConcurrency": 4,
+    "overageBehavior": "ask"
+  },
+  "checkpoints": [
+    { "id": "checkpoint-research", "afterNodeId": "research", "mode": "automatic", "persist": ["inputs", "outputs", "budget", "context_refs"], "summary": "Evidence and claim ledger are durable before angle generation." },
+    { "id": "checkpoint-angle", "afterNodeId": "angle-decision", "mode": "human", "persist": ["inputs", "outputs", "budget", "approvals", "context_refs"], "summary": "Creator chooses the branch before paid production." },
+    { "id": "checkpoint-review", "afterNodeId": "production-review", "mode": "human", "persist": ["inputs", "outputs", "external_job_ids", "budget", "approvals"], "summary": "Artifact versions are approved without publication authority." },
+    { "id": "checkpoint-publish", "afterNodeId": "publish", "mode": "human", "persist": ["inputs", "outputs", "external_job_ids", "budget", "approvals"], "summary": "Every publication has an intent and provider receipt or reconciliation state." }
+  ],
+  "recovery": {
+    "retry": { "maxAttempts": 3, "backoff": "exponential", "retryableErrors": ["rate_limit", "transient_network", "provider_5xx", "timeout_before_mutation"] },
+    "onAmbiguousExternalState": "reconcile",
+    "onRestart": "resume_safe",
+    "onCancellation": "continue_unaffected",
+    "compensationNodeIds": []
+  },
+  "evaluation": {
+    "criteria": [
+      { "id": "evidence-coverage", "name": "Evidence coverage", "weight": 0.3, "required": true, "evaluator": "deterministic" },
+      { "id": "brand-policy", "name": "Brand and confidentiality policy", "weight": 0.25, "required": true, "evaluator": "policy" },
+      { "id": "platform-validity", "name": "Platform and media validity", "weight": 0.2, "required": true, "evaluator": "schema" },
+      { "id": "creator-judgment", "name": "Creator publishability judgment", "weight": 0.25, "required": true, "evaluator": "creator" }
+    ],
+    "minimumPass": 0.8,
+    "onFailure": "review"
+  },
+  "reflection": {
+    "mode": "propose",
+    "minimumEvidenceCount": 3,
+    "maximumMemoryProposals": 3,
+    "maximumSkillProposals": 1,
+    "memoryPromotion": "human_or_policy_event",
+    "skillPromotion": "quarantine_tests_and_human_event"
+  },
+  "schedulePolicy": {
+    "allowed": true,
+    "timezoneSource": "workspace",
+    "missedRunBehavior": "ask",
+    "remoteEligible": true
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "model.structured.generate",
+  "name": "Provider-Neutral Structured Generation",
+  "version": "1.0.0",
+  "publisher": {
+    "id": "clark",
+    "name": "Clark Pro",
+    "source": "https://github.com/shubhamdasdev/Clark-pro",
+    "sourceRevision": "fixture-v1",
+    "sourceHash": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "kind": "generation",
+  "transport": { "type": "library", "moduleRef": "clark.model.gateway" },
+  "inputSchemaRef": "https://schemas.clark.pro/v1/model-task.schema.json",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/model-result.schema.json",
+  "lifecycle": ["auth", "validate", "quote", "execute", "health", "revoke"],
+  "permissions": {
+    "actionClass": "model_generate",
+    "systemScopes": ["model.generate"],
+    "credentialScopes": ["model.generate"],
+    "networkDomains": ["api.model.example.invalid"],
+    "fileAccess": "none",
+    "requiresUserPresence": false
+  },
+  "egress": {
+    "maximumSensitivity": "personal",
+    "declaredFields": ["task_instructions", "artifact_excerpts", "evidence_refs", "approved_memory_excerpts"],
+    "retentionPolicy": "transient",
+    "trainingPolicy": "not_used"
+  },
+  "async": { "mode": "stream", "cancellable": true, "observable": true, "reconnectByExternalId": false },
+  "idempotency": { "strategy": "not_applicable", "reconciliation": "not_required" },
+  "cost": { "quoteSupport": "bounded", "metering": "tokens", "currency": "USD" },
+  "reliability": { "timeoutSeconds": 180, "retryPolicy": "safe_transient_only", "maxAttempts": 2, "healthCheck": "non_mutating_active", "schemaDriftBehavior": "block" },
+  "ui": { "renderer": "model.trajectory", "previewSafe": true, "supportsProgress": true, "supportsDiff": true },
+  "limitations": [
+    { "code": "nondeterministic-output", "description": "Equivalent inputs may produce different valid outputs; receipts and evaluation are required.", "fallback": "manual" }
+  ]
+}

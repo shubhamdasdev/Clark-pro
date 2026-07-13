@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/project-fixture.schema.json",
+  "title": "Clark Project Fixture",
+  "type": "object",
+  "required": ["schemaVersion", "fixtureId", "workspace", "project", "expectedObjectCount", "objects", "edges", "assertions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "fixtureId": { "$ref": "common.schema.json#/$defs/id" },
+    "workspace": {
+      "type": "object",
+      "required": ["id", "name", "localCanonical"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "localCanonical": { "const": true }
+      },
+      "additionalProperties": false
+    },
+    "project": {
+      "type": "object",
+      "required": ["id", "name", "kind", "week"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "kind": { "const": "weekly_operation" },
+        "week": { "type": "string", "pattern": "^[0-9]{4}-W[0-9]{2}$" }
+      },
+      "additionalProperties": false
+    },
+    "expectedObjectCount": { "type": "integer", "minimum": 1 },
+    "objects": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/object" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/edge" }
+    },
+    "assertions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "expected"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/id" },
+          "description": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "expected": {}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "object": {
+      "type": "object",
+      "required": ["id", "name", "lane", "kind", "status", "sensitivity", "sourceRefs", "approvalState", "publishState", "outcomeState", "permissions"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "lane": { "enum": ["intent", "evidence", "creative", "production", "distribution", "outcomes"] },
+        "kind": { "enum": ["source", "artifact", "memory", "policy", "gate", "operator", "decision", "loop", "skill"] },
+        "status": { "enum": ["done", "ready", "review", "running", "blocked", "learning", "stale", "failed"] },
+        "version": { "type": "string", "maxLength": 100 },
+        "detail": { "type": "string", "maxLength": 1000 },
+        "sensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+        "sourceRefs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true },
+        "cost": { "$ref": "common.schema.json#/$defs/money" },
+        "approvalState": { "enum": ["not_applicable", "not_requested", "waiting", "granted", "invalidated", "blocked"] },
+        "publishState": { "enum": ["not_applicable", "not_authorized", "planned", "scheduled", "submitted", "verified_live", "reconciling", "failed", "export_ready"] },
+        "outcomeState": { "enum": ["not_applicable", "pending", "observing", "partial", "complete", "disputed"] },
+        "permissions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "canonical": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "type", "from", "to"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "type": { "enum": ["data", "control", "evidence", "learning", "policy"] },
+        "from": { "$ref": "common.schema.json#/$defs/id" },
+        "to": { "$ref": "common.schema.json#/$defs/id" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "incomplete.capability",
+  "name": "Incomplete",
+  "version": "1.0.0"
+}

@@ -1,0 +1,83 @@
+{
+  "$schema": "../../schemas/loop-definition.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.loop.reflection",
+  "name": "Evidence-Bound Reflection",
+  "description": "Separates observation from creator judgment and returns no change or reviewable memory and skill proposals.",
+  "revision": "1.0.0",
+  "entryContract": { "schemaRef": "https://schemas.clark.pro/v1/observation-result.schema.json", "description": "Observed outcomes with publication and decision lineage." },
+  "successContract": { "schemaRef": "https://schemas.clark.pro/v1/learning-proposal.schema.json", "description": "No change or bounded proposal-only learning artifacts." },
+  "graph": {
+    "nodes": [
+      {
+        "id": "evaluate-evidence",
+        "name": "Evaluate outcome evidence",
+        "kind": "operator",
+        "inputs": [{ "id": "observations", "schemaRef": "https://schemas.clark.pro/v1/observation-result.schema.json", "cardinality": "many", "required": true, "sensitivityCeiling": "personal" }],
+        "outputs": [{ "id": "proposals", "schemaRef": "https://schemas.clark.pro/v1/learning-proposal.schema.json", "cardinality": "many", "required": false, "sensitivityCeiling": "personal" }],
+        "capabilityRevision": { "id": "clark.reflect.local", "revision": "1.0.0" },
+        "actionClass": "memory_mutate",
+        "approval": { "mode": "policy", "actionClass": "memory_mutate", "reason": "The capability may create proposal artifacts but cannot promote them." },
+        "timeoutSeconds": 600,
+        "remoteEligible": false,
+        "configuration": { "proposalOnly": true, "separatePreferenceFromPerformance": true, "minimumEvidenceCount": 3 }
+      },
+      {
+        "id": "proposal-quality",
+        "name": "Check proposal evidence and scope",
+        "kind": "gate",
+        "inputs": [{ "id": "proposals", "schemaRef": "https://schemas.clark.pro/v1/learning-proposal.schema.json", "cardinality": "many", "required": false, "sensitivityCeiling": "personal" }],
+        "outputs": [{ "id": "reviewable-proposals", "schemaRef": "https://schemas.clark.pro/v1/learning-proposal.schema.json", "cardinality": "many", "required": false, "sensitivityCeiling": "personal" }],
+        "gateType": "evidence",
+        "approval": { "mode": "none" },
+        "remoteEligible": false
+      }
+    ],
+    "edges": [
+      { "id": "edge-evaluate-quality", "type": "learning", "from": { "nodeId": "evaluate-evidence", "portId": "proposals" }, "to": { "nodeId": "proposal-quality", "portId": "proposals" } }
+    ]
+  },
+  "permissions": {
+    "actionClasses": ["memory_mutate", "skill_mutate"],
+    "capabilityAllowlist": ["clark.reflect.local"],
+    "networkDomains": [],
+    "credentialScopes": [],
+    "maximumSensitivity": "personal",
+    "remoteExecution": "forbidden"
+  },
+  "budget": {
+    "costCeiling": { "currency": "USD", "micros": 1000000 },
+    "tokenCeiling": 12000,
+    "durationSeconds": 600,
+    "maxConcurrency": 1,
+    "overageBehavior": "stop"
+  },
+  "checkpoints": [
+    { "id": "checkpoint-proposals", "afterNodeId": "proposal-quality", "mode": "automatic", "persist": ["inputs", "outputs", "budget", "context_refs"], "summary": "Proposals remain inactive and traceable to exact evidence." }
+  ],
+  "recovery": {
+    "retry": { "maxAttempts": 2, "backoff": "exponential", "retryableErrors": ["rate_limit", "transient_network", "provider_5xx", "timeout_before_mutation"] },
+    "onAmbiguousExternalState": "reconcile",
+    "onRestart": "resume_safe",
+    "onCancellation": "stop_dependents",
+    "compensationNodeIds": []
+  },
+  "evaluation": {
+    "criteria": [
+      { "id": "minimum-evidence", "name": "Minimum attributable evidence", "weight": 0.4, "required": true, "evaluator": "deterministic" },
+      { "id": "contradiction-visible", "name": "Contradiction and uncertainty are visible", "weight": 0.3, "required": true, "evaluator": "schema" },
+      { "id": "scope-sensitivity", "name": "Scope and sensitivity comply with policy", "weight": 0.3, "required": true, "evaluator": "policy" }
+    ],
+    "minimumPass": 1,
+    "onFailure": "block"
+  },
+  "reflection": {
+    "mode": "disabled",
+    "minimumEvidenceCount": 3,
+    "maximumMemoryProposals": 0,
+    "maximumSkillProposals": 0,
+    "memoryPromotion": "human_or_policy_event",
+    "skillPromotion": "quarantine_tests_and_human_event"
+  },
+  "schedulePolicy": { "allowed": true, "timezoneSource": "workspace", "missedRunBehavior": "ask", "remoteEligible": false }
+}

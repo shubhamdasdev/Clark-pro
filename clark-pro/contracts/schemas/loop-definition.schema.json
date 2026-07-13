@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/loop-definition.schema.json",
+  "title": "Clark Loop Definition",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "revision",
+    "entryContract",
+    "successContract",
+    "graph",
+    "permissions",
+    "budget",
+    "checkpoints",
+    "recovery",
+    "evaluation",
+    "reflection"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "id": { "$ref": "common.schema.json#/$defs/id" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "description": { "type": "string", "maxLength": 3000 },
+    "revision": { "$ref": "common.schema.json#/$defs/semver" },
+    "entryContract": { "$ref": "#/$defs/contract" },
+    "successContract": { "$ref": "#/$defs/contract" },
+    "parameters": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/parameter" },
+      "uniqueItems": true
+    },
+    "graph": {
+      "type": "object",
+      "required": ["nodes", "edges"],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/node" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/edge" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "permissions": { "$ref": "#/$defs/permissions" },
+    "budget": { "$ref": "#/$defs/budget" },
+    "checkpoints": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/checkpoint" }
+    },
+    "recovery": { "$ref": "#/$defs/recovery" },
+    "evaluation": { "$ref": "#/$defs/evaluation" },
+    "reflection": { "$ref": "#/$defs/reflection" },
+    "schedulePolicy": {
+      "type": "object",
+      "required": ["allowed", "missedRunBehavior"],
+      "properties": {
+        "allowed": { "type": "boolean" },
+        "timezoneSource": { "enum": ["workspace", "account", "explicit"] },
+        "missedRunBehavior": { "enum": ["skip", "ask", "run_when_available"] },
+        "remoteEligible": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "extensions": { "$ref": "common.schema.json#/$defs/extensions" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "contract": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["schemaRef"],
+          "properties": {
+            "schemaRef": { "$ref": "common.schema.json#/$defs/schemaRef" },
+            "description": { "type": "string", "maxLength": 1000 }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["inlineSchema"],
+          "properties": {
+            "inlineSchema": { "type": "object" },
+            "description": { "type": "string", "maxLength": 1000 }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "parameter": {
+      "type": "object",
+      "required": ["id", "schema", "required"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "schema": { "type": "object" },
+        "required": { "type": "boolean" },
+        "default": true,
+        "sensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" }
+      },
+      "additionalProperties": false
+    },
+    "port": {
+      "type": "object",
+      "required": ["id", "schemaRef", "cardinality", "required"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "schemaRef": { "$ref": "common.schema.json#/$defs/schemaRef" },
+        "cardinality": { "enum": ["one", "many"] },
+        "required": { "type": "boolean" },
+        "sensitivityCeiling": { "$ref": "common.schema.json#/$defs/sensitivity" }
+      },
+      "additionalProperties": false
+    },
+    "node": {
+      "type": "object",
+      "required": ["id", "name", "kind", "inputs", "outputs"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "kind": { "enum": ["operator", "decision", "gate", "loop"] },
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/port" } },
+        "outputs": { "type": "array", "items": { "$ref": "#/$defs/port" } },
+        "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "nestedLoopRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "skill_promote", "conflict_resolve"] },
+        "gateType": { "enum": ["human", "evidence", "brand", "platform", "budget", "disclosure", "legal", "confidentiality", "quality", "accessibility"] },
+        "actionClass": { "$ref": "common.schema.json#/$defs/actionClass" },
+        "approval": { "$ref": "common.schema.json#/$defs/approvalRequirement" },
+        "timeoutSeconds": { "type": "integer", "minimum": 1 },
+        "remoteEligible": { "type": "boolean" },
+        "configuration": { "type": "object" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "operator" } } },
+          "then": { "required": ["capabilityRevision", "actionClass", "approval"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "loop" } } },
+          "then": { "required": ["nestedLoopRevision"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "decision" } } },
+          "then": { "required": ["decisionType", "approval"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "gate" } } },
+          "then": { "required": ["gateType", "approval"] }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "endpoint": {
+      "type": "object",
+      "required": ["nodeId", "portId"],
+      "properties": {
+        "nodeId": { "$ref": "common.schema.json#/$defs/id" },
+        "portId": { "$ref": "common.schema.json#/$defs/id" }
+      },
+      "additionalProperties": false
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "type", "from", "to"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "type": { "enum": ["data", "control", "evidence", "learning", "policy"] },
+        "from": { "$ref": "#/$defs/endpoint" },
+        "to": { "$ref": "#/$defs/endpoint" },
+        "condition": { "type": "string", "maxLength": 1000 },
+        "adapterCapabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" }
+      },
+      "additionalProperties": false
+    },
+    "permissions": {
+      "type": "object",
+      "required": ["actionClasses", "capabilityAllowlist", "networkDomains", "credentialScopes", "maximumSensitivity", "remoteExecution"],
+      "properties": {
+        "actionClasses": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/actionClass" }, "uniqueItems": true },
+        "capabilityAllowlist": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true },
+        "networkDomains": { "type": "array", "items": { "type": "string", "format": "hostname" }, "uniqueItems": true },
+        "credentialScopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "maximumSensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+        "remoteExecution": { "enum": ["forbidden", "explicit_only", "allowed"] }
+      },
+      "additionalProperties": false
+    },
+    "budget": {
+      "type": "object",
+      "required": ["costCeiling", "tokenCeiling", "durationSeconds", "maxConcurrency", "overageBehavior"],
+      "properties": {
+        "costCeiling": { "$ref": "common.schema.json#/$defs/money" },
+        "tokenCeiling": { "type": "integer", "minimum": 0 },
+        "durationSeconds": { "type": "integer", "minimum": 1 },
+        "maxConcurrency": { "type": "integer", "minimum": 1, "maximum": 64 },
+        "overageBehavior": { "enum": ["stop", "ask", "degrade"] }
+      },
+      "additionalProperties": false
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": ["id", "afterNodeId", "mode", "persist"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "afterNodeId": { "$ref": "common.schema.json#/$defs/id" },
+        "mode": { "enum": ["automatic", "human"] },
+        "persist": { "type": "array", "items": { "enum": ["inputs", "outputs", "external_job_ids", "budget", "approvals", "context_refs"] }, "uniqueItems": true },
+        "summary": { "type": "string", "maxLength": 500 }
+      },
+      "additionalProperties": false
+    },
+    "recovery": {
+      "type": "object",
+      "required": ["retry", "onAmbiguousExternalState", "onRestart", "onCancellation"],
+      "properties": {
+        "retry": {
+          "type": "object",
+          "required": ["maxAttempts", "backoff", "retryableErrors"],
+          "properties": {
+            "maxAttempts": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "backoff": { "enum": ["none", "linear", "exponential"] },
+            "retryableErrors": { "type": "array", "items": { "enum": ["rate_limit", "transient_network", "provider_5xx", "timeout_before_mutation"] }, "uniqueItems": true }
+          },
+          "additionalProperties": false
+        },
+        "onAmbiguousExternalState": { "const": "reconcile" },
+        "onRestart": { "enum": ["resume_safe", "ask", "abort"] },
+        "onCancellation": { "enum": ["stop_dependents", "continue_unaffected", "compensate"] },
+        "compensationNodeIds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true }
+      },
+      "additionalProperties": false
+    },
+    "evaluation": {
+      "type": "object",
+      "required": ["criteria", "minimumPass", "onFailure"],
+      "properties": {
+        "criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "weight", "required", "evaluator"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+              "weight": { "type": "number", "minimum": 0, "maximum": 1 },
+              "required": { "type": "boolean" },
+              "evaluator": { "enum": ["schema", "deterministic", "policy", "model", "creator"] },
+              "configuration": { "type": "object" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "minimumPass": { "type": "number", "minimum": 0, "maximum": 1 },
+        "onFailure": { "enum": ["block", "review", "targeted_retry"] }
+      },
+      "additionalProperties": false
+    },
+    "reflection": {
+      "type": "object",
+      "required": ["mode", "memoryPromotion", "skillPromotion"],
+      "properties": {
+        "mode": { "enum": ["disabled", "propose"] },
+        "minimumEvidenceCount": { "type": "integer", "minimum": 1 },
+        "maximumMemoryProposals": { "type": "integer", "minimum": 0, "maximum": 20 },
+        "maximumSkillProposals": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "memoryPromotion": { "const": "human_or_policy_event" },
+        "skillPromotion": { "const": "quarantine_tests_and_human_event" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

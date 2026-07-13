@@ -1,0 +1,551 @@
+{
+  "$schema": "./schemas/event-catalog.schema.json",
+  "schemaVersion": 1,
+  "catalogVersion": "1.0.0",
+  "events": [
+    {
+      "eventType": "workspace.created",
+      "schemaVersion": 1,
+      "aggregateType": "workspace",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/workspaceCreated",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Creates a local-canonical workspace boundary and initial ownership state."
+    },
+    {
+      "eventType": "workspace.export_created",
+      "schemaVersion": 1,
+      "aggregateType": "workspace",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/exportCreated",
+      "compatibility": "additive",
+      "defaultSensitivity": "personal",
+      "mutationClass": "security_state",
+      "description": "Records a checksum-addressed portable export that contains no raw secrets."
+    },
+    {
+      "eventType": "project.created",
+      "schemaVersion": 1,
+      "aggregateType": "project",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/projectCreated",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Creates a project within one workspace."
+    },
+    {
+      "eventType": "source.captured",
+      "schemaVersion": 1,
+      "aggregateType": "artifact",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/sourceCaptured",
+      "compatibility": "additive",
+      "defaultSensitivity": "personal",
+      "mutationClass": "local_state",
+      "description": "Stores an immutable original capture without triggering generation."
+    },
+    {
+      "eventType": "artifact.version_created",
+      "schemaVersion": 1,
+      "aggregateType": "artifact",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/artifactVersionCreated",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Appends a content-addressed artifact version with input and execution provenance."
+    },
+    {
+      "eventType": "artifact.canonical_selected",
+      "schemaVersion": 1,
+      "aggregateType": "artifact",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/canonicalSelected",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Selects a canonical version through an attributable decision."
+    },
+    {
+      "eventType": "artifact.staled",
+      "schemaVersion": 1,
+      "aggregateType": "artifact",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/artifactStaled",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Marks a downstream version stale after a canonical upstream input changes."
+    },
+    {
+      "eventType": "artifact.tombstoned",
+      "schemaVersion": 1,
+      "aggregateType": "artifact",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/objectTombstoned",
+      "compatibility": "terminal",
+      "defaultSensitivity": "personal",
+      "mutationClass": "security_state",
+      "description": "Removes an artifact from active use while retaining an auditable retention decision."
+    },
+    {
+      "eventType": "graph.revision_created",
+      "schemaVersion": 1,
+      "aggregateType": "creative_graph",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/graphRevisionCreated",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Registers a versioned semantic graph revision independently of visual layout."
+    },
+    {
+      "eventType": "loop.revision_registered",
+      "schemaVersion": 1,
+      "aggregateType": "loop",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/loopRevisionRegistered",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Registers a validated reusable loop revision and compatibility state."
+    },
+    {
+      "eventType": "run.planned",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/runPlanned",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Pins the compiled plan, inputs, quote, budget, and expected human gates before execution.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "run.started",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/runStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Moves a planned or queued run into active execution.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "run.paused",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/runStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Pauses run scheduling while preserving resumable state.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "run.recovered",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/runStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Records deterministic boot recovery from a checkpoint or attached external job.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "run.completed",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/runStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Records successful completion of the run success contract.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "run.failed",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/runStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Records terminal run failure with an attributable reason and recovery state.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "step.started",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/stepStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Starts one compiled run step and attempt.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "step.waiting_for_approval",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/stepStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Suspends a step until its version-specific approval requirement is satisfied.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "step.external_job_attached",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/externalJobAttached",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "external_mutation",
+      "description": "Attaches a durable provider job identity for observation and restart recovery.",
+      "requiredCorrelation": true,
+      "requiresIdempotencyKey": true
+    },
+    {
+      "eventType": "step.completed",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/stepStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Completes one compiled run step and makes dependents eligible.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "step.failed",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/stepStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Records a classified step failure without implying unsafe retry.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "step.cancelled",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/stepStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Records explicit cancellation of a step and its dependents as policy determines.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "decision.recorded",
+      "schemaVersion": 1,
+      "aggregateType": "decision",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/decisionRecorded",
+      "compatibility": "additive",
+      "defaultSensitivity": "personal",
+      "mutationClass": "security_state",
+      "description": "Records a human or policy choice with alternatives, evidence, and reversibility."
+    },
+    {
+      "eventType": "approval.granted",
+      "schemaVersion": 1,
+      "aggregateType": "decision",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/approvalChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Grants scoped authority under a pinned policy and subject version."
+    },
+    {
+      "eventType": "approval.revoked",
+      "schemaVersion": 1,
+      "aggregateType": "decision",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/approvalChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Revokes previously granted authority for future use."
+    },
+    {
+      "eventType": "approval.invalidated",
+      "schemaVersion": 1,
+      "aggregateType": "decision",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/approvalChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Invalidates approval because the pinned artifact, account, policy, or context became stale."
+    },
+    {
+      "eventType": "tool.call_requested",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/toolCallRequested",
+      "compatibility": "additive",
+      "defaultSensitivity": "personal",
+      "mutationClass": "external_read",
+      "description": "Records the pinned capability, inputs, permissions, egress, and quote before invocation.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "tool.call_completed",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/toolCallCompleted",
+      "compatibility": "additive",
+      "defaultSensitivity": "personal",
+      "mutationClass": "external_read",
+      "description": "Records normalized capability outcome, duration, cost, and error class.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "publication.intent_created",
+      "schemaVersion": 1,
+      "aggregateType": "publication",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/publicationIntentCreated",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Creates a version-, account-, approval-, and destination-specific publication intent.",
+      "requiresIdempotencyKey": true
+    },
+    {
+      "eventType": "publication.submitted",
+      "schemaVersion": 1,
+      "aggregateType": "publication",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/publicationStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "external_mutation",
+      "description": "Records provider submission separately from verified live state.",
+      "requiredCorrelation": true,
+      "requiresIdempotencyKey": true
+    },
+    {
+      "eventType": "publication.verified",
+      "schemaVersion": 1,
+      "aggregateType": "publication",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/publicationStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "public",
+      "mutationClass": "external_read",
+      "description": "Confirms the approved artifact version is live at the expected destination.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "publication.reconciliation_required",
+      "schemaVersion": 1,
+      "aggregateType": "publication",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/publicationStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Represents ambiguous external state that must not be blindly retried.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "publication.failed",
+      "schemaVersion": 1,
+      "aggregateType": "publication",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/publicationStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "external_mutation",
+      "description": "Records an explicit terminal publication failure or fallback result.",
+      "requiredCorrelation": true
+    },
+    {
+      "eventType": "observation.recorded",
+      "schemaVersion": 1,
+      "aggregateType": "observation",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/observationRecorded",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "external_read",
+      "description": "Attaches platform metrics or creator judgment to exact publication lineage."
+    },
+    {
+      "eventType": "memory.proposed",
+      "schemaVersion": 1,
+      "aggregateType": "memory",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/memoryProposed",
+      "compatibility": "additive",
+      "defaultSensitivity": "personal",
+      "mutationClass": "local_state",
+      "description": "Creates a proposal-only creator-model item with evidence and contradiction."
+    },
+    {
+      "eventType": "memory.promoted",
+      "schemaVersion": 1,
+      "aggregateType": "memory",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/memoryStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "personal",
+      "mutationClass": "security_state",
+      "description": "Makes a reviewed memory revision eligible for scoped retrieval."
+    },
+    {
+      "eventType": "memory.rejected",
+      "schemaVersion": 1,
+      "aggregateType": "memory",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/memoryStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "personal",
+      "mutationClass": "security_state",
+      "description": "Rejects a proposal so it cannot enter future retrieval."
+    },
+    {
+      "eventType": "memory.disputed",
+      "schemaVersion": 1,
+      "aggregateType": "memory",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/memoryStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "personal",
+      "mutationClass": "security_state",
+      "description": "Marks an active or proposed belief disputed and changes retrieval behavior."
+    },
+    {
+      "eventType": "memory.forgotten",
+      "schemaVersion": 1,
+      "aggregateType": "memory",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/memoryStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "personal",
+      "mutationClass": "security_state",
+      "description": "Removes a memory from retrieval and deletes derived search/vector material."
+    },
+    {
+      "eventType": "skill.revision_installed",
+      "schemaVersion": 1,
+      "aggregateType": "skill",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/skillRevisionStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Pins an Agent Skill package revision without granting active trust."
+    },
+    {
+      "eventType": "skill.revision_quarantined",
+      "schemaVersion": 1,
+      "aggregateType": "skill",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/skillRevisionStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Restricts a skill revision pending permission review and fixtures."
+    },
+    {
+      "eventType": "skill.revision_promoted",
+      "schemaVersion": 1,
+      "aggregateType": "skill",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/skillRevisionStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Activates a tested skill revision under an explicit effective permission set."
+    },
+    {
+      "eventType": "skill.revision_rolled_back",
+      "schemaVersion": 1,
+      "aggregateType": "skill",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/skillRevisionStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Restores a prior trusted skill revision after failure or regression."
+    },
+    {
+      "eventType": "account_connection.added",
+      "schemaVersion": 1,
+      "aggregateType": "account_connection",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/connectionStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "secret_reference",
+      "mutationClass": "security_state",
+      "description": "Adds opaque credential-backed account metadata and effective scopes."
+    },
+    {
+      "eventType": "account_connection.revoked",
+      "schemaVersion": 1,
+      "aggregateType": "account_connection",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/connectionStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "secret_reference",
+      "mutationClass": "security_state",
+      "description": "Revokes account access and blocks dependent future work."
+    },
+    {
+      "eventType": "capability.revision_registered",
+      "schemaVersion": 1,
+      "aggregateType": "capability",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/capabilityStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Registers a pinned capability manifest and declared limitations."
+    },
+    {
+      "eventType": "capability.health_changed",
+      "schemaVersion": 1,
+      "aggregateType": "capability",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/capabilityStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "external_read",
+      "description": "Records observed capability health without trusting provider self-description."
+    },
+    {
+      "eventType": "bridge.client_registered",
+      "schemaVersion": 1,
+      "aggregateType": "bridge_client",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/bridgeClientStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "secret_reference",
+      "mutationClass": "security_state",
+      "description": "Registers a paired MCP client with bounded workspace and action scopes."
+    },
+    {
+      "eventType": "bridge.client_revoked",
+      "schemaVersion": 1,
+      "aggregateType": "bridge_client",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/bridgeClientStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "secret_reference",
+      "mutationClass": "security_state",
+      "description": "Revokes a Bridge client and invalidates future calls."
+    },
+    {
+      "eventType": "policy.revision_activated",
+      "schemaVersion": 1,
+      "aggregateType": "policy",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/policyActivated",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Activates a versioned permission, budget, egress, disclosure, or confidentiality policy."
+    },
+    {
+      "eventType": "remote_job.delegated",
+      "schemaVersion": 1,
+      "aggregateType": "remote_job",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/remoteJobDelegated",
+      "compatibility": "additive",
+      "defaultSensitivity": "confidential",
+      "mutationClass": "external_mutation",
+      "description": "Delegates one encrypted, scoped, expiring job envelope to a remote worker.",
+      "requiredCorrelation": true,
+      "requiresIdempotencyKey": true
+    },
+    {
+      "eventType": "remote_job.receipt_received",
+      "schemaVersion": 1,
+      "aggregateType": "remote_job",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/remoteReceiptReceived",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "external_read",
+      "description": "Records a signed remote job receipt and content hashes after replay checks.",
+      "requiredCorrelation": true
+    }
+  ]
+}

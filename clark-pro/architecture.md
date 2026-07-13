@@ -8,6 +8,8 @@ The architecture is incremental but not disposable: every delivery stratum uses 
 
 Accepted decisions and rejected alternatives are maintained in the [ADR registry](decisions/README.md). The authoritative trust boundaries, threat register, credential flows, and required security evidence are in the [security and threat model](security-and-threat-model.md). Architecture claims do not count as verified controls until the named executable evidence passes.
 
+The versioned event envelope/catalog, loop definition, capability manifest, compiled run plan, and representative fixtures are authoritative in [contracts/](contracts/README.md). Implementations may generate TypeScript and Zod representations from these schemas; they may not fork their semantics.
+
 ## Runtime Topology
 
 ```text

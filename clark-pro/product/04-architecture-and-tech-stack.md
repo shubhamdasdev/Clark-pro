@@ -2,6 +2,7 @@
 
 **Status:** Authoritative v2 · July 2026
 **Architecture source:** [architecture.md](../architecture.md)
+**Machine-readable contracts:** [contracts/](../contracts/README.md)
 
 ## 1. Stack
 

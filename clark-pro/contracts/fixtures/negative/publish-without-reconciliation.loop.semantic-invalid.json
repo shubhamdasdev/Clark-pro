@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/loop-definition.schema.json",
+  "schemaVersion": 1,
+  "id": "loop.unsafe-publish",
+  "name": "Unsafe publish",
+  "revision": "1.0.0",
+  "entryContract": { "inlineSchema": { "type": "object" } },
+  "successContract": { "inlineSchema": { "type": "object" } },
+  "graph": {
+    "nodes": [
+      {
+        "id": "publish",
+        "name": "Publish",
+        "kind": "operator",
+        "inputs": [],
+        "outputs": [],
+        "capabilityRevision": { "id": "social.publish.postiz", "revision": "1.0.0" },
+        "actionClass": "social_publish",
+        "approval": { "mode": "none" }
+      }
+    ],
+    "edges": []
+  },
+  "permissions": { "actionClasses": ["social_publish"], "capabilityAllowlist": ["social.publish.postiz"], "networkDomains": ["api.postiz.com"], "credentialScopes": ["postiz.write"], "maximumSensitivity": "workspace", "remoteExecution": "explicit_only" },
+  "budget": { "costCeiling": { "currency": "USD", "micros": 1000000 }, "tokenCeiling": 0, "durationSeconds": 300, "maxConcurrency": 1, "overageBehavior": "stop" },
+  "checkpoints": [],
+  "recovery": { "retry": { "maxAttempts": 1, "backoff": "none", "retryableErrors": [] }, "onAmbiguousExternalState": "reconcile", "onRestart": "ask", "onCancellation": "stop_dependents" },
+  "evaluation": { "criteria": [{ "id": "schema", "name": "Schema", "weight": 1, "required": true, "evaluator": "schema" }], "minimumPass": 1, "onFailure": "block" },
+  "reflection": { "mode": "disabled", "memoryPromotion": "human_or_policy_event", "skillPromotion": "quarantine_tests_and_human_event" }
+}

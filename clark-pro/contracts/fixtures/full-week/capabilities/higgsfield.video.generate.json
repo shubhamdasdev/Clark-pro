@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "higgsfield.video.generate",
+  "name": "Higgsfield Video Generation",
+  "version": "1.0.0",
+  "publisher": {
+    "id": "higgsfield",
+    "name": "Higgsfield",
+    "source": "https://higgsfield.ai/",
+    "sourceRevision": "fixture-v1",
+    "sourceHash": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "kind": "generation",
+  "transport": { "type": "mcp", "modes": ["streamable_http"], "serverRef": "mcp.higgsfield", "toolName": "generate_video" },
+  "inputSchemaRef": "https://schemas.clark.pro/v1/video-generation-input.schema.json",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/video-generation-result.schema.json",
+  "lifecycle": ["auth", "discover", "validate", "quote", "execute", "observe", "cancel", "health", "revoke"],
+  "permissions": {
+    "actionClass": "media_generate",
+    "systemScopes": ["media.generate", "network.write"],
+    "credentialScopes": ["higgsfield.generate"],
+    "networkDomains": ["higgsfield.ai"],
+    "fileAccess": "explicit_inputs_readonly",
+    "requiresUserPresence": false
+  },
+  "egress": {
+    "maximumSensitivity": "workspace",
+    "declaredFields": ["prompt", "reference_asset", "duration", "aspect_ratio"],
+    "retentionPolicy": "provider_declared",
+    "trainingPolicy": "provider_declared"
+  },
+  "async": { "mode": "job", "cancellable": true, "observable": true, "reconnectByExternalId": true },
+  "idempotency": { "strategy": "clark_intent_ledger", "reconciliation": "observe_provider" },
+  "cost": { "quoteSupport": "bounded", "metering": "job", "currency": "USD" },
+  "reliability": { "timeoutSeconds": 3600, "retryPolicy": "idempotent_only", "maxAttempts": 2, "healthCheck": "non_mutating_active", "schemaDriftBehavior": "require_review" },
+  "ui": { "renderer": "media.video.job", "previewSafe": true, "supportsProgress": true, "supportsDiff": true },
+  "limitations": [
+    { "code": "provider-retention", "description": "Remote media retention follows the provider account policy shown before execution.", "fallback": "alternate_capability" }
+  ]
+}

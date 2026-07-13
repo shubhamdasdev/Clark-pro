@@ -1,0 +1,436 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/event-payloads.schema.json",
+  "title": "Clark Domain Event Payloads",
+  "$defs": {
+    "workspaceCreated": {
+      "type": "object",
+      "required": ["workspaceId", "name", "localCanonical", "createdFrom"],
+      "properties": {
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "localCanonical": { "const": true },
+        "createdFrom": { "enum": ["new", "import"] },
+        "backupLocationConfigured": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "exportCreated": {
+      "type": "object",
+      "required": ["exportId", "manifestHash", "eventCount", "assetCount", "includesSecrets"],
+      "properties": {
+        "exportId": { "$ref": "common.schema.json#/$defs/id" },
+        "manifestHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "eventCount": { "type": "integer", "minimum": 0 },
+        "assetCount": { "type": "integer", "minimum": 0 },
+        "encrypted": { "type": "boolean" },
+        "includesSecrets": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "projectCreated": {
+      "type": "object",
+      "required": ["projectId", "name", "kind"],
+      "properties": {
+        "projectId": { "$ref": "common.schema.json#/$defs/id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "kind": { "enum": ["campaign", "series", "weekly_operation", "library", "custom"] },
+        "description": { "type": "string", "maxLength": 2000 }
+      },
+      "additionalProperties": false
+    },
+    "sourceCaptured": {
+      "type": "object",
+      "required": ["artifact", "captureKind", "originalHash", "sensitivity", "classificationStatus"],
+      "properties": {
+        "artifact": { "$ref": "common.schema.json#/$defs/artifactRef" },
+        "captureKind": { "enum": ["text", "url", "file", "screenshot", "voice_memo", "selected_content"] },
+        "originalHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "sourceUri": { "type": "string", "format": "uri-reference", "maxLength": 4096 },
+        "sensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+        "classificationStatus": { "enum": ["proposed", "confirmed", "inbox"] }
+      },
+      "additionalProperties": false
+    },
+    "artifactVersionCreated": {
+      "type": "object",
+      "required": ["artifact", "artifactType", "assetHash", "inputRefs", "provenance"],
+      "properties": {
+        "artifact": { "$ref": "common.schema.json#/$defs/artifactRef" },
+        "artifactType": { "enum": ["idea", "source", "brief", "claim_ledger", "angle", "script", "image", "audio", "video", "carousel", "platform_post", "published_post", "outcome_report", "memory_proposal", "skill_proposal", "export"] },
+        "assetHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "inputRefs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/artifactRef" }, "uniqueItems": true },
+        "provenance": {
+          "type": "object",
+          "properties": {
+            "runId": { "$ref": "common.schema.json#/$defs/id" },
+            "stepId": { "$ref": "common.schema.json#/$defs/id" },
+            "modelProvider": { "$ref": "common.schema.json#/$defs/id" },
+            "modelName": { "type": "string", "maxLength": 200 },
+            "skillRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+            "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" }
+          },
+          "additionalProperties": false
+        },
+        "cost": { "$ref": "common.schema.json#/$defs/money" },
+        "sensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" }
+      },
+      "additionalProperties": false
+    },
+    "canonicalSelected": {
+      "type": "object",
+      "required": ["artifactId", "fromVersionId", "toVersionId", "decisionId"],
+      "properties": {
+        "artifactId": { "$ref": "common.schema.json#/$defs/id" },
+        "fromVersionId": { "$ref": "common.schema.json#/$defs/id" },
+        "toVersionId": { "$ref": "common.schema.json#/$defs/id" },
+        "decisionId": { "$ref": "common.schema.json#/$defs/id" },
+        "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "artifactStaled": {
+      "type": "object",
+      "required": ["artifact", "causedBy", "invalidatedApprovals", "scheduledPublicationRisk"],
+      "properties": {
+        "artifact": { "$ref": "common.schema.json#/$defs/artifactRef" },
+        "causedBy": { "$ref": "common.schema.json#/$defs/artifactRef" },
+        "invalidatedApprovals": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true },
+        "scheduledPublicationRisk": { "type": "boolean" },
+        "estimatedRegenerationCost": { "$ref": "common.schema.json#/$defs/money" }
+      },
+      "additionalProperties": false
+    },
+    "objectTombstoned": {
+      "type": "object",
+      "required": ["objectId", "objectType", "reason", "assetRetention"],
+      "properties": {
+        "objectId": { "$ref": "common.schema.json#/$defs/id" },
+        "objectType": { "enum": ["artifact", "memory", "skill", "project", "workspace"] },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "assetRetention": { "enum": ["retain", "trash_window", "delete_when_unreferenced"] }
+      },
+      "additionalProperties": false
+    },
+    "graphRevisionCreated": {
+      "type": "object",
+      "required": ["graphId", "revision", "definitionHash", "changeSummary"],
+      "properties": {
+        "graphId": { "$ref": "common.schema.json#/$defs/id" },
+        "revision": { "$ref": "common.schema.json#/$defs/semver" },
+        "definitionHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "changeSummary": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "loopRevisionRegistered": {
+      "type": "object",
+      "required": ["loopRevision", "definitionHash", "compatibility", "validationStatus"],
+      "properties": {
+        "loopRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "definitionHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "compatibility": { "enum": ["compatible", "migration_required", "breaking"] },
+        "validationStatus": { "enum": ["valid", "invalid", "quarantined"] }
+      },
+      "additionalProperties": false
+    },
+    "runPlanned": {
+      "type": "object",
+      "required": ["runId", "loopRevision", "planHash", "inputRefs", "quotedCost", "budgetCeiling", "stepCount", "humanGateCount"],
+      "properties": {
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "loopRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "planHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "inputRefs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/artifactRef" } },
+        "quotedCost": { "$ref": "common.schema.json#/$defs/money" },
+        "budgetCeiling": { "$ref": "common.schema.json#/$defs/money" },
+        "stepCount": { "type": "integer", "minimum": 1 },
+        "humanGateCount": { "type": "integer", "minimum": 0 },
+        "warnings": { "type": "array", "items": { "type": "string", "maxLength": 500 } }
+      },
+      "additionalProperties": false
+    },
+    "runStateChanged": {
+      "type": "object",
+      "required": ["runId", "from", "to"],
+      "properties": {
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "from": { "enum": ["planned", "waiting_approval", "queued", "running", "paused", "waiting_external", "completed", "failed", "cancelled", "recovering"] },
+        "to": { "enum": ["waiting_approval", "queued", "running", "paused", "waiting_external", "completed", "failed", "cancelled", "recovering"] },
+        "reason": { "type": "string", "maxLength": 1000 },
+        "recoveryCheckpointId": { "$ref": "common.schema.json#/$defs/id" }
+      },
+      "additionalProperties": false
+    },
+    "stepStateChanged": {
+      "type": "object",
+      "required": ["runId", "stepId", "from", "to"],
+      "properties": {
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "stepId": { "$ref": "common.schema.json#/$defs/id" },
+        "from": { "enum": ["pending", "ready", "queued", "running", "streaming", "waiting_external", "waiting_approval", "paused", "retrying", "completed", "failed", "cancelled", "orphaned"] },
+        "to": { "enum": ["ready", "queued", "running", "streaming", "waiting_external", "waiting_approval", "paused", "retrying", "completed", "failed", "cancelled", "orphaned"] },
+        "reason": { "type": "string", "maxLength": 1000 },
+        "attempt": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "externalJobAttached": {
+      "type": "object",
+      "required": ["runId", "stepId", "provider", "externalJobId", "cancellable", "observationMode"],
+      "properties": {
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "stepId": { "$ref": "common.schema.json#/$defs/id" },
+        "provider": { "$ref": "common.schema.json#/$defs/id" },
+        "externalJobId": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "cancellable": { "type": "boolean" },
+        "observationMode": { "enum": ["poll", "webhook", "task", "manual_reconcile"] }
+      },
+      "additionalProperties": false
+    },
+    "decisionRecorded": {
+      "type": "object",
+      "required": ["decisionId", "decisionType", "subjectRef", "selectedOption", "alternatives", "evidenceRefs", "reversible"],
+      "properties": {
+        "decisionId": { "$ref": "common.schema.json#/$defs/id" },
+        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "skill_promote", "conflict_resolve"] },
+        "subjectRef": { "$ref": "common.schema.json#/$defs/id" },
+        "selectedOption": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "alternatives": { "type": "array", "items": { "type": "string", "maxLength": 500 }, "minItems": 1 },
+        "evidenceRefs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidenceRef" } },
+        "reason": { "type": "string", "maxLength": 2000 },
+        "reversible": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "approvalChanged": {
+      "type": "object",
+      "required": ["approvalId", "subjectRef", "actionClass", "status", "policyRevisionId"],
+      "properties": {
+        "approvalId": { "$ref": "common.schema.json#/$defs/id" },
+        "subjectRef": { "$ref": "common.schema.json#/$defs/id" },
+        "artifact": { "$ref": "common.schema.json#/$defs/artifactRef" },
+        "accountConnectionId": { "$ref": "common.schema.json#/$defs/id" },
+        "actionClass": { "$ref": "common.schema.json#/$defs/actionClass" },
+        "status": { "enum": ["granted", "revoked", "invalidated"] },
+        "policyRevisionId": { "$ref": "common.schema.json#/$defs/id" },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "toolCallRequested": {
+      "type": "object",
+      "required": ["callId", "runId", "stepId", "capabilityRevision", "actionClass", "inputHash", "permissionReceiptId"],
+      "properties": {
+        "callId": { "$ref": "common.schema.json#/$defs/id" },
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "stepId": { "$ref": "common.schema.json#/$defs/id" },
+        "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "actionClass": { "$ref": "common.schema.json#/$defs/actionClass" },
+        "inputHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "permissionReceiptId": { "$ref": "common.schema.json#/$defs/id" },
+        "quotedCost": { "$ref": "common.schema.json#/$defs/money" },
+        "egressSensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" }
+      },
+      "additionalProperties": false
+    },
+    "toolCallCompleted": {
+      "type": "object",
+      "required": ["callId", "status", "durationMs", "cost"],
+      "properties": {
+        "callId": { "$ref": "common.schema.json#/$defs/id" },
+        "status": { "enum": ["succeeded", "failed", "cancelled", "ambiguous"] },
+        "resultRef": { "$ref": "common.schema.json#/$defs/id" },
+        "resultHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "cost": { "$ref": "common.schema.json#/$defs/money" },
+        "errorClass": { "enum": ["none", "validation", "auth", "rate_limit", "transient", "permanent", "policy", "ambiguous_external_state"] }
+      },
+      "additionalProperties": false
+    },
+    "publicationIntentCreated": {
+      "type": "object",
+      "required": ["publicationId", "artifact", "accountConnectionId", "platform", "desiredAt", "approvalId", "intentKey"],
+      "properties": {
+        "publicationId": { "$ref": "common.schema.json#/$defs/id" },
+        "artifact": { "$ref": "common.schema.json#/$defs/artifactRef" },
+        "accountConnectionId": { "$ref": "common.schema.json#/$defs/id" },
+        "platform": { "$ref": "common.schema.json#/$defs/id" },
+        "desiredAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "approvalId": { "$ref": "common.schema.json#/$defs/id" },
+        "intentKey": { "type": "string", "minLength": 8, "maxLength": 256 },
+        "fallback": { "enum": ["none", "direct", "postiz", "assisted", "export"] }
+      },
+      "additionalProperties": false
+    },
+    "publicationStateChanged": {
+      "type": "object",
+      "required": ["publicationId", "from", "to", "artifact", "accountConnectionId"],
+      "properties": {
+        "publicationId": { "$ref": "common.schema.json#/$defs/id" },
+        "from": { "enum": ["desired", "scheduled", "submitting", "submitted", "reconciling", "verified_live", "failed", "cancelled", "exported"] },
+        "to": { "enum": ["scheduled", "submitting", "submitted", "reconciling", "verified_live", "failed", "cancelled", "exported", "requires_human_check"] },
+        "artifact": { "$ref": "common.schema.json#/$defs/artifactRef" },
+        "accountConnectionId": { "$ref": "common.schema.json#/$defs/id" },
+        "providerReceipt": { "type": "string", "maxLength": 2000 },
+        "liveUrl": { "type": "string", "format": "uri", "maxLength": 4096 },
+        "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "observationRecorded": {
+      "type": "object",
+      "required": ["observationId", "subjectRef", "observedAt", "source", "sampleSize", "metrics", "quality"],
+      "properties": {
+        "observationId": { "$ref": "common.schema.json#/$defs/id" },
+        "subjectRef": { "$ref": "common.schema.json#/$defs/id" },
+        "observedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "source": { "enum": ["platform", "postiz", "direct_api", "creator_judgment", "manual"] },
+        "sampleSize": { "type": "integer", "minimum": 0 },
+        "metrics": { "type": "object", "additionalProperties": { "type": ["number", "integer", "string", "null"] } },
+        "quality": { "enum": ["complete", "partial", "estimated", "disputed"] },
+        "definitionNotes": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "memoryProposed": {
+      "type": "object",
+      "required": ["memoryId", "layer", "statement", "evidence", "contradictions", "confidence", "scope", "sensitivity", "retrievalState"],
+      "properties": {
+        "memoryId": { "$ref": "common.schema.json#/$defs/id" },
+        "layer": { "enum": ["identity", "semantic", "episodic", "procedural", "performance"] },
+        "statement": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "evidence": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidenceRef" }, "minItems": 1 },
+        "contradictions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidenceRef" } },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "scope": {
+          "type": "object",
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "projectId": { "$ref": "common.schema.json#/$defs/id" },
+            "platform": { "$ref": "common.schema.json#/$defs/id" },
+            "loopId": { "$ref": "common.schema.json#/$defs/id" },
+            "accountConnectionId": { "$ref": "common.schema.json#/$defs/id" }
+          },
+          "minProperties": 1,
+          "additionalProperties": false
+        },
+        "sensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+        "retrievalState": { "const": "proposal_only" },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "memoryStateChanged": {
+      "type": "object",
+      "required": ["memoryId", "from", "to", "decisionId"],
+      "properties": {
+        "memoryId": { "$ref": "common.schema.json#/$defs/id" },
+        "from": { "enum": ["proposed", "active", "disputed", "expired", "rejected"] },
+        "to": { "enum": ["active", "rejected", "disputed", "expired", "forgotten"] },
+        "decisionId": { "$ref": "common.schema.json#/$defs/id" },
+        "reason": { "type": "string", "maxLength": 1000 },
+        "searchDerivativesDeleted": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "skillRevisionStateChanged": {
+      "type": "object",
+      "required": ["skillRevision", "sourceHash", "from", "to", "effectivePermissions", "testStatus"],
+      "properties": {
+        "skillRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "sourceHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "from": { "enum": ["unseen", "installed", "quarantined", "active", "failed", "superseded"] },
+        "to": { "enum": ["installed", "quarantined", "active", "failed", "superseded", "rolled_back"] },
+        "effectivePermissions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "testStatus": { "enum": ["not_run", "passed", "failed"] },
+        "decisionId": { "$ref": "common.schema.json#/$defs/id" },
+        "rollbackRevision": { "$ref": "common.schema.json#/$defs/revisionRef" }
+      },
+      "additionalProperties": false
+    },
+    "connectionStateChanged": {
+      "type": "object",
+      "required": ["connectionId", "provider", "from", "to", "credentialRef", "scopes"],
+      "properties": {
+        "connectionId": { "$ref": "common.schema.json#/$defs/id" },
+        "provider": { "$ref": "common.schema.json#/$defs/id" },
+        "externalAccountLabel": { "type": "string", "maxLength": 200 },
+        "from": { "enum": ["unconfigured", "pending", "healthy", "limited", "expired", "revoked", "failed"] },
+        "to": { "enum": ["pending", "healthy", "limited", "expired", "revoked", "failed"] },
+        "credentialRef": { "$ref": "common.schema.json#/$defs/id" },
+        "scopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "capabilityStateChanged": {
+      "type": "object",
+      "required": ["capabilityRevision", "manifestHash", "from", "to", "limitations"],
+      "properties": {
+        "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "manifestHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "from": { "enum": ["unregistered", "registered", "healthy", "degraded", "offline", "revoked"] },
+        "to": { "enum": ["registered", "healthy", "degraded", "offline", "revoked"] },
+        "limitations": { "type": "array", "items": { "type": "string", "maxLength": 500 } },
+        "reason": { "type": "string", "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "bridgeClientStateChanged": {
+      "type": "object",
+      "required": ["clientId", "displayName", "from", "to", "workspaceScopes", "actionClasses", "expiresAt"],
+      "properties": {
+        "clientId": { "$ref": "common.schema.json#/$defs/id" },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "from": { "enum": ["unpaired", "paired", "active", "expired", "revoked"] },
+        "to": { "enum": ["paired", "active", "expired", "revoked"] },
+        "workspaceScopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true },
+        "actionClasses": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/actionClass" }, "uniqueItems": true },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "policyActivated": {
+      "type": "object",
+      "required": ["policyRevision", "definitionHash", "scope", "supersedes"],
+      "properties": {
+        "policyRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "definitionHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "scope": { "enum": ["workspace", "project", "account", "loop", "action_class"] },
+        "supersedes": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "remoteJobDelegated": {
+      "type": "object",
+      "required": ["jobId", "workerId", "envelopeHash", "inputRefs", "capabilityRevision", "budget", "expiresAt", "outputContractRef"],
+      "properties": {
+        "jobId": { "$ref": "common.schema.json#/$defs/id" },
+        "workerId": { "$ref": "common.schema.json#/$defs/id" },
+        "envelopeHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "inputRefs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/artifactRef" } },
+        "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "budget": { "$ref": "common.schema.json#/$defs/money" },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "outputContractRef": { "$ref": "common.schema.json#/$defs/schemaRef" }
+      },
+      "additionalProperties": false
+    },
+    "remoteReceiptReceived": {
+      "type": "object",
+      "required": ["jobId", "workerId", "receiptId", "status", "outputHashes", "signatureKeyId"],
+      "properties": {
+        "jobId": { "$ref": "common.schema.json#/$defs/id" },
+        "workerId": { "$ref": "common.schema.json#/$defs/id" },
+        "receiptId": { "$ref": "common.schema.json#/$defs/id" },
+        "status": { "enum": ["completed", "failed", "cancelled", "expired", "ambiguous"] },
+        "outputHashes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/contentHash" }, "uniqueItems": true },
+        "signatureKeyId": { "$ref": "common.schema.json#/$defs/id" },
+        "cost": { "$ref": "common.schema.json#/$defs/money" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

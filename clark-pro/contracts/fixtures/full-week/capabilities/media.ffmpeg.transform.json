@@ -1,0 +1,34 @@
+{
+  "$schema": "../../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "media.ffmpeg.transform",
+  "name": "Local Media Validation and Transform",
+  "version": "1.0.0",
+  "publisher": {
+    "id": "clark",
+    "name": "Clark Pro",
+    "source": "https://github.com/shubhamdasdev/Clark-pro",
+    "sourceRevision": "fixture-v1",
+    "sourceHash": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+  },
+  "kind": "transformation",
+  "transport": { "type": "local_process", "executableRef": "bin.ffmpeg", "argvTemplate": ["-i", "{input}", "{validated_args}", "{output}"], "cwdPolicy": "isolated_temp" },
+  "inputSchemaRef": "https://schemas.clark.pro/v1/media-transform-input.schema.json",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/media-transform-result.schema.json",
+  "lifecycle": ["validate", "quote", "execute", "cancel", "health"],
+  "permissions": {
+    "actionClass": "local_transform",
+    "systemScopes": ["media.transform"],
+    "credentialScopes": [],
+    "networkDomains": [],
+    "fileAccess": "project_assets_write",
+    "requiresUserPresence": false
+  },
+  "egress": { "maximumSensitivity": "confidential", "declaredFields": [], "retentionPolicy": "none", "trainingPolicy": "not_used" },
+  "async": { "mode": "job", "cancellable": true, "observable": true, "reconnectByExternalId": false },
+  "idempotency": { "strategy": "clark_intent_ledger", "reconciliation": "not_required" },
+  "cost": { "quoteSupport": "exact", "metering": "duration", "currency": "USD" },
+  "reliability": { "timeoutSeconds": 1800, "retryPolicy": "never", "maxAttempts": 1, "healthCheck": "non_mutating_active", "schemaDriftBehavior": "block" },
+  "ui": { "renderer": "media.transform.job", "previewSafe": true, "supportsProgress": true, "supportsDiff": true },
+  "limitations": []
+}

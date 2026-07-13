@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/common.schema.json",
+  "title": "Clark Common Contract Types",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+    },
+    "eventType": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$",
+      "maxLength": 128
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "schemaRef": {
+      "type": "string",
+      "format": "uri-reference",
+      "minLength": 1
+    },
+    "money": {
+      "type": "object",
+      "required": ["currency", "micros"],
+      "properties": {
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "micros": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "actorRef": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "enum": ["creator", "team_member", "studio", "bridge_client", "harness", "remote_worker", "system", "provider"]
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      },
+      "additionalProperties": false
+    },
+    "sensitivity": {
+      "enum": ["public", "workspace", "personal", "confidential", "secret_reference"]
+    },
+    "actionClass": {
+      "enum": [
+        "read",
+        "capture",
+        "decision_record",
+        "artifact_approve",
+        "research",
+        "local_transform",
+        "model_generate",
+        "media_generate",
+        "external_write",
+        "social_publish",
+        "account_manage",
+        "memory_mutate",
+        "skill_mutate",
+        "policy_override",
+        "destructive"
+      ]
+    },
+    "permissionScope": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$",
+      "maxLength": 128
+    },
+    "artifactRef": {
+      "type": "object",
+      "required": ["artifactId", "versionId"],
+      "properties": {
+        "artifactId": {
+          "$ref": "#/$defs/id"
+        },
+        "versionId": {
+          "$ref": "#/$defs/id"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidenceRef": {
+      "type": "object",
+      "required": ["type", "refId"],
+      "properties": {
+        "type": {
+          "enum": ["source", "artifact", "decision", "observation", "correction", "run", "publication", "policy"]
+        },
+        "refId": {
+          "$ref": "#/$defs/id"
+        },
+        "versionId": {
+          "$ref": "#/$defs/id"
+        },
+        "excerptHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      },
+      "additionalProperties": false
+    },
+    "revisionRef": {
+      "type": "object",
+      "required": ["id", "revision"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "revision": {
+          "$ref": "#/$defs/semver"
+        },
+        "contentHash": {
+          "$ref": "#/$defs/contentHash"
+        }
+      },
+      "additionalProperties": false
+    },
+    "credentialRef": {
+      "type": "object",
+      "required": ["credentialRef", "provider", "scopes"],
+      "properties": {
+        "credentialRef": {
+          "$ref": "#/$defs/id"
+        },
+        "provider": {
+          "$ref": "#/$defs/id"
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/permissionScope"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "approvalRequirement": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {
+          "enum": ["none", "policy", "always"]
+        },
+        "actionClass": {
+          "$ref": "#/$defs/actionClass"
+        },
+        "expiresAfterSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$"
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/event-catalog.schema.json",
+  "title": "Clark Event Catalog",
+  "type": "object",
+  "required": ["schemaVersion", "catalogVersion", "events"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": {
+      "const": 1
+    },
+    "catalogVersion": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "eventType",
+          "schemaVersion",
+          "aggregateType",
+          "payloadRef",
+          "compatibility",
+          "defaultSensitivity",
+          "mutationClass",
+          "description"
+        ],
+        "properties": {
+          "eventType": {
+            "$ref": "common.schema.json#/$defs/eventType"
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "aggregateType": {
+            "enum": [
+              "workspace",
+              "project",
+              "artifact",
+              "creative_graph",
+              "loop",
+              "run",
+              "decision",
+              "publication",
+              "observation",
+              "memory",
+              "skill",
+              "capability",
+              "account_connection",
+              "bridge_client",
+              "policy",
+              "remote_job"
+            ]
+          },
+          "payloadRef": {
+            "$ref": "common.schema.json#/$defs/schemaRef"
+          },
+          "compatibility": {
+            "enum": ["additive", "upcast_required", "terminal"]
+          },
+          "defaultSensitivity": {
+            "$ref": "common.schema.json#/$defs/sensitivity"
+          },
+          "mutationClass": {
+            "enum": ["local_state", "external_read", "external_mutation", "security_state"]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 500
+          },
+          "requiredCorrelation": {
+            "type": "boolean",
+            "default": false
+          },
+          "requiresIdempotencyKey": {
+            "type": "boolean",
+            "default": false
+          },
+          "piiNotes": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

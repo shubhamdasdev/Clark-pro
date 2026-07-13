@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.capture.local",
+  "name": "Clark Local Capture",
+  "description": "Imports explicit creator input into the local content-addressed library without remote egress.",
+  "version": "1.0.0",
+  "publisher": {
+    "id": "clark",
+    "name": "Clark Pro",
+    "source": "https://github.com/shubhamdasdev/Clark-pro",
+    "sourceRevision": "fixture-v1",
+    "sourceHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "kind": "transformation",
+  "transport": { "type": "library", "moduleRef": "clark.capture" },
+  "inputSchemaRef": "https://schemas.clark.pro/v1/capture-input.schema.json",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/source",
+  "lifecycle": ["validate", "execute", "health"],
+  "permissions": {
+    "actionClass": "capture",
+    "systemScopes": ["files.import"],
+    "credentialScopes": [],
+    "networkDomains": [],
+    "fileAccess": "explicit_inputs_readonly",
+    "requiresUserPresence": false
+  },
+  "egress": {
+    "maximumSensitivity": "confidential",
+    "declaredFields": [],
+    "retentionPolicy": "none",
+    "trainingPolicy": "not_used"
+  },
+  "async": { "mode": "sync", "cancellable": false, "observable": true, "reconnectByExternalId": false },
+  "idempotency": { "strategy": "clark_intent_ledger", "reconciliation": "not_required" },
+  "cost": { "quoteSupport": "exact", "metering": "none", "currency": "USD" },
+  "reliability": { "timeoutSeconds": 30, "retryPolicy": "never", "maxAttempts": 1, "healthCheck": "passive", "schemaDriftBehavior": "block" },
+  "ui": { "renderer": "capture.receipt", "previewSafe": true, "supportsProgress": false, "supportsDiff": false },
+  "limitations": []
+}

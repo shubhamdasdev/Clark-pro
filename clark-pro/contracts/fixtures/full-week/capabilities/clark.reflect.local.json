@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.reflect.local",
+  "name": "Local Evidence Reflection",
+  "description": "Evaluates structured observations and creator judgments locally to produce inactive learning proposals.",
+  "version": "1.0.0",
+  "publisher": {
+    "id": "clark",
+    "name": "Clark Pro",
+    "source": "https://github.com/shubhamdasdev/Clark-pro",
+    "sourceRevision": "fixture-v1",
+    "sourceHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "kind": "transformation",
+  "transport": { "type": "library", "moduleRef": "clark.reflect" },
+  "inputSchemaRef": "https://schemas.clark.pro/v1/observation-result.schema.json",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/learning-proposal.schema.json",
+  "lifecycle": ["validate", "execute", "health"],
+  "permissions": {
+    "actionClass": "memory_mutate",
+    "systemScopes": ["memory.propose", "skill.propose"],
+    "credentialScopes": [],
+    "networkDomains": [],
+    "fileAccess": "none",
+    "requiresUserPresence": false
+  },
+  "egress": { "maximumSensitivity": "personal", "declaredFields": [], "retentionPolicy": "none", "trainingPolicy": "not_used" },
+  "async": { "mode": "sync", "cancellable": true, "observable": true, "reconnectByExternalId": false },
+  "idempotency": { "strategy": "clark_intent_ledger", "reconciliation": "not_required" },
+  "cost": { "quoteSupport": "exact", "metering": "none", "currency": "USD" },
+  "reliability": { "timeoutSeconds": 600, "retryPolicy": "never", "maxAttempts": 1, "healthCheck": "passive", "schemaDriftBehavior": "block" },
+  "ui": { "renderer": "memory.proposal", "previewSafe": true, "supportsProgress": true, "supportsDiff": true },
+  "limitations": [
+    { "code": "proposal-only", "description": "This capability cannot promote memory or skill revisions.", "fallback": "none" }
+  ]
+}

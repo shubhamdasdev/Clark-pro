@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "social.observe.postiz",
+  "name": "Postiz Analytics Observation",
+  "version": "1.0.0",
+  "publisher": {
+    "id": "postiz",
+    "name": "Postiz",
+    "source": "https://docs.postiz.com/",
+    "sourceRevision": "fixture-v1",
+    "sourceHash": "sha256:7777777777777777777777777777777777777777777777777777777777777777"
+  },
+  "kind": "observation",
+  "transport": { "type": "mcp", "modes": ["streamable_http"], "serverRef": "mcp.postiz", "toolName": "get_post_analytics" },
+  "inputSchemaRef": "https://schemas.clark.pro/v1/observation-request.schema.json",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/observation-result.schema.json",
+  "lifecycle": ["auth", "discover", "validate", "quote", "execute", "observe", "health", "revoke"],
+  "permissions": {
+    "actionClass": "read",
+    "systemScopes": ["social.analytics", "network.read"],
+    "credentialScopes": ["postiz.read"],
+    "networkDomains": ["api.postiz.com"],
+    "fileAccess": "none",
+    "requiresUserPresence": false
+  },
+  "egress": {
+    "maximumSensitivity": "workspace",
+    "declaredFields": ["publication_receipt", "destination_account"],
+    "retentionPolicy": "provider_declared",
+    "trainingPolicy": "provider_declared"
+  },
+  "async": { "mode": "sync", "cancellable": true, "observable": true, "reconnectByExternalId": false },
+  "idempotency": { "strategy": "not_applicable", "reconciliation": "not_required" },
+  "cost": { "quoteSupport": "exact", "metering": "provider_reported", "currency": "USD" },
+  "reliability": { "timeoutSeconds": 120, "retryPolicy": "safe_transient_only", "maxAttempts": 3, "healthCheck": "non_mutating_active", "schemaDriftBehavior": "degrade_readonly" },
+  "ui": { "renderer": "observation.metrics", "previewSafe": true, "supportsProgress": false, "supportsDiff": true },
+  "limitations": [
+    { "code": "metric-coverage-varies", "description": "Metric definitions and availability differ by platform and account type.", "fallback": "manual" }
+  ]
+}

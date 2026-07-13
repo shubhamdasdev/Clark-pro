@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/domain-event.schema.json",
+  "title": "Clark Domain Event Envelope",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "eventType",
+    "aggregate",
+    "workspaceId",
+    "occurredAt",
+    "recordedAt",
+    "actor",
+    "payload",
+    "sensitivity"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "eventId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "eventType": {
+      "$ref": "common.schema.json#/$defs/eventType"
+    },
+    "aggregate": {
+      "type": "object",
+      "required": ["type", "id", "version"],
+      "properties": {
+        "type": {
+          "enum": [
+            "workspace",
+            "project",
+            "artifact",
+            "creative_graph",
+            "loop",
+            "run",
+            "decision",
+            "publication",
+            "observation",
+            "memory",
+            "skill",
+            "capability",
+            "account_connection",
+            "bridge_client",
+            "policy",
+            "remote_job"
+          ]
+        },
+        "id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "workspaceId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "projectId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "occurredAt": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "recordedAt": {
+      "$ref": "common.schema.json#/$defs/timestamp"
+    },
+    "actor": {
+      "$ref": "common.schema.json#/$defs/actorRef"
+    },
+    "commandId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "causationId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "correlationId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 256
+    },
+    "sensitivity": {
+      "$ref": "common.schema.json#/$defs/sensitivity"
+    },
+    "payload": {
+      "type": "object"
+    },
+    "integrity": {
+      "type": "object",
+      "required": ["eventHash"],
+      "properties": {
+        "previousEventHash": {
+          "$ref": "common.schema.json#/$defs/contentHash"
+        },
+        "eventHash": {
+          "$ref": "common.schema.json#/$defs/contentHash"
+        },
+        "signature": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 4096
+        },
+        "signingKeyId": {
+          "$ref": "common.schema.json#/$defs/id"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": ["studio", "bridge", "harness", "import", "relay", "system"]
+        },
+        "deviceId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "clientId": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "capabilityRevision": {
+          "$ref": "common.schema.json#/$defs/revisionRef"
+        },
+        "policyRevision": {
+          "$ref": "common.schema.json#/$defs/revisionRef"
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/extensions"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/project-fixture.schema.json",
+  "schemaVersion": 1,
+  "fixtureId": "fixture.dangling-edge",
+  "workspace": { "id": "workspace.test", "name": "Test", "localCanonical": true },
+  "project": { "id": "project.test", "name": "Test", "kind": "weekly_operation", "week": "2026-W28" },
+  "expectedObjectCount": 1,
+  "objects": [
+    { "id": "artifact.only", "name": "Only object", "lane": "creative", "kind": "artifact", "status": "ready", "sensitivity": "workspace", "sourceRefs": [], "approvalState": "not_requested", "publishState": "not_applicable", "outcomeState": "not_applicable", "permissions": ["workspace.read"] }
+  ],
+  "edges": [{ "id": "edge.dangling", "type": "data", "from": "artifact.only", "to": "artifact.missing" }],
+  "assertions": [{ "id": "invalid", "description": "Semantic validator must reject unresolved edge endpoint.", "expected": false }]
+}
