@@ -169,6 +169,8 @@ Installation preference is native MCP → headless CLI → HTTP API → supporte
 
 The [pinned OpenCut candidate](contracts/fixtures/tool-packages/opencut.rewrite.blocked.json) proves that Clark can track promising open-source work without claiming it works. At the reviewed revision, OpenCut's Editor API, MCP server, headless mode, plugin API, and plugin host are roadmap items. The candidate therefore installs nothing and exposes no capabilities or UI.
 
+The executable Harness now registers that immutable manifest into each workspace, reconstructs it from the event log, and evaluates eleven independent activation/rollback gates. Studio shows the source-integrity pass alongside the remaining blockers and disables activation. A synthetic non-provider package proves quarantine → activation → verified update with prior-revision suspension → rollback restoration; this proves lifecycle mechanics, not OpenCut compatibility or a real external installation.
+
 Once one stable upstream boundary exists, it re-enters quarantine. Clark must complete dependency/asset/trademark review, produce an SBOM and vulnerability report, implement typed converters and capabilities, verify golden rendering and failure behavior, and prove upgrade/rollback before activation. Private browser DOM or internal TypeScript types do not count as supported interfaces.
 
 ## Social Integration Strategy

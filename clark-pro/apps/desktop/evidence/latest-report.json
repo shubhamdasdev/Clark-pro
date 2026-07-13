@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "reportId": "clark.desktop.governed-memory-07",
-  "observedAt": "2026-07-13T01:26:45-05:00",
+  "reportId": "clark.desktop.tool-pack-gates-08",
+  "observedAt": "2026-07-13T01:59:17-05:00",
   "environment": {
     "platform": "macOS 26.2 (25C56)",
     "architecture": "arm64",
@@ -20,7 +20,7 @@
     ],
     "observations": [
       "The renderer exposed neither global require nor global process.",
-      "The preload exposed exactly fourteen named domain/shell members and no raw IPC primitive, Harness MessagePort, path, or generic command method.",
+      "The preload exposed exactly fifteen named domain/shell members and no raw IPC primitive, Harness MessagePort, path, or generic command method.",
       "IPC sender validation accepted only the expected main frame and webContents identity.",
       "BrowserWindow reported contextIsolation=true, sandbox=true, nodeIntegration=false, webSecurity=true, and webviewTag=false.",
       "The application menu contained native macOS Services, Edit, Window, and Clark view accelerators.",
@@ -32,13 +32,16 @@
       "The child-channel guard rejected unknown/mismatched response IDs and replayed/reordered events; diagnostics redacted credential-like material.",
       "The supervised Harness received an allowlisted environment without ambient credentials, recovered one run after forced process death, and returned to the approval gate without duplicate artifact mutation.",
       "Electron exercised proposal-only memory from an exact brief/run, verified pre-promotion retrieval exclusion, promoted and retrieved the claim, created an append-only correction with the old claim disputed, promoted the replacement, and forgot it with active-projection redaction.",
-      "The Memory workspace exposed layer, confidence, sensitivity, retrieval policy, exact evidence, scope, state, correction lineage actions, destination-aware retrieval, explicit-only authorization, and the current immutable-log deletion limitation."
+      "The Memory workspace exposed layer, confidence, sensitivity, retrieval policy, exact evidence, scope, state, correction lineage actions, destination-aware retrieval, explicit-only authorization, and the current immutable-log deletion limitation.",
+      "Connections rendered the event-backed OpenCut Tool Pack identity, immutable source and manifest hashes, preferred integration path, component counts, and all eleven activation/rollback gates instead of a static marketing card.",
+      "The Tool Pack inspector showed immutable source integrity passing while the unsupported interface, legal, supply-chain, acquisition, adapter, capability, activation, and rollback evidence remained incomplete; activation stayed visibly disabled and OpenCut contributed zero executable capabilities.",
+      "The narrow resolveToolPackage preload command requires exact workspace, package, revision, action, and reason, while the Harness remains the sole authority for activation and rollback decisions."
     ]
   },
   "packagedExecution": {
     "result": "pass",
     "command": "npm --prefix apps/desktop run verify:packaged",
-    "observation": "The unpacked macOS application launched its Harness utility entry from the ASAR, entered SQLite WAL mode, ran the governed MCP thesis assessment to durable approval, and returned an evidence-honest content-addressed result through the narrow preload API."
+    "observation": "The unpacked macOS application launched its Harness utility entry from the ASAR, entered SQLite WAL mode, ran the governed MCP thesis assessment to durable approval, loaded the exact blocked OpenCut Tool Pack manifest with eleven gates and zero OpenCut capabilities, and returned evidence-honest content-addressed state through the narrow preload API."
   },
   "localBundleInspection": {
     "result": "expected_release_failure",
@@ -64,6 +67,7 @@
     "security-scoped workspace file access",
     "Share Extension staging boundary",
     "signed updater and rollback",
+    "safe third-party Tool Pack acquisition/unpack/build and a real active external Tool Pack",
     "general third-party MCP, model, skill, reflection/semantic-memory, social, and publishing flows",
     "cryptographic memory erasure or event-log compaction"
   ]

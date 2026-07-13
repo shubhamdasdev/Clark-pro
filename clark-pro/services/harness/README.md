@@ -17,7 +17,8 @@ This package is the permanent local run substrate defined by ADR-0002, ADR-0003,
 - boot-time event/row integrity verification and projection rebuild before durable step recovery;
 - durable step attempts, checkpoint metadata, creator decision events, and approval/publishing separation;
 - governed memory claims with exact evidence references, proposal-only creation, explicit promotion/rejection/dispute/forget decisions, append-only correction lineage, scoped retrieval policies, content-free retrieval receipts, and deterministic replay;
-- additive SQLite schema-v4 migration that restores older runs as revision-one roots, adds memory/retrieval projections, and preserves deterministic event replay;
+- a workspace-scoped Tool Pack repository that stores immutable manifests in events, evaluates eleven source/legal/supply-chain/interface/adapter/activation/rollback gates, rejects quarantine bypass, suspends prior authority on update, and atomically restores a retained verified rollback revision;
+- additive SQLite schema-v5 migration that restores older runs as revision-one roots, adds memory/retrieval and Tool Package projections, and preserves deterministic event replay;
 - zero network, credential, model, social, skill, file, build, or publication authority in this executable loop; the only tool call is a bundled deterministic zero-egress MCP transform.
 
 ## Deliberate limitations
@@ -26,6 +27,7 @@ This package is the permanent local run substrate defined by ADR-0002, ADR-0003,
 - This loop is a deterministic thesis-structure baseline, not research, observed evidence, model generation, a general graph compiler, or proof of creator value. The MCP inspector marks ten explicit facets and always keeps market evidence unobserved until a separate evidence path supplies it.
 - The current process has no Keychain credential leases, third-party MCP/tool installation, external jobs, budgets beyond zero-cost local work, scheduling, backup/export, or signed release evidence.
 - Clark Bridge currently exposes `clark.idea.start`, `clark.idea.revise`, `clark.runs.list`, `clark.run.get`, and one compact run resource. It cannot approve, mutate memory, install skills, access credentials, build, or publish.
+- The Tool Pack lifecycle is executable and replayable, but its passing activation/update/rollback proof uses a synthetic non-provider fixture. OpenCut remains `blocked_upstream` with zero adapters, capabilities, converters, skills, UI contributions, or installed artifacts.
 - Studio memory is deliberately not enumerable through the currently paired Bridge client. Any future Bridge memory surface requires a separate explicit memory-read scope and privacy review.
 - Forgetting immediately removes a claim from retrieval, redacts the active projection, clears projected evidence/contradictions, and records derivative deletion. The original personal event payload remains in the immutable log until cryptographic erasure or compaction exists, so this slice does not claim complete physical deletion.
 - Recovery coverage proves an interrupted local run plus orphaned capability/Bridge revocation; broader transition chaos, in-flight cancellation, and ambiguous external-mutation reconciliation remain release gates.

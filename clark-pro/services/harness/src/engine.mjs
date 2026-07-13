@@ -1,6 +1,7 @@
 import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import path from "node:path";
+import { toolPackageFixtureDirectory } from "@clark/contracts/paths";
 import { AssetStore } from "./asset-store.mjs";
 import { canonicalJson, sha256, stableToken } from "./canonical.mjs";
 import { evaluateCapabilityLease } from "./capability-policy.mjs";
@@ -8,6 +9,7 @@ import { approvalIdForRun, EventStore } from "./event-store.mjs";
 import { compileIdeaRun, deriveRevisionRunIds, deriveRunIds, ideaInspectorManifest, structureIdea } from "./idea-compiler.mjs";
 import { bundledMcpSourceHash, BundledIdeaMcpAdapter } from "./mcp-capability-adapter.mjs";
 import { contractValidator } from "./protocol.mjs";
+import { evaluateToolPackage, toolPackageEvidenceStatus } from "./tool-package-policy.mjs";
 
 export class HarnessError extends Error {
   constructor(code, message, retryable = false) {
@@ -89,6 +91,10 @@ export class HarnessEngine extends EventEmitter {
       case "memory.correct": return this.correctMemory(payload, context);
       case "memory.list": return this.listMemories(payload);
       case "memory.retrieve": return this.retrieveMemories(payload, context);
+      case "tool_package.list": return this.listToolPackages(payload);
+      case "tool_package.get": return this.getToolPackageInWorkspace(payload);
+      case "tool_package.evaluate": return this.getToolPackageInWorkspace(payload);
+      case "tool_package.resolve": return this.resolveToolPackage(payload, context);
       case "capability.list": return this.listCapabilities(payload.workspaceId);
       default: throw new HarnessError("invalid_request", `Unsupported Harness method ${method}`);
     }
@@ -106,6 +112,7 @@ export class HarnessEngine extends EventEmitter {
       });
     }
     this.ensureBundledCapability(workspaceId, context);
+    this.ensureBundledToolPackages(workspaceId, context);
     const workspace = this.store.getWorkspace(workspaceId);
     return { workspaceId, created: !existing, aggregateVersion: Number(workspace.aggregate_version) };
   }
@@ -727,6 +734,208 @@ export class HarnessEngine extends EventEmitter {
       }
     }));
     return this.store.getCapability(workspaceId, ideaInspectorManifest.id, ideaInspectorManifest.version);
+  }
+
+  ensureBundledToolPackages(workspaceId, context = {}) {
+    const manifest = JSON.parse(fs.readFileSync(path.join(toolPackageFixtureDirectory, "opencut.rewrite.blocked.json"), "utf8"));
+    return this.registerToolPackageManifest({ workspaceId, manifest }, { ...context, source: "system", actor: { type: "system", id: "system.tool-catalog" } });
+  }
+
+  registerToolPackageManifest({ workspaceId, manifest }, context = {}) {
+    if (!this.store.getWorkspace(workspaceId)) throw new HarnessError("not_found", "Workspace does not exist");
+    contractValidator.validateToolPackage(manifest);
+    const manifestHash = sha256(canonicalJson(manifest));
+    const existing = this.store.getToolPackage(workspaceId, manifest.id, manifest.revision);
+    if (existing) {
+      if (existing.manifest_hash !== manifestHash || existing.source_hash !== manifest.source.contentHash) {
+        throw new HarnessError("conflict", "Pinned Tool Package manifest changed without a revision");
+      }
+      return existing;
+    }
+    if (manifest.lifecycle.state === "active") throw new HarnessError("policy_denied", "A Tool Package revision cannot bypass quarantine and creator activation");
+    const eventType = ["discovered", "blocked_upstream"].includes(manifest.lifecycle.state)
+      ? "tool_package.revision_discovered"
+      : ["quarantined", "testing"].includes(manifest.lifecycle.state)
+        ? "tool_package.revision_quarantined"
+        : undefined;
+    if (!eventType) throw new HarnessError("invalid_request", `Cannot register Tool Package in ${manifest.lifecycle.state} state`);
+    this.store.transaction(() => this.store.appendEvent({
+      eventType, aggregateType: "tool_package", aggregateId: manifest.id,
+      workspaceId, commandId: context.requestId, actor: context.actor ?? { type: "system", id: "system.tool-catalog" }, source: context.source ?? "system", sensitivity: "workspace",
+      payload: this.toolPackageEventPayload(manifest, "unseen", manifest.lifecycle.state, { reason: manifest.lifecycle.statusReason })
+    }));
+    this.emit("tool_package.updated", { toolPackageId: manifest.id, revision: manifest.revision, state: manifest.lifecycle.state });
+    return this.store.getToolPackage(workspaceId, manifest.id, manifest.revision);
+  }
+
+  listToolPackages({ workspaceId, limit }) {
+    if (!this.store.getWorkspace(workspaceId)) throw new HarnessError("not_found", "Workspace does not exist");
+    return { toolPackages: this.store.listToolPackageRows(workspaceId, limit).map((row) => this.toolPackageSummary(row)) };
+  }
+
+  getToolPackageInWorkspace({ workspaceId, toolPackageId, revision }) {
+    const row = this.store.getToolPackage(workspaceId, toolPackageId, revision);
+    if (!row) throw new HarnessError("not_found", "Tool Package revision does not exist in this workspace");
+    return this.toolPackageSummary(row);
+  }
+
+  resolveToolPackage(payload, context = {}) {
+    const { workspaceId, toolPackageId, revision, action, reason, idempotencyKey } = payload;
+    const requestHash = sha256({ method: "tool_package.resolve", workspaceId, toolPackageId, revision, action, reason });
+    const existingCommand = this.store.getCommand(idempotencyKey);
+    if (existingCommand) {
+      this.assertIdempotentMatch(existingCommand, "tool_package.resolve", requestHash);
+      const [subjectId, subjectRevision] = existingCommand.subject_id.split("@");
+      return this.getToolPackageInWorkspace({ workspaceId, toolPackageId: subjectId, revision: subjectRevision });
+    }
+    const row = this.store.getToolPackage(workspaceId, toolPackageId, revision);
+    if (!row) throw new HarnessError("not_found", "Tool Package revision does not exist in this workspace");
+    const manifest = JSON.parse(row.manifest_json);
+    const actor = context.actor ?? { type: "creator", id: "creator.local" };
+    const decisionId = `decision.tool-package.${stableToken(idempotencyKey)}`;
+
+    if (action === "activate") {
+      const evaluation = evaluateToolPackage(manifest);
+      if (!evaluation.activationEligible) {
+        const blockers = evaluation.gates.filter((gate) => gate.status !== "pass").map((gate) => gate.label).join(", ");
+        throw new HarnessError("policy_denied", `Tool Package activation gates are incomplete: ${blockers}`);
+      }
+      if (!["quarantined", "testing"].includes(row.state)) throw new HarnessError("conflict", `Cannot activate Tool Package in ${row.state} state`);
+      const activationCandidate = structuredClone(manifest);
+      activationCandidate.lifecycle = { ...activationCandidate.lifecycle, state: "active", installed: true, statusReason: reason };
+      contractValidator.validateToolPackage(activationCandidate);
+      const previousActiveRow = this.store.getActiveToolPackage(workspaceId, toolPackageId);
+      if (previousActiveRow && manifest.lifecycle.rollbackRevision !== previousActiveRow.revision) {
+        throw new HarnessError("policy_denied", "Tool Package update does not pin the currently active revision as its rollback target");
+      }
+      if (!previousActiveRow && manifest.lifecycle.rollbackRevision) {
+        throw new HarnessError("policy_denied", "A first activation cannot claim a rollback revision that was never active");
+      }
+      let result;
+      this.store.transaction(() => {
+        this.store.beginCommand({ idempotencyKey, method: "tool_package.resolve", requestHash, subjectId: `${toolPackageId}@${revision}` });
+        this.store.appendEvent({
+          eventType: "decision.recorded", aggregateType: "decision", aggregateId: decisionId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: { decisionId, decisionType: "tool_package_activate", subjectRef: toolPackageId, selectedOption: `activate@${revision}`, alternatives: ["keep_quarantined", "remove"], evidenceRefs: [], reason, reversible: true }
+        });
+        if (previousActiveRow) {
+          const previousManifest = JSON.parse(previousActiveRow.manifest_json);
+          this.store.appendEvent({
+            eventType: "tool_package.revision_suspended", aggregateType: "tool_package", aggregateId: toolPackageId,
+            workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+            payload: this.toolPackageEventPayload(previousManifest, "active", "suspended", {
+              decisionId, reason: `Superseded by verified revision ${revision}; retained as the pinned rollback target.`
+            })
+          });
+        }
+        this.store.appendEvent({
+          eventType: "tool_package.revision_activated", aggregateType: "tool_package", aggregateId: toolPackageId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: this.toolPackageEventPayload(manifest, row.state, "active", { decisionId, reason })
+        });
+        result = this.toolPackageSummary(this.store.getToolPackage(workspaceId, toolPackageId, revision));
+        this.store.completeCommand(idempotencyKey, result);
+      });
+      this.emit("tool_package.updated", { toolPackageId, revision, state: "active" });
+      return result;
+    }
+
+    if (action === "rollback") {
+      if (row.state !== "active") throw new HarnessError("conflict", `Cannot roll back Tool Package in ${row.state} state`);
+      const targetRevision = manifest.lifecycle.rollbackRevision;
+      if (!targetRevision) throw new HarnessError("policy_denied", "Active Tool Package has no pinned rollback revision");
+      const targetRow = this.store.getToolPackage(workspaceId, toolPackageId, targetRevision);
+      if (!targetRow) throw new HarnessError("policy_denied", "Pinned rollback revision is not retained in this workspace");
+      if (targetRow.state !== "suspended") throw new HarnessError("policy_denied", "Pinned rollback revision is not the suspended prior active revision");
+      const targetManifest = JSON.parse(targetRow.manifest_json);
+      const targetEvaluation = evaluateToolPackage(targetManifest);
+      if (!targetEvaluation.activationEligible) throw new HarnessError("policy_denied", "Pinned rollback revision no longer passes activation and rollback gates");
+      const rolledBackCandidate = structuredClone(manifest);
+      rolledBackCandidate.lifecycle = { ...rolledBackCandidate.lifecycle, state: "rolled_back", installed: false, statusReason: reason };
+      const restoredCandidate = structuredClone(targetManifest);
+      restoredCandidate.lifecycle = { ...restoredCandidate.lifecycle, state: "active", installed: true, statusReason: `Restored by rollback from ${revision}: ${reason}` };
+      contractValidator.validateToolPackage(rolledBackCandidate);
+      contractValidator.validateToolPackage(restoredCandidate);
+      let result;
+      this.store.transaction(() => {
+        this.store.beginCommand({ idempotencyKey, method: "tool_package.resolve", requestHash, subjectId: `${toolPackageId}@${targetRevision}` });
+        this.store.appendEvent({
+          eventType: "decision.recorded", aggregateType: "decision", aggregateId: decisionId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: { decisionId, decisionType: "tool_package_rollback", subjectRef: toolPackageId, selectedOption: `restore@${targetRevision}`, alternatives: ["keep_active", "suspend"], evidenceRefs: [], reason, reversible: true }
+        });
+        this.store.appendEvent({
+          eventType: "tool_package.revision_rolled_back", aggregateType: "tool_package", aggregateId: toolPackageId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: this.toolPackageEventPayload(manifest, "active", "rolled_back", {
+            decisionId, reason, rollbackRevision: { id: toolPackageId, revision: targetRevision, contentHash: targetRow.manifest_hash }
+          })
+        });
+        this.store.appendEvent({
+          eventType: "tool_package.revision_activated", aggregateType: "tool_package", aggregateId: toolPackageId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: this.toolPackageEventPayload(targetManifest, targetRow.state, "active", { decisionId, reason: restoredCandidate.lifecycle.statusReason })
+        });
+        result = this.toolPackageSummary(this.store.getToolPackage(workspaceId, toolPackageId, targetRevision));
+        this.store.completeCommand(idempotencyKey, result);
+      });
+      this.emit("tool_package.updated", { toolPackageId, revision: targetRevision, state: "active" });
+      return result;
+    }
+    throw new HarnessError("invalid_request", `Unsupported Tool Package action ${action}`);
+  }
+
+  toolPackageEventPayload(manifest, from, to, extra = {}) {
+    const manifestHash = sha256(canonicalJson(manifest));
+    return {
+      toolPackageRevision: { id: manifest.id, revision: manifest.revision, contentHash: manifestHash },
+      manifestHash,
+      sourceRevision: manifest.source.revision,
+      sourceHash: manifest.source.contentHash,
+      from,
+      to,
+      capabilityRevisions: manifest.components.capabilityRevisions,
+      adapterRevisions: manifest.integration.adapters.map((adapter) => ({ id: adapter.id, revision: adapter.revision, contentHash: adapter.contentHash })),
+      evidenceStatus: toolPackageEvidenceStatus(manifest),
+      manifest,
+      ...extra
+    };
+  }
+
+  toolPackageSummary(row) {
+    const manifest = JSON.parse(row.manifest_json);
+    const evaluation = evaluateToolPackage(manifest);
+    return {
+      toolPackageId: row.tool_package_id,
+      revision: row.revision,
+      name: manifest.name,
+      description: manifest.description,
+      publisherName: manifest.publisher.name,
+      publisherTrust: manifest.publisher.trust,
+      sourceRevision: row.source_revision,
+      sourceHash: row.source_hash,
+      manifestHash: row.manifest_hash,
+      state: row.state,
+      installed: Boolean(row.installed),
+      trustBasis: row.trust_basis,
+      statusReason: row.status_reason,
+      preferredPath: manifest.integration.preferredPath,
+      stableInterfaceCount: evaluation.stableInterfaceCount,
+      componentCounts: {
+        adapters: manifest.integration.adapters.length,
+        capabilities: manifest.components.capabilityRevisions.length,
+        skills: manifest.components.skillRevisions.length,
+        converters: manifest.components.converters.length,
+        uiContributions: manifest.components.uiContributions.length
+      },
+      evidenceStatus: JSON.parse(row.evidence_status_json),
+      activationEligible: evaluation.activationEligible,
+      ...(row.rollback_revision ? { rollbackRevision: row.rollback_revision } : {}),
+      gates: evaluation.gates,
+      limitations: manifest.limitations,
+      updatedAt: row.updated_at
+    };
   }
 
   listCapabilities(workspaceId) {

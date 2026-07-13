@@ -16,6 +16,7 @@ This is the first executable desktop-and-Harness slice on Clark's permanent Elec
 - live Connections state for the source-pinned stdio MCP capability and the authenticated localhost Clark Bridge, without exposing the Bridge bearer to the renderer;
 - live Focus and Connections projections that survive renderer reload, Harness death, application quit/relaunch, and packaged-ASAR execution;
 - a live governed Memory workspace with exact brief/run evidence, proposal-only claims, creator promotion/rejection/dispute/forget actions, append-only correction, sensitivity/destination-aware retrieval, and explicit-only/never-send-to-model policy controls;
+- a live Tool Pack gate review that shows OpenCut's immutable source pin separately from ten still-pending/blocked interface, legal, supply-chain, acquisition, adapter, activation, and rollback gates; activation remains disabled with zero installed authority;
 - automated boundary, persistence, recovery, menu, keyboard, semantic-accessibility, relaunch, and packaged-app tests.
 
 ## What is deliberately not claimed
@@ -23,7 +24,7 @@ This is the first executable desktop-and-Harness slice on Clark's permanent Elec
 - Developer ID signing, Hardened Runtime, notarization, stapling, Gatekeeper acceptance, or update signatures;
 - an observed VoiceOver task pass or expert design/accessibility review;
 - production Keychain, TCC notification, Share Extension, file-bookmark, or updater flows;
-- a general graph compiler, model/agent execution, third-party MCP installation, installed skills/Tool Packs, reflection-driven memory proposals, semantic/vector retrieval, complete physical erasure, social connections, or publishing authority;
+- a general graph compiler, model/agent execution, third-party MCP installation, a real active external Tool Pack, installed skills, reflection-driven memory proposals, semantic/vector retrieval, complete physical erasure, social connections, or publishing authority;
 - OpenCut execution or any third-party Tool Pack authority.
 
 The local `pack:mac` command produces an unsigned inspection bundle only. Release signing must use CI-held identity material and the gates in ADR-0011.

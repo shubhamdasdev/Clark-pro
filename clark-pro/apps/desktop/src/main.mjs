@@ -23,6 +23,7 @@ const MEMORY_SENSITIVITIES = new Set(["public", "workspace", "personal", "confid
 const MEMORY_POLICIES = new Set(["default", "explicit_only", "never_send_to_model"]);
 const MEMORY_ACTIONS = new Set(["promote", "reject", "dispute", "forget"]);
 const MEMORY_DESTINATIONS = new Set(["creator_view", "local_model", "remote_model"]);
+const TOOL_PACKAGE_ACTIONS = new Set(["activate", "rollback"]);
 
 if (process.env.CLARK_TEST_USER_DATA) app.setPath("userData", process.env.CLARK_TEST_USER_DATA);
 app.setName("Clark Studio");
@@ -90,14 +91,15 @@ function installIpc() {
     if (!harnessSupervisor || harnessSupervisor.state !== "ready") {
       return { available: false, state: harnessSupervisor?.state ?? "stopped", runs: [] };
     }
-    const [status, list, memories, capabilities, bridge] = await Promise.all([
+    const [status, list, memories, toolPackages, capabilities, bridge] = await Promise.all([
       harnessSupervisor.request("harness.status", {}),
       harnessSupervisor.request("run.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 10 }),
       harnessSupervisor.request("memory.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 100, includeForgotten: true }),
+      harnessSupervisor.request("tool_package.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 100 }),
       harnessSupervisor.request("capability.list", { workspaceId: LOCAL_WORKSPACE_ID }),
       harnessSupervisor.request("bridge.status", { workspaceId: LOCAL_WORKSPACE_ID })
     ]);
-    return { available: true, ...status, runs: list.runs, memories: memories.memories, capabilities: capabilities.capabilities, bridge };
+    return { available: true, ...status, runs: list.runs, memories: memories.memories, toolPackages: toolPackages.toolPackages, capabilities: capabilities.capabilities, bridge };
   });
   ipcMain.handle("desktop:start-idea-loop", async (event, ideaText) => {
     assertTrustedSender(event, mainWindow?.webContents);
@@ -208,6 +210,20 @@ function installIpc() {
       includeExplicitOnly: request.includeExplicitOnly,
       limit: 20,
       idempotencyKey: `intent.memory.retrieve.${randomUUID()}`
+    });
+  });
+  ipcMain.handle("desktop:resolve-tool-package", async (event, decision) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    assertHarnessReady();
+    if (!decision || typeof decision !== "object" || typeof decision.toolPackageId !== "string" || typeof decision.revision !== "string" || !TOOL_PACKAGE_ACTIONS.has(decision.action)) throw new TypeError("A valid Tool Package decision is required");
+    if (typeof decision.reason !== "string" || decision.reason.trim().length < 3 || decision.reason.length > 1_000) throw new TypeError("A Tool Package decision reason is required");
+    return harnessSupervisor.request("tool_package.resolve", {
+      workspaceId: LOCAL_WORKSPACE_ID,
+      toolPackageId: decision.toolPackageId,
+      revision: decision.revision,
+      action: decision.action,
+      reason: decision.reason.trim(),
+      idempotencyKey: `intent.tool-package.${decision.action}.${randomUUID()}`
     });
   });
 }

@@ -91,6 +91,18 @@ const capabilityConnectionState = document.querySelector("#capability-connection
 const capabilityConnectionDetail = document.querySelector("#capability-connection-detail");
 const bridgeConnectionState = document.querySelector("#bridge-connection-state");
 const bridgeConnectionDetail = document.querySelector("#bridge-connection-detail");
+const openCutConnectionState = document.querySelector("#opencut-connection-state");
+const openCutConnectionDetail = document.querySelector("#opencut-connection-detail");
+const toolPackName = document.querySelector("#tool-pack-name");
+const toolPackReason = document.querySelector("#tool-pack-reason");
+const toolPackSource = document.querySelector("#tool-pack-source");
+const toolPackManifest = document.querySelector("#tool-pack-manifest");
+const toolPackComponents = document.querySelector("#tool-pack-components");
+const toolPackPath = document.querySelector("#tool-pack-path");
+const toolPackGates = document.querySelector("#tool-pack-gates");
+const toolPackDecision = document.querySelector("#tool-pack-decision");
+const recheckToolPack = document.querySelector("#recheck-tool-pack");
+const resolveToolPack = document.querySelector("#resolve-tool-pack");
 const ideaForm = document.querySelector("#idea-loop-form");
 const ideaInput = document.querySelector("#idea-input");
 const revisionReasonGroup = document.querySelector("#revision-reason-group");
@@ -152,6 +164,7 @@ let refreshPromise;
 let harnessReady = false;
 let latestMemories = [];
 let selectedMemoryId;
+let selectedToolPackage;
 
 const runStateLabels = {
   planned: "Planned", running: "Running", recovering: "Recovering", waiting_approval: "Waiting approval",
@@ -362,6 +375,49 @@ function memoryStateClass(state) {
   return "specified";
 }
 
+function renderToolPackages(snapshot) {
+  const candidate = snapshot.toolPackages?.find((toolPackage) => toolPackage.toolPackageId === "clark.toolpack.opencut.rewrite") ?? snapshot.toolPackages?.[0];
+  selectedToolPackage = candidate;
+  if (!candidate) {
+    openCutConnectionState.textContent = "Unavailable";
+    openCutConnectionState.className = "state failed";
+    openCutConnectionDetail.textContent = "No workspace-scoped Tool Package projection";
+    toolPackReason.textContent = "No Tool Package candidate is registered in this workspace.";
+    return;
+  }
+  openCutConnectionState.textContent = candidate.state === "blocked_upstream" ? "Upstream blocked" : humanize(candidate.state);
+  openCutConnectionState.className = `state ${candidate.activationEligible ? "complete" : "quarantine"}`;
+  openCutConnectionDetail.textContent = `${candidate.sourceRevision.slice(0, 10)} · ${candidate.stableInterfaceCount} stable interfaces · ${candidate.componentCounts.capabilities} capabilities`;
+  toolPackName.textContent = `${candidate.name} ${candidate.revision}`;
+  toolPackReason.textContent = candidate.statusReason;
+  toolPackSource.textContent = `${candidate.sourceRevision.slice(0, 10)} · ${shortHash(candidate.sourceHash)}`;
+  toolPackManifest.textContent = shortHash(candidate.manifestHash);
+  const installedComponents = Object.values(candidate.componentCounts).reduce((total, value) => total + value, 0);
+  toolPackComponents.textContent = `${installedComponents} declared components · ${candidate.installed ? "package retained" : "not installed"}`;
+  toolPackPath.textContent = `${candidate.preferredPath === "mcp" ? "MCP" : humanize(candidate.preferredPath)} · ${candidate.stableInterfaceCount} stable`;
+  toolPackGates.replaceChildren(...candidate.gates.map((gate) => {
+    const item = document.createElement("li");
+    const label = document.createElement("span");
+    label.textContent = gate.label;
+    const status = document.createElement("strong");
+    status.className = gate.status;
+    status.textContent = humanize(gate.status);
+    const evidence = document.createElement("small");
+    evidence.textContent = gate.evidence;
+    item.append(label, status, evidence);
+    return item;
+  }));
+  const blockers = candidate.gates.filter((gate) => gate.status !== "pass").length;
+  toolPackDecision.textContent = candidate.activationEligible
+    ? "Every declared activation gate passes. Creator activation is still a separate decision and grants only the package's exact capability inventory."
+    : `${blockers} activation gates remain pending or blocked. ${candidate.installed ? "The package is retained in quarantine, but no declared contribution is executable." : "No code, adapter, capability, converter, skill, or UI contribution from this candidate is installed or executable."}`;
+  const canActivate = candidate.activationEligible && ["quarantined", "testing"].includes(candidate.state);
+  const canRollback = candidate.state === "active" && Boolean(candidate.rollbackRevision);
+  resolveToolPack.disabled = !canActivate && !canRollback;
+  resolveToolPack.dataset.action = canRollback ? "rollback" : "activate";
+  resolveToolPack.textContent = canRollback ? `Roll back to ${candidate.rollbackRevision}` : canActivate ? "Activate exact revision" : "Activation blocked";
+}
+
 function setCanvasNode(name, title, detail) {
   const button = nodeButtons.find((candidate) => candidate.dataset.node === name);
   if (!button) return;
@@ -389,6 +445,7 @@ async function refreshHarness() {
       setHarnessAvailability(snapshot);
       renderRun(snapshot.runs?.[0]);
       renderMemory(snapshot);
+      renderToolPackages(snapshot);
       return snapshot;
     })
     .catch((error) => {
@@ -532,6 +589,40 @@ memoryRetrievalForm.addEventListener("submit", async (event) => {
   } finally {
     retrieveMemoryButton.disabled = !harnessReady;
     await refreshHarness();
+  }
+});
+
+recheckToolPack.addEventListener("click", async () => {
+  recheckToolPack.disabled = true;
+  try {
+    const snapshot = await refreshHarness();
+    renderToolPackages(snapshot);
+    const candidate = snapshot?.toolPackages?.[0];
+    announcer.textContent = candidate?.activationEligible
+      ? "Tool Package gates pass, but activation still requires a separate creator decision."
+      : "Tool Package gates rechecked. OpenCut remains upstream-blocked with zero installed authority.";
+  } finally {
+    recheckToolPack.disabled = false;
+  }
+});
+
+resolveToolPack.addEventListener("click", async () => {
+  if (!selectedToolPackage || resolveToolPack.disabled) return;
+  const action = resolveToolPack.dataset.action;
+  resolveToolPack.disabled = true;
+  try {
+    const result = await window.clarkDesktop.resolveToolPackage({
+      toolPackageId: selectedToolPackage.toolPackageId,
+      revision: selectedToolPackage.revision,
+      action,
+      reason: action === "rollback" ? "Creator restored the pinned verified rollback revision." : "Creator reviewed every exact activation and rollback gate."
+    });
+    announcer.textContent = action === "rollback" ? `Tool Package rolled back to ${result.revision}.` : `Tool Package ${result.revision} activated with its exact component inventory.`;
+    await refreshHarness();
+  } catch (error) {
+    announcer.textContent = `Tool Package decision failed: ${error.message}`;
+  } finally {
+    renderToolPackages({ toolPackages: selectedToolPackage ? [selectedToolPackage] : [] });
   }
 });
 

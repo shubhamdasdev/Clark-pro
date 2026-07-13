@@ -86,3 +86,17 @@ test("memory mutation and retrieval requests require workspace scope, evidence, 
     scope, maxSensitivity: "personal", limit: 10, idempotencyKey: "intent-memory-retrieve-0002"
   }), HarnessProtocolError);
 });
+
+test("Tool Package inspection requests require exact workspace and revision identity", () => {
+  assert.doesNotThrow(() => createRequest("tool_package.list", { workspaceId: "workspace.local", limit: 20 }));
+  assert.doesNotThrow(() => createRequest("tool_package.evaluate", {
+    workspaceId: "workspace.local", toolPackageId: "clark.toolpack.opencut.rewrite", revision: "0.1.0"
+  }));
+  assert.doesNotThrow(() => createRequest("tool_package.resolve", {
+    workspaceId: "workspace.local", toolPackageId: "clark.toolpack.fixture", revision: "1.0.0",
+    action: "activate", reason: "Creator reviewed every gate.", idempotencyKey: "intent-tool-package-activate-0001"
+  }));
+  assert.throws(() => createRequest("tool_package.get", {
+    workspaceId: "workspace.local", toolPackageId: "clark.toolpack.opencut.rewrite", revision: "latest"
+  }), HarnessProtocolError);
+});

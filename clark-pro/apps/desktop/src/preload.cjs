@@ -6,6 +6,7 @@ const memorySensitivities = new Set(["public", "workspace", "personal", "confide
 const memoryPolicies = new Set(["default", "explicit_only", "never_send_to_model"]);
 const memoryActions = new Set(["promote", "reject", "dispute", "forget"]);
 const memoryDestinations = new Set(["creator_view", "local_model", "remote_model"]);
+const toolPackageActions = new Set(["activate", "rollback"]);
 
 const api = Object.freeze({
   version: "0.1.0",
@@ -97,6 +98,18 @@ const api = Object.freeze({
       return Promise.reject(new TypeError("A valid scoped memory retrieval is required"));
     }
     return ipcRenderer.invoke("desktop:retrieve-memory", safe);
+  },
+  resolveToolPackage: (decision) => {
+    const safe = decision && typeof decision === "object" ? {
+      toolPackageId: decision.toolPackageId,
+      revision: decision.revision,
+      action: decision.action,
+      reason: decision.reason
+    } : undefined;
+    if (!safe || typeof safe.toolPackageId !== "string" || typeof safe.revision !== "string" || !toolPackageActions.has(safe.action) || typeof safe.reason !== "string" || safe.reason.trim().length < 3 || safe.reason.length > 1000) {
+      return Promise.reject(new TypeError("A valid Tool Package decision is required"));
+    }
+    return ipcRenderer.invoke("desktop:resolve-tool-package", safe);
   },
   onHarnessEvent: (listener) => {
     if (typeof listener !== "function") throw new TypeError("A listener function is required");

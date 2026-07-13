@@ -71,6 +71,8 @@ export function createContractValidator() {
     validateLoopDefinition: (loop) => validateSchema("loop-definition.schema.json", loop),
     validateCapabilityManifest: (manifest) => validateSchema("capability-manifest.schema.json", manifest),
     validateCapabilityRuntime: (record) => validateSchema("capability-runtime.schema.json", record),
+    validateToolPackage: (toolPackage) => validateSchema("tool-package.schema.json", toolPackage),
+    validateSkillPackage: (skillPackage) => validateSchema("skill-package.schema.json", skillPackage),
     validateDomainEvent
   });
 }

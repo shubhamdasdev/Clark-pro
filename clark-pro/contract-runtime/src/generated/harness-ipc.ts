@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/harness-ipc.schema.json
- * Source SHA-256: 6fe19f29e6ad991ced76811860bd1750828659215eda5d5ea6b413931fd8eb9e
+ * Source SHA-256: f72288f27ffad36ec80b3624be5a5d3984f9e3f22779dff27397c61f20a3fcea
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -24,6 +24,10 @@ export type Response = {
     | "memory.correct"
     | "memory.list"
     | "memory.retrieve"
+    | "tool_package.list"
+    | "tool_package.get"
+    | "tool_package.evaluate"
+    | "tool_package.resolve"
     | "capability.list"
     | "bridge.status";
   ok: boolean;
@@ -36,6 +40,8 @@ export type Response = {
     | MemoryMutationResult
     | MemoryListResult
     | MemoryRetrievalResult
+    | ToolPackageSummary
+    | ToolPackageListResult
     | CapabilityListResult
     | BridgeStatusResult;
   error?: Error;
@@ -66,6 +72,10 @@ export interface Request {
     | MemoryCorrectCommand
     | MemoryListCommand
     | MemoryRetrieveCommand
+    | ToolPackageListCommand
+    | ToolPackageGetCommand
+    | ToolPackageEvaluateCommand
+    | ToolPackageResolveCommand
     | CapabilityListCommand
     | BridgeStatusCommand;
 }
@@ -617,6 +627,37 @@ export interface MemoryRetrieveCommand {
     maxSensitivity: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
     includeExplicitOnly: boolean;
     limit: number;
+    idempotencyKey: string;
+  };
+}
+export interface ToolPackageListCommand {
+  method: "tool_package.list";
+  payload: {
+    workspaceId: string;
+    limit: number;
+  };
+}
+export interface ToolPackageGetCommand {
+  method: "tool_package.get";
+  payload: ToolPackageIdentity;
+}
+export interface ToolPackageIdentity {
+  workspaceId: string;
+  toolPackageId: string;
+  revision: string;
+}
+export interface ToolPackageEvaluateCommand {
+  method: "tool_package.evaluate";
+  payload: ToolPackageIdentity;
+}
+export interface ToolPackageResolveCommand {
+  method: "tool_package.resolve";
+  payload: {
+    workspaceId: string;
+    toolPackageId: string;
+    revision: string;
+    action: "activate" | "rollback";
+    reason: string;
     idempotencyKey: string;
   };
 }
@@ -1373,6 +1414,77 @@ export interface MemoryRetrievalResult {
   policyRevisionId: string;
   deduplicated: boolean;
 }
+export interface ToolPackageSummary {
+  toolPackageId: string;
+  revision: string;
+  name: string;
+  description: string;
+  publisherName: string;
+  publisherTrust: "bundled_verified" | "verified" | "community_unverified" | "local_development";
+  sourceRevision: string;
+  sourceHash: string;
+  manifestHash: string;
+  state:
+    "discovered" | "blocked_upstream" | "quarantined" | "testing" | "active" | "suspended" | "failed" | "rolled_back";
+  installed: boolean;
+  trustBasis:
+    | "source_review_pending"
+    | "source_reviewed"
+    | "signed_release"
+    | "sandbox_verified"
+    | "bundled_verified"
+    | "developer_mode";
+  statusReason: string;
+  preferredPath:
+    | "mcp"
+    | "headless_cli"
+    | "http_api"
+    | "library"
+    | "wasm_component"
+    | "local_sidecar"
+    | "file_handoff"
+    | "browser_automation"
+    | "forked_vendor";
+  stableInterfaceCount: number;
+  componentCounts: {
+    adapters: number;
+    capabilities: number;
+    skills: number;
+    converters: number;
+    uiContributions: number;
+  };
+  evidenceStatus: EvidenceStatus;
+  activationEligible: boolean;
+  rollbackRevision?: string;
+  /**
+   * @minItems 1
+   */
+  gates: [ToolPackageGate, ...ToolPackageGate[]];
+  /**
+   * @minItems 1
+   */
+  limitations: [string, ...string[]];
+  updatedAt: string;
+}
+export interface EvidenceStatus {
+  license: "pending" | "pass" | "fail" | "not_applicable";
+  dependencies: "pending" | "pass" | "fail" | "not_applicable";
+  sbom: "pending" | "pass" | "fail" | "not_applicable";
+  vulnerability: "not_run" | "pass" | "fail";
+  activation: "not_run" | "pass" | "fail" | "blocked";
+}
+export interface ToolPackageGate {
+  id: string;
+  label: string;
+  status: "pass" | "pending" | "block";
+  evidence: string;
+}
+export interface ToolPackageListResult {
+  /**
+   * @maxItems 100
+   */
+  toolPackages: ToolPackageSummary[];
+}
 export interface CapabilityListResult {
   /**
    * @maxItems 100
@@ -1424,10 +1536,21 @@ export interface Event {
   schemaVersion: 1;
   kind: "event";
   sequence: number;
-  eventType: "harness.ready" | "harness.recovering" | "run.updated" | "approval.required" | "memory.updated";
+  eventType:
+    | "harness.ready"
+    | "harness.recovering"
+    | "run.updated"
+    | "approval.required"
+    | "memory.updated"
+    | "tool_package.updated";
   emittedAt: string;
   payload:
-    HarnessReadyPayload | HarnessRecoveringPayload | RunUpdatedPayload | ApprovalRequiredPayload | MemoryUpdatedPayload;
+    | HarnessReadyPayload
+    | HarnessRecoveringPayload
+    | RunUpdatedPayload
+    | ApprovalRequiredPayload
+    | MemoryUpdatedPayload
+    | ToolPackageUpdatedPayload;
 }
 export interface HarnessReadyPayload {
   protocolVersion: 1;
@@ -1449,4 +1572,10 @@ export interface ApprovalRequiredPayload {
 export interface MemoryUpdatedPayload {
   memoryId: string;
   state: "proposed" | "active" | "disputed" | "expired" | "rejected" | "forgotten";
+}
+export interface ToolPackageUpdatedPayload {
+  toolPackageId: string;
+  revision: string;
+  state:
+    "discovered" | "blocked_upstream" | "quarantined" | "testing" | "active" | "suspended" | "failed" | "rolled_back";
 }

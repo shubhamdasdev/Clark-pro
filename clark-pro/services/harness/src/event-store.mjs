@@ -31,7 +31,7 @@ export class EventStore {
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       ) STRICT;
-      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '4');
+      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '5');
       CREATE TABLE IF NOT EXISTS events (
         sequence INTEGER PRIMARY KEY AUTOINCREMENT,
         event_id TEXT NOT NULL UNIQUE,
@@ -229,6 +229,25 @@ export class EventStore {
         policy_revision_id TEXT NOT NULL,
         created_at TEXT NOT NULL
       ) STRICT;
+      CREATE TABLE IF NOT EXISTS tool_packages (
+        workspace_id TEXT NOT NULL,
+        tool_package_id TEXT NOT NULL,
+        revision TEXT NOT NULL,
+        manifest_hash TEXT NOT NULL,
+        manifest_json TEXT NOT NULL,
+        source_revision TEXT NOT NULL,
+        source_hash TEXT NOT NULL,
+        state TEXT NOT NULL,
+        installed INTEGER NOT NULL,
+        trust_basis TEXT NOT NULL,
+        evidence_status_json TEXT NOT NULL,
+        status_reason TEXT NOT NULL,
+        decision_id TEXT,
+        rollback_revision TEXT,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY(workspace_id, tool_package_id, revision)
+      ) STRICT;
+      CREATE INDEX IF NOT EXISTS tool_packages_workspace_state ON tool_packages(workspace_id, state, updated_at DESC);
     `);
     let version = this.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get()?.value;
     if (version === "1") {
@@ -266,7 +285,11 @@ export class EventStore {
       this.database.prepare("UPDATE metadata SET value = '4' WHERE key = 'schema_version'").run();
       version = "4";
     }
-    if (version !== "4") throw new Error(`Unsupported Harness database schema ${version}`);
+    if (version === "4") {
+      this.database.prepare("UPDATE metadata SET value = '5' WHERE key = 'schema_version'").run();
+      version = "5";
+    }
+    if (version !== "5") throw new Error(`Unsupported Harness database schema ${version}`);
     const journalMode = this.database.prepare("PRAGMA journal_mode").get()?.journal_mode;
     if (journalMode !== "wal") throw new Error(`Harness database did not enter WAL mode: ${journalMode}`);
   }
@@ -477,6 +500,27 @@ export class EventStore {
         .run(event.aggregate.version, updatedAt, event.workspaceId);
       return;
     }
+    if (event.eventType.startsWith("tool_package.revision_")) {
+      const payload = event.payload;
+      const existing = this.getToolPackage(event.workspaceId, payload.toolPackageRevision.id, payload.toolPackageRevision.revision);
+      const manifest = payload.manifest ?? (existing ? JSON.parse(existing.manifest_json) : undefined);
+      if (!manifest) throw new Error(`Tool Package ${payload.toolPackageRevision.id}@${payload.toolPackageRevision.revision} has no pinned manifest`);
+      contractValidator.validateToolPackage(manifest);
+      const manifestHash = sha256(canonicalJson(manifest));
+      if (manifest.id !== payload.toolPackageRevision.id || manifest.revision !== payload.toolPackageRevision.revision || manifestHash !== payload.manifestHash || manifest.source.revision !== payload.sourceRevision || manifest.source.contentHash !== payload.sourceHash) {
+        throw new Error(`Tool Package ${payload.toolPackageRevision.id}@${payload.toolPackageRevision.revision} manifest identity or hash mismatch`);
+      }
+      this.database.prepare(`INSERT INTO tool_packages(workspace_id, tool_package_id, revision, manifest_hash, manifest_json, source_revision, source_hash, state, installed, trust_basis, evidence_status_json, status_reason, decision_id, rollback_revision, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(workspace_id, tool_package_id, revision) DO UPDATE SET manifest_hash = excluded.manifest_hash, manifest_json = excluded.manifest_json, source_revision = excluded.source_revision, source_hash = excluded.source_hash, state = excluded.state, installed = excluded.installed, trust_basis = excluded.trust_basis, evidence_status_json = excluded.evidence_status_json, status_reason = excluded.status_reason, decision_id = excluded.decision_id, rollback_revision = excluded.rollback_revision, updated_at = excluded.updated_at`)
+        .run(
+          event.workspaceId, manifest.id, manifest.revision, manifestHash, canonicalJson(manifest), manifest.source.revision,
+          manifest.source.contentHash, payload.to, manifest.lifecycle.installed ? 1 : 0, manifest.lifecycle.trustBasis,
+          canonicalJson(payload.evidenceStatus), payload.reason ?? manifest.lifecycle.statusReason, payload.decisionId ?? null,
+          payload.rollbackRevision?.revision ?? manifest.lifecycle.rollbackRevision ?? null, updatedAt
+        );
+      return;
+    }
     if (event.eventType === "capability.revision_registered" || event.eventType === "capability.health_changed") {
       const existing = this.getCapability(event.workspaceId, event.payload.capabilityRevision.id, event.payload.capabilityRevision.revision);
       const manifest = event.payload.manifest ?? existing?.manifest;
@@ -635,6 +679,21 @@ export class EventStore {
     return this.database.prepare("SELECT * FROM memory_retrievals WHERE retrieval_id = ?").get(retrievalId);
   }
 
+  getToolPackage(workspaceId, toolPackageId, revision) {
+    return this.database.prepare("SELECT * FROM tool_packages WHERE workspace_id = ? AND tool_package_id = ? AND revision = ?")
+      .get(workspaceId, toolPackageId, revision);
+  }
+
+  getActiveToolPackage(workspaceId, toolPackageId) {
+    return this.database.prepare("SELECT * FROM tool_packages WHERE workspace_id = ? AND tool_package_id = ? AND state = 'active' ORDER BY updated_at DESC LIMIT 1")
+      .get(workspaceId, toolPackageId);
+  }
+
+  listToolPackageRows(workspaceId, limit = 50) {
+    return this.database.prepare("SELECT * FROM tool_packages WHERE workspace_id = ? ORDER BY updated_at DESC, tool_package_id, revision LIMIT ?")
+      .all(workspaceId, limit);
+  }
+
   evidenceRefExists(workspaceId, evidence) {
     if (["artifact", "source"].includes(evidence.type)) {
       if (!evidence.versionId) return false;
@@ -745,7 +804,8 @@ export class EventStore {
       toolCalls: select("tool_calls", "call_id"),
       bridgeClients: select("bridge_clients", "client_id"),
       memories: select("memories", "memory_id"),
-      memoryRetrievals: select("memory_retrievals", "retrieval_id")
+      memoryRetrievals: select("memory_retrievals", "retrieval_id"),
+      toolPackages: select("tool_packages", "workspace_id, tool_package_id, revision")
     };
   }
 
@@ -753,7 +813,7 @@ export class EventStore {
     const events = this.eventEnvelopes();
     const checkpoints = this.database.prepare("SELECT * FROM checkpoints ORDER BY event_sequence").all();
     this.transaction(() => {
-      this.database.exec("DELETE FROM memory_retrievals; DELETE FROM memories; DELETE FROM tool_calls; DELETE FROM capability_leases; DELETE FROM permission_receipts; DELETE FROM capabilities; DELETE FROM bridge_clients; DELETE FROM steps; DELETE FROM runs; DELETE FROM artifacts; DELETE FROM projects; DELETE FROM workspaces;");
+      this.database.exec("DELETE FROM tool_packages; DELETE FROM memory_retrievals; DELETE FROM memories; DELETE FROM tool_calls; DELETE FROM capability_leases; DELETE FROM permission_receipts; DELETE FROM capabilities; DELETE FROM bridge_clients; DELETE FROM steps; DELETE FROM runs; DELETE FROM artifacts; DELETE FROM projects; DELETE FROM workspaces;");
       for (const event of events) this.applyProjection(event);
       const restore = this.database.prepare("INSERT OR REPLACE INTO checkpoints(checkpoint_id, run_id, event_sequence, state_json, created_at) VALUES (?, ?, ?, ?, ?)");
       for (const checkpoint of checkpoints) {

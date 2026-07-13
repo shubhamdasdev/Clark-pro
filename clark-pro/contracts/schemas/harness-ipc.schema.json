@@ -30,6 +30,10 @@
             { "$ref": "#/$defs/memoryCorrectCommand" },
             { "$ref": "#/$defs/memoryListCommand" },
             { "$ref": "#/$defs/memoryRetrieveCommand" },
+            { "$ref": "#/$defs/toolPackageListCommand" },
+            { "$ref": "#/$defs/toolPackageGetCommand" },
+            { "$ref": "#/$defs/toolPackageEvaluateCommand" },
+            { "$ref": "#/$defs/toolPackageResolveCommand" },
             { "$ref": "#/$defs/capabilityListCommand" },
             { "$ref": "#/$defs/bridgeStatusCommand" }
           ]
@@ -282,6 +286,62 @@
       },
       "additionalProperties": false
     },
+    "toolPackageListCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "tool_package.list" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "limit"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 100 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "toolPackageGetCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "tool_package.get" },
+        "payload": { "$ref": "#/$defs/toolPackageIdentity" }
+      },
+      "additionalProperties": false
+    },
+    "toolPackageEvaluateCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "tool_package.evaluate" },
+        "payload": { "$ref": "#/$defs/toolPackageIdentity" }
+      },
+      "additionalProperties": false
+    },
+    "toolPackageResolveCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "tool_package.resolve" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "toolPackageId", "revision", "action", "reason", "idempotencyKey"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "toolPackageId": { "$ref": "common.schema.json#/$defs/id" },
+            "revision": { "$ref": "common.schema.json#/$defs/semver" },
+            "action": { "enum": ["activate", "rollback"] },
+            "reason": { "type": "string", "minLength": 3, "maxLength": 1000 },
+            "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "capabilityListCommand": {
       "type": "object",
       "required": ["method", "payload"],
@@ -317,7 +377,7 @@
         "schemaVersion": { "const": 1 },
         "kind": { "const": "response" },
         "requestId": { "$ref": "common.schema.json#/$defs/id" },
-        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "idea.revise", "run.get", "run.list", "approval.resolve", "memory.propose", "memory.resolve", "memory.correct", "memory.list", "memory.retrieve", "capability.list", "bridge.status"] },
+        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "idea.revise", "run.get", "run.list", "approval.resolve", "memory.propose", "memory.resolve", "memory.correct", "memory.list", "memory.retrieve", "tool_package.list", "tool_package.get", "tool_package.evaluate", "tool_package.resolve", "capability.list", "bridge.status"] },
         "ok": { "type": "boolean" },
         "result": {
           "oneOf": [
@@ -329,6 +389,8 @@
             { "$ref": "#/$defs/memoryMutationResult" },
             { "$ref": "#/$defs/memoryListResult" },
             { "$ref": "#/$defs/memoryRetrievalResult" },
+            { "$ref": "#/$defs/toolPackageSummary" },
+            { "$ref": "#/$defs/toolPackageListResult" },
             { "$ref": "#/$defs/capabilityListResult" },
             { "$ref": "#/$defs/bridgeStatusResult" }
           ]
@@ -358,7 +420,7 @@
         "schemaVersion": { "const": 1 },
         "kind": { "const": "event" },
         "sequence": { "type": "integer", "minimum": 1 },
-        "eventType": { "enum": ["harness.ready", "harness.recovering", "run.updated", "approval.required", "memory.updated"] },
+        "eventType": { "enum": ["harness.ready", "harness.recovering", "run.updated", "approval.required", "memory.updated", "tool_package.updated"] },
         "emittedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
         "payload": {
           "oneOf": [
@@ -366,7 +428,8 @@
             { "$ref": "#/$defs/harnessRecoveringPayload" },
             { "$ref": "#/$defs/runUpdatedPayload" },
             { "$ref": "#/$defs/approvalRequiredPayload" },
-            { "$ref": "#/$defs/memoryUpdatedPayload" }
+            { "$ref": "#/$defs/memoryUpdatedPayload" },
+            { "$ref": "#/$defs/toolPackageUpdatedPayload" }
           ]
         }
       },
@@ -475,6 +538,73 @@
       },
       "additionalProperties": false
     },
+    "toolPackageIdentity": {
+      "type": "object",
+      "required": ["workspaceId", "toolPackageId", "revision"],
+      "properties": {
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "toolPackageId": { "$ref": "common.schema.json#/$defs/id" },
+        "revision": { "$ref": "common.schema.json#/$defs/semver" }
+      },
+      "additionalProperties": false
+    },
+    "toolPackageGate": {
+      "type": "object",
+      "required": ["id", "label", "status", "evidence"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "status": { "enum": ["pass", "pending", "block"] },
+        "evidence": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "toolPackageSummary": {
+      "type": "object",
+      "required": ["toolPackageId", "revision", "name", "description", "publisherName", "publisherTrust", "sourceRevision", "sourceHash", "manifestHash", "state", "installed", "trustBasis", "statusReason", "preferredPath", "stableInterfaceCount", "componentCounts", "evidenceStatus", "activationEligible", "gates", "limitations", "updatedAt"],
+      "properties": {
+        "toolPackageId": { "$ref": "common.schema.json#/$defs/id" },
+        "revision": { "$ref": "common.schema.json#/$defs/semver" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "publisherName": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "publisherTrust": { "enum": ["bundled_verified", "verified", "community_unverified", "local_development"] },
+        "sourceRevision": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "sourceHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "manifestHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "state": { "enum": ["discovered", "blocked_upstream", "quarantined", "testing", "active", "suspended", "failed", "rolled_back"] },
+        "installed": { "type": "boolean" },
+        "trustBasis": { "enum": ["source_review_pending", "source_reviewed", "signed_release", "sandbox_verified", "bundled_verified", "developer_mode"] },
+        "statusReason": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "preferredPath": { "enum": ["mcp", "headless_cli", "http_api", "library", "wasm_component", "local_sidecar", "file_handoff", "browser_automation", "forked_vendor"] },
+        "stableInterfaceCount": { "type": "integer", "minimum": 0 },
+        "componentCounts": {
+          "type": "object",
+          "required": ["adapters", "capabilities", "skills", "converters", "uiContributions"],
+          "properties": {
+            "adapters": { "type": "integer", "minimum": 0 },
+            "capabilities": { "type": "integer", "minimum": 0 },
+            "skills": { "type": "integer", "minimum": 0 },
+            "converters": { "type": "integer", "minimum": 0 },
+            "uiContributions": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "evidenceStatus": { "$ref": "event-payloads.schema.json#/$defs/toolPackageRevisionStateChanged/properties/evidenceStatus" },
+        "activationEligible": { "type": "boolean" },
+        "rollbackRevision": { "$ref": "common.schema.json#/$defs/semver" },
+        "gates": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/toolPackageGate" } },
+        "limitations": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1, "maxLength": 1000 } },
+        "updatedAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "toolPackageListResult": {
+      "type": "object",
+      "required": ["toolPackages"],
+      "properties": { "toolPackages": { "type": "array", "items": { "$ref": "#/$defs/toolPackageSummary" }, "maxItems": 100 } },
+      "additionalProperties": false
+    },
     "capabilityListResult": {
       "type": "object",
       "required": ["capabilities"],
@@ -561,6 +691,16 @@
       "properties": {
         "memoryId": { "$ref": "common.schema.json#/$defs/id" },
         "state": { "enum": ["proposed", "active", "disputed", "expired", "rejected", "forgotten"] }
+      },
+      "additionalProperties": false
+    },
+    "toolPackageUpdatedPayload": {
+      "type": "object",
+      "required": ["toolPackageId", "revision", "state"],
+      "properties": {
+        "toolPackageId": { "$ref": "common.schema.json#/$defs/id" },
+        "revision": { "$ref": "common.schema.json#/$defs/semver" },
+        "state": { "enum": ["discovered", "blocked_upstream", "quarantined", "testing", "active", "suspended", "failed", "rolled_back"] }
       },
       "additionalProperties": false
     },

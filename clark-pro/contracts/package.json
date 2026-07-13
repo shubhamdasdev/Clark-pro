@@ -6,6 +6,7 @@
   "files": [
     "schemas/",
     "fixtures/harness/",
+    "fixtures/tool-packages/",
     "event-catalog.json",
     "paths.mjs"
   ],

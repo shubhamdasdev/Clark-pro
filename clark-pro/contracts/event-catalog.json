@@ -516,6 +516,16 @@
       "description": "Disables a failed or unsafe Tool Pack revision and restores its last verified compatible revision."
     },
     {
+      "eventType": "tool_package.revision_suspended",
+      "schemaVersion": 1,
+      "aggregateType": "tool_package",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/toolPackageRevisionStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Retains a previously active Tool Pack revision without authority while a verified update is active and rollback remains available."
+    },
+    {
       "eventType": "account_connection.added",
       "schemaVersion": 1,
       "aggregateType": "account_connection",

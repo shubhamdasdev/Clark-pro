@@ -29,6 +29,13 @@ test("packaged app contains and executes the supervised Harness", async () => {
     assert.equal(JSON.parse(snapshot.runs[0].analysis.text).kind, "idea_thesis_assessment");
     assert.equal(JSON.parse(snapshot.runs[0].analysis.text).evidenceState, "not_observed");
     assert.equal(snapshot.capabilities.find((capability) => capability.id === "clark.idea.inspect.mcp").state, "healthy");
+    assert.equal(snapshot.toolPackages.length, 1);
+    assert.equal(snapshot.toolPackages[0].toolPackageId, "clark.toolpack.opencut.rewrite");
+    assert.equal(snapshot.toolPackages[0].state, "blocked_upstream");
+    assert.equal(snapshot.toolPackages[0].installed, false);
+    assert.equal(snapshot.toolPackages[0].activationEligible, false);
+    assert.equal(snapshot.toolPackages[0].gates.length, 11);
+    assert.equal(snapshot.capabilities.some((capability) => capability.id.includes("opencut")), false);
     assert.equal(snapshot.bridge.state, "ready");
     assert.equal("token" in snapshot.bridge, false);
     assert.match(snapshot.runs[0].draft.contentHash, /^sha256:[a-f0-9]{64}$/);

@@ -241,12 +241,21 @@
               <div class="connection-icon harness" aria-hidden="true">H</div><div><h2>Clark Harness</h2><p id="harness-connection-detail">Supervised utility process · connecting</p></div><span id="harness-connection-state" class="state specified">Starting</span>
             </article>
             <article class="connection-card" role="listitem">
-              <div class="connection-icon opencut" aria-hidden="true">O</div><div><h2>OpenCut Tool Pack candidate</h2><p>Pinned upstream rewrite · no executable authority</p></div><span class="state quarantine">Quarantined</span>
+              <div class="connection-icon opencut" aria-hidden="true">O</div><div><h2>OpenCut Tool Pack candidate</h2><p id="opencut-connection-detail">Loading immutable manifest and activation gates</p></div><span id="opencut-connection-state" class="state specified">Inspecting</span>
             </article>
             <article class="connection-card" role="listitem">
               <div class="connection-icon skill" aria-hidden="true">S</div><div><h2>Agent Skills host</h2><p>Install, test, promote, and roll back packages</p></div><span class="state tested">Sandbox tested</span>
             </article>
           </div>
+          <section id="tool-pack-inspector" class="tool-pack-inspector" aria-labelledby="tool-pack-heading">
+            <div class="panel-heading"><div><h2 id="tool-pack-heading">Tool Pack gate review</h2><span>Reuse the engine; keep Clark truth canonical</span></div><button id="recheck-tool-pack" class="secondary-action" type="button">Recheck gates</button></div>
+            <div class="tool-pack-summary">
+              <div><p class="eyebrow">Pinned candidate</p><h3 id="tool-pack-name">OpenCut Rewrite</h3><p id="tool-pack-reason">Reading the workspace-scoped package projection…</p></div>
+              <dl><div><dt>Source</dt><dd id="tool-pack-source">—</dd></div><div><dt>Manifest</dt><dd id="tool-pack-manifest">—</dd></div><div><dt>Package contents</dt><dd id="tool-pack-components">—</dd></div><div><dt>Preferred boundary</dt><dd id="tool-pack-path">—</dd></div></dl>
+            </div>
+            <ol id="tool-pack-gates" class="tool-pack-gates" aria-label="OpenCut activation gates"><li><span>Loading</span><strong>Pending</strong><small>Waiting for Harness projection.</small></li></ol>
+            <div class="tool-pack-decision"><p id="tool-pack-decision">A Git repository is a candidate, not an installed plugin. Activation remains unavailable until every gate passes.</p><button id="resolve-tool-pack" class="primary-action" type="button" disabled>Activation blocked</button></div>
+          </section>
           <section class="native-prompts" aria-labelledby="native-heading">
             <div class="panel-heading"><h2 id="native-heading">Native trust language</h2><span>Interaction proof only</span></div>
             <div class="prompt-grid">

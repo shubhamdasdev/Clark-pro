@@ -49,6 +49,8 @@ try {
   await page.keyboard.press("Meta+7");
   await page.getByRole("heading", { name: "Connections", level: 1 }).waitFor();
   await page.screenshot({ path: path.join(outputDirectory, "connections.png") });
+  await page.locator("#tool-pack-inspector").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: path.join(outputDirectory, "connections-tool-pack.png") });
   console.log(outputDirectory);
 } finally {
   if (electronApp) await electronApp.close().catch(() => {});

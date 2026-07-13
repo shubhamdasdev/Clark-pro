@@ -199,7 +199,7 @@
       "required": ["decisionId", "decisionType", "subjectRef", "selectedOption", "alternatives", "evidenceRefs", "reversible"],
       "properties": {
         "decisionId": { "$ref": "common.schema.json#/$defs/id" },
-        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "memory_dispute", "memory_correct", "memory_forget", "skill_promote", "conflict_resolve"] },
+        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "memory_dispute", "memory_correct", "memory_forget", "skill_promote", "tool_package_activate", "tool_package_rollback", "conflict_resolve"] },
         "subjectRef": { "$ref": "common.schema.json#/$defs/id" },
         "selectedOption": { "type": "string", "minLength": 1, "maxLength": 500 },
         "alternatives": { "type": "array", "items": { "type": "string", "maxLength": 500 }, "minItems": 1 },
@@ -415,6 +415,7 @@
           },
           "additionalProperties": false
         },
+        "manifest": { "$ref": "tool-package.schema.json" },
         "decisionId": { "$ref": "common.schema.json#/$defs/id" },
         "rollbackRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
         "reason": { "type": "string", "maxLength": 1000 }
