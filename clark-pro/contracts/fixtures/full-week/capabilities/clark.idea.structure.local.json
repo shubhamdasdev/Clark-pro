@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../schemas/capability-manifest.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.idea.structure.local",
+  "name": "Clark Deterministic Idea Structure",
+  "description": "Turns explicit creator text into a reviewable idea brief using deterministic local rules and no model, network, credential, or external tool authority.",
+  "version": "1.0.0",
+  "publisher": {
+    "id": "clark",
+    "name": "Clark Pro",
+    "source": "https://github.com/shubhamdasdev/Clark-pro",
+    "sourceRevision": "fixture-v1",
+    "sourceHash": "sha256:1212121212121212121212121212121212121212121212121212121212121212"
+  },
+  "kind": "transformation",
+  "transport": { "type": "library", "moduleRef": "clark.idea-structure.local" },
+  "inputSchemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/idea",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief",
+  "lifecycle": ["validate", "execute", "health"],
+  "permissions": {
+    "actionClass": "local_transform",
+    "systemScopes": [],
+    "credentialScopes": [],
+    "networkDomains": [],
+    "fileAccess": "none",
+    "requiresUserPresence": false
+  },
+  "egress": {
+    "maximumSensitivity": "confidential",
+    "declaredFields": [],
+    "retentionPolicy": "none",
+    "trainingPolicy": "not_used"
+  },
+  "async": { "mode": "sync", "cancellable": false, "observable": true, "reconnectByExternalId": false },
+  "idempotency": { "strategy": "clark_intent_ledger", "reconciliation": "not_required" },
+  "cost": { "quoteSupport": "exact", "metering": "none", "currency": "USD" },
+  "reliability": { "timeoutSeconds": 30, "retryPolicy": "never", "maxAttempts": 1, "healthCheck": "passive", "schemaDriftBehavior": "block" },
+  "ui": { "renderer": "idea.brief", "previewSafe": true, "supportsProgress": false, "supportsDiff": true },
+  "limitations": [
+    { "code": "deterministic-baseline", "description": "This adapter structures supplied text but does not research claims or generate new evidence.", "fallback": "manual" }
+  ]
+}

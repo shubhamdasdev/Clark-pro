@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "kind": "event",
+  "sequence": 7,
+  "eventType": "approval.required",
+  "emittedAt": "2026-07-13T04:00:02Z",
+  "payload": {
+    "runId": "run.idea.12345678",
+    "approvalId": "approval.run.idea.12345678",
+    "subjectRef": "artifact.run.idea.12345678.draft"
+  }
+}

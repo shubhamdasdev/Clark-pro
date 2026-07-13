@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "reportId": "clark.desktop.ground-05",
-  "observedAt": "2026-07-12T22:40:52-05:00",
+  "observedAt": "2026-07-12T23:38:34-05:00",
   "environment": {
     "platform": "macOS 26.2 (25C56)",
     "architecture": "arm64",
@@ -12,26 +12,32 @@
   },
   "automated": {
     "result": "pass",
-    "total": 8,
-    "passed": 8,
+    "total": 12,
+    "passed": 12,
     "commands": [
       "npm --prefix apps/desktop run test",
       "npm --prefix apps/desktop run test:e2e"
     ],
     "observations": [
       "The renderer exposed neither global require nor global process.",
-      "The preload exposed exactly five named shell members and no raw IPC primitive.",
+      "The preload exposed exactly nine named domain/shell members and no raw IPC primitive, Harness MessagePort, path, or generic command method.",
       "IPC sender validation accepted only the expected main frame and webContents identity.",
       "BrowserWindow reported contextIsolation=true, sandbox=true, nodeIntegration=false, webSecurity=true, and webviewTag=false.",
       "The application menu contained native macOS Services, Edit, Window, and Clark view accelerators.",
       "Keyboard navigation opened Focus, Canvas, and Connections; Canvas arrow navigation moved semantic focus between objects.",
       "Only one visible level-one heading was present per view, with named tabs, lists, buttons, panels, and live status semantics.",
-      "The active view and clamped window bounds survived a complete Electron quit and relaunch."
+      "A real idea run reached exact-version approval, survived renderer reload, completed after creator approval, and remained completed after a full Electron quit/relaunch.",
+      "The child-channel guard rejected unknown/mismatched response IDs and replayed/reordered events; diagnostics redacted credential-like material.",
+      "The supervised Harness received an allowlisted environment without ambient credentials, recovered one run after forced process death, and returned to the approval gate without duplicate artifact mutation."
     ]
+  },
+  "packagedExecution": {
+    "result": "pass",
+    "command": "npm --prefix apps/desktop run verify:packaged",
+    "observation": "The unpacked macOS application launched its Harness utility entry from the ASAR, entered SQLite WAL mode, ran the idea loop to durable approval, and returned a content hash through the narrow preload API."
   },
   "localBundleInspection": {
     "result": "expected_release_failure",
-    "command": "npm --prefix apps/desktop run pack:mac",
     "bundle": "apps/desktop/dist/mac-arm64/Clark Studio.app",
     "bundleIdentifier": "com.clarkpro.studio",
     "asarIntegrity": "present",
@@ -39,7 +45,7 @@
     "teamIdentifier": null,
     "strictCodeSignVerification": "fail",
     "gatekeeperAssessment": "fail",
-    "interpretation": "The bundle is suitable only for local interaction inspection. It is not a signed, hardened, notarized, stapled, or Gatekeeper-accepted release artifact."
+    "interpretation": "The bundle is suitable only for local interaction and process inspection. It is not a signed, hardened, notarized, stapled, or Gatekeeper-accepted release artifact."
   },
   "humanEvidence": {
     "voiceOverTask": "not_run",
@@ -54,6 +60,6 @@
     "security-scoped workspace file access",
     "Share Extension staging boundary",
     "signed updater and rollback",
-    "Harness utility process"
+    "general model, MCP, skill, memory, social, and publishing flows"
   ]
 }

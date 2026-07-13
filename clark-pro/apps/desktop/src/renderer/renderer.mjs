@@ -79,5 +79,113 @@ window.clarkDesktop.onTrustCenter(() => {
   void activateSection("connections", { persist: false }).then(focusTrustCenter);
 });
 
+const harnessState = document.querySelector("#harness-state");
+const harnessRail = document.querySelector("#harness-rail-status span:last-child");
+const harnessConnectionState = document.querySelector("#harness-connection-state");
+const harnessConnectionDetail = document.querySelector("#harness-connection-detail");
+const ideaForm = document.querySelector("#idea-loop-form");
+const ideaInput = document.querySelector("#idea-input");
+const runButton = document.querySelector("#run-idea-loop");
+const runResult = document.querySelector("#harness-run");
+const runEmpty = document.querySelector("#run-empty");
+const runState = document.querySelector("#run-state");
+const draftText = document.querySelector("#draft-text");
+const runIntegrity = document.querySelector("#run-integrity");
+const approvalActions = document.querySelector("#approval-actions");
+const approveBrief = document.querySelector("#approve-brief");
+const rejectBrief = document.querySelector("#reject-brief");
+let latestRun;
+let refreshPromise;
+
+const runStateLabels = {
+  planned: "Planned", running: "Running", recovering: "Recovering", waiting_approval: "Waiting approval",
+  completed: "Completed", failed: "Revision required", cancelled: "Cancelled"
+};
+
+function setHarnessAvailability(snapshot) {
+  const ready = snapshot.available && snapshot.state === "ready";
+  harnessState.textContent = ready ? `Ready · ${snapshot.database.eventCount} events` : runStateLabels[snapshot.state] ?? "Unavailable";
+  harnessRail.textContent = ready ? "Harness live · SQLite WAL" : `Harness ${snapshot.state ?? "unavailable"}`;
+  harnessConnectionState.textContent = ready ? "Live" : snapshot.state ?? "Unavailable";
+  harnessConnectionState.className = `state ${ready ? "complete" : "waiting"}`;
+  harnessConnectionDetail.textContent = ready ? `Supervised utility process · SQLite WAL · ${snapshot.database.eventCount} events` : "Supervised utility process unavailable";
+  runButton.disabled = !ready;
+}
+
+function renderRun(run) {
+  latestRun = run;
+  if (!run) {
+    runResult.hidden = true;
+    runEmpty.hidden = false;
+    return;
+  }
+  runEmpty.hidden = true;
+  runResult.hidden = false;
+  runState.textContent = runStateLabels[run.state] ?? run.state;
+  const stateClass = run.state === "completed" ? "complete" : run.state === "failed" ? "failed" : run.state === "waiting_approval" ? "waiting" : "running";
+  runState.className = `state ${stateClass}`;
+  draftText.textContent = run.draft?.text ?? "The durable run is preparing the local brief…";
+  approvalActions.hidden = run.state !== "waiting_approval" || !run.approval;
+  runIntegrity.textContent = run.draft ? `${run.eventCount} correlated events · ${run.draft.contentHash}${run.recoveredFromCheckpoint ? " · restored from checkpoint" : ""}` : `${run.eventCount} correlated events`;
+}
+
+async function refreshHarness() {
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = window.clarkDesktop.getHarnessState()
+    .then((snapshot) => {
+      setHarnessAvailability(snapshot);
+      renderRun(snapshot.runs?.[0]);
+      return snapshot;
+    })
+    .catch((error) => {
+      setHarnessAvailability({ available: false, state: "unavailable" });
+      announcer.textContent = `Harness unavailable: ${error.message}`;
+    })
+    .finally(() => { refreshPromise = undefined; });
+  return refreshPromise;
+}
+
+ideaForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  runButton.disabled = true;
+  runButton.textContent = "Structuring…";
+  try {
+    const result = await window.clarkDesktop.startIdeaLoop(ideaInput.value);
+    renderRun(result.run);
+    announcer.textContent = "Idea brief created locally and waiting for exact-version approval.";
+  } catch (error) {
+    announcer.textContent = `Idea loop interrupted: ${error.message}`;
+  } finally {
+    runButton.textContent = "Structure idea";
+    await refreshHarness();
+  }
+});
+
+async function resolveBrief(decision) {
+  if (!latestRun?.approval) return;
+  approveBrief.disabled = true;
+  rejectBrief.disabled = true;
+  try {
+    const run = await window.clarkDesktop.resolveIdeaApproval({
+      runId: latestRun.runId,
+      approvalId: latestRun.approval.approvalId,
+      decision,
+      reason: decision === "approve" ? "Creator approved the exact local brief version." : "Creator requested a revised brief."
+    });
+    renderRun(run);
+    announcer.textContent = decision === "approve" ? "Exact brief version approved. No publication authority was granted." : "Brief rejected. The run requires revision.";
+  } catch (error) {
+    announcer.textContent = `Approval decision failed: ${error.message}`;
+  } finally {
+    approveBrief.disabled = false;
+    rejectBrief.disabled = false;
+  }
+}
+
+approveBrief.addEventListener("click", () => void resolveBrief("approve"));
+rejectBrief.addEventListener("click", () => void resolveBrief("reject"));
+window.clarkDesktop.onHarnessEvent(() => void refreshHarness());
+
 const initialState = await window.clarkDesktop.getShellState();
 await activateSection(initialState.activeSection, { persist: false });
+await refreshHarness();

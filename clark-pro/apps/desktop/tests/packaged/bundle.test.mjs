@@ -1,0 +1,33 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { access, mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { _electron as electron } from "playwright";
+
+const appDirectory = path.resolve(import.meta.dirname, "../..");
+const executablePath = path.join(appDirectory, "dist", "mac-arm64", "Clark Studio.app", "Contents", "MacOS", "Clark Studio");
+
+test("packaged app contains and executes the supervised Harness", async () => {
+  await access(executablePath);
+  const userData = await mkdtemp(path.join(os.tmpdir(), "clark-packaged-harness-"));
+  let electronApp;
+  try {
+    electronApp = await electron.launch({
+      executablePath,
+      env: { ...process.env, CLARK_E2E: "1", CLARK_TEST_USER_DATA: userData }
+    });
+    const page = await electronApp.firstWindow();
+    await page.getByText(/Ready · \d+ events/).waitFor({ timeout: 10_000 });
+    await page.getByRole("button", { name: "Structure idea" }).click();
+    await page.getByText("Waiting approval", { exact: true }).waitFor({ timeout: 10_000 });
+    const snapshot = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    assert.equal(snapshot.available, true);
+    assert.equal(snapshot.database.journalMode, "wal");
+    assert.equal(snapshot.runs[0].state, "waiting_approval");
+    assert.match(snapshot.runs[0].draft.contentHash, /^sha256:[a-f0-9]{64}$/);
+  } finally {
+    if (electronApp) await electronApp.close().catch(() => {});
+    await rm(userData, { recursive: true, force: true });
+  }
+});

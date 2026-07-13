@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/harness-ipc.schema.json",
+  "title": "Clark Harness IPC Message",
+  "oneOf": [
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/response" },
+    { "$ref": "#/$defs/event" }
+  ],
+  "$defs": {
+    "request": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "requestId", "deadlineAt", "command"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "const": "request" },
+        "requestId": { "$ref": "common.schema.json#/$defs/id" },
+        "deadlineAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "command": {
+          "oneOf": [
+            { "$ref": "#/$defs/statusCommand" },
+            { "$ref": "#/$defs/workspaceEnsureCommand" },
+            { "$ref": "#/$defs/loopStartCommand" },
+            { "$ref": "#/$defs/runGetCommand" },
+            { "$ref": "#/$defs/runListCommand" },
+            { "$ref": "#/$defs/approvalResolveCommand" }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "statusCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "harness.status" },
+        "payload": { "type": "object", "additionalProperties": false }
+      },
+      "additionalProperties": false
+    },
+    "workspaceEnsureCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "workspace.ensure" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "name"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "name": { "type": "string", "minLength": 1, "maxLength": 160 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "loopStartCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "loop.start" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "projectId", "ideaText", "idempotencyKey"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "projectId": { "$ref": "common.schema.json#/$defs/id" },
+            "ideaText": { "type": "string", "minLength": 20, "maxLength": 12000 },
+            "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "runGetCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "run.get" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "runId"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "runId": { "$ref": "common.schema.json#/$defs/id" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "runListCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "run.list" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "limit"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 50 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "approvalResolveCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "approval.resolve" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "runId", "approvalId", "decision", "idempotencyKey"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "runId": { "$ref": "common.schema.json#/$defs/id" },
+            "approvalId": { "$ref": "common.schema.json#/$defs/id" },
+            "decision": { "enum": ["approve", "reject"] },
+            "reason": { "type": "string", "maxLength": 1000 },
+            "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "response": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "requestId", "method", "ok"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "const": "response" },
+        "requestId": { "$ref": "common.schema.json#/$defs/id" },
+        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "run.get", "run.list", "approval.resolve"] },
+        "ok": { "type": "boolean" },
+        "result": {
+          "oneOf": [
+            { "$ref": "#/$defs/statusResult" },
+            { "$ref": "#/$defs/workspaceResult" },
+            { "$ref": "#/$defs/loopStartResult" },
+            { "$ref": "#/$defs/runSummary" },
+            { "$ref": "#/$defs/runListResult" }
+          ]
+        },
+        "error": { "$ref": "#/$defs/error" }
+      },
+      "oneOf": [
+        { "properties": { "ok": { "const": true } }, "required": ["result"], "not": { "required": ["error"] } },
+        { "properties": { "ok": { "const": false } }, "required": ["error"], "not": { "required": ["result"] } }
+      ],
+      "additionalProperties": false
+    },
+    "error": {
+      "type": "object",
+      "required": ["code", "message", "retryable"],
+      "properties": {
+        "code": { "enum": ["invalid_request", "deadline_exceeded", "not_found", "conflict", "policy_denied", "not_ready", "internal"] },
+        "message": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "retryable": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "sequence", "eventType", "emittedAt", "payload"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "const": "event" },
+        "sequence": { "type": "integer", "minimum": 1 },
+        "eventType": { "enum": ["harness.ready", "harness.recovering", "run.updated", "approval.required"] },
+        "emittedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "payload": {
+          "oneOf": [
+            { "$ref": "#/$defs/harnessReadyPayload" },
+            { "$ref": "#/$defs/harnessRecoveringPayload" },
+            { "$ref": "#/$defs/runUpdatedPayload" },
+            { "$ref": "#/$defs/approvalRequiredPayload" }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "statusResult": {
+      "type": "object",
+      "required": ["state", "protocolVersion", "database", "activeRuns", "recoveredRuns"],
+      "properties": {
+        "state": { "enum": ["ready", "recovering"] },
+        "protocolVersion": { "const": 1 },
+        "database": {
+          "type": "object",
+          "required": ["journalMode", "eventCount"],
+          "properties": {
+            "journalMode": { "const": "wal" },
+            "eventCount": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "activeRuns": { "type": "integer", "minimum": 0 },
+        "recoveredRuns": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "workspaceResult": {
+      "type": "object",
+      "required": ["workspaceId", "created", "aggregateVersion"],
+      "properties": {
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "created": { "type": "boolean" },
+        "aggregateVersion": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "loopStartResult": {
+      "type": "object",
+      "required": ["run", "deduplicated"],
+      "properties": {
+        "run": { "$ref": "#/$defs/runSummary" },
+        "deduplicated": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "runListResult": {
+      "type": "object",
+      "required": ["runs"],
+      "properties": {
+        "runs": { "type": "array", "items": { "$ref": "#/$defs/runSummary" }, "maxItems": 50 }
+      },
+      "additionalProperties": false
+    },
+    "harnessReadyPayload": {
+      "type": "object",
+      "required": ["protocolVersion", "recoveredRuns"],
+      "properties": {
+        "protocolVersion": { "const": 1 },
+        "recoveredRuns": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "harnessRecoveringPayload": {
+      "type": "object",
+      "required": ["reason", "restartAttempt"],
+      "properties": {
+        "reason": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "restartAttempt": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "runUpdatedPayload": {
+      "type": "object",
+      "required": ["runId", "state"],
+      "properties": {
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "state": { "enum": ["planned", "running", "recovering", "waiting_approval", "completed", "failed", "cancelled"] }
+      },
+      "additionalProperties": false
+    },
+    "approvalRequiredPayload": {
+      "type": "object",
+      "required": ["runId", "approvalId", "subjectRef"],
+      "properties": {
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "approvalId": { "$ref": "common.schema.json#/$defs/id" },
+        "subjectRef": { "$ref": "common.schema.json#/$defs/id" }
+      },
+      "additionalProperties": false
+    },
+    "assetSummary": {
+      "type": "object",
+      "required": ["artifactId", "versionId", "contentHash", "text"],
+      "properties": {
+        "artifactId": { "$ref": "common.schema.json#/$defs/id" },
+        "versionId": { "$ref": "common.schema.json#/$defs/id" },
+        "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "text": { "type": "string", "maxLength": 20000 }
+      },
+      "additionalProperties": false
+    },
+    "approvalSummary": {
+      "type": "object",
+      "required": ["approvalId", "subjectRef", "state", "reason"],
+      "properties": {
+        "approvalId": { "$ref": "common.schema.json#/$defs/id" },
+        "subjectRef": { "$ref": "common.schema.json#/$defs/id" },
+        "state": { "enum": ["waiting", "approved", "rejected"] },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "runSummary": {
+      "type": "object",
+      "required": ["runId", "workspaceId", "projectId", "loopRevision", "state", "activeStepId", "idea", "eventCount", "recoveredFromCheckpoint", "updatedAt"],
+      "properties": {
+        "runId": { "$ref": "common.schema.json#/$defs/id" },
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "projectId": { "$ref": "common.schema.json#/$defs/id" },
+        "loopRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "state": { "enum": ["planned", "running", "recovering", "waiting_approval", "completed", "failed", "cancelled"] },
+        "activeStepId": { "type": ["string", "null"] },
+        "idea": { "$ref": "#/$defs/assetSummary" },
+        "draft": { "$ref": "#/$defs/assetSummary" },
+        "approval": { "$ref": "#/$defs/approvalSummary" },
+        "eventCount": { "type": "integer", "minimum": 1 },
+        "recoveredFromCheckpoint": { "type": "boolean" },
+        "updatedAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

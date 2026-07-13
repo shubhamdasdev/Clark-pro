@@ -3,6 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "files": [
+    "schemas/",
+    "fixtures/harness/",
+    "event-catalog.json",
+    "paths.mjs"
+  ],
+  "exports": {
+    "./paths": "./paths.mjs"
+  },
   "scripts": {
     "verify": "node verify.mjs"
   },

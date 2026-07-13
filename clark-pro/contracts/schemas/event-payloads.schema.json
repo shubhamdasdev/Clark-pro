@@ -141,6 +141,7 @@
         "runId": { "$ref": "common.schema.json#/$defs/id" },
         "loopRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
         "planHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "plan": { "$ref": "run-plan.schema.json" },
         "inputRefs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/artifactRef" } },
         "quotedCost": { "$ref": "common.schema.json#/$defs/money" },
         "budgetCeiling": { "$ref": "common.schema.json#/$defs/money" },

@@ -7,6 +7,7 @@ export type * as EventPayloads from "./event-payloads.js";
 export type * as EventStream from "./event-stream.js";
 export type * as FailureFixtures from "./failure-fixtures.js";
 export type * as GroundEvidenceLedger from "./ground-evidence-ledger.js";
+export type * as HarnessIpc from "./harness-ipc.js";
 export type * as LoopDefinition from "./loop-definition.js";
 export type * as McpConformancePlan from "./mcp-conformance-plan.js";
 export type * as ProjectFixture from "./project-fixture.js";

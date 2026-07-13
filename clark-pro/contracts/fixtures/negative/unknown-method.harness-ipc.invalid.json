@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "kind": "request",
+  "requestId": "request.invalid.001",
+  "deadlineAt": "2026-07-13T04:00:10Z",
+  "command": { "method": "shell.execute", "payload": { "command": "whoami" } }
+}

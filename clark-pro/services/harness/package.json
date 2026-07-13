@@ -1,0 +1,21 @@
+{
+  "name": "@clark-pro/harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Clark's durable local run engine and Electron utility-process entry",
+  "files": ["src/"],
+  "exports": {
+    ".": "./src/index.mjs",
+    "./protocol": "./src/protocol.mjs",
+    "./utility": "./src/utility-entry.mjs"
+  },
+  "scripts": {
+    "test": "node --test tests/unit/*.test.mjs",
+    "verify": "npm run test"
+  },
+  "dependencies": {
+    "@clark/contract-runtime": "file:../../contract-runtime",
+    "@clark/contracts": "file:../../contracts"
+  }
+}

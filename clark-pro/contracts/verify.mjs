@@ -43,7 +43,12 @@ const positiveTargets = [
   ["run-plan.schema.json", "fixtures/full-week/run-plan.json"],
   ["project-fixture.schema.json", "fixtures/full-week/project.fixture.json"],
   ["failure-fixtures.schema.json", "fixtures/full-week/failure-cases.json"],
-  ["event-stream.schema.json", "fixtures/full-week/events.json"]
+  ["event-stream.schema.json", "fixtures/full-week/events.json"],
+  ["harness-ipc.schema.json", "fixtures/harness/status.request.json"],
+  ["harness-ipc.schema.json", "fixtures/harness/status.response.json"],
+  ["harness-ipc.schema.json", "fixtures/harness/approval-required.event.json"],
+  ["loop-definition.schema.json", "fixtures/harness/idea-to-text.loop.json"],
+  ["run-plan.schema.json", "fixtures/harness/idea-to-text.run-plan.json"]
 ];
 const capabilityFilenames = fs.readdirSync(path.join(root, "fixtures/full-week/capabilities"))
   .filter((name) => name.endsWith(".json"))
@@ -67,7 +72,8 @@ const schemaNegativeTargets = [
   ["skill-package.schema.json", "fixtures/negative/class-b-network.skill.invalid.json"],
   ["skill-package.schema.json", "fixtures/negative/class-b-raw-credential.skill.invalid.json"],
   ["skill-package.schema.json", "fixtures/negative/class-c-remote.skill.invalid.json"],
-  ["tool-package.schema.json", "fixtures/negative/active-without-adapter.tool-package.invalid.json"]
+  ["tool-package.schema.json", "fixtures/negative/active-without-adapter.tool-package.invalid.json"],
+  ["harness-ipc.schema.json", "fixtures/negative/unknown-method.harness-ipc.invalid.json"]
 ];
 for (const [schema, data] of schemaNegativeTargets) validate(schema, data, false);
 
@@ -342,7 +348,7 @@ const capabilities = capabilityFilenames.map((filename) => read(`fixtures/full-w
 unique(capabilities.map((capability) => `${capability.id}@${capability.version}`), "Capability revisions");
 const capabilityById = new Map(capabilities.map((capability) => [capability.id, capability]));
 
-const loopFiles = ["fixtures/full-week/full-week.loop.json", "fixtures/full-week/reflection.loop.json"];
+const loopFiles = ["fixtures/full-week/full-week.loop.json", "fixtures/full-week/reflection.loop.json", "fixtures/harness/idea-to-text.loop.json"];
 const loops = loopFiles.map(read);
 const loopById = new Map(loops.map((loop) => [loop.id, loop]));
 const checkDag = (ids, dependencies, label) => {
@@ -438,6 +444,18 @@ assert(micros(runPlan.quote.maximum) <= micros(runPlan.budget.reserved), "Run qu
 assert(micros(runPlan.budget.reserved) <= micros(runPlan.budget.ceiling), "Run reservation exceeds ceiling");
 const publishEgress = egressById.get("egress.postiz-publish");
 assert(publishEgress && !publishEgress.approvedByPolicy, "Publish egress must await human authority");
+
+const ideaRunPlan = read("fixtures/harness/idea-to-text.run-plan.json");
+const ideaLoop = loopById.get("clark.loop.idea-to-approved-text");
+assert(ideaLoop, "Missing Idea-to-Approved-Text loop");
+assert(ideaRunPlan.steps.length === ideaLoop.graph.nodes.length, "Idea run plan must compile every loop node");
+for (const node of ideaLoop.graph.nodes) assert(ideaRunPlan.steps.some((step) => step.nodeId === node.id), `Idea run plan omits ${node.id}`);
+assert(ideaRunPlan.effectivePermissions.networkDomains.length === 0, "Local idea loop unexpectedly has network authority");
+assert(ideaRunPlan.effectivePermissions.credentialScopes.length === 0, "Local idea loop unexpectedly has credential authority");
+assert(micros(ideaRunPlan.quote.maximum) === 0 && micros(ideaRunPlan.budget.ceiling) === 0, "Local idea loop unexpectedly has paid budget");
+const ideaReview = ideaRunPlan.steps.find((step) => step.id === "step.review");
+assert(ideaReview?.approval.mode === "always" && ideaReview.permissionDecision.result === "ask", "Idea brief review is not a creator gate");
+assert(ideaRunPlan.humanGates.some((gate) => gate.stepId === ideaReview.id), "Idea review step lacks a human gate");
 
 const threatText = fs.readFileSync(path.join(root, "..", "security-and-threat-model.md"), "utf8");
 const threatIds = new Set([...threatText.matchAll(/\| ([A-Z]+-[A-Z0-9]+) \|/g)].map((match) => match[1]));

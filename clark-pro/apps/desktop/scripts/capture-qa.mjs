@@ -16,7 +16,10 @@ try {
   });
   const page = await electronApp.firstWindow();
   await page.getByRole("heading", { name: "Focus", level: 1 }).waitFor();
+  await page.getByText(/Ready · \d+ events/).waitFor();
   await page.screenshot({ path: path.join(outputDirectory, "focus.png") });
+  await page.locator(".harness-panel").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: path.join(outputDirectory, "focus-harness.png") });
   await page.keyboard.press("Meta+2");
   await page.getByRole("heading", { name: "Canvas", level: 1 }).waitFor();
   await page.screenshot({ path: path.join(outputDirectory, "canvas.png") });

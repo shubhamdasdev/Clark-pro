@@ -14,7 +14,7 @@ contracts/schemas/*.json       authoritative persisted/wire semantics
                               compile-time convenience only
 ```
 
-Generated TypeScript never becomes a runtime validator or a second source of truth. A value crossing IPC, persistence, MCP, import/export, plugin, or remote boundaries still validates against its pinned JSON Schema.
+Generated TypeScript never becomes a runtime validator or a second source of truth. A value crossing IPC, persistence, MCP, import/export, plugin, or remote boundaries still validates against its pinned JSON Schema. The exported `@clark/contract-runtime/validator` loads only the bundled `@clark/contracts` schemas and event catalog, compiles them with the pinned Ajv toolchain, and validates Harness IPC, run plans, loop definitions, domain envelopes, and their catalog-selected payloads.
 
 ## Pinned toolchain
 
@@ -26,7 +26,7 @@ Generation uses a custom offline resolver. References under `https://schemas.cla
 
 ## Generated surface
 
-All 16 canonical schemas produce 16 namespaced TypeScript modules, one namespace barrel, and one manifest. Consumers avoid helper-name collisions by importing namespaces:
+All 17 canonical schemas produce 17 namespaced TypeScript modules, one namespace barrel, and one manifest. Consumers avoid helper-name collisions by importing namespaces:
 
 ```ts
 import type * as Contracts from "@clark/contract-runtime/generated";

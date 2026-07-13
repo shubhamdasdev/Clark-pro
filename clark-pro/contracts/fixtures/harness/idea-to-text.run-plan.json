@@ -1,0 +1,96 @@
+{
+  "$schema": "../../schemas/run-plan.schema.json",
+  "schemaVersion": 1,
+  "planId": "plan.idea.fixture",
+  "planHash": "sha256:abababababababababababababababababababababababababababababababab",
+  "runId": "run.idea.fixture",
+  "workspaceId": "workspace.local",
+  "projectId": "project.idea-lab",
+  "compiledAt": "2026-07-13T04:00:00Z",
+  "compiledFrom": {
+    "loopRevision": { "id": "clark.loop.idea-to-approved-text", "revision": "1.0.0", "contentHash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd" },
+    "graphRevision": { "id": "graph.idea-lab", "revision": "1.0.0" },
+    "policyRevision": { "id": "policy.creator-default", "revision": "1.0.0" },
+    "creatorModelRevision": { "id": "creator-model.local", "revision": "1.0.0" },
+    "capabilityRevisions": [
+      { "id": "clark.capture.local", "revision": "1.0.0" },
+      { "id": "clark.idea.structure.local", "revision": "1.0.0" }
+    ]
+  },
+  "inputs": [{ "artifactId": "artifact.idea.fixture", "versionId": "version.idea.fixture.v1" }],
+  "steps": [
+    {
+      "id": "step.capture",
+      "nodeId": "capture",
+      "kind": "operator",
+      "dependsOn": [],
+      "inputRefs": [{ "artifactId": "artifact.idea.fixture", "versionId": "version.idea.fixture.v1" }],
+      "outputContractRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/idea",
+      "capabilityRevision": { "id": "clark.capture.local", "revision": "1.0.0" },
+      "actionClass": "capture",
+      "initialState": "ready",
+      "permissionDecision": { "result": "allow", "policyRevisionId": "policy.creator-default", "reason": "Explicit creator text remains local." },
+      "approval": { "mode": "none" },
+      "quote": { "minimum": { "currency": "USD", "micros": 0 }, "maximum": { "currency": "USD", "micros": 0 }, "confidence": "exact", "basis": "Local capture" },
+      "retryPolicy": "never",
+      "idempotency": "clark_intent_ledger",
+      "reconciliation": "not_required",
+      "executionLocation": "local",
+      "egressItemIds": [],
+      "timeoutSeconds": 30
+    },
+    {
+      "id": "step.structure",
+      "nodeId": "structure",
+      "kind": "operator",
+      "dependsOn": ["step.capture"],
+      "inputRefs": [{ "artifactId": "artifact.idea.fixture", "versionId": "version.idea.fixture.v1" }],
+      "outputContractRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief",
+      "capabilityRevision": { "id": "clark.idea.structure.local", "revision": "1.0.0" },
+      "actionClass": "local_transform",
+      "initialState": "pending",
+      "permissionDecision": { "result": "allow", "policyRevisionId": "policy.creator-default", "reason": "Deterministic local transform with no egress." },
+      "approval": { "mode": "none" },
+      "quote": { "minimum": { "currency": "USD", "micros": 0 }, "maximum": { "currency": "USD", "micros": 0 }, "confidence": "exact", "basis": "Local deterministic transform" },
+      "retryPolicy": "never",
+      "idempotency": "clark_intent_ledger",
+      "reconciliation": "not_required",
+      "executionLocation": "local",
+      "egressItemIds": [],
+      "timeoutSeconds": 30
+    },
+    {
+      "id": "step.review",
+      "nodeId": "review",
+      "kind": "gate",
+      "dependsOn": ["step.structure"],
+      "inputRefs": [{ "artifactId": "artifact.brief.fixture", "versionId": "version.brief.fixture.v1" }],
+      "outputContractRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief",
+      "actionClass": "artifact_approve",
+      "initialState": "waiting_approval",
+      "permissionDecision": { "result": "ask", "policyRevisionId": "policy.creator-default", "reason": "Creator approval pins the exact brief version." },
+      "approval": { "mode": "always", "actionClass": "artifact_approve", "reason": "Approval does not authorize publication." },
+      "quote": { "minimum": { "currency": "USD", "micros": 0 }, "maximum": { "currency": "USD", "micros": 0 }, "confidence": "exact", "basis": "Human decision" },
+      "retryPolicy": "never",
+      "idempotency": "clark_intent_ledger",
+      "reconciliation": "not_required",
+      "executionLocation": "local",
+      "egressItemIds": []
+    }
+  ],
+  "humanGates": [
+    { "id": "gate.brief-review", "stepId": "step.review", "reason": "Approve the exact content-addressed brief.", "actionClass": "artifact_approve", "subjectRefs": ["artifact.brief.fixture"], "requiredActorType": "creator" }
+  ],
+  "quote": { "minimum": { "currency": "USD", "micros": 0 }, "maximum": { "currency": "USD", "micros": 0 }, "confidence": "exact", "basis": "All execution is local and deterministic." },
+  "budget": { "ceiling": { "currency": "USD", "micros": 0 }, "reserved": { "currency": "USD", "micros": 0 }, "overageBehavior": "stop" },
+  "effectivePermissions": {
+    "actionClasses": ["capture", "local_transform", "artifact_approve"],
+    "capabilityIds": ["clark.capture.local", "clark.idea.structure.local"],
+    "networkDomains": [],
+    "credentialScopes": [],
+    "maximumSensitivity": "confidential",
+    "remoteExecution": "forbidden"
+  },
+  "egressPlan": [],
+  "warnings": []
+}

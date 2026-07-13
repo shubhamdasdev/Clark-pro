@@ -7,10 +7,10 @@ import { _electron as electron } from "playwright";
 
 const appDirectory = path.resolve(import.meta.dirname, "../..");
 
-async function launch(userDataDirectory) {
+async function launch(userDataDirectory, extraEnvironment = {}) {
   return electron.launch({
     args: [appDirectory],
-    env: { ...process.env, CLARK_E2E: "1", CLARK_TEST_USER_DATA: userDataDirectory }
+    env: { ...process.env, CLARK_E2E: "1", CLARK_TEST_USER_DATA: userDataDirectory, ...extraEnvironment }
   });
 }
 
@@ -32,8 +32,20 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.equal(boundary.requireType, "undefined");
     assert.equal(boundary.processType, "undefined");
     assert.equal(boundary.protocol, "clark-app:");
-    assert.deepEqual(boundary.apiKeys, ["getShellState", "onNavigate", "onTrustCenter", "setActiveSection", "version"]);
+    assert.deepEqual(boundary.apiKeys, ["getHarnessState", "getShellState", "onHarnessEvent", "onNavigate", "onTrustCenter", "resolveIdeaApproval", "setActiveSection", "startIdeaLoop", "version"]);
     assert.match(boundary.csp, /default-src 'none'/);
+
+    await page.getByText(/Ready · \d+ events/).waitFor();
+    await page.getByRole("button", { name: "Structure idea" }).click();
+    await page.getByText("Waiting approval", { exact: true }).waitFor();
+    const draftHash = await page.locator("#run-integrity").innerText();
+    assert.match(draftHash, /sha256:[a-f0-9]{64}/);
+    assert.match(await page.locator("#draft-text").innerText(), /Strongest framing/);
+    await page.reload();
+    await page.getByText("Waiting approval", { exact: true }).waitFor();
+    assert.equal(await page.locator("#run-integrity").innerText(), draftHash);
+    await page.getByRole("button", { name: "Approve exact version" }).click();
+    await page.getByText("Completed", { exact: true }).waitFor();
 
     const menu = await electronApp.evaluate(({ Menu }) => {
       const applicationMenu = Menu.getApplicationMenu();
@@ -98,8 +110,55 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     const restoredBounds = await electronApp.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds());
     assert.equal(restoredBounds.width, 940);
     assert.equal(restoredBounds.height, 640);
+    await restoredPage.keyboard.press("Meta+1");
+    await restoredPage.getByText("Completed", { exact: true }).waitFor();
   } finally {
     if (electronApp) await electronApp.close().catch(() => {});
     await rm(userData, { recursive: true, force: true });
   }
 });
+
+test("supervisor restarts a killed Harness and resumes the running step from durable events", async () => {
+  const userData = await mkdtemp(path.join(os.tmpdir(), "clark-harness-process-e2e-"));
+  let electronApp;
+  try {
+    electronApp = await launch(userData, { CLARK_TEST_STEP_DELAY_MS: "1200" });
+    const page = await electronApp.firstWindow();
+    await page.getByText(/Ready · \d+ events/).waitFor();
+    await page.getByRole("button", { name: "Structure idea" }).click();
+
+    await assertEventually(async () => {
+      const debug = await electronApp.evaluate(() => globalThis.__clarkTest.harnessDebug());
+      return debug.lastEvent?.eventType === "run.updated" && debug.lastEvent.payload.state === "running";
+    }, "Harness did not enter the running step before the kill");
+
+    const beforeKill = await electronApp.evaluate(() => globalThis.__clarkTest.harnessDebug());
+    assert.deepEqual(beforeKill.environmentKeys, ["CLARK_TEST_STEP_DELAY_MS", "LANG", "LC_ALL", "NODE_ENV"]);
+    assert.equal(beforeKill.environmentKeys.some((key) => /TOKEN|KEY|SECRET|HOME|PATH/.test(key)), false);
+    assert.equal(await electronApp.evaluate(() => globalThis.__clarkTest.killHarness()), true);
+
+    await assertEventually(async () => {
+      const debug = await electronApp.evaluate(() => globalThis.__clarkTest.harnessDebug());
+      return debug.state === "ready" && debug.lastEvent?.eventType === "harness.ready" && debug.lastEvent.payload.recoveredRuns === 1;
+    }, "Harness did not restart with one recovered run");
+
+    await page.getByText("Waiting approval", { exact: true }).waitFor({ timeout: 10_000 });
+    const snapshot = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    assert.equal(snapshot.recoveredRuns, 1);
+    assert.equal(snapshot.runs[0].state, "waiting_approval");
+    assert.equal(snapshot.runs[0].recoveredFromCheckpoint, false);
+    assert.match(snapshot.runs[0].draft.contentHash, /^sha256:[a-f0-9]{64}$/);
+  } finally {
+    if (electronApp) await electronApp.close().catch(() => {});
+    await rm(userData, { recursive: true, force: true });
+  }
+});
+
+async function assertEventually(predicate, message, timeoutMs = 8_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await predicate()) return;
+    await new Promise((resolve) => setTimeout(resolve, 40));
+  }
+  assert.fail(message);
+}

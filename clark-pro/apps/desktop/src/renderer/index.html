@@ -31,9 +31,9 @@
             <span aria-hidden="true">◇</span><span>Connections</span><kbd>⌘7</kbd>
           </button>
         </div>
-        <div class="rail-note">
+        <div class="rail-note" id="harness-rail-status">
           <span class="status-dot" aria-hidden="true"></span>
-          <span>Harness boundary planned</span>
+          <span>Harness starting</span>
         </div>
       </nav>
 
@@ -73,6 +73,43 @@
               </dl>
             </aside>
           </div>
+          <section class="panel harness-panel" aria-labelledby="harness-heading">
+            <div class="panel-heading">
+              <div><h2 id="harness-heading">Idea improvement loop</h2><span>Durable local Harness</span></div>
+              <span id="harness-state" class="health" role="status">Starting</span>
+            </div>
+            <div class="harness-body">
+              <form id="idea-loop-form" class="idea-form">
+                <label for="idea-input">Creator intent</label>
+                <textarea id="idea-input" minlength="20" maxlength="12000" rows="4" required>Build a creator operating system that connects reusable tools while keeping memory, approvals, and publication under creator control.</textarea>
+                <div class="form-footer">
+                  <p>Local deterministic structure · $0 · no network, model, credentials, tools, or publishing</p>
+                  <button id="run-idea-loop" class="primary-action" type="submit">Structure idea</button>
+                </div>
+              </form>
+              <aside id="run-empty" class="run-empty" aria-label="Idea loop durability">
+                <p class="eyebrow">Permanent execution path</p>
+                <ol>
+                  <li><strong>Capture</strong><span>Content-addressed local source</span></li>
+                  <li><strong>Structure</strong><span>Deterministic, zero-egress transform</span></li>
+                  <li><strong>Review</strong><span>Exact-version creator decision</span></li>
+                </ol>
+                <p>Renderer reload and app restart read the same event-backed projection.</p>
+              </aside>
+              <article id="harness-run" class="run-result" aria-labelledby="run-result-heading" hidden>
+                <div class="run-result-heading">
+                  <div><p class="eyebrow">Latest durable run</p><h3 id="run-result-heading">Idea brief</h3></div>
+                  <span id="run-state" class="state specified">Planned</span>
+                </div>
+                <pre id="draft-text" tabindex="0"></pre>
+                <div id="approval-actions" class="approval-actions" hidden>
+                  <p>Approval pins this exact content hash. It does not authorize publication.</p>
+                  <div><button id="reject-brief" type="button" class="secondary-action">Reject</button><button id="approve-brief" type="button" class="primary-action">Approve exact version</button></div>
+                </div>
+                <p id="run-integrity" class="run-integrity"></p>
+              </article>
+            </div>
+          </section>
         </section>
 
         <section id="view-canvas" class="view" role="tabpanel" aria-labelledby="tab-canvas" data-view="canvas" hidden>
@@ -109,6 +146,9 @@
           <div class="connection-list" role="list" aria-label="Configured capability packages">
             <article class="connection-card" role="listitem">
               <div class="connection-icon mcp" aria-hidden="true">M</div><div><h2>Clark MCP host</h2><p>Local stdio and Streamable HTTP boundary</p></div><span class="state specified">Specified</span>
+            </article>
+            <article class="connection-card" role="listitem">
+              <div class="connection-icon harness" aria-hidden="true">H</div><div><h2>Clark Harness</h2><p id="harness-connection-detail">Supervised utility process · connecting</p></div><span id="harness-connection-state" class="state specified">Starting</span>
             </article>
             <article class="connection-card" role="listitem">
               <div class="connection-icon opencut" aria-hidden="true">O</div><div><h2>OpenCut Tool Pack candidate</h2><p>Pinned upstream rewrite · no executable authority</p></div><span class="state quarantine">Quarantined</span>

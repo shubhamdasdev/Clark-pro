@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "files": [
+    "src/runtime-validator.mjs",
+    "src/generated/",
+    "src/upcasters/"
+  ],
   "exports": {
     "./generated": {
       "types": "./src/generated/index.ts"
@@ -10,7 +15,8 @@
     "./upcasters/domain-event": {
       "types": "./src/upcasters/domain-event.ts",
       "default": "./src/upcasters/domain-event.ts"
-    }
+    },
+    "./validator": "./src/runtime-validator.mjs"
   },
   "scripts": {
     "generate": "node scripts/generate.mjs",
@@ -20,10 +26,13 @@
     "test:upcasters": "tsc -p tsconfig.runtime.json && node --test .build/tests/*.test.js",
     "verify": "npm run generate:check && npm run generate:negative && npm run typecheck && npm run test:upcasters"
   },
+  "dependencies": {
+    "@clark/contracts": "file:../contracts",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  },
   "devDependencies": {
     "@types/node": "26.1.1",
-    "ajv": "8.20.0",
-    "ajv-formats": "3.0.1",
     "json-schema-to-typescript": "15.0.4",
     "typescript": "7.0.2"
   }

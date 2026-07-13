@@ -3,7 +3,7 @@
   "schemaVersion": "1.0.0",
   "ledgerId": "clark.evidence.ground",
   "stratum": "ground",
-  "reviewedAt": "2026-07-12T22:40:52-05:00",
+  "reviewedAt": "2026-07-12T23:38:34-05:00",
   "currentGate": "before-stratum-1-implementation",
   "gateState": "open",
   "entries": [
@@ -38,14 +38,16 @@
         {"kind": "adr", "location": "decisions/0003-provider-neutral-durable-harness.md", "claim": "Accepts a durable Harness above replaceable providers.", "result": "pass"},
         {"kind": "schema", "location": "contracts/schemas/loop-definition.schema.json", "claim": "Versions loop graphs, gates, permissions, budgets, and policies.", "result": "pass"},
         {"kind": "fixture", "location": "contracts/fixtures/full-week/run-plan.json", "claim": "Compiles the Full-Week loop into an eleven-step plan with approval, egress, budget, idempotency, and reconciliation data.", "result": "pass"},
-        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Validates both loops, every compiled step, DAG integrity, permissions, budget, gates, and publishing safety.", "result": "pass", "command": "npm --prefix contracts run verify"}
+        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Validates all three loops, both compiled-plan fixtures, DAG integrity, permissions, budget, gates, and publishing safety.", "result": "pass", "command": "npm --prefix contracts run verify"},
+        {"kind": "automated_test", "location": "services/harness/evidence/latest-report.json", "claim": "Records a passing event-backed local run engine with canonical validation, WAL transactions, aggregate versions, hash integrity, idempotency, exact-version approval, projection rebuild, checkpoints, and interrupted-step recovery.", "result": "pass", "command": "npm --prefix services/harness run verify"},
+        {"kind": "automated_test", "location": "apps/desktop/evidence/latest-report.json", "claim": "Records the private utility-process boundary, allowlisted child environment, hostile-channel rejection, forced process restart, application relaunch persistence, and packaged-ASAR execution.", "result": "pass", "command": "npm --prefix apps/desktop run verify:packaged"}
       ],
       "acceptanceRule": "Ground requires one coherent and executable contract model; production restart, chaos, cost, and provider conformance proof belongs to later strata.",
-      "limitations": ["No production run engine or forced-recovery test exists."],
-      "nextAction": "Generate runtime types and implement the event-backed run state machine in Stratum 2.",
+      "limitations": ["The executable engine currently proves one deterministic zero-cost local loop, not the general graph compiler, model/agent runners, external async jobs, nonzero budgets, cancellation, compensation, or provider reconciliation required by the whole Harness.", "Forced recovery covers an interrupted deterministic running step and utility-process restart; every state transition and ambiguous external mutation still needs the full chaos/reconciliation matrix."],
+      "nextAction": "Extend the same event-backed run protocol with policy-evaluated capability leases, nonzero budgets, general graph scheduling, MCP/model adapters, and external-job reconciliation without creating a second execution path.",
       "groundBlocking": false,
       "releaseTarget": "stratum-2",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T23:38:34-05:00"
     },
     {
       "id": "OBJ-03",
@@ -583,15 +585,15 @@
       "result": "specified_not_verified",
       "evidence": [
         {"kind": "prototype", "location": "apps/desktop/README.md", "claim": "Documents the executable Electron shell, native menu and restoration behavior, hardened renderer boundary, interaction scope, and explicit non-claims.", "result": "pass"},
-        {"kind": "automated_test", "location": "apps/desktop/evidence/latest-report.json", "claim": "Records eight passing unit/Electron tests for isolation, IPC sender validation, native menu inventory, keyboard semantics, view accessibility structure, and full-quit restoration, plus the expected unsigned-bundle release failure.", "result": "pass", "command": "npm --prefix apps/desktop run verify"},
+        {"kind": "automated_test", "location": "apps/desktop/evidence/latest-report.json", "claim": "Records twelve passing unit/Electron tests for isolation, IPC sender validation, native menu inventory, keyboard semantics, view accessibility structure, durable Harness recovery, and full-quit restoration; packaged Harness execution passes while release signing remains an expected failure.", "result": "pass", "command": "npm --prefix apps/desktop run verify"},
         {"kind": "prototype", "location": "prototype/index.html", "claim": "The broader web prototype remains the responsive whole-product interaction reference while the native shell covers the bounded Focus, Canvas, and Connections slice.", "result": "pass"}
       ],
       "acceptanceRule": "The native prototype passes keyboard and VoiceOver task checks and demonstrates menu, window, Share, notification, Keychain/TCC, and update trust language.",
-      "limitations": ["No observed VoiceOver task, accessibility expert review, or design review exists.", "The local inspection bundle has only an ad-hoc linker signature and fails strict signing and Gatekeeper assessment; Developer ID signing, Hardened Runtime, notarization, and stapling were not performed.", "Keychain, TCC notification, file-bookmark, Share Extension, signed updater, and Harness flows are represented only by explicit trust language and remain unimplemented."],
-      "nextAction": "Run the committed VoiceOver and keyboard task with an accessibility expert, complete design review, implement the native trust flows, and produce Developer ID/Hardened Runtime/notarization/Gatekeeper evidence before closing GROUND-05.",
+      "limitations": ["No observed VoiceOver task, accessibility expert review, or design review exists.", "The local inspection bundle has only an ad-hoc linker signature and fails strict signing and Gatekeeper assessment; Developer ID signing, Hardened Runtime, notarization, and stapling were not performed.", "A bounded local Harness loop is executable, but Keychain, TCC notification, file-bookmark, Share Extension, signed updater, model/MCP/skill/memory/social, and publishing flows remain unimplemented."],
+      "nextAction": "Run the committed VoiceOver and keyboard task with an accessibility expert, complete design review, implement the remaining native trust flows, and produce Developer ID/Hardened Runtime/notarization/Gatekeeper evidence before closing GROUND-05.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T22:40:52-05:00"
+      "updatedAt": "2026-07-12T23:38:34-05:00"
     },
     {
       "id": "GROUND-06",

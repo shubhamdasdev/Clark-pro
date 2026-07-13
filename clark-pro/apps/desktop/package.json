@@ -4,12 +4,17 @@
   "private": true,
   "type": "module",
   "description": "Bounded native macOS interaction shell for Clark Pro",
+  "author": "Clark Pro",
   "main": "src/main.mjs",
+  "dependencies": {
+    "@clark-pro/harness": "file:../../services/harness"
+  },
   "scripts": {
     "start": "electron .",
     "test": "node --test tests/unit/*.test.mjs",
     "test:e2e": "node --test --test-timeout=60000 tests/e2e/*.test.mjs",
     "verify": "npm run test && npm run test:e2e",
+    "verify:packaged": "npm run pack:mac && node --test --test-timeout=60000 tests/packaged/*.test.mjs",
     "capture:qa": "node scripts/capture-qa.mjs",
     "pack:mac": "electron-builder --mac dir --publish never"
   },
@@ -27,7 +32,21 @@
     },
     "files": [
       "src/**/*",
-      "package.json"
+      "package.json",
+      "!node_modules/@clark/contract-runtime/.build/**/*",
+      "!node_modules/@clark/contract-runtime/fixtures/**/*",
+      "!node_modules/@clark/contract-runtime/src/generated/**/*",
+      "!node_modules/@clark/contract-runtime/src/upcasters/**/*",
+      "!node_modules/@clark/contract-runtime/scripts/**/*",
+      "!node_modules/@clark/contract-runtime/tests/**/*",
+      "!node_modules/@clark-pro/harness/evidence/**/*",
+      "!node_modules/@clark/contracts/fixtures/full-week/**/*",
+      "!node_modules/@clark/contracts/fixtures/harness/*.event.json",
+      "!node_modules/@clark/contracts/fixtures/harness/*.request.json",
+      "!node_modules/@clark/contracts/fixtures/harness/*.response.json",
+      "!node_modules/@clark/contracts/fixtures/harness/*.run-plan.json",
+      "!node_modules/@clark/contracts/fixtures/negative/**/*",
+      "!node_modules/@clark/contracts/verify.mjs"
     ],
     "mac": {
       "category": "public.app-category.productivity",

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "reportId": "clark.harness.stratum-1.local",
+  "observedAt": "2026-07-12T23:38:34-05:00",
+  "environment": {
+    "platform": "macOS 26.2 (25C56)",
+    "architecture": "arm64",
+    "hostNode": "25.6.1",
+    "electron": "43.1.0",
+    "electronNode": "24.18.0",
+    "electronSQLite": "3.53.1"
+  },
+  "automated": {
+    "result": "pass",
+    "harnessUnitTests": 8,
+    "desktopBoundaryUnitTests": 3,
+    "electronProcessTests": 2,
+    "packagedAppTests": 1,
+    "commands": [
+      "npm --prefix services/harness run verify",
+      "npm --prefix apps/desktop run verify",
+      "npm --prefix apps/desktop run verify:packaged"
+    ],
+    "observations": [
+      "The canonical three-step plan has zero network, credential, model, social, skill, or paid-call authority and stops at an exact artifact-version creator gate.",
+      "The append transaction validated event/catalog payloads, advanced aggregate versions, extended the per-workspace hash chain, and updated projections atomically in SQLite WAL mode.",
+      "Boot verified stored row/envelope hashes and rebuilt disposable projections before recovery; a tampered event row prevented the Harness from opening canonical state.",
+      "The exact compiled plan was embedded in run.planned and its contract, run/workspace/project scope, and self-excluding content hash were revalidated before recovery execution.",
+      "A repeated command with the same idempotency key returned the original run without appending events; changed command content under that key failed closed.",
+      "Projection deletion and event replay reproduced the same workspace, project, artifact, run, and step snapshot without deleting the retained checkpoint; duplicate artifact-version projection and cross-workspace run reads failed closed.",
+      "A deterministic step interrupted while running recovered on the second attempt after process restart and created exactly one brief artifact.",
+      "The main process rejected unknown/mismatched response identities and replayed/reordered child events.",
+      "The Harness child received only LANG, LC_ALL, NODE_ENV, and an E2E-only delay variable; ambient HOME, PATH, token, key, and secret variables did not cross the boundary.",
+      "Killing the utility process during a running step caused supervised restart and durable recovery to the creator approval gate.",
+      "Renderer reload, full application quit/relaunch, and packaged-ASAR launch retained or recovered the canonical run through narrow preload methods without exposing the MessagePort or database path."
+    ]
+  },
+  "authority": {
+    "implemented": [
+      "workspace ensure",
+      "idea capture",
+      "deterministic local structure",
+      "run query/list",
+      "exact-version approval or rejection"
+    ],
+    "explicitlyAbsent": [
+      "network and provider calls",
+      "model or autonomous agent calls",
+      "MCP client/server execution",
+      "credentials and Keychain leases",
+      "skill or Tool Pack execution",
+      "creator memory retrieval or mutation",
+      "social connections or publication",
+      "remote workers and team synchronization"
+    ]
+  },
+  "limitations": [
+    "The idea transform is deterministic structure, not research, evidence acquisition, model generation, or proof that the idea is commercially strong.",
+    "Only one zero-cost local loop and one interrupted-running-step recovery path are proven; the general graph compiler, external job reconciliation, budgets, cancellation, compensation, scheduling, and transition chaos matrix are not.",
+    "Node still labels node:sqlite experimental/release-candidate; it is isolated behind EventStore and must remain replaceable without changing canonical event/recovery semantics.",
+    "No signed, hardened, notarized, stapled, or Gatekeeper-accepted release artifact exists."
+  ]
+}

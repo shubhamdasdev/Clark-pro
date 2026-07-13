@@ -71,7 +71,9 @@ Mac quality is a product requirement rather than a framework label. Clark must i
 
 `apps/desktop` is the first bounded implementation on this permanent topology. It uses Electron 43.1.0, a secure custom local protocol, native macOS menu roles, an allowlisted preload bridge, denied navigation/popups/webviews/permissions, screen-clamped window restoration, and semantic keyboard-operable Focus, Canvas, and Connections surfaces. Its renderer is deliberately framework-light while the interaction and security boundary is tested; Stratum 1 may introduce the accepted React/TypeScript renderer without changing the main/preload authority model.
 
-This shell is implementation evidence, not a release candidate. The local bundle is explicitly unsigned by a Developer ID and has not passed Hardened Runtime, notarization, Gatekeeper, observed VoiceOver, Keychain/TCC, Share Extension, updater, Harness, or production persistence gates. Those limitations are recorded in `apps/desktop/evidence/latest-report.json` and remain blocking.
+This shell is implementation evidence, not a release candidate. It now supervises the first real Harness utility process: a canonical-contract-validated private MessagePort, an allowlisted child environment, SQLite/WAL event and projection storage, content-addressed assets, checkpoints, idempotent commands, recovery, and one exact-version creator-approval loop. The renderer receives only narrow domain methods and never the Harness port or database path.
+
+The local bundle is still explicitly unsigned by a Developer ID and has not passed Hardened Runtime, notarization, Gatekeeper, observed VoiceOver, Keychain/TCC, Share Extension, updater, general graph/agent/MCP execution, memory, social, or publishing gates. Those limitations are recorded in `apps/desktop/evidence/latest-report.json` and remain blocking.
 
 ## Process Boundaries
 
@@ -165,6 +167,12 @@ skill.revision_promoted
 ```
 
 This is not event sourcing for fashion. It provides provenance, undo, audit, deterministic recovery, memory evidence, and synchronization boundaries.
+
+### Executable local persistence slice
+
+`services/harness` implements the first repository-backed form of this model. Before every append it validates the domain envelope and catalog-selected payload against the canonical contract runtime. The SQLite transaction advances the aggregate version, extends a per-workspace SHA-256 event chain, and updates the read projection atomically. The exact validated plan is embedded in `run.planned`; recovery rechecks its self-excluding content hash and run/workspace/project scope instead of recompiling mutable “latest” definitions. Projection tables are disposable: the committed suite deletes and deterministically rebuilds them from events while retaining checkpoints and verifying the same snapshot.
+
+The first compiled loop captures an idea as an immutable asset version, runs a deterministic local structure capability, and pauses on an exact artifact-version approval. It has no network, model, credential, MCP, skill, memory, social, or publication authority. That zero-authority baseline is intentional: later capabilities must extend the same run/event/policy boundary rather than add an alternate execution path.
 
 ## Clark Harness
 

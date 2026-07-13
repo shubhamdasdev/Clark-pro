@@ -1,0 +1,97 @@
+{
+  "$schema": "../../schemas/loop-definition.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.loop.idea-to-approved-text",
+  "name": "Idea to Approved Text",
+  "description": "Captures creator intent, produces a deterministic local brief, and stops at an exact-version creator approval gate.",
+  "revision": "1.0.0",
+  "entryContract": { "schemaRef": "https://schemas.clark.pro/v1/capture-input.schema.json", "description": "Explicit creator-supplied idea text." },
+  "successContract": { "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief", "description": "A content-addressed brief approved at its exact version." },
+  "graph": {
+    "nodes": [
+      {
+        "id": "capture",
+        "name": "Capture creator idea",
+        "kind": "operator",
+        "inputs": [{ "id": "text", "schemaRef": "https://schemas.clark.pro/v1/capture-input.schema.json", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
+        "outputs": [{ "id": "idea", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/idea", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
+        "capabilityRevision": { "id": "clark.capture.local", "revision": "1.0.0" },
+        "actionClass": "capture",
+        "approval": { "mode": "none" },
+        "timeoutSeconds": 30,
+        "remoteEligible": false,
+        "configuration": { "explicitInputOnly": true }
+      },
+      {
+        "id": "structure",
+        "name": "Structure idea locally",
+        "kind": "operator",
+        "inputs": [{ "id": "idea", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/idea", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
+        "outputs": [{ "id": "brief", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
+        "capabilityRevision": { "id": "clark.idea.structure.local", "revision": "1.0.0" },
+        "actionClass": "local_transform",
+        "approval": { "mode": "none" },
+        "timeoutSeconds": 30,
+        "remoteEligible": false,
+        "configuration": { "format": "idea-brief-v1", "noModel": true, "noNewClaims": true }
+      },
+      {
+        "id": "review",
+        "name": "Approve exact brief version",
+        "kind": "gate",
+        "inputs": [{ "id": "brief", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
+        "outputs": [{ "id": "approved-brief", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
+        "gateType": "quality",
+        "approval": { "mode": "always", "actionClass": "artifact_approve", "reason": "Creator approval pins the exact brief version and does not authorize publication." },
+        "remoteEligible": false
+      }
+    ],
+    "edges": [
+      { "id": "edge-capture-structure", "type": "data", "from": { "nodeId": "capture", "portId": "idea" }, "to": { "nodeId": "structure", "portId": "idea" } },
+      { "id": "edge-structure-review", "type": "control", "from": { "nodeId": "structure", "portId": "brief" }, "to": { "nodeId": "review", "portId": "brief" } }
+    ]
+  },
+  "permissions": {
+    "actionClasses": ["capture", "local_transform", "artifact_approve"],
+    "capabilityAllowlist": ["clark.capture.local", "clark.idea.structure.local"],
+    "networkDomains": [],
+    "credentialScopes": [],
+    "maximumSensitivity": "confidential",
+    "remoteExecution": "forbidden"
+  },
+  "budget": {
+    "costCeiling": { "currency": "USD", "micros": 0 },
+    "tokenCeiling": 0,
+    "durationSeconds": 120,
+    "maxConcurrency": 1,
+    "overageBehavior": "stop"
+  },
+  "checkpoints": [
+    { "id": "checkpoint-brief-review", "afterNodeId": "structure", "mode": "automatic", "persist": ["inputs", "outputs", "approvals", "context_refs"], "summary": "The exact content-addressed brief and pending creator approval survive restart." }
+  ],
+  "recovery": {
+    "retry": { "maxAttempts": 2, "backoff": "none", "retryableErrors": ["timeout_before_mutation"] },
+    "onAmbiguousExternalState": "reconcile",
+    "onRestart": "resume_safe",
+    "onCancellation": "stop_dependents",
+    "compensationNodeIds": []
+  },
+  "evaluation": {
+    "criteria": [
+      { "id": "explicit-outcome", "name": "Outcome and user are explicit", "weight": 0.35, "required": true, "evaluator": "deterministic" },
+      { "id": "mechanism-visible", "name": "Mechanism and boundaries are visible", "weight": 0.35, "required": true, "evaluator": "deterministic" },
+      { "id": "risks-visible", "name": "Assumptions and proof gaps are visible", "weight": 0.3, "required": true, "evaluator": "deterministic" }
+    ],
+    "minimumPass": 1,
+    "onFailure": "block"
+  },
+  "reflection": {
+    "mode": "disabled",
+    "minimumEvidenceCount": 3,
+    "maximumMemoryProposals": 0,
+    "maximumSkillProposals": 0,
+    "memoryPromotion": "human_or_policy_event",
+    "skillPromotion": "quarantine_tests_and_human_event"
+  },
+  "schedulePolicy": { "allowed": false, "timezoneSource": "workspace", "missedRunBehavior": "skip", "remoteEligible": false }
+}

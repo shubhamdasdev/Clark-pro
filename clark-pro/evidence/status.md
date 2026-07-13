@@ -1,7 +1,7 @@
 # Clark Pro — Ground Evidence Status
 
 **Generated from:** `evidence/ground-ledger.json`
-**Reviewed:** 2026-07-12T22:40:52-05:00
+**Reviewed:** 2026-07-12T23:38:34-05:00
 **Gate:** OPEN
 **Signoff:** pending
 
@@ -45,7 +45,7 @@ Some entries share one future evidence run—for example, the five creator sessi
 | GROUND-02 | delivery | specified_not_verified | Domain Lead + Chief Architect | Assign the real Domain/Architecture reviewers, approve the generated/upcaster contract, and carry the package into the first production persistence vertical slice. |
 | GROUND-03 | delivery | specified_not_verified | Connect + Security + Quality Leads | Assign the real primary/backup people, run the matrix in the production boundary when implemented, and obtain attributable Connect/Security/Quality approval. |
 | GROUND-04 | delivery | specified_not_verified | Security + Quality + Release Leads | Create the threat/ADR-to-test plan, assign primary/backup owners, and rehearse the reporting path before beta. |
-| GROUND-05 | delivery | specified_not_verified | Desktop + Design + Quality Leads | Run the committed VoiceOver and keyboard task with an accessibility expert, complete design review, implement the native trust flows, and produce Developer ID/Hardened Runtime/notarization/Gatekeeper evidence before closing GROUND-05. |
+| GROUND-05 | delivery | specified_not_verified | Desktop + Design + Quality Leads | Run the committed VoiceOver and keyboard task with an accessibility expert, complete design review, implement the remaining native trust flows, and produce Developer ID/Hardened Runtime/notarization/Gatekeeper evidence before closing GROUND-05. |
 | GROUND-06 | delivery | missing | Product Lead | Product leadership must assign the real team and record capacity/dependency commitments without collapsing accountabilities. |
 | GROUND-08 | delivery | missing | Quality Lead | Resolve blocking entries, rerun verification, then record named approvals without editing evidence status beyond what artifacts prove. |
 

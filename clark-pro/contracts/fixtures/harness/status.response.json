@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "response",
+  "requestId": "request.status.001",
+  "method": "harness.status",
+  "ok": true,
+  "result": {
+    "state": "ready",
+    "protocolVersion": 1,
+    "database": { "journalMode": "wal", "eventCount": 14 },
+    "activeRuns": 1,
+    "recoveredRuns": 0
+  }
+}

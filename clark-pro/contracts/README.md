@@ -25,6 +25,7 @@ The pinned [`../contract-runtime/`](../contract-runtime/README.md) generates nam
 | `schemas/skill-permission-receipt.schema.json` | Four-way requested/installed/workspace/run permission intersection with effective and denied authority |
 | `schemas/tool-package.schema.json` | Governed external-tool source/license/SBOM/install/adapters/capabilities/converters/UI/tests/update/rollback lifecycle |
 | `schemas/mcp-conformance-plan.schema.json` | Two-sided MCP host/Bridge cases, ownership, severity, automation, disposition, evidence, and release-blocking policy |
+| `schemas/harness-ipc.schema.json` | Private Studio/Harness requests, responses, events, deadlines, run summaries, and exact-version approval commands |
 
 ## Versioning rules
 
@@ -47,7 +48,7 @@ The pinned [`../contract-runtime/`](../contract-runtime/README.md) generates nam
 
 ## Semantic conformance beyond JSON Schema
 
-JSON Schema proves shape, not graph or security truth. The future conformance runner must also prove:
+JSON Schema proves shape, not graph or security truth. The conformance runner also proves:
 
 - IDs and event IDs are unique within their scope;
 - aggregate versions increase monotonically;
@@ -85,19 +86,19 @@ The verifier performs draft-2020 JSON Schema checks and semantic checks for even
 
 Current checked fixture evidence:
 
-- 16 schema files, including the governed Tool Package contract and an honestly upstream-blocked OpenCut candidate;
+- 17 schema files, including governed Tool Package and private Harness IPC contracts plus an honestly upstream-blocked OpenCut candidate;
 - 56 event types and 10 representative payload-bearing events, including explicit Tool Pack discovery/quarantine/activation/rollback transitions;
-- 8 capability manifests;
-- 2 loops and an 11-step compiled run plan;
+- 9 capability manifests, including a deterministic zero-egress idea-structuring operator;
+- 3 loops, an 11-step Full-Week plan, and a 3-step Idea-to-Approved-Text plan;
 - exactly 50 project objects and 46 lineage edges;
 - 11 failure/abuse cases referencing 16 threat IDs, including Tool Pack substitution and unreviewed UI-origin expansion;
 - 1 accepted Bridge capture/replay exchange plus 5 hostile semantic mutations rejected;
 - 2 governed skill packages and 1 four-way effective-permission receipt;
 - 1 immutable OpenCut Tool Pack candidate with zero installed authority, 1 active-without-adapter negative package, and 11 hostile activation mutations rejected;
 - 36 owned MCP host/Bridge conformance cases, all executable or shared-contract and passing in the Ground harness;
-- 16 schemas deterministically generate 16 namespaced TypeScript modules plus a barrel/manifest with zero drift;
+- 17 schemas deterministically generate 17 namespaced TypeScript modules plus a barrel/manifest with zero drift;
 - 1 historical event migration passes 5 immutable/validated/fail-closed upcaster tests, and a hostile schema mutation fails drift checking;
-- 8 schema-invalid and 5 semantic-invalid documents rejected, plus lifecycle-only OpenCut activation and critical-MCP-nonblocking mutations rejected;
+- 9 schema-invalid and 5 semantic-invalid documents rejected, plus lifecycle-only OpenCut activation and critical-MCP-nonblocking mutations rejected;
 - zero dependency vulnerabilities at the configured audit threshold.
 
 The ledger's additional fail-closed semantic checks and generated status live in [`../evidence/`](../evidence/README.md).

@@ -22,6 +22,31 @@ const api = Object.freeze({
     const handler = () => listener();
     ipcRenderer.on("desktop:show-trust-center", handler);
     return () => ipcRenderer.removeListener("desktop:show-trust-center", handler);
+  },
+  getHarnessState: () => ipcRenderer.invoke("desktop:get-harness-state"),
+  startIdeaLoop: (ideaText) => {
+    if (typeof ideaText !== "string" || ideaText.trim().length < 20 || ideaText.length > 12000) {
+      return Promise.reject(new TypeError("Idea text must be between 20 and 12,000 characters"));
+    }
+    return ipcRenderer.invoke("desktop:start-idea-loop", ideaText);
+  },
+  resolveIdeaApproval: (decision) => {
+    const safe = decision && typeof decision === "object" ? {
+      runId: decision.runId,
+      approvalId: decision.approvalId,
+      decision: decision.decision,
+      ...(typeof decision.reason === "string" ? { reason: decision.reason } : {})
+    } : undefined;
+    if (!safe || typeof safe.runId !== "string" || typeof safe.approvalId !== "string" || !["approve", "reject"].includes(safe.decision)) {
+      return Promise.reject(new TypeError("A valid approval decision is required"));
+    }
+    return ipcRenderer.invoke("desktop:resolve-idea-approval", safe);
+  },
+  onHarnessEvent: (listener) => {
+    if (typeof listener !== "function") throw new TypeError("A listener function is required");
+    const handler = (_event, message) => listener(message);
+    ipcRenderer.on("desktop:harness-event", handler);
+    return () => ipcRenderer.removeListener("desktop:harness-event", handler);
   }
 });
 

@@ -24,7 +24,8 @@ The ledger deliberately distinguishes:
 | `status.md` | Generated concise summary of current counts and blocking entries |
 | `../skills-sandbox/evidence/latest-sandbox-receipt.json` | Attributable pinned-runtime result for the hostile Class B Ground suite |
 | `../mcp-conformance/evidence/latest-report.json` | Attributable complete 36-case Ground MCP result with production-boundary limitations |
-| `../apps/desktop/evidence/latest-report.json` | Attributable bounded Mac-shell tests and an explicit unsigned-bundle release failure with human/native-flow limitations |
+| `../apps/desktop/evidence/latest-report.json` | Attributable Mac-shell, private Harness boundary/recovery, packaged execution, and explicit unsigned-bundle release failure evidence |
+| `../services/harness/evidence/latest-report.json` | Attributable event-store, idempotency, projection rebuild, checkpoint, process recovery, and bounded-authority evidence for the first local loop |
 | `../contract-runtime/src/generated/manifest.json` | Pinned source/output hashes for every generated implementation contract |
 | `../contracts/fixtures/tool-packages/opencut.rewrite.blocked.json` | Pinned OpenCut candidate that proves upstream readiness is blocked and grants no installed authority |
 
