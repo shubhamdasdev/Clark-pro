@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "reportId": "clark.desktop.ground-05",
-  "observedAt": "2026-07-12T23:38:34-05:00",
+  "reportId": "clark.desktop.idea-foundry-06",
+  "observedAt": "2026-07-13T00:51:13-05:00",
   "environment": {
     "platform": "macOS 26.2 (25C56)",
     "architecture": "arm64",
@@ -20,13 +20,15 @@
     ],
     "observations": [
       "The renderer exposed neither global require nor global process.",
-      "The preload exposed exactly nine named domain/shell members and no raw IPC primitive, Harness MessagePort, path, or generic command method.",
+      "The preload exposed exactly ten named domain/shell members and no raw IPC primitive, Harness MessagePort, path, or generic command method.",
       "IPC sender validation accepted only the expected main frame and webContents identity.",
       "BrowserWindow reported contextIsolation=true, sandbox=true, nodeIntegration=false, webSecurity=true, and webviewTag=false.",
       "The application menu contained native macOS Services, Edit, Window, and Clark view accelerators.",
-      "Keyboard navigation opened Focus, Canvas, and Connections; Canvas arrow navigation moved semantic focus between objects.",
+      "Keyboard navigation opened Focus, Canvas, and Connections; Canvas arrow navigation moved semantic focus across the live Idea Foundry graph.",
       "Only one visible level-one heading was present per view, with named tabs, lists, buttons, panels, and live status semantics.",
-      "A real idea run reached exact-version approval, survived renderer reload, completed after creator approval, and remained completed after a full Electron quit/relaunch.",
+      "A real idea run reached exact-version approval, survived renderer reload, then created revision 2; the superseded run became cancelled, its approval became invalidated, and only the new exact brief completed after creator approval.",
+      "The Canvas projected idea, governed MCP assessment, five open evidence gates, deterministic brief, and exact-version review with root/parent lineage, structural readiness, and no false validation claim.",
+      "Visual QA regenerated live Focus and Canvas captures after fixing cross-view scroll retention and overly long lineage labels.",
       "The child-channel guard rejected unknown/mismatched response IDs and replayed/reordered events; diagnostics redacted credential-like material.",
       "The supervised Harness received an allowlisted environment without ambient credentials, recovered one run after forced process death, and returned to the approval gate without duplicate artifact mutation."
     ]
@@ -34,7 +36,7 @@
   "packagedExecution": {
     "result": "pass",
     "command": "npm --prefix apps/desktop run verify:packaged",
-    "observation": "The unpacked macOS application launched its Harness utility entry from the ASAR, entered SQLite WAL mode, ran the idea loop to durable approval, and returned a content hash through the narrow preload API."
+    "observation": "The unpacked macOS application launched its Harness utility entry from the ASAR, entered SQLite WAL mode, ran the governed MCP thesis assessment to durable approval, and returned an evidence-honest content-addressed result through the narrow preload API."
   },
   "localBundleInspection": {
     "result": "expected_release_failure",
@@ -60,6 +62,6 @@
     "security-scoped workspace file access",
     "Share Extension staging boundary",
     "signed updater and rollback",
-    "general model, MCP, skill, memory, social, and publishing flows"
+    "general third-party MCP, model, skill, memory, social, and publishing flows"
   ]
 }

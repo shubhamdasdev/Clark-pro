@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/harness-ipc.schema.json
- * Source SHA-256: 556d3e83b95fc60c79c3a15096d39e481b121323af51561716adac10932901c6
+ * Source SHA-256: 8ef9fcbb39ec8ac8940382fc942251984cb1fe367f97db62f5ec62d3d279c58f
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -15,6 +15,7 @@ export type Response = {
     | "harness.status"
     | "workspace.ensure"
     | "loop.start"
+    | "idea.revise"
     | "run.get"
     | "run.list"
     | "approval.resolve"
@@ -48,6 +49,7 @@ export interface Request {
     | StatusCommand
     | WorkspaceEnsureCommand
     | LoopStartCommand
+    | IdeaReviseCommand
     | RunGetCommand
     | RunListCommand
     | ApprovalResolveCommand
@@ -71,6 +73,16 @@ export interface LoopStartCommand {
     workspaceId: string;
     projectId: string;
     ideaText: string;
+    idempotencyKey: string;
+  };
+}
+export interface IdeaReviseCommand {
+  method: "idea.revise";
+  payload: {
+    workspaceId: string;
+    parentRunId: string;
+    ideaText: string;
+    revisionReason: string;
     idempotencyKey: string;
   };
 }
@@ -135,6 +147,10 @@ export interface RunSummary {
   workspaceId: string;
   projectId: string;
   loopRevision: RevisionRef;
+  rootRunId?: string;
+  parentRunId?: string;
+  revisionNumber?: number;
+  revisionReason?: string;
   state: "planned" | "running" | "recovering" | "waiting_approval" | "completed" | "failed" | "cancelled";
   activeStepId: string | null;
   idea: AssetSummary;
@@ -159,7 +175,7 @@ export interface AssetSummary {
 export interface ApprovalSummary {
   approvalId: string;
   subjectRef: string;
-  state: "waiting" | "approved" | "rejected";
+  state: "waiting" | "approved" | "rejected" | "invalidated";
   reason: string;
 }
 export interface RunListResult {

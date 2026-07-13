@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { canonicalJson, sha256 } from "./canonical.mjs";
 import { contractValidator } from "./protocol.mjs";
 
-const RUN_STATE_EVENT_TYPES = new Set(["run.started", "run.paused", "run.recovered", "run.completed", "run.failed"]);
+const RUN_STATE_EVENT_TYPES = new Set(["run.started", "run.paused", "run.recovered", "run.completed", "run.failed", "run.cancelled"]);
 const STEP_STATE_BY_EVENT = new Map([
   ["step.started", "running"],
   ["step.waiting_for_approval", "waiting_approval"],
@@ -31,7 +31,7 @@ export class EventStore {
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       ) STRICT;
-      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '2');
+      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '3');
       CREATE TABLE IF NOT EXISTS events (
         sequence INTEGER PRIMARY KEY AUTOINCREMENT,
         event_id TEXT NOT NULL UNIQUE,
@@ -81,6 +81,10 @@ export class EventStore {
       ) STRICT;
       CREATE TABLE IF NOT EXISTS runs (
         run_id TEXT PRIMARY KEY,
+        root_run_id TEXT NOT NULL,
+        parent_run_id TEXT,
+        revision_number INTEGER NOT NULL,
+        revision_reason TEXT,
         workspace_id TEXT NOT NULL,
         project_id TEXT NOT NULL,
         loop_id TEXT NOT NULL,
@@ -205,7 +209,24 @@ export class EventStore {
       }
       version = "2";
     }
-    if (version !== "2") throw new Error(`Unsupported Harness database schema ${version}`);
+    if (version === "2") {
+      const columns = new Set(this.database.prepare("PRAGMA table_info(runs)").all().map((column) => column.name));
+      this.database.exec("BEGIN IMMEDIATE");
+      try {
+        if (!columns.has("root_run_id")) this.database.exec("ALTER TABLE runs ADD COLUMN root_run_id TEXT");
+        if (!columns.has("parent_run_id")) this.database.exec("ALTER TABLE runs ADD COLUMN parent_run_id TEXT");
+        if (!columns.has("revision_number")) this.database.exec("ALTER TABLE runs ADD COLUMN revision_number INTEGER NOT NULL DEFAULT 1");
+        if (!columns.has("revision_reason")) this.database.exec("ALTER TABLE runs ADD COLUMN revision_reason TEXT");
+        this.database.exec("UPDATE runs SET root_run_id = run_id WHERE root_run_id IS NULL");
+        this.database.prepare("UPDATE metadata SET value = '3' WHERE key = 'schema_version'").run();
+        this.database.exec("COMMIT");
+      } catch (error) {
+        try { this.database.exec("ROLLBACK"); } catch {}
+        throw error;
+      }
+      version = "3";
+    }
+    if (version !== "3") throw new Error(`Unsupported Harness database schema ${version}`);
     const journalMode = this.database.prepare("PRAGMA journal_mode").get()?.journal_mode;
     if (journalMode !== "wal") throw new Error(`Harness database did not enter WAL mode: ${journalMode}`);
   }
@@ -325,9 +346,24 @@ export class EventStore {
     if (event.eventType === "run.planned") {
       const input = event.payload.inputRefs[0];
       this.assertPinnedPlan(event.payload.plan, event);
-      this.database.prepare(`INSERT INTO runs(run_id, workspace_id, project_id, loop_id, loop_revision, plan_hash, state, active_step_id, idea_artifact_id, idea_version_id, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'planned', NULL, ?, ?, ?)`)
-        .run(event.payload.runId, event.workspaceId, event.projectId, event.payload.loopRevision.id, event.payload.loopRevision.revision, event.payload.planHash, input.artifactId, input.versionId, updatedAt);
+      this.database.prepare(`INSERT INTO runs(run_id, root_run_id, parent_run_id, revision_number, revision_reason, workspace_id, project_id, loop_id, loop_revision, plan_hash, state, active_step_id, idea_artifact_id, idea_version_id, approval_id, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'planned', NULL, ?, ?, ?, ?)`)
+        .run(
+          event.payload.runId,
+          event.payload.rootRunId ?? event.payload.runId,
+          event.payload.parentRunId ?? null,
+          event.payload.revisionNumber ?? 1,
+          event.payload.revisionReason ?? null,
+          event.workspaceId,
+          event.projectId,
+          event.payload.loopRevision.id,
+          event.payload.loopRevision.revision,
+          event.payload.planHash,
+          input.artifactId,
+          input.versionId,
+          event.payload.approvalId ?? approvalIdForRun(event.payload.runId),
+          updatedAt
+        );
       return;
     }
     if (RUN_STATE_EVENT_TYPES.has(event.eventType)) {
@@ -342,7 +378,7 @@ export class EventStore {
       this.database.prepare(`INSERT INTO steps(run_id, step_id, state, attempt, updated_at) VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(run_id, step_id) DO UPDATE SET state = excluded.state, attempt = MAX(steps.attempt, excluded.attempt), updated_at = excluded.updated_at`)
         .run(event.payload.runId, event.payload.stepId, state, attempt, updatedAt);
-      const approvalId = event.eventType === "step.waiting_for_approval" ? approvalIdForRun(event.payload.runId) : null;
+      const approvalId = event.eventType === "step.waiting_for_approval" ? (this.getRunRow(event.payload.runId)?.approval_id ?? approvalIdForRun(event.payload.runId)) : null;
       this.database.prepare("UPDATE runs SET active_step_id = ?, approval_id = COALESCE(?, approval_id), approval_state = CASE WHEN ? IS NULL THEN approval_state ELSE 'waiting' END, updated_at = ? WHERE run_id = ?")
         .run(event.payload.stepId, approvalId, approvalId, updatedAt, event.payload.runId);
       return;
@@ -350,6 +386,11 @@ export class EventStore {
     if (event.eventType === "approval.granted") {
       this.database.prepare("UPDATE runs SET approval_state = 'approved', updated_at = ? WHERE draft_artifact_id = ?")
         .run(updatedAt, event.payload.subjectRef);
+      return;
+    }
+    if (event.eventType === "approval.invalidated") {
+      this.database.prepare("UPDATE runs SET approval_state = 'invalidated', updated_at = ? WHERE approval_id = ?")
+        .run(updatedAt, event.payload.approvalId);
       return;
     }
     if (event.eventType === "decision.recorded" && event.payload.decisionType === "artifact_approve") {
@@ -504,7 +545,11 @@ export class EventStore {
   }
 
   listRunRows(workspaceId, limit = 20) {
-    return this.database.prepare("SELECT * FROM runs WHERE workspace_id = ? ORDER BY updated_at DESC LIMIT ?").all(workspaceId, limit);
+    return this.database.prepare("SELECT * FROM runs WHERE workspace_id = ? ORDER BY updated_at DESC, revision_number DESC, run_id DESC LIMIT ?").all(workspaceId, limit);
+  }
+
+  nextRevisionNumber(rootRunId) {
+    return Number(this.database.prepare("SELECT COALESCE(MAX(revision_number), 0) + 1 AS revision FROM runs WHERE root_run_id = ?").get(rootRunId).revision);
   }
 
   interruptedRunRows() {

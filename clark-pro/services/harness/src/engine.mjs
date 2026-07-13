@@ -5,11 +5,9 @@ import { AssetStore } from "./asset-store.mjs";
 import { canonicalJson, sha256 } from "./canonical.mjs";
 import { evaluateCapabilityLease } from "./capability-policy.mjs";
 import { approvalIdForRun, EventStore } from "./event-store.mjs";
-import { compileIdeaRun, deriveRunIds, ideaInspectorManifest, structureIdea } from "./idea-compiler.mjs";
+import { compileIdeaRun, deriveRevisionRunIds, deriveRunIds, ideaInspectorManifest, structureIdea } from "./idea-compiler.mjs";
 import { bundledMcpSourceHash, BundledIdeaMcpAdapter } from "./mcp-capability-adapter.mjs";
 import { contractValidator } from "./protocol.mjs";
-
-const LOOP_REVISION = Object.freeze({ id: "clark.loop.idea-to-approved-text", revision: "1.1.0" });
 
 export class HarnessError extends Error {
   constructor(code, message, retryable = false) {
@@ -82,6 +80,7 @@ export class HarnessEngine extends EventEmitter {
       case "harness.status": return this.status();
       case "workspace.ensure": return this.ensureWorkspace(payload, context);
       case "loop.start": return this.startIdeaLoop(payload, context);
+      case "idea.revise": return this.reviseIdea(payload, context);
       case "run.get": return this.getRunInWorkspace(payload.workspaceId, payload.runId);
       case "run.list": return { runs: this.store.listRunRows(payload.workspaceId, payload.limit).map((row) => this.runSummary(row)) };
       case "approval.resolve": return this.resolveApproval(payload, context);
@@ -164,6 +163,9 @@ export class HarnessEngine extends EventEmitter {
           budgetCeiling: plan.budget.ceiling,
           stepCount: plan.steps.length,
           humanGateCount: plan.humanGates.length,
+          rootRunId: ids.runId,
+          revisionNumber: 1,
+          approvalId: ids.approvalId,
           warnings: []
         }
       });
@@ -174,6 +176,89 @@ export class HarnessEngine extends EventEmitter {
         payload: { runId: ids.runId, from: "planned", to: "running" }
       });
     });
+    this.emit("run.updated", { runId: ids.runId, state: "running" });
+    await this.advanceRun(ids.runId);
+    const result = { run: this.getRun(ids.runId), deduplicated: false };
+    this.store.completeCommand(idempotencyKey, result);
+    return result;
+  }
+
+  async reviseIdea(payload, context = {}) {
+    const { workspaceId, parentRunId, ideaText, revisionReason, idempotencyKey } = payload;
+    const parent = this.store.getRunRow(parentRunId);
+    if (!parent || parent.workspace_id !== workspaceId) throw new HarnessError("not_found", "Parent run does not exist in this workspace");
+    const requestHash = sha256({ method: "idea.revise", workspaceId, parentRunId, ideaText, revisionReason });
+    const existingCommand = this.store.getCommand(idempotencyKey);
+    if (existingCommand) {
+      this.assertIdempotentMatch(existingCommand, "idea.revise", requestHash);
+      if (!existingCommand.response) {
+        await this.advanceRun(existingCommand.subject_id, { recovery: true });
+        const recoveredResult = { run: this.getRun(existingCommand.subject_id), deduplicated: true };
+        this.store.completeCommand(idempotencyKey, recoveredResult);
+        return recoveredResult;
+      }
+      return { run: this.getRun(existingCommand.subject_id), deduplicated: true };
+    }
+    if (!["waiting_approval", "completed", "failed"].includes(parent.state)) {
+      throw new HarnessError("conflict", `Run ${parentRunId} is ${parent.state}; revise only after it reaches a review or terminal state`);
+    }
+
+    const rootRunId = parent.root_run_id ?? parent.run_id;
+    const revisionNumber = this.store.nextRevisionNumber(rootRunId);
+    const ids = deriveRevisionRunIds({ idempotencyKey, ideaArtifactId: parent.idea_artifact_id, revisionNumber });
+    const captured = this.assets.writeText(ideaText);
+    const plan = compileIdeaRun({ ...ids, workspaceId, projectId: parent.project_id, compiledAt: this.now() });
+    const commandSource = context.source ?? "studio";
+    const captureActor = context.actor ?? { type: "creator", id: "creator.local" };
+    const eventMetadata = context.clientId ? { clientId: context.clientId } : undefined;
+    this.store.transaction(() => {
+      this.store.beginCommand({ idempotencyKey, method: "idea.revise", requestHash, subjectId: ids.runId });
+      if (parent.state === "waiting_approval") {
+        this.store.appendEvent({
+          eventType: "approval.invalidated", aggregateType: "decision", aggregateId: parent.approval_id,
+          workspaceId, projectId: parent.project_id, commandId: context.requestId, correlationId: parent.run_id, idempotencyKey,
+          actor: captureActor, source: commandSource, metadata: eventMetadata, sensitivity: "personal",
+          payload: {
+            approvalId: parent.approval_id, subjectRef: parent.draft_artifact_id,
+            artifact: { artifactId: parent.draft_artifact_id, versionId: parent.draft_version_id },
+            actionClass: "artifact_approve", status: "invalidated", policyRevisionId: "policy.creator-default",
+            reason: `Superseded by idea revision ${revisionNumber}; stale exact-version authority cannot be reused.`
+          }
+        });
+        this.store.appendEvent(stepEvent(parent, "step.cancelled", "step.review", "waiting_approval", "cancelled"));
+        this.store.appendEvent({
+          eventType: "run.cancelled", aggregateType: "run", aggregateId: parent.run_id,
+          workspaceId, projectId: parent.project_id, commandId: context.requestId, correlationId: parent.run_id,
+          payload: { runId: parent.run_id, from: "waiting_approval", to: "cancelled", reason: `Superseded by immutable revision ${revisionNumber}.` }
+        });
+      }
+      this.store.appendEvent({
+        eventType: "source.captured", aggregateType: "artifact", aggregateId: ids.ideaArtifactId,
+        workspaceId, projectId: parent.project_id, commandId: context.requestId, correlationId: ids.runId, idempotencyKey,
+        actor: captureActor, source: commandSource, metadata: eventMetadata, sensitivity: "workspace",
+        payload: {
+          artifact: { artifactId: ids.ideaArtifactId, versionId: ids.ideaVersionId, contentHash: captured.contentHash },
+          captureKind: "text", originalHash: captured.contentHash, sensitivity: "workspace", classificationStatus: "confirmed"
+        }
+      });
+      this.store.appendEvent({
+        eventType: "run.planned", aggregateType: "run", aggregateId: ids.runId,
+        workspaceId, projectId: parent.project_id, commandId: context.requestId, correlationId: ids.runId, idempotencyKey,
+        payload: {
+          runId: ids.runId, loopRevision: plan.compiledFrom.loopRevision, planHash: plan.planHash, plan,
+          inputRefs: plan.inputs, quotedCost: plan.quote.maximum, budgetCeiling: plan.budget.ceiling,
+          stepCount: plan.steps.length, humanGateCount: plan.humanGates.length,
+          rootRunId, parentRunId, revisionNumber, revisionReason, approvalId: ids.approvalId, warnings: []
+        }
+      });
+      this.store.ensurePlanSteps(ids.runId, plan);
+      this.store.appendEvent({
+        eventType: "run.started", aggregateType: "run", aggregateId: ids.runId,
+        workspaceId, projectId: parent.project_id, commandId: context.requestId, correlationId: ids.runId,
+        payload: { runId: ids.runId, from: "planned", to: "running" }
+      });
+    });
+    if (parent.state === "waiting_approval") this.emit("run.updated", { runId: parent.run_id, state: "cancelled" });
     this.emit("run.updated", { runId: ids.runId, state: "running" });
     await this.advanceRun(ids.runId);
     const result = { run: this.getRun(ids.runId), deduplicated: false };
@@ -215,7 +300,7 @@ export class HarnessEngine extends EventEmitter {
       const idea = this.assetSummary(row.idea_artifact_id, row.idea_version_id);
       const analysisAsset = this.assetSummary(row.analysis_artifact_id, row.analysis_version_id);
       const analysis = JSON.parse(analysisAsset.text);
-      contractValidator.validateRef("https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisResult", analysis);
+      contractValidator.validateRef("https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaThesisAssessment", analysis);
       const draftText = structureIdea(idea.text, analysis);
       const draftAsset = this.assets.writeText(draftText);
       structure = this.store.getStep(runId, "step.structure");
@@ -338,12 +423,19 @@ export class HarnessEngine extends EventEmitter {
       workspaceId: row.workspace_id,
       projectId: row.project_id,
       loopRevision: { id: row.loop_id, revision: row.loop_revision },
+      rootRunId: row.root_run_id ?? row.run_id,
+      ...(row.parent_run_id ? { parentRunId: row.parent_run_id } : {}),
+      revisionNumber: Number(row.revision_number ?? 1),
+      ...(row.revision_reason ? { revisionReason: row.revision_reason } : {}),
       state: row.state,
       activeStepId: row.active_step_id ?? null,
       idea: this.assetSummary(row.idea_artifact_id, row.idea_version_id),
       ...(row.draft_artifact_id ? { draft: this.assetSummary(row.draft_artifact_id, row.draft_version_id) } : {}),
       ...(row.analysis_artifact_id ? { analysis: this.assetSummary(row.analysis_artifact_id, row.analysis_version_id) } : {}),
-      ...(row.approval_id ? { approval: { approvalId: row.approval_id, subjectRef: row.draft_artifact_id, state: row.approval_state, reason: "Approve or reject this exact content-addressed brief version." } } : {}),
+      ...(row.approval_id && row.draft_artifact_id ? { approval: {
+        approvalId: row.approval_id, subjectRef: row.draft_artifact_id, state: row.approval_state,
+        reason: row.approval_state === "invalidated" ? "A newer immutable idea revision invalidated this exact-version gate." : "Approve or reject this exact content-addressed brief version."
+      } } : {}),
       eventCount: this.store.countEventsForRun(row.run_id),
       recoveredFromCheckpoint: Boolean(row.recovered_from_checkpoint),
       updatedAt: row.updated_at
@@ -610,19 +702,21 @@ function stepEvent(row, eventType, stepId, from, to, attempt) {
 
 function deriveRunIdsFromRow(row) {
   const token = row.run_id.slice("run.idea.".length);
+  const rootToken = row.idea_artifact_id.startsWith("artifact.idea.") ? row.idea_artifact_id.slice("artifact.idea.".length) : token;
+  const revisionNumber = Number(row.revision_number ?? 1);
   return {
     token,
     runId: row.run_id,
     planId: `plan.idea.${token}`,
     ideaArtifactId: row.idea_artifact_id,
     ideaVersionId: row.idea_version_id,
-    analysisArtifactId: row.analysis_artifact_id ?? `artifact.analysis.${token}`,
-    analysisVersionId: row.analysis_version_id ?? `version.analysis.${token}.v1`,
-    draftArtifactId: row.draft_artifact_id ?? `artifact.brief.${token}`,
-    draftVersionId: row.draft_version_id ?? `version.brief.${token}.v1`,
+    analysisArtifactId: row.analysis_artifact_id ?? `artifact.analysis.${rootToken}`,
+    analysisVersionId: row.analysis_version_id ?? `version.analysis.${rootToken}.v${revisionNumber}`,
+    draftArtifactId: row.draft_artifact_id ?? `artifact.brief.${rootToken}`,
+    draftVersionId: row.draft_version_id ?? `version.brief.${rootToken}.v${revisionNumber}`,
     approvalId: row.approval_id ?? approvalIdForRun(row.run_id),
-    decisionId: `decision.brief.${token}.v1`,
-    checkpointId: `checkpoint.brief.${token}.review`
+    decisionId: `decision.brief.${rootToken}.v${revisionNumber}`,
+    checkpointId: `checkpoint.brief.${rootToken}.v${revisionNumber}.review`
   };
 }
 

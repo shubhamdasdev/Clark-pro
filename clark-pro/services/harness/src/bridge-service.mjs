@@ -16,7 +16,7 @@ import {
 const HOST = "127.0.0.1";
 const MAX_BODY_BYTES = 64 * 1024;
 const CLIENT_LIFETIME_MS = 24 * 60 * 60 * 1_000;
-const TOOL_NAMES = Object.freeze(["clark.idea.start", "clark.runs.list", "clark.run.get"]);
+const TOOL_NAMES = Object.freeze(["clark.idea.start", "clark.idea.revise", "clark.runs.list", "clark.run.get"]);
 
 const ideaStartInputSchema = Object.freeze({
   type: "object",
@@ -25,6 +25,18 @@ const ideaStartInputSchema = Object.freeze({
     idempotencyKey: { type: "string", minLength: 8, maxLength: 256 }
   },
   required: ["ideaText", "idempotencyKey"],
+  additionalProperties: false
+});
+
+const ideaReviseInputSchema = Object.freeze({
+  type: "object",
+  properties: {
+    parentRunId: { type: "string", minLength: 3, maxLength: 128 },
+    ideaText: { type: "string", minLength: 20, maxLength: 12_000 },
+    revisionReason: { type: "string", minLength: 3, maxLength: 1_000 },
+    idempotencyKey: { type: "string", minLength: 8, maxLength: 256 }
+  },
+  required: ["parentRunId", "ideaText", "revisionReason", "idempotencyKey"],
   additionalProperties: false
 });
 
@@ -230,6 +242,11 @@ function createBridgeMcpServer(bridge) {
       inputSchema: ideaStartInputSchema
     },
     {
+      name: "clark.idea.revise",
+      description: "Create a new immutable thesis revision from an existing scoped run. Any stale pending exact-version approval is invalidated; this does not approve, build, or publish anything.",
+      inputSchema: ideaReviseInputSchema
+    },
+    {
       name: "clark.runs.list",
       description: "List compact run status records from the single workspace granted to this Bridge client.",
       inputSchema: runsListInputSchema
@@ -253,6 +270,19 @@ function createBridgeMcpServer(bridge) {
           workspaceId: bridge.workspaceId,
           projectId: "project.idea-lab",
           ideaText: args.ideaText.trim(),
+          idempotencyKey: args.idempotencyKey
+        }, bridgeContext(bridge));
+      } else if (request.params.name === "clark.idea.revise") {
+        assertObjectKeys(args, ["parentRunId", "ideaText", "revisionReason", "idempotencyKey"]);
+        if (typeof args.parentRunId !== "string" || args.parentRunId.length < 3 || args.parentRunId.length > 128) throw invalidParams("parentRunId is required");
+        if (typeof args.ideaText !== "string" || args.ideaText.trim().length < 20 || args.ideaText.length > 12_000) throw invalidParams("ideaText must be between 20 and 12,000 characters");
+        if (typeof args.revisionReason !== "string" || args.revisionReason.trim().length < 3 || args.revisionReason.length > 1_000) throw invalidParams("revisionReason must be between 3 and 1,000 characters");
+        if (typeof args.idempotencyKey !== "string" || args.idempotencyKey.length < 8 || args.idempotencyKey.length > 256) throw invalidParams("idempotencyKey must be between 8 and 256 characters");
+        result = await bridge.engine.reviseIdea({
+          workspaceId: bridge.workspaceId,
+          parentRunId: args.parentRunId,
+          ideaText: args.ideaText.trim(),
+          revisionReason: args.revisionReason.trim(),
           idempotencyKey: args.idempotencyKey
         }, bridgeContext(bridge));
       } else if (request.params.name === "clark.runs.list") {
@@ -305,11 +335,30 @@ function compactRun(run) {
     projectId: run.projectId,
     state: run.state,
     loopRevision: run.loopRevision,
+    rootRunId: run.rootRunId,
+    revisionNumber: run.revisionNumber,
+    ...(run.parentRunId ? { parentRunId: run.parentRunId } : {}),
     activeStepId: run.activeStepId,
     eventCount: run.eventCount,
     recoveredFromCheckpoint: run.recoveredFromCheckpoint,
+    ...(run.analysis ? { thesis: compactThesis(run.analysis.text) } : {}),
     ...(run.approval ? { approval: { approvalId: run.approval.approvalId, state: run.approval.state } } : {})
   };
+}
+
+function compactThesis(text) {
+  try {
+    const assessment = JSON.parse(text);
+    return {
+      structuralCompleteness: assessment.structuralCompleteness,
+      readiness: assessment.readiness,
+      evidenceState: assessment.evidenceState,
+      missingFacets: assessment.missingFacets,
+      evidenceGaps: assessment.evidenceGaps
+    };
+  } catch {
+    return { readiness: "unavailable" };
+  }
 }
 
 function toolResult(result) {

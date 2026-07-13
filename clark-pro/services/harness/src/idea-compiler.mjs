@@ -28,6 +28,26 @@ export function deriveRunIds(idempotencyKey) {
   });
 }
 
+export function deriveRevisionRunIds({ idempotencyKey, ideaArtifactId, revisionNumber }) {
+  if (!Number.isInteger(revisionNumber) || revisionNumber < 2) throw new TypeError("A revision number of at least 2 is required");
+  const token = stableToken(idempotencyKey);
+  const rootToken = ideaArtifactId.startsWith("artifact.idea.") ? ideaArtifactId.slice("artifact.idea.".length) : stableToken(ideaArtifactId);
+  return Object.freeze({
+    token,
+    runId: `run.idea.${token}`,
+    planId: `plan.idea.${token}`,
+    ideaArtifactId,
+    ideaVersionId: `version.idea.${rootToken}.v${revisionNumber}`,
+    analysisArtifactId: `artifact.analysis.${rootToken}`,
+    analysisVersionId: `version.analysis.${rootToken}.v${revisionNumber}`,
+    draftArtifactId: `artifact.brief.${rootToken}`,
+    draftVersionId: `version.brief.${rootToken}.v${revisionNumber}`,
+    approvalId: `approval.brief.${rootToken}.v${revisionNumber}`,
+    decisionId: `decision.brief.${rootToken}.v${revisionNumber}`,
+    checkpointId: `checkpoint.brief.${rootToken}.v${revisionNumber}.review`
+  });
+}
+
 export function compileIdeaRun({ runId, planId, workspaceId, projectId, ideaArtifactId, ideaVersionId, analysisArtifactId, analysisVersionId, draftArtifactId, draftVersionId, compiledAt }) {
   const plan = {
     $schema: "https://schemas.clark.pro/v1/run-plan.schema.json",
@@ -45,7 +65,7 @@ export function compileIdeaRun({ runId, planId, workspaceId, projectId, ideaArti
       creatorModelRevision: { id: "creator-model.local", revision: "1.0.0" },
       capabilityRevisions: [
         { id: "clark.capture.local", revision: "1.0.0" },
-        { id: "clark.idea.inspect.mcp", revision: "1.0.0" },
+        { id: "clark.idea.inspect.mcp", revision: "1.1.0" },
         { id: "clark.idea.structure.local", revision: "1.0.0" }
       ]
     },
@@ -63,8 +83,8 @@ export function compileIdeaRun({ runId, planId, workspaceId, projectId, ideaArti
       {
         id: "step.inspect", nodeId: "inspect", kind: "operator", dependsOn: ["step.capture"],
         inputRefs: [{ artifactId: ideaArtifactId, versionId: ideaVersionId }],
-        outputContractRef: "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisResult",
-        capabilityRevision: { id: "clark.idea.inspect.mcp", revision: "1.0.0" }, actionClass: "local_transform", initialState: "pending",
+        outputContractRef: "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaThesisAssessment",
+        capabilityRevision: { id: "clark.idea.inspect.mcp", revision: "1.1.0" }, actionClass: "local_transform", initialState: "pending",
         permissionDecision: { result: "allow", policyRevisionId: "policy.creator-default", reason: "The bundled MCP process has no network, credential, system, or file authority." },
         approval: { mode: "none" }, quote: zeroQuote("Bundled deterministic MCP inspection"), retryPolicy: "safe_transient_only", idempotency: "not_applicable",
         reconciliation: "not_required", executionLocation: "local", egressItemIds: [], timeoutSeconds: 15
@@ -121,11 +141,13 @@ export function structureIdea(ideaText, analysis) {
     "",
     "## Governed MCP inspection",
     analysis.summary,
-    `- Explicit signals: ${Object.entries(analysis.signals).filter(([, present]) => present).map(([name]) => name).join(", ") || "none"}`,
-    `- Missing signals: ${analysis.missingSignals.join(", ") || "none"}`,
+    `- Structural completeness: ${analysis.structuralCompleteness.explicitCount}/${analysis.structuralCompleteness.totalCount} facets explicit`,
+    `- Missing facets: ${analysis.missingFacets.join(", ") || "none"}`,
+    `- Readiness: ${analysis.readiness === "evidence_required" ? "ready to collect evidence; not validated" : "clarification required"}`,
+    `- Evidence state: ${analysis.evidenceState}; gaps: ${analysis.evidenceGaps.join(", ")}`,
     "",
     "## Product boundary",
-    "The original idea remains the source. This local deterministic pass adds structure but introduces no research claims, model output, external data, or publication authority.",
+    "The original idea remains the source. This local deterministic pass adds structure but introduces no research claims, model output, external data, market validation, build authority, or publication authority.",
     "",
     "## Assumptions to test",
     "1. The target user can identify the current tool or workflow this replaces.",

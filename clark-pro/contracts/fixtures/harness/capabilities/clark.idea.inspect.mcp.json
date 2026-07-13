@@ -3,19 +3,19 @@
   "schemaVersion": 1,
   "id": "clark.idea.inspect.mcp",
   "name": "Clark Bundled MCP Idea Inspector",
-  "description": "Inspects explicit creator text for outcome, user, mechanism, trust, and evidence signals through a bundled deterministic MCP stdio server.",
-  "version": "1.0.0",
+  "description": "Stress-tests ten explicit thesis facets and identifies unobserved evidence through a bundled deterministic MCP stdio server.",
+  "version": "1.1.0",
   "publisher": {
     "id": "clark",
     "name": "Clark Pro",
     "source": "https://github.com/shubhamdasdev/Clark-pro",
-    "sourceRevision": "bundled-mcp-idea-inspector-v1",
-    "sourceHash": "sha256:70502852c4cc3e6f89e479019fed2f13eba7da9d31a0240135d7359bb937c8bb"
+    "sourceRevision": "bundled-mcp-idea-inspector-v1.1",
+    "sourceHash": "sha256:8891597a69e33c0600aec5dfc479d2dde9f791c61023eaacffecb7af2ddce6a2"
   },
   "kind": "observation",
   "transport": { "type": "mcp", "modes": ["stdio"], "serverRef": "mcp.clark.idea-inspector", "toolName": "analyze_idea" },
   "inputSchemaRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisInput",
-  "outputSchemaRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisResult",
+  "outputSchemaRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaThesisAssessment",
   "lifecycle": ["discover", "validate", "execute", "health", "revoke"],
   "permissions": {
     "actionClass": "local_transform",
@@ -37,6 +37,6 @@
   "reliability": { "timeoutSeconds": 15, "retryPolicy": "safe_transient_only", "maxAttempts": 2, "healthCheck": "non_mutating_active", "schemaDriftBehavior": "block" },
   "ui": { "renderer": "idea.analysis", "previewSafe": true, "supportsProgress": false, "supportsDiff": true },
   "limitations": [
-    { "code": "lexical-signals-only", "description": "The bundled inspector detects explicit lexical signals; it does not judge market value, research truth, originality, or creator fit.", "fallback": "manual" }
+    { "code": "deterministic-thesis-only", "description": "The bundled inspector detects explicit thesis facets; it does not establish market truth, originality, creator fit, demand, willingness to pay, or retention.", "fallback": "manual" }
   ]
 }

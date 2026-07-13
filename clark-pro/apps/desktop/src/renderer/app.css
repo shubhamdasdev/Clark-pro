@@ -78,6 +78,8 @@ dt { color: var(--muted); } dd { margin: 0; text-align: right; }
 .idea-form { display: grid; gap: 10px; padding: 18px; align-content: start; }
 .idea-form label { font-size: 12px; font-weight: 720; }
 .idea-form textarea { width: 100%; resize: vertical; min-height: 96px; padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: #11141a; color: var(--text); line-height: 1.5; }
+.revision-reason { display: grid; gap: 7px; }
+.revision-reason input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: #11141a; color: var(--text); }
 .form-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .form-footer p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
 .form-footer button { flex: 0 0 auto; }
@@ -87,6 +89,8 @@ dt { color: var(--muted); } dd { margin: 0; text-align: right; }
 .run-result-heading { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
 .run-result h3 { margin: 5px 0 0; font-size: 18px; }
 .run-result pre { max-height: 280px; overflow: auto; margin: 15px 0; padding: 14px; border: 1px solid var(--line); border-radius: 9px; background: #0f1116; color: #d8dbe1; font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; }
+.thesis-readiness { margin: 14px 0; padding: 12px 13px; border: 1px solid #4a3b29; border-radius: 9px; background: #211c17; }
+.thesis-readiness strong { font-size: 12px; }.thesis-readiness p { margin: 5px 0 0; color: #c6bdaf; font-size: 11px; line-height: 1.45; }
 .approval-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 2px; }
 .approval-actions p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.4; }
 .approval-actions > div { display: flex; gap: 8px; flex: 0 0 auto; }
@@ -105,6 +109,8 @@ dt { color: var(--muted); } dd { margin: 0; text-align: right; }
 .inspector > .eyebrow, .inspector > h2 { margin-left: 18px; margin-right: 18px; }
 .inspector > .eyebrow { margin-top: 18px; }.inspector > h2 { margin-top: 7px; }
 .inspector button { margin: 16px 18px 0; width: calc(100% - 36px); padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-raised); color: var(--muted); }
+.evidence-gap-panel { margin: 16px 18px 0; padding-top: 14px; border-top: 1px solid var(--line); }
+.evidence-gap-panel h3 { margin: 0; font-size: 12px; }.evidence-gap-panel ul { margin: 9px 0 0; padding-left: 18px; color: var(--muted); font-size: 11px; line-height: 1.5; }
 
 .trust-summary { display: grid; grid-template-columns: minmax(260px, .8fr) 1.2fr; gap: 24px; align-items: center; padding: 18px 20px; margin-bottom: 18px; background: linear-gradient(100deg, #2e201c, #1d2027); border: 1px solid #573628; border-radius: 12px; }
 .trust-summary h2 { margin: 5px 0 0; font-size: 19px; }.trust-summary > p { margin: 0; color: #c6bdaf; line-height: 1.5; }

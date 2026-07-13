@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { EventStore } from "../../src/event-store.mjs";
 
-test("schema v1 databases migrate additively to capability runtime schema v2", async () => {
+test("schema v1 databases migrate additively through capability runtime and revision lineage schema v3", async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), "clark-db-migration-"));
   const databasePath = path.join(directory, "clark.db");
   const legacy = new DatabaseSync(databasePath);
@@ -20,14 +20,24 @@ test("schema v1 databases migrate additively to capability runtime schema v2", a
       approval_id TEXT, approval_state TEXT, recovered_from_checkpoint INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL
     ) STRICT;
   `);
+  legacy.prepare(`INSERT INTO runs(run_id, workspace_id, project_id, loop_id, loop_revision, plan_hash, state, idea_artifact_id, idea_version_id, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run("run.idea.legacy", "workspace.local", "project.local", "clark.loop.idea-to-approved-text", "1.0.0", `sha256:${"a".repeat(64)}`, "completed", "artifact.idea.legacy", "version.idea.legacy.v1", "2026-07-12T00:00:00Z");
   legacy.close();
   let store;
   try {
     store = new EventStore(databasePath);
-    assert.equal(store.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get().value, "2");
+    assert.equal(store.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get().value, "3");
     const columns = store.database.prepare("PRAGMA table_info(runs)").all().map((column) => column.name);
     assert.equal(columns.includes("analysis_artifact_id"), true);
     assert.equal(columns.includes("analysis_version_id"), true);
+    assert.equal(columns.includes("root_run_id"), true);
+    assert.equal(columns.includes("parent_run_id"), true);
+    assert.equal(columns.includes("revision_number"), true);
+    const migratedRun = store.database.prepare("SELECT root_run_id, parent_run_id, revision_number FROM runs WHERE run_id = ?").get("run.idea.legacy");
+    assert.equal(migratedRun.root_run_id, "run.idea.legacy");
+    assert.equal(migratedRun.parent_run_id, null);
+    assert.equal(migratedRun.revision_number, 1);
     assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM capabilities").get().count, 0);
     assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM bridge_clients").get().count, 0);
     assert.equal(store.journalMode, "wal");

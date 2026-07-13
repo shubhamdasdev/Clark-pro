@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/event-payloads.schema.json
- * Source SHA-256: 73998dadfbf5c6d178424ed075fb543e4ac44091a3999d4085014d8880b62d6e
+ * Source SHA-256: 548580f4d225783b15518608530d81dbd71c8dc820a33b6c3a2961a01b3992f5
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -221,6 +221,11 @@ export interface RunPlanned {
   budgetCeiling: Money;
   stepCount: number;
   humanGateCount: number;
+  rootRunId?: string;
+  parentRunId?: string;
+  revisionNumber?: number;
+  revisionReason?: string;
+  approvalId?: string;
   warnings?: string[];
 }
 export interface ClarkCompiledRunPlan {

@@ -17,6 +17,12 @@ try {
   const page = await electronApp.firstWindow();
   await page.getByRole("heading", { name: "Focus", level: 1 }).waitFor();
   await page.getByText(/Ready · \d+ events/).waitFor();
+  await page.getByRole("button", { name: "Structure idea" }).click();
+  await page.getByText("Waiting approval", { exact: true }).waitFor();
+  await page.locator("#idea-input").fill("Build a local-first creator operating system for solo professional creators that replaces manual copy and paste across multiple tools with plugin-first open-source workflows, while creator approval controls memory and publication. Unlike closed suites, providers stay replaceable. Reach creators through an open-source plugin marketplace and charge a subscription after a pilot measures weekly time saved, willingness to pay, and repeat use.");
+  await page.locator("#revision-reason").fill("Narrow the user and add the workaround, wedge, distribution, payment model, and evidence test.");
+  await page.getByRole("button", { name: "Create stronger revision" }).click();
+  await page.locator("#run-integrity").filter({ hasText: /revision 2 ·/i }).waitFor();
   await page.screenshot({ path: path.join(outputDirectory, "focus.png") });
   await page.locator(".harness-panel").scrollIntoViewIfNeeded();
   await page.screenshot({ path: path.join(outputDirectory, "focus-harness.png") });

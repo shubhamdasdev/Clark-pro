@@ -41,7 +41,9 @@ Clark Connect discovers and invokes external MCP servers through stdio or Stream
 
 ### First executable host slice
 
-The Mac Harness now executes one bundled, deterministic `analyze_idea` MCP stdio tool through `@modelcontextprotocol/sdk@1.29.0`. The capability revision pins its source hash and exact input schema. Clark launches it with no shell, exact argv/cwd, an explicit environment allowlist, zero network/credential/file authority, a 15-second lease, and durable permission/invocation receipts. Tool-count or schema drift, source drift, ambient-environment expansion, or policy expansion blocks execution.
+The Mac Harness now executes one bundled, deterministic `analyze_idea` MCP stdio tool through `@modelcontextprotocol/sdk@1.29.0`. Capability revision `1.1.0` pins its source hash and exact input schema. Clark launches it with no shell, exact argv/cwd, an explicit environment allowlist, zero network/credential/file authority, a 15-second lease, and durable permission/invocation receipts. Tool-count or schema drift, source drift, ambient-environment expansion, or policy expansion blocks execution.
+
+The result is an evidence-honest thesis assessment rather than a score. It marks ten facets—outcome, target user, painful problem, current workaround, mechanism, wedge, trust boundary, distribution, business model, and evidence plan—as explicit or missing. Even when all ten are explicit, readiness is `evidence_required` and the observed evidence state remains `not_observed`. This deterministic phrase test helps a creator find omissions; it cannot establish truth, originality, demand, payment, retention, market size, or product quality.
 
 This is production-path evidence for the host boundary, not proof that arbitrary community servers are safe or installable. OAuth, Keychain brokering, Streamable HTTP clients, third-party package activation, and long-running provider reconciliation remain later slices.
 
@@ -53,7 +55,7 @@ Clark Bridge lets external agents use Clark without bypassing its memory, policy
 
 The supervised Harness now hosts an official-SDK Streamable HTTP server on `127.0.0.1` with an ephemeral port. It validates Host and Origin, rejects oversized/encoded bodies, and requires a 256-bit bearer kept in an owner-only connection file outside the renderer and event log. The registered client is limited to one workspace and `capture`/`read` action classes.
 
-The currently executable surface is intentionally smaller than the target catalog below: `clark.idea.start`, `clark.runs.list`, `clark.run.get`, and `clark://workspace.local/runs`. It cannot approve a brief, access credentials or memory, install code, or publish. Restart revokes the prior client before registering a fresh local capability.
+The currently executable surface is intentionally smaller than the target catalog below: `clark.idea.start`, `clark.idea.revise`, `clark.runs.list`, `clark.run.get`, and `clark://workspace.local/runs`. Revision uses the same immutable Harness command as Studio, exposes root/parent lineage and compact readiness, and invalidates stale pending exact-version approval. Compact list/resource records omit full idea text. The Bridge cannot approve a brief, access credentials or memory, install code, build, or publish. Restart revokes the prior client before registering a fresh local capability.
 
 ### Tools
 

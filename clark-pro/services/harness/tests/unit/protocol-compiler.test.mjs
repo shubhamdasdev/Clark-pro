@@ -31,7 +31,10 @@ test("deterministic structuring is stable and explicitly introduces no claims", 
   assert.equal(first, structureIdea(idea, analysis));
   assert.match(first, /Creator intent/);
   assert.match(first, /Governed MCP inspection/);
-  assert.match(first, /introduces no research claims, model output, external data, or publication authority/);
+  assert.match(first, /introduces no research claims, model output, external data, market validation, build authority, or publication authority/);
+  assert.equal(analysis.kind, "idea_thesis_assessment");
+  assert.equal(analysis.evidenceState, "not_observed");
+  assert.equal(analysis.evidenceGaps.length, 5);
 });
 
 test("Harness protocol rejects unknown, expired, and oversized messages", () => {
@@ -48,4 +51,20 @@ test("Harness protocol rejects unknown, expired, and oversized messages", () => 
 test("run reads carry explicit workspace scope", () => {
   assert.doesNotThrow(() => createRequest("run.get", { workspaceId: "workspace.local", runId: "run.idea.12345678" }));
   assert.throws(() => createRequest("run.get", { runId: "run.idea.12345678" }), HarnessProtocolError);
+});
+
+test("idea revision requests require explicit parent lineage and a reason", () => {
+  assert.doesNotThrow(() => createRequest("idea.revise", {
+    workspaceId: "workspace.local",
+    parentRunId: "run.idea.12345678",
+    ideaText: "A revised creator idea with enough detail for deterministic inspection.",
+    revisionReason: "Clarify the target user and evidence plan.",
+    idempotencyKey: "intent-revise-0001"
+  }));
+  assert.throws(() => createRequest("idea.revise", {
+    workspaceId: "workspace.local",
+    ideaText: "A revised creator idea with enough detail for deterministic inspection.",
+    revisionReason: "Clarify it.",
+    idempotencyKey: "intent-revise-0001"
+  }), HarnessProtocolError);
 });

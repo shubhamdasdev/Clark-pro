@@ -82,8 +82,12 @@
               <form id="idea-loop-form" class="idea-form">
                 <label for="idea-input">Creator intent</label>
                 <textarea id="idea-input" minlength="20" maxlength="12000" rows="4" required>Build a creator operating system that connects reusable tools while keeping memory, approvals, and publication under creator control.</textarea>
+                <div id="revision-reason-group" class="revision-reason" hidden>
+                  <label for="revision-reason">Why this revision is stronger</label>
+                  <input id="revision-reason" type="text" minlength="3" maxlength="1000" placeholder="Narrow the user, replacement, wedge, or evidence test">
+                </div>
                 <div class="form-footer">
-                  <p>Local deterministic structure · $0 · no network, model, credentials, tools, or publishing</p>
+                  <p id="idea-form-context">Local deterministic stress-test · $0 · no network, model, credentials, build, or publishing authority</p>
                   <button id="run-idea-loop" class="primary-action" type="submit">Structure idea</button>
                 </div>
               </form>
@@ -101,9 +105,14 @@
                   <div><p class="eyebrow">Latest durable run</p><h3 id="run-result-heading">Idea brief</h3></div>
                   <span id="run-state" class="state specified">Planned</span>
                 </div>
+                <section id="thesis-readiness" class="thesis-readiness" aria-live="polite" hidden>
+                  <strong id="readiness-heading">Thesis assessment</strong>
+                  <p id="readiness-summary"></p>
+                  <p id="readiness-gaps"></p>
+                </section>
                 <pre id="draft-text" tabindex="0"></pre>
                 <div id="approval-actions" class="approval-actions" hidden>
-                  <p>Approval pins this exact content hash. It does not authorize publication.</p>
+                  <p>Approval pins this wording only. It does not validate demand or authorize build or publication.</p>
                   <div><button id="reject-brief" type="button" class="secondary-action">Reject</button><button id="approve-brief" type="button" class="primary-action">Approve exact version</button></div>
                 </div>
                 <p id="run-integrity" class="run-integrity"></p>
@@ -114,22 +123,29 @@
 
         <section id="view-canvas" class="view" role="tabpanel" aria-labelledby="tab-canvas" data-view="canvas" hidden>
           <div class="view-heading">
-            <div><p class="eyebrow">Launch system · 7 objects</p><h1>Canvas</h1><p>A keyboard-readable production graph, with every edge still inspectable.</p></div>
-            <span class="mode-badge">Structure view</span>
+            <div><p id="canvas-lineage" class="eyebrow">Idea Foundry · waiting for a thesis</p><h1>Canvas</h1><p>The live, event-backed path from creator intent to honest evidence readiness and exact-version review.</p></div>
+            <span id="canvas-readiness" class="mode-badge">No assessment</span>
           </div>
           <p id="canvas-help" class="keyboard-help">Use arrow keys to move between objects. Press Enter to inspect the selected object.</p>
           <div class="canvas-layout">
-            <ol class="node-flow" aria-label="Launch production graph" aria-describedby="canvas-help">
-              <li><button type="button" class="node-card selected" data-node="idea"><span class="node-type">Source</span><strong>Creator thesis</strong><small>Captured locally · trusted</small></button></li>
+            <ol class="node-flow" aria-label="Idea Foundry graph" aria-describedby="canvas-help">
+              <li><button type="button" class="node-card selected" data-node="idea"><span class="node-type">Source</span><strong>Idea thesis</strong><small>No captured revision yet</small></button></li>
               <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
-              <li><button type="button" class="node-card" data-node="narrative"><span class="node-type">Skill</span><strong>Launch narrative</strong><small>Review gate required</small></button></li>
+              <li><button type="button" class="node-card" data-node="assessment"><span class="node-type">MCP assessment</span><strong>Thesis stress-test</strong><small>Awaiting local inspection</small></button></li>
               <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
-              <li><button type="button" class="node-card" data-node="video"><span class="node-type">Tool Pack</span><strong>Video assembly</strong><small>OpenCut candidate · blocked</small></button></li>
+              <li><button type="button" class="node-card" data-node="evidence"><span class="node-type">Evidence gates</span><strong>Observed proof</strong><small>No evidence inferred</small></button></li>
+              <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
+              <li><button type="button" class="node-card" data-node="brief"><span class="node-type">Artifact</span><strong>Idea brief</strong><small>Awaiting deterministic structure</small></button></li>
+              <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
+              <li><button type="button" class="node-card" data-node="review"><span class="node-type">Human gate</span><strong>Exact-version review</strong><small>No review gate yet</small></button></li>
             </ol>
             <aside class="panel inspector" aria-labelledby="inspector-heading">
-              <p class="eyebrow">Selected object</p><h2 id="inspector-heading">Creator thesis</h2>
-              <dl><div><dt>Authority</dt><dd>Read only</dd></div><div><dt>Lineage</dt><dd>Capture → Idea</dd></div><div><dt>Trust</dt><dd>Local source</dd></div></dl>
-              <button type="button" disabled>Open details</button>
+              <p class="eyebrow">Selected object</p><h2 id="inspector-heading">Idea thesis</h2>
+              <dl><div><dt>Authority</dt><dd>Creator input only</dd></div><div><dt>Lineage</dt><dd>No revision</dd></div><div><dt>Trust</dt><dd>Local canonical</dd></div><div><dt>Readiness</dt><dd>Not assessed</dd></div></dl>
+              <section class="evidence-gap-panel" aria-labelledby="evidence-gap-heading">
+                <h3 id="evidence-gap-heading">Open evidence gates</h3>
+                <ul id="evidence-gap-list"><li>Capture a thesis to reveal exact gaps.</li></ul>
+              </section>
             </aside>
           </div>
         </section>

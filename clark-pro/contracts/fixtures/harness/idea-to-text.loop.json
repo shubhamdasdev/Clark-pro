@@ -4,7 +4,7 @@
   "id": "clark.loop.idea-to-approved-text",
   "name": "Idea to Approved Text",
   "description": "Captures creator intent, inspects it through a lease-scoped bundled MCP tool, produces a deterministic local brief, and stops at an exact-version creator approval gate.",
-  "revision": "1.1.0",
+  "revision": "1.2.0",
   "entryContract": { "schemaRef": "https://schemas.clark.pro/v1/capture-input.schema.json", "description": "Explicit creator-supplied idea text." },
   "successContract": { "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief", "description": "A content-addressed brief approved at its exact version." },
   "graph": {
@@ -27,8 +27,8 @@
         "name": "Inspect idea through governed MCP",
         "kind": "operator",
         "inputs": [{ "id": "idea", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/idea", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
-        "outputs": [{ "id": "analysis", "schemaRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisResult", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
-        "capabilityRevision": { "id": "clark.idea.inspect.mcp", "revision": "1.0.0" },
+        "outputs": [{ "id": "analysis", "schemaRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaThesisAssessment", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
+        "capabilityRevision": { "id": "clark.idea.inspect.mcp", "revision": "1.1.0" },
         "actionClass": "local_transform",
         "approval": { "mode": "none" },
         "timeoutSeconds": 15,
@@ -41,7 +41,7 @@
         "kind": "operator",
         "inputs": [
           { "id": "idea", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/idea", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" },
-          { "id": "analysis", "schemaRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisResult", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }
+          { "id": "analysis", "schemaRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaThesisAssessment", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }
         ],
         "outputs": [{ "id": "brief", "schemaRef": "https://schemas.clark.pro/v1/artifact.schema.json#/$defs/brief", "cardinality": "one", "required": true, "sensitivityCeiling": "confidential" }],
         "capabilityRevision": { "id": "clark.idea.structure.local", "revision": "1.0.0" },

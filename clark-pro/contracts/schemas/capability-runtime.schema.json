@@ -8,6 +8,7 @@
     { "$ref": "#/$defs/invocationReceipt" },
     { "$ref": "#/$defs/ideaAnalysisInput" },
     { "$ref": "#/$defs/ideaAnalysisResult" },
+    { "$ref": "#/$defs/ideaThesisAssessment" },
     { "$ref": "#/$defs/runtimeProfileResult" }
   ],
   "$defs": {
@@ -128,6 +129,69 @@
         "missingSignals": { "type": "array", "items": { "enum": ["outcome", "user", "mechanism", "trust", "evidence"] }, "uniqueItems": true },
         "disposition": { "enum": ["structured", "needs_clarification"] },
         "summary": { "type": "string", "minLength": 1, "maxLength": 500 }
+      },
+      "additionalProperties": false
+    },
+    "ideaThesisFacet": {
+      "type": "object",
+      "required": ["state", "prompt"],
+      "properties": {
+        "state": { "enum": ["explicit", "missing"] },
+        "prompt": { "type": "string", "minLength": 1, "maxLength": 300 }
+      },
+      "additionalProperties": false
+    },
+    "ideaThesisAssessment": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "wordCount", "facets", "missingFacets", "structuralCompleteness", "readiness", "evidenceState", "evidenceGaps", "summary", "limitations"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "kind": { "const": "idea_thesis_assessment" },
+        "wordCount": { "type": "integer", "minimum": 1, "maximum": 12000 },
+        "facets": {
+          "type": "object",
+          "required": ["outcome", "targetUser", "painfulProblem", "currentWorkaround", "mechanism", "wedge", "trustBoundary", "distribution", "businessModel", "evidencePlan"],
+          "properties": {
+            "outcome": { "$ref": "#/$defs/ideaThesisFacet" },
+            "targetUser": { "$ref": "#/$defs/ideaThesisFacet" },
+            "painfulProblem": { "$ref": "#/$defs/ideaThesisFacet" },
+            "currentWorkaround": { "$ref": "#/$defs/ideaThesisFacet" },
+            "mechanism": { "$ref": "#/$defs/ideaThesisFacet" },
+            "wedge": { "$ref": "#/$defs/ideaThesisFacet" },
+            "trustBoundary": { "$ref": "#/$defs/ideaThesisFacet" },
+            "distribution": { "$ref": "#/$defs/ideaThesisFacet" },
+            "businessModel": { "$ref": "#/$defs/ideaThesisFacet" },
+            "evidencePlan": { "$ref": "#/$defs/ideaThesisFacet" }
+          },
+          "additionalProperties": false
+        },
+        "missingFacets": {
+          "type": "array",
+          "items": { "enum": ["outcome", "targetUser", "painfulProblem", "currentWorkaround", "mechanism", "wedge", "trustBoundary", "distribution", "businessModel", "evidencePlan"] },
+          "uniqueItems": true
+        },
+        "structuralCompleteness": {
+          "type": "object",
+          "required": ["explicitCount", "totalCount", "state"],
+          "properties": {
+            "explicitCount": { "type": "integer", "minimum": 0, "maximum": 10 },
+            "totalCount": { "const": 10 },
+            "state": { "enum": ["needs_clarification", "ready_for_evidence"] }
+          },
+          "additionalProperties": false
+        },
+        "readiness": { "enum": ["needs_clarification", "evidence_required"] },
+        "evidenceState": { "const": "not_observed" },
+        "evidenceGaps": {
+          "type": "array",
+          "items": { "enum": ["problem_interviews", "workaround_baseline", "behavioral_demand", "willingness_to_pay", "retention_or_repeat_use"] },
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true
+        },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 700 },
+        "limitations": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 300 }, "minItems": 2, "uniqueItems": true },
+        "supersedes": { "type": "string", "maxLength": 128 }
       },
       "additionalProperties": false
     },

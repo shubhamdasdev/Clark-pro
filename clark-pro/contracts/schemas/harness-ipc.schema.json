@@ -21,6 +21,7 @@
             { "$ref": "#/$defs/statusCommand" },
             { "$ref": "#/$defs/workspaceEnsureCommand" },
             { "$ref": "#/$defs/loopStartCommand" },
+            { "$ref": "#/$defs/ideaReviseCommand" },
             { "$ref": "#/$defs/runGetCommand" },
             { "$ref": "#/$defs/runListCommand" },
             { "$ref": "#/$defs/approvalResolveCommand" },
@@ -69,6 +70,26 @@
             "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
             "projectId": { "$ref": "common.schema.json#/$defs/id" },
             "ideaText": { "type": "string", "minLength": 20, "maxLength": 12000 },
+            "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "ideaReviseCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "idea.revise" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "parentRunId", "ideaText", "revisionReason", "idempotencyKey"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "parentRunId": { "$ref": "common.schema.json#/$defs/id" },
+            "ideaText": { "type": "string", "minLength": 20, "maxLength": 12000 },
+            "revisionReason": { "type": "string", "minLength": 3, "maxLength": 1000 },
             "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
           },
           "additionalProperties": false
@@ -166,7 +187,7 @@
         "schemaVersion": { "const": 1 },
         "kind": { "const": "response" },
         "requestId": { "$ref": "common.schema.json#/$defs/id" },
-        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "run.get", "run.list", "approval.resolve", "capability.list", "bridge.status"] },
+        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "idea.revise", "run.get", "run.list", "approval.resolve", "capability.list", "bridge.status"] },
         "ok": { "type": "boolean" },
         "result": {
           "oneOf": [
@@ -361,7 +382,7 @@
       "properties": {
         "approvalId": { "$ref": "common.schema.json#/$defs/id" },
         "subjectRef": { "$ref": "common.schema.json#/$defs/id" },
-        "state": { "enum": ["waiting", "approved", "rejected"] },
+        "state": { "enum": ["waiting", "approved", "rejected", "invalidated"] },
         "reason": { "type": "string", "minLength": 1, "maxLength": 1000 }
       },
       "additionalProperties": false
@@ -374,6 +395,10 @@
         "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
         "projectId": { "$ref": "common.schema.json#/$defs/id" },
         "loopRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "rootRunId": { "$ref": "common.schema.json#/$defs/id" },
+        "parentRunId": { "$ref": "common.schema.json#/$defs/id" },
+        "revisionNumber": { "type": "integer", "minimum": 1 },
+        "revisionReason": { "type": "string", "minLength": 1, "maxLength": 1000 },
         "state": { "enum": ["planned", "running", "recovering", "waiting_approval", "completed", "failed", "cancelled"] },
         "activeStepId": { "type": ["string", "null"] },
         "idea": { "$ref": "#/$defs/assetSummary" },

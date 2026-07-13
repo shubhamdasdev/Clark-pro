@@ -63,7 +63,7 @@ export class BundledIdeaMcpAdapter {
       }
 
       const result = parseTextResult(await client.callTool({ name: IDEA_ANALYSIS_TOOL, arguments: input }, undefined, { signal, timeout: timeoutMs, maxTotalTimeout: timeoutMs }));
-      contractValidator.validateRef("https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisResult", result);
+      contractValidator.validateRef("https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaThesisAssessment", result);
       return { result, runtimeProfile: profile, server: client.getServerVersion() };
     } catch (error) {
       if (error instanceof McpCapabilityError) throw error;

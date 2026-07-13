@@ -7,7 +7,7 @@
   "projectId": "project.idea-lab",
   "runId": "run.idea.fixture",
   "stepId": "step.inspect",
-  "capabilityRevision": { "id": "clark.idea.inspect.mcp", "revision": "1.0.0" },
+  "capabilityRevision": { "id": "clark.idea.inspect.mcp", "revision": "1.1.0" },
   "policyRevision": { "id": "policy.creator-default", "revision": "1.0.0" },
   "requested": {
     "actionClasses": ["local_transform"], "systemScopes": [], "credentialScopes": [], "networkDomains": [],

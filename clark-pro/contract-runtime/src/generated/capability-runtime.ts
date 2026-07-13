@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/capability-runtime.schema.json
- * Source SHA-256: 6f4bed8ac53a42f65ebcbe509fa09f3bdb3d5f879daa04d65dc51ca10114285d
+ * Source SHA-256: c09919f08e4622e2a465c47f3672563e73d285bc2c01c040da19756784642230
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -12,6 +12,7 @@ export type ClarkCapabilityRuntimeRecord =
   | InvocationReceipt
   | IdeaAnalysisInput
   | IdeaAnalysisResult
+  | IdeaThesisAssessment
   | RuntimeProfileResult;
 
 export interface PermissionReceipt {
@@ -124,6 +125,93 @@ export interface IdeaAnalysisResult {
   missingSignals: ("outcome" | "user" | "mechanism" | "trust" | "evidence")[];
   disposition: "structured" | "needs_clarification";
   summary: string;
+}
+export interface IdeaThesisAssessment {
+  schemaVersion: 1;
+  kind: "idea_thesis_assessment";
+  wordCount: number;
+  facets: {
+    outcome: IdeaThesisFacet;
+    targetUser: IdeaThesisFacet;
+    painfulProblem: IdeaThesisFacet;
+    currentWorkaround: IdeaThesisFacet;
+    mechanism: IdeaThesisFacet;
+    wedge: IdeaThesisFacet;
+    trustBoundary: IdeaThesisFacet;
+    distribution: IdeaThesisFacet;
+    businessModel: IdeaThesisFacet;
+    evidencePlan: IdeaThesisFacet;
+  };
+  missingFacets: (
+    | "outcome"
+    | "targetUser"
+    | "painfulProblem"
+    | "currentWorkaround"
+    | "mechanism"
+    | "wedge"
+    | "trustBoundary"
+    | "distribution"
+    | "businessModel"
+    | "evidencePlan"
+  )[];
+  structuralCompleteness: {
+    explicitCount: number;
+    totalCount: 10;
+    state: "needs_clarification" | "ready_for_evidence";
+  };
+  readiness: "needs_clarification" | "evidence_required";
+  evidenceState: "not_observed";
+  /**
+   * @minItems 5
+   * @maxItems 5
+   */
+  evidenceGaps: [
+    (
+      | "problem_interviews"
+      | "workaround_baseline"
+      | "behavioral_demand"
+      | "willingness_to_pay"
+      | "retention_or_repeat_use"
+    ),
+    (
+      | "problem_interviews"
+      | "workaround_baseline"
+      | "behavioral_demand"
+      | "willingness_to_pay"
+      | "retention_or_repeat_use"
+    ),
+    (
+      | "problem_interviews"
+      | "workaround_baseline"
+      | "behavioral_demand"
+      | "willingness_to_pay"
+      | "retention_or_repeat_use"
+    ),
+    (
+      | "problem_interviews"
+      | "workaround_baseline"
+      | "behavioral_demand"
+      | "willingness_to_pay"
+      | "retention_or_repeat_use"
+    ),
+    (
+      | "problem_interviews"
+      | "workaround_baseline"
+      | "behavioral_demand"
+      | "willingness_to_pay"
+      | "retention_or_repeat_use"
+    )
+  ];
+  summary: string;
+  /**
+   * @minItems 2
+   */
+  limitations: [string, string, ...string[]];
+  supersedes?: string;
+}
+export interface IdeaThesisFacet {
+  state: "explicit" | "missing";
+  prompt: string;
 }
 export interface RuntimeProfileResult {
   schemaVersion: 1;

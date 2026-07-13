@@ -170,6 +170,17 @@
       "requiredCorrelation": true
     },
     {
+      "eventType": "run.cancelled",
+      "schemaVersion": 1,
+      "aggregateType": "run",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/runStateChanged",
+      "compatibility": "terminal",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "local_state",
+      "description": "Records a terminal cancellation, including supersession by a newer immutable revision.",
+      "requiredCorrelation": true
+    },
+    {
       "eventType": "step.started",
       "schemaVersion": 1,
       "aggregateType": "run",

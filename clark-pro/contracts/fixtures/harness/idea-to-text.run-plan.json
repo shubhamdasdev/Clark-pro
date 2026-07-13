@@ -8,13 +8,13 @@
   "projectId": "project.idea-lab",
   "compiledAt": "2026-07-13T04:00:00Z",
   "compiledFrom": {
-    "loopRevision": { "id": "clark.loop.idea-to-approved-text", "revision": "1.1.0", "contentHash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd" },
+    "loopRevision": { "id": "clark.loop.idea-to-approved-text", "revision": "1.2.0", "contentHash": "sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd" },
     "graphRevision": { "id": "graph.idea-lab", "revision": "1.0.0" },
     "policyRevision": { "id": "policy.creator-default", "revision": "1.0.0" },
     "creatorModelRevision": { "id": "creator-model.local", "revision": "1.0.0" },
     "capabilityRevisions": [
       { "id": "clark.capture.local", "revision": "1.0.0" },
-      { "id": "clark.idea.inspect.mcp", "revision": "1.0.0" },
+      { "id": "clark.idea.inspect.mcp", "revision": "1.1.0" },
       { "id": "clark.idea.structure.local", "revision": "1.0.0" }
     ]
   },
@@ -46,8 +46,8 @@
       "kind": "operator",
       "dependsOn": ["step.capture"],
       "inputRefs": [{ "artifactId": "artifact.idea.fixture", "versionId": "version.idea.fixture.v1" }],
-      "outputContractRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaAnalysisResult",
-      "capabilityRevision": { "id": "clark.idea.inspect.mcp", "revision": "1.0.0" },
+      "outputContractRef": "https://schemas.clark.pro/v1/capability-runtime.schema.json#/$defs/ideaThesisAssessment",
+      "capabilityRevision": { "id": "clark.idea.inspect.mcp", "revision": "1.1.0" },
       "actionClass": "local_transform",
       "initialState": "pending",
       "permissionDecision": { "result": "allow", "policyRevisionId": "policy.creator-default", "reason": "The bundled MCP process has no network, credential, system, or file authority." },

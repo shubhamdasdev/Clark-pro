@@ -32,7 +32,7 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.equal(boundary.requireType, "undefined");
     assert.equal(boundary.processType, "undefined");
     assert.equal(boundary.protocol, "clark-app:");
-    assert.deepEqual(boundary.apiKeys, ["getHarnessState", "getShellState", "onHarnessEvent", "onNavigate", "onTrustCenter", "resolveIdeaApproval", "setActiveSection", "startIdeaLoop", "version"]);
+    assert.deepEqual(boundary.apiKeys, ["getHarnessState", "getShellState", "onHarnessEvent", "onNavigate", "onTrustCenter", "resolveIdeaApproval", "reviseIdea", "setActiveSection", "startIdeaLoop", "version"]);
     assert.match(boundary.csp, /default-src 'none'/);
 
     await page.getByText(/Ready · \d+ events/).waitFor();
@@ -49,6 +49,17 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     await page.reload();
     await page.getByText("Waiting approval", { exact: true }).waitFor();
     assert.equal(await page.locator("#run-integrity").innerText(), draftHash);
+    await page.locator("#idea-input").fill("Build a local-first creator operating system for solo professional creators that replaces manual copy and paste across multiple tools with plugin-first open-source workflows, while creator approval controls memory and publication. Unlike closed suites, providers stay replaceable. Reach creators through an open-source plugin marketplace and charge a subscription after a pilot measures weekly time saved, willingness to pay, and repeat use.");
+    await page.locator("#revision-reason").fill("Narrow the user and add the workaround, wedge, distribution, payment model, and evidence test.");
+    await page.getByRole("button", { name: "Create stronger revision" }).click();
+    await page.locator("#run-integrity").filter({ hasText: /revision 2 ·/i }).waitFor();
+    await page.getByText(/10\/10 thesis facets explicit/i).waitFor();
+    const revisedSnapshot = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    assert.equal(revisedSnapshot.runs[0].revisionNumber, 2);
+    assert.equal(revisedSnapshot.runs[1].state, "cancelled");
+    assert.equal(revisedSnapshot.runs[1].approval.state, "invalidated");
+    assert.equal(JSON.parse(revisedSnapshot.runs[0].analysis.text).readiness, "evidence_required");
+    assert.equal(JSON.parse(revisedSnapshot.runs[0].analysis.text).evidenceState, "not_observed");
     await page.getByRole("button", { name: "Approve exact version" }).click();
     await page.getByText("Completed", { exact: true }).waitFor();
 
@@ -68,10 +79,12 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     await page.keyboard.press("Meta+2");
     await page.getByRole("heading", { name: "Canvas", level: 1 }).waitFor();
     assert.equal(await page.getByRole("tab", { name: /Canvas/ }).getAttribute("aria-selected"), "true");
-    const graph = page.getByRole("list", { name: "Launch production graph" });
-    await graph.getByRole("button", { name: /Creator thesis/ }).focus();
+    const graph = page.getByRole("list", { name: "Idea Foundry graph" });
+    await graph.getByRole("button", { name: /Idea thesis v2/ }).focus();
     await page.keyboard.press("ArrowDown");
-    assert.match(await page.locator(":focus").innerText(), /Launch narrative/);
+    assert.match(await page.locator(":focus").innerText(), /Thesis stress-test/);
+    assert.match(await page.locator("#canvas-readiness").innerText(), /Evidence required/);
+    assert.equal(await page.locator("#evidence-gap-list li").count(), 5);
     assert.equal(await page.locator("h1").count(), 3);
     assert.equal(await page.locator("h1:visible").count(), 1);
 

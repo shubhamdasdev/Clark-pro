@@ -29,7 +29,8 @@ test("idea loop is durable, idempotent, rebuildable, and approval-bound", async 
     assert.equal(started.run.state, "waiting_approval");
     assert.equal(started.run.approval.state, "waiting");
     assert.match(started.run.draft.text, /Strongest framing/);
-    assert.equal(JSON.parse(started.run.analysis.text).kind, "idea_analysis");
+    assert.equal(JSON.parse(started.run.analysis.text).kind, "idea_thesis_assessment");
+    assert.equal(JSON.parse(started.run.analysis.text).evidenceState, "not_observed");
     assert.equal(started.run.draft.contentHash.startsWith("sha256:"), true);
     assert.equal(engine.listCapabilities("workspace.local").capabilities[0].state, "healthy");
     assert.equal(engine.store.database.prepare("SELECT COUNT(*) AS count FROM tool_calls WHERE status = 'succeeded'").get().count, 1);
@@ -89,6 +90,60 @@ test("idea loop is durable, idempotent, rebuildable, and approval-bound", async 
     assert.deepEqual(engine.store.latestCheckpoint(approved.runId), checkpointBeforeRebuild);
     assert.equal(afterRebuild.projects.length, 1);
     assert.equal(engine.getRun(approved.runId).draft.contentHash, approved.draft.contentHash);
+  } finally {
+    engine.close();
+    await rm(dataDirectory, { recursive: true, force: true });
+  }
+});
+
+test("idea revision preserves lineage and atomically invalidates stale exact-version authority", async () => {
+  const { dataDirectory, engine } = await temporaryHarness();
+  try {
+    const first = await engine.startIdeaLoop({
+      workspaceId: "workspace.local", projectId: "project.idea-lab", ideaText: idea, idempotencyKey: "intent-revision-root-0001"
+    });
+    const revisedText = `${idea} It replaces manual copying across multiple tools for solo creators. Unlike closed suites, plugin-first open-source integrations stay replaceable. Creators discover it through an open-source plugin marketplace and pay a subscription after a five-user pilot measures weekly time saved, willingness to pay, and repeat use.`;
+    const revised = await engine.reviseIdea({
+      workspaceId: "workspace.local",
+      parentRunId: first.run.runId,
+      ideaText: revisedText,
+      revisionReason: "Narrow the user, workaround, wedge, distribution, payment model, and falsifiable evidence plan.",
+      idempotencyKey: "intent-revision-child-0002"
+    });
+
+    const superseded = engine.getRun(first.run.runId);
+    assert.equal(superseded.state, "cancelled");
+    assert.equal(superseded.approval.state, "invalidated");
+    assert.equal(revised.run.revisionNumber, 2);
+    assert.equal(revised.run.rootRunId, first.run.runId);
+    assert.equal(revised.run.parentRunId, first.run.runId);
+    assert.equal(revised.run.idea.artifactId, first.run.idea.artifactId);
+    assert.notEqual(revised.run.idea.versionId, first.run.idea.versionId);
+    assert.equal(revised.run.analysis.artifactId, first.run.analysis.artifactId);
+    assert.notEqual(revised.run.analysis.versionId, first.run.analysis.versionId);
+    assert.equal(JSON.parse(revised.run.analysis.text).readiness, "evidence_required");
+    assert.equal(JSON.parse(revised.run.analysis.text).evidenceState, "not_observed");
+    assert.equal(engine.store.eventEnvelopes().some((event) => event.eventType === "approval.invalidated"), true);
+    assert.equal(engine.store.eventEnvelopes().some((event) => event.eventType === "run.cancelled"), true);
+    assert.throws(() => engine.resolveApproval({
+      workspaceId: "workspace.local", runId: first.run.runId, approvalId: first.run.approval.approvalId,
+      decision: "approve", idempotencyKey: "intent-stale-approval-0001"
+    }), /not waiting for approval/);
+
+    const eventCount = engine.store.countEvents();
+    const replay = await engine.reviseIdea({
+      workspaceId: "workspace.local",
+      parentRunId: first.run.runId,
+      ideaText: revisedText,
+      revisionReason: "Narrow the user, workaround, wedge, distribution, payment model, and falsifiable evidence plan.",
+      idempotencyKey: "intent-revision-child-0002"
+    });
+    assert.equal(replay.deduplicated, true);
+    assert.equal(replay.run.runId, revised.run.runId);
+    assert.equal(engine.store.countEvents(), eventCount);
+    const beforeRebuild = engine.store.projectionSnapshot();
+    assert.deepEqual(engine.store.rebuildProjections(), beforeRebuild);
+    assert.equal(engine.store.verifyHashChain(), true);
   } finally {
     engine.close();
     await rm(dataDirectory, { recursive: true, force: true });

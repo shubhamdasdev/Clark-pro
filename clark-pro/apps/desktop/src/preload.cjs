@@ -30,6 +30,17 @@ const api = Object.freeze({
     }
     return ipcRenderer.invoke("desktop:start-idea-loop", ideaText);
   },
+  reviseIdea: (revision) => {
+    const safe = revision && typeof revision === "object" ? {
+      parentRunId: revision.parentRunId,
+      ideaText: revision.ideaText,
+      revisionReason: revision.revisionReason
+    } : undefined;
+    if (!safe || typeof safe.parentRunId !== "string" || typeof safe.ideaText !== "string" || safe.ideaText.trim().length < 20 || safe.ideaText.length > 12000 || typeof safe.revisionReason !== "string" || safe.revisionReason.trim().length < 3 || safe.revisionReason.length > 1000) {
+      return Promise.reject(new TypeError("A parent run, revised idea, and revision reason are required"));
+    }
+    return ipcRenderer.invoke("desktop:revise-idea", safe);
+  },
   resolveIdeaApproval: (decision) => {
     const safe = decision && typeof decision === "object" ? {
       runId: decision.runId,

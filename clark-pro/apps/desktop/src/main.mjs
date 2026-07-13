@@ -105,6 +105,19 @@ function installIpc() {
       idempotencyKey: `intent.desktop.${randomUUID()}`
     });
   });
+  ipcMain.handle("desktop:revise-idea", async (event, revision) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    if (!revision || typeof revision !== "object" || typeof revision.parentRunId !== "string") throw new TypeError("A parent run is required");
+    if (typeof revision.ideaText !== "string" || revision.ideaText.trim().length < 20 || revision.ideaText.length > 12_000) throw new TypeError("Revised idea text must be between 20 and 12,000 characters");
+    if (typeof revision.revisionReason !== "string" || revision.revisionReason.trim().length < 3 || revision.revisionReason.length > 1_000) throw new TypeError("A revision reason is required");
+    return harnessSupervisor.request("idea.revise", {
+      workspaceId: LOCAL_WORKSPACE_ID,
+      parentRunId: revision.parentRunId,
+      ideaText: revision.ideaText.trim(),
+      revisionReason: revision.revisionReason.trim(),
+      idempotencyKey: `intent.revision.${randomUUID()}`
+    });
+  });
   ipcMain.handle("desktop:resolve-idea-approval", async (event, decision) => {
     assertTrustedSender(event, mainWindow?.webContents);
     if (!decision || typeof decision !== "object" || !["approve", "reject"].includes(decision.decision)) {

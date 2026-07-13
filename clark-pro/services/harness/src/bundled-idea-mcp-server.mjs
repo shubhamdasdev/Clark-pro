@@ -12,7 +12,7 @@ import {
 } from "./idea-inspector-contract.mjs";
 
 const server = new Server(
-  { name: IDEA_INSPECTOR_SERVER_ID, version: "1.0.0" },
+  { name: IDEA_INSPECTOR_SERVER_ID, version: "1.1.0" },
   { capabilities: { tools: { listChanged: false } } }
 );
 
@@ -20,7 +20,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     {
       name: IDEA_ANALYSIS_TOOL,
-      description: "Deterministically detects whether supplied creator text explicitly names outcome, user, mechanism, trust, and evidence signals. It performs no research and makes no value judgment.",
+      description: "Deterministically stress-tests ten explicit idea-thesis facets and reports missing real-world evidence. It performs no research and makes no market-value judgment.",
       inputSchema: ideaAnalysisInputSchema
     },
     {

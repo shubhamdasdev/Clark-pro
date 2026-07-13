@@ -32,7 +32,7 @@ test("Clark Bridge exposes scoped MCP tools with owner-only configuration and no
     assert.equal(status.state, "ready");
     assert.equal(status.host, "127.0.0.1");
     assert.equal(status.configured, true);
-    assert.deepEqual(status.tools, ["clark.idea.start", "clark.runs.list", "clark.run.get"]);
+    assert.deepEqual(status.tools, ["clark.idea.start", "clark.idea.revise", "clark.runs.list", "clark.run.get"]);
 
     const connectionPath = path.join(dataDirectory, "bridge", "connection.json");
     const connection = JSON.parse(await readFile(connectionPath, "utf8"));
@@ -58,6 +58,16 @@ test("Clark Bridge exposes scoped MCP tools with owner-only configuration and no
     assert.equal(replay.structuredContent.deduplicated, true);
     assert.equal(engine.store.countEvents(), eventCount);
 
+    const revised = await client.callTool({ name: "clark.idea.revise", arguments: {
+      parentRunId: started.structuredContent.run.runId,
+      ideaText: `${idea} It replaces manual copy and paste for solo creators, reaches them through an open-source plugin marketplace, and uses a paid pilot to measure time saved, willingness to pay, and repeat use.`,
+      revisionReason: "Add the workaround, distribution, business model, and evidence plan.",
+      idempotencyKey: "intent.bridge.revise.0002"
+    } });
+    assert.equal(revised.isError, undefined);
+    assert.equal(revised.structuredContent.run.revisionNumber, 2);
+    assert.equal(revised.structuredContent.run.parentRunId, started.structuredContent.run.runId);
+
     const source = engine.store.eventEnvelopes().find((event) => event.eventType === "source.captured" && event.workspaceId === "workspace.local");
     assert.deepEqual(source.actor, { type: "bridge_client", id: status.clientId });
     assert.equal(source.metadata.source, "bridge");
@@ -67,8 +77,9 @@ test("Clark Bridge exposes scoped MCP tools with owner-only configuration and no
     assert.equal(crossWorkspace.isError, true);
     assert.equal(crossWorkspace.structuredContent.error.code, "not_found");
     const listed = await client.callTool({ name: "clark.runs.list", arguments: { limit: 5 } });
-    assert.equal(listed.structuredContent.runs.length, 1);
+    assert.equal(listed.structuredContent.runs.length, 2);
     assert.equal("text" in listed.structuredContent.runs[0], false);
+    assert.equal(listed.structuredContent.runs[0].thesis.evidenceState, "not_observed");
     const beforeRebuild = engine.store.projectionSnapshot();
     assert.deepEqual(engine.store.rebuildProjections(), beforeRebuild);
 

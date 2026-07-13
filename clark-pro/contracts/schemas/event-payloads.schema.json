@@ -147,6 +147,11 @@
         "budgetCeiling": { "$ref": "common.schema.json#/$defs/money" },
         "stepCount": { "type": "integer", "minimum": 1 },
         "humanGateCount": { "type": "integer", "minimum": 0 },
+        "rootRunId": { "$ref": "common.schema.json#/$defs/id" },
+        "parentRunId": { "$ref": "common.schema.json#/$defs/id" },
+        "revisionNumber": { "type": "integer", "minimum": 1 },
+        "revisionReason": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "approvalId": { "$ref": "common.schema.json#/$defs/id" },
         "warnings": { "type": "array", "items": { "type": "string", "maxLength": 500 } }
       },
       "additionalProperties": false

@@ -1,7 +1,7 @@
 # Clark Pro — Ground Readiness Audit
 
 **Date:** July 12, 2026  
-**Decision:** Ground is not yet closed. Product direction and architecture are coherent; human/commercial evidence, native accessibility, named contract/team ownership, broader security-test ownership, and leadership signoff remain mandatory before implementation fans out.
+**Decision:** Ground is not yet closed. Product direction and architecture are coherent, and bounded permanent implementation slices may continue behind the same contracts. Human/commercial evidence, native accessibility, named contract/team ownership, broader security-test ownership, and leadership signoff remain mandatory before capability fan-out or release claims.
 
 ## Evidence vocabulary
 
@@ -17,9 +17,9 @@
 |---|---|---|---|
 | Mac application first | `vision.md`, `architecture.md`, ADR-0001, `apps/desktop/` | Defined with bounded executable shell | Observed VoiceOver/design review and Developer ID/Hardened Runtime/notarization/Gatekeeper release evidence |
 | Durable harness and loops | `architecture.md`, `roadmap.md`, ADR-0003, `contracts/` | Defined and contract-verified | Production run state machine and forced-recovery tests |
-| Canvas must be strong before implementation | `the-canvas.md`, `prototype/`, ADR-0009 | Prototype-verified; human evidence pending | Five observed sessions must pass the canvas rubric and failed gates must be redesigned |
+| Canvas must be strong before implementation | `the-canvas.md`, `prototype/`, `apps/desktop/`, ADR-0009 | Prototype plus live Idea Foundry projection; human evidence pending | Five observed sessions must pass the canvas rubric and failed gates must be redesigned |
 | Clark consumes MCP capabilities | `mcp-ecosystem.md`, ADR-0004, capability manifests, 36-case MCP suite | Ground harness and contract-verified | Production Connect runtime, real-provider compatibility, and remote network-fault evidence |
-| Clark exposes its own MCP server | Clark Bridge docs, ADR-0004, Bridge exchange schema/fixture, interactive capture/replay | Contract- and prototype-verified at Ground | Production MCP transport, token registry, revocation, hostile live-client, and event-store/projection equivalence tests |
+| Clark exposes its own MCP server | Clark Bridge docs, ADR-0004, Bridge exchange schema/fixture, official-SDK localhost server, interactive capture/revision/replay | Bounded production-path execution with hostile tests | Keychain pairing/token registry, concurrency/long-job semantics, broader catalog, and production security signoff |
 | Social-media connectivity | `mcp-ecosystem.md`, ADR-0006 | Defined | Recorded/sandbox adapter fixtures, real account capability matrix, platform approval evidence |
 | Installable skills | `memory-and-learning.md`, ADR-0007/0017, package schemas, 19-case Wasmtime suite | Ground contract/prototype-verified | Production component/WIT host, signing, process isolation, advisory automation, fuzzing, and Mac QA |
 | Reuse mature open-source tools instead of rebuilding every engine | ADR-0022, Tool Package schema, semantic verifier, pinned OpenCut candidate | Ground contract-verified; OpenCut honestly upstream-blocked | Production installer/quarantine/update/rollback runtime and at least one active Tool Pack over a stable supported interface |
@@ -39,7 +39,7 @@
 | MCP and capability boundary | `mcp-ecosystem.md`, ADR-0004, `mcp-conformance/` | Ground contract/harness-verified | Production-boundary execution and named owner signoff |
 | Security model and trust boundaries | `security-and-threat-model.md`, ADR-0001/0005 and ADR-0011–0022 | Specified, with skill/MCP Ground suites and Tool Pack contract gates | Convert every remaining accepted security gate into owned executable production tests and release evidence |
 | Architecture decisions | `decisions/` registry and twenty-two accepted ADRs | Defined | Team review/signoff; superseding ADR for any invariant change |
-| Versioned domain event catalog | 56 types, schemas, generated namespaces, representative stream, historical upcaster, and Tool Pack lifecycle events | Defined and Ground contract/runtime-verified | Team signoff and full production replay/restore evidence |
+| Versioned domain event catalog | 60 types, 18 schemas, generated namespaces, representative stream, historical upcaster, and Tool Pack lifecycle events | Defined and Ground contract/runtime-verified | Team signoff and full production replay/restore evidence |
 | Versioned loop contract | Loop JSON Schema, generated types, Full-Week and Reflection definitions | Defined and contract-verified | Runtime graph/compiler conformance |
 | Capability adapter contract | Capability schema, generated types, eight provider fixtures, 36 hostile MCP cases | Defined and Ground conformance-verified | Real adapter/provider compatibility matrix |
 | Governed Tool Pack contract | Source/license/SBOM/install/adapter/converter/UI/update/rollback schema, generated types, OpenCut blocked fixture, valid-active shape, active-without-adapter and eleven hostile activation rejections | Defined and Ground contract-verified | Production installer and one stable external-tool integration with full activation/rollback evidence |
@@ -49,7 +49,7 @@
 | Business/category architecture | `positioning-and-business.md` | Defined as hypotheses | Ten interviews, three real-week design partners, binding willingness-to-pay |
 | Team-owned release plan | `team-delivery-plan.md` defines ten workstreams, dependencies, decision/contract ownership, readiness/done, and evidence ledger | Defined by role | Assign named people, capacity, dates, and Ground evidence signoff |
 | Machine-checked Ground evidence ledger | `evidence/ground-ledger.json`, JSON Schema, semantic negative fixture, verifier, generated status | Defined and verifier-checked open | Resolve blocking proof, keep statuses evidence-bound, and obtain seven-role named signoff |
-| Native Mac interaction shell | `apps/desktop/`, eight automated tests, local bundle inspection report | Specified, not verified | VoiceOver/accessibility and design review; native trust flows; signed, hardened, notarized, Gatekeeper-accepted release bundle |
+| Native Mac interaction shell | `apps/desktop/`, ten boundary tests, two Electron E2E tests, packaged-app test, live Idea Foundry screenshots | Bounded executable evidence, not release-verified | VoiceOver/accessibility and design review; native trust flows; signed, hardened, notarized, Gatekeeper-accepted release bundle |
 
 ## Canvas evidence audit
 

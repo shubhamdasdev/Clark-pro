@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "reportId": "clark.harness.stratum-2.mcp-bridge",
-  "observedAt": "2026-07-13T00:16:10-05:00",
+  "reportId": "clark.harness.stratum-3.idea-foundry",
+  "observedAt": "2026-07-13T00:51:13-05:00",
   "environment": {
     "platform": "macOS 26.2 (25C56)",
     "architecture": "arm64",
@@ -14,9 +14,9 @@
   "automated": {
     "result": "pass",
     "contractSchemas": 18,
-    "contractEventTypes": 59,
+    "contractEventTypes": 60,
     "contractRuntimeUpcasterTests": 5,
-    "harnessUnitTests": 15,
+    "harnessUnitTests": 17,
     "desktopBoundaryUnitTests": 10,
     "electronProcessTests": 2,
     "packagedAppTests": 1,
@@ -28,16 +28,20 @@
       "npm --prefix apps/desktop run verify:packaged"
     ],
     "observations": [
-      "The canonical four-step plan has zero network, credential, model, social, skill, file, publication, or paid-call authority and stops at an exact artifact-version creator gate.",
+      "The canonical four-step plan has zero network, credential, model, social, skill, file, build, publication, or paid-call authority and stops at an exact artifact-version creator wording gate.",
       "The source-hash-pinned bundled MCP server was discovered and invoked through the official SDK; exact tool schemas, a two-tool inventory, structured output, and the child environment profile were validated before its result entered canonical state.",
       "The stdio child received only Clark server identity, Electron-as-Node, locale, and production/development variables plus macOS's injected __CF_USER_TEXT_ENCODING; HOME, PATH, shell, user, and ambient token/key variables were absent.",
       "Capability registration, permission receipt, 15-second lease, requested/completed tool call, invocation receipt, analysis artifact, health transition, and lease revocation survived deterministic projection deletion/replay.",
       "The runtime enforces source/tool-inventory/result-envelope checks; automated cases passed the pinned source match, input-schema drift rejection, ambient-environment allowlist, pre-cancel teardown, and a network-authority expansion that produced a durable denied receipt without issuing a lease or tool call.",
       "Clark Bridge used official Streamable HTTP client/server transports on 127.0.0.1 with an ephemeral port and a 256-bit bearer stored in a 0600 connection file outside renderer and event state.",
-      "Bridge discovery, resource listing, capture, scoped list/get, idempotent replay, cross-workspace denial, missing bearer, hostile Origin, invalid Host, and oversized-body cases passed.",
-      "Bridge-originated capture used the same Harness domain command as Studio and recorded bridge_client actor/source/client metadata; Bridge could not approve or publish.",
-      "Boot rebuilt projections, terminalized an interrupted MCP call as cancelled, revoked its orphaned lease, retried under a fresh lease, and revoked orphaned Bridge clients before accepting new work; the schema-v1 database migrated additively to schema v2.",
+      "The bundled assessment reports ten explicit thesis facets, structural completeness, and five unobserved evidence gates; even a 10/10 result remains evidence_required rather than validated.",
+      "Bridge discovery, resource listing, capture, immutable revision, scoped list/get, idempotent replay, cross-workspace denial, missing bearer, hostile Origin, invalid Host, and oversized-body cases passed.",
+      "Bridge-originated capture and revision used the same Harness domain commands as Studio and recorded bridge_client actor/source/client metadata; compact Bridge lists exposed lineage/readiness without full idea text, and Bridge could not approve, build, or publish.",
+      "A revision preserved stable logical artifact IDs with new version IDs and root/parent run lineage; pending approval invalidation, review-step cancellation, superseded-run cancellation, replacement capture, plan, and start were committed atomically.",
+      "Boot rebuilt projections, terminalized an interrupted MCP call as cancelled, revoked its orphaned lease, retried under a fresh lease, and revoked orphaned Bridge clients before accepting new work; the schema-v1 database migrated additively through schema v3 with legacy roots as revision 1.",
       "Killing the Electron utility process during a run caused supervised restart and durable recovery without duplicate brief creation.",
+      "Development Electron exercised a two-revision path, proved the superseded approval invalidated, and keyboard-inspected the live idea → assessment → evidence → brief → review Canvas projection.",
+      "Visual QA caught and fixed cross-view scroll retention and lineage wrapping; the regenerated Canvas screenshot shows revision lineage, 10/10 structural completeness, evidence_required readiness, and five open observed-proof gates.",
       "Development Electron and the packaged-ASAR app completed the real MCP step and rendered both the MCP capability and Clark Bridge as live without exposing the Bridge token."
     ]
   },
@@ -45,28 +49,33 @@
     "implemented": [
       "workspace ensure",
       "idea capture",
+      "immutable idea revision with root and parent lineage",
       "bundled deterministic MCP inspection",
+      "ten-facet thesis structure and unobserved-evidence assessment",
       "capability permission and invocation receipts",
       "short-lived local capability leases",
       "deterministic local structure",
       "run query/list",
       "exact-version approval or rejection",
-      "authenticated single-workspace Clark Bridge capture/read"
+      "live event-backed Idea Foundry Canvas projection",
+      "authenticated single-workspace Clark Bridge capture/revision/read"
     ],
     "explicitlyAbsent": [
       "third-party MCP or Tool Pack installation",
       "network and provider calls",
       "model or autonomous agent calls",
+      "market research or observed evidence acquisition",
       "credentials and Keychain leases",
       "skill execution",
       "creator memory retrieval or mutation",
       "social connections or publication",
+      "product build authorization",
       "remote workers and team synchronization"
     ]
   },
   "limitations": [
-    "The MCP idea inspector is a deterministic lexical signal detector, not research, evidence acquisition, market judgment, originality scoring, model generation, or proof that the idea is commercially strong.",
-    "Only one bundled zero-egress MCP capability and three narrow Bridge tools are executable. Community-server quarantine, install/update/rollback, OAuth, Keychain brokering, provider reconciliation, and Tool Pack execution are not proven.",
+    "The MCP idea inspector is a deterministic phrase/facet detector, not research, evidence acquisition, market judgment, originality scoring, model generation, or proof that the idea is commercially strong.",
+    "Only one bundled zero-egress MCP capability and four narrow Bridge tools are executable. Community-server quarantine, install/update/rollback, OAuth, Keychain brokering, provider reconciliation, and Tool Pack execution are not proven.",
     "Bridge caller disconnect after local mutation returns an ambiguity warning, but general cancellation, durable job status, external reconciliation, compensation, scheduling, and transition-chaos coverage remain future gates.",
     "The bearer file is owner-readable and short-lived but is not yet a Keychain-backed client pairing flow; the Bridge lifetime is tied to the app-supervised Harness.",
     "Node still labels node:sqlite experimental/release-candidate; EventStore preserves a replaceable boundary and migration/replay tests, but large-history and backup/restore evidence remain open.",

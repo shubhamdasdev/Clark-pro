@@ -229,6 +229,28 @@ Animations represent real state transitions. Clark never invents an “agent thi
 
 Learning edges end in proposals. Permanent memory or skill changes require policy-based approval and retain the evidence used.
 
+## Executable Idea Foundry Projection
+
+The current Mac implementation proves the first live Canvas path over canonical Harness state:
+
+```text
+Idea thesis vN
+  ↓ data
+Governed MCP thesis stress-test
+  ↓ evidence requirements
+Five observed-proof gates
+  ↓ data
+Deterministic idea brief vN
+  ↓ control
+Exact-version creator review
+```
+
+Each card exposes authority, lineage, trust, and readiness in the inspector. The assessment distinguishes `needs_clarification` from `evidence_required`; it never displays “validated” because the bundled zero-egress tool observes no interviews, workaround baseline, behavioral demand, willingness to pay, or repeat use. The review gate approves wording only and grants no build or publish authority.
+
+Revision is append-only. The Canvas shows the current revision and parent run, reuses stable logical artifact IDs with new immutable version IDs, and retains the superseded run. Creating a revision while review is pending invalidates that exact approval and cancels the superseded run atomically. Studio and the scoped `clark.idea.revise` Bridge tool converge on this same command path.
+
+This five-node path is intentionally smaller than the six-lane Full-Week Canvas. It is real execution evidence for projection, lineage, revision, evidence honesty, and keyboard inspection; it does not yet prove branch comparison, graph rewiring, 50-object performance in the shipped renderer, or observed creator comprehension.
+
 ## Mac-Specific Interaction
 
 - Global quick capture for text, URL, screenshot, selected file, or voice memo.

@@ -22,7 +22,9 @@ test("bundled MCP runs with an exact environment and pinned source", async () =>
       schemaVersion: 1,
       ideaText: "Build a local creator tool for teams with approval control and measure time saved as evidence."
     });
-    assert.equal(execution.result.kind, "idea_analysis");
+    assert.equal(execution.result.kind, "idea_thesis_assessment");
+    assert.equal(execution.result.evidenceState, "not_observed");
+    assert.deepEqual(execution.result.evidenceGaps, ["problem_interviews", "workaround_baseline", "behavioral_demand", "willingness_to_pay", "retention_or_repeat_use"]);
     assert.deepEqual(execution.runtimeProfile.environmentKeys, [...BUNDLED_MCP_ENVIRONMENT_KEYS]);
     for (const forbidden of ["HOME", "PATH", "LOGNAME", "SHELL", "TERM", "USER", "GITHUB_TOKEN", "OPENAI_API_KEY"]) {
       assert.equal(execution.runtimeProfile.environmentKeys.includes(forbidden), false, forbidden);
