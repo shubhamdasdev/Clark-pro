@@ -23,6 +23,16 @@ These records turn the product's resolved technology choices into team-owned dec
 | [0008](0008-remote-execution-and-team-sync.md) | Scoped remote execution and encrypted team relay without cloud ownership of personal state | Accepted | Relay and Team strata |
 | [0009](0009-focus-first-canvas-projection.md) | Focus-first studio; Canvas is a projection of canonical state | Accepted | Product interaction model |
 | [0010](0010-cumulative-whole-product-delivery.md) | Cumulative production strata rather than throwaway MVP architecture | Accepted | Planning and release governance |
+| [0011](0011-mac-entitlements-and-share-extension.md) | Developer ID/notarized Mac topology with a minimal sandboxed Share extension | Accepted | Desktop, capture, release security |
+| [0012](0012-harness-lifetime-and-local-ipc.md) | App-supervised Harness utility process and private typed MessagePort IPC | Accepted | Studio/Harness isolation and recovery |
+| [0013](0013-stdio-server-secrets-and-execution.md) | Exact-command, empty-environment runner for explicitly trusted stdio servers | Accepted | Local MCP execution and credentials |
+| [0014](0014-remote-envelope-and-device-identity.md) | TLS plus signed HPKE envelopes, device identity, and replay state | Accepted | Relay and team cryptography |
+| [0015](0015-team-event-order-and-conflict.md) | Signed causal events with aggregate-specific conflict rules | Accepted | Offline/team synchronization |
+| [0016](0016-provider-data-policy-registry.md) | Signed, scoped, expiring evidence for provider data-policy decisions | Accepted | Remote egress and context compilation |
+| [0017](0017-skill-execution-sandbox.md) | Declarative-by-default skills; Wasmtime/WASI for untrusted executable components | Accepted | Skill supply-chain and execution |
+| [0018](0018-local-first-telemetry-and-crash-data.md) | Local-first diagnostics and explicit remote telemetry/crash consent | Accepted | Observability and support |
+| [0019](0019-portable-encrypted-backups.md) | Portable age-encrypted backups with user-held recovery | Accepted | Export, restore, and disaster recovery |
+| [0020](0020-vulnerability-and-support-policy.md) | Private vulnerability reporting and explicit security support lifecycle | Accepted | Release and incident response |
 
 ## Dependency order
 
@@ -37,7 +47,9 @@ The records form one base-to-top stack:
                               ↓
 0008 Relay/Team topology
                               ↓
-0010 governs how every layer is delivered and proven
+0011–0019 resolve platform, execution, egress, sync, observability, and recovery boundaries
+                              ↓
+0010 + 0020 govern how every layer is delivered, supported, and proven
 ```
 
 ## Change rule

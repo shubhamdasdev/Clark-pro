@@ -275,20 +275,31 @@ No row moves to Verified from a document review alone. Verification requires the
 3. Verify event/receipt signatures and identify tenant/workspace exposure.
 4. Rotate encryption keys and re-encrypt future state; document backup/history limits.
 
-## 13. Residual risks and open security decisions
+## 13. Resolved security decisions and remaining evidence
 
-1. Exact macOS sandbox/entitlement design for local MCP executables and Swift Share extension.
-2. Secure mechanism for injecting a credential into third-party stdio servers that only accept environment variables.
-3. Choice of authenticated local IPC transport and device identity storage.
-4. Remote envelope encryption, signing, key rotation, and recovery protocol.
-5. Team event conflict rules and cryptographic actor sequence design.
-6. Provider policy metadata source, freshness, and how Clark represents unverifiable retention claims.
-7. Sandboxing technology for third-party skill scripts across interpreted runtimes.
-8. Telemetry default, crash reporter vendor, retention, and regional processing.
-9. Encrypted backup UX and recovery-key loss model.
-10. Vulnerability disclosure, security-contact, update-support lifetime, and incident notification policy.
+The ten Ground design questions are now accepted architecture:
 
-These are not permission to hand-wave implementation. Each must become a superseding ADR, protocol specification, or release-blocking test plan before its dependent stratum ships.
+1. Mac entitlements and the Share extension boundary — [ADR-0011](decisions/0011-mac-entitlements-and-share-extension.md).
+2. Third-party stdio execution and unavoidable child-process credential trust — [ADR-0013](decisions/0013-stdio-server-secrets-and-execution.md).
+3. Harness lifetime and private local IPC — [ADR-0012](decisions/0012-harness-lifetime-and-local-ipc.md); device identity is specified by [ADR-0014](decisions/0014-remote-envelope-and-device-identity.md).
+4. Remote envelopes, signing, rotation boundaries, and replay state — [ADR-0014](decisions/0014-remote-envelope-and-device-identity.md).
+5. Team causal order and conflict behavior — [ADR-0015](decisions/0015-team-event-order-and-conflict.md).
+6. Provider-policy evidence, freshness, and uncertainty — [ADR-0016](decisions/0016-provider-data-policy-registry.md).
+7. Third-party skill execution classes and Wasmtime/WASI boundary — [ADR-0017](decisions/0017-skill-execution-sandbox.md).
+8. Local-first diagnostics, telemetry consent, and crash handling — [ADR-0018](decisions/0018-local-first-telemetry-and-crash-data.md).
+9. Portable encrypted backup and recovery-key loss model — [ADR-0019](decisions/0019-portable-encrypted-backups.md).
+10. Vulnerability disclosure, update support, and incident communication — [ADR-0020](decisions/0020-vulnerability-and-support-policy.md) and repository `SECURITY.md`.
+
+Documented design is not executable proof. Before each dependent stratum ships, the evidence ledger must still contain:
+
+- the signed-target entitlement inventory, notarization proof, and hostile Share-import results;
+- the exact reviewed HPKE, Ed25519, Wasmtime, age, and updater implementations, versions, test vectors, and advisory owners;
+- device enrollment, rotation, removal, loss, recovery, and multi-device conflict drills;
+- a named registry operator and freshness process for every supported provider/plan/region;
+- telemetry destination, retention, regional processing, consent, and content-canary network evidence;
+- enabled private vulnerability reporting, named primary/backup responders, and a completed dummy incident exercise.
+
+An ADR does not unblock release by itself. Its verification gates are release-blocking evidence for the dependent stratum.
 
 ## 14. Ground security gate
 
@@ -298,5 +309,5 @@ Ground is security-ready only when:
 2. every raw-secret flow ends at the broker/Keychain and never traverses renderer state;
 3. every external mutation maps to actor, artifact version, account, intent, policy, approval, and reconciliation;
 4. every package/client/server/worker has an identity, trust state, scope, revocation path, and audit trail;
-5. open security decisions are assigned to an owner and block the correct dependent stratum;
+5. every accepted security decision has named ownership and unmet verification gates block the correct dependent stratum;
 6. security reviewers can derive the required executable tests from this model without inventing missing product semantics.

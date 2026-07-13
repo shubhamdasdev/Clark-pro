@@ -39,7 +39,7 @@ The same canonical workspace must be usable from Clark Studio and Clark Bridge, 
 - The canvas passes every quality gate in `the-canvas.md` with five representative users.
 - Engineering can trace every visible state to a domain object or event.
 - Security can explain every path from renderer to credential or external mutation.
-- Every Ground threat is mapped to a required executable test, and open security decisions block the correct dependent stratum.
+- Every Ground threat is mapped to a required executable test, and unmet ADR security gates block the correct dependent stratum.
 - Product can explain why Clark wins without claiming uniqueness for canvas, generation, MCP, or scheduling alone.
 - Target creators demonstrate first-week value, commit representative workflow data, and provide a binding willingness-to-pay signal under the gates in `positioning-and-business.md`.
 
@@ -271,6 +271,6 @@ Before implementation begins:
 2. Produce the clickable six-view Mac prototype using the Full-Week fixture.
 3. Run five creator walkthroughs focused on Focus-vs-Canvas comprehension, provenance, memory evidence, and authority.
 4. Recruit three design partners for a real multi-channel week and a binding willingness-to-pay test.
-5. Resolve the open security decisions in `security-and-threat-model.md` and convert its register into owned executable test specifications.
+5. Convert ADR-0011 through ADR-0020 into owned executable test specifications, enable private vulnerability reporting, and assign named incident responders.
 6. Review and lock the v1 event, loop, capability, run-plan, and fixture contracts with every owning team; derive generated types and conformance test plans without forking schema semantics.
 7. Assign named people, capacity, and dates to `team-delivery-plan.md`; create the Ground evidence ledger without weakening any acceptance gate.

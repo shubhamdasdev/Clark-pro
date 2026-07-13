@@ -36,14 +36,14 @@
 | Harness architecture | `architecture.md`, ADR-0003 | Defined | Executable run/step state-machine specification |
 | Memory and learning model | `memory-and-learning.md`, ADR-0007 | Defined | Retrieval/proposal evaluation protocol and real creator corpus |
 | MCP and capability boundary | `mcp-ecosystem.md`, ADR-0004 | Defined | Versioned JSON schemas and conformance fixtures |
-| Security model and trust boundaries | `security-and-threat-model.md`, ADR-0001/0005 | Specified, not verified | Resolve ten open decisions; derive owned executable security test plans |
-| Architecture decisions | `decisions/` registry and ten accepted ADRs | Defined | Team review/signoff; superseding ADR for any invariant change |
+| Security model and trust boundaries | `security-and-threat-model.md`, ADR-0001/0005 and ADR-0011–0020 | Specified, not verified | Convert accepted security gates into owned executable tests and release evidence |
+| Architecture decisions | `decisions/` registry and twenty accepted ADRs | Defined | Team review/signoff; superseding ADR for any invariant change |
 | Versioned domain event catalog | 52 types in `contracts/event-catalog.json`, event/payload schemas, representative stream | Defined and contract-verified | Team signoff, upcaster implementations, full production event fixtures |
 | Versioned loop contract | Loop JSON Schema, Full-Week and Reflection definitions | Defined and contract-verified | Generated types and runtime graph/compiler conformance |
 | Capability adapter contract | Capability JSON Schema and eight transport/provider fixtures | Defined and contract-verified | Hostile transport fixtures and real adapter conformance runner |
 | Threat-to-test matrix | Section 11 of threat model | Specified, not verified | Concrete test cases, tools, owners, severity/blocking policy |
 | Representative Full-Week fixture | Exact 50-object/46-edge project, two loops, 11-step run plan, events, eight capabilities, ten failure/abuse cases | Contract-verified | Real creator artifacts and production runtime replay |
-| Desktop/database/credential/model/distribution ADRs | ADR-0001 through ADR-0010 | Defined | Verification gates remain future production evidence |
+| Platform, domain, credential, execution, recovery, and release ADRs | ADR-0001 through ADR-0020 | Defined | Verification gates remain future production evidence |
 | Business/category architecture | `positioning-and-business.md` | Defined as hypotheses | Ten interviews, three real-week design partners, binding willingness-to-pay |
 | Team-owned release plan | `team-delivery-plan.md` defines ten workstreams, dependencies, decision/contract ownership, readiness/done, and evidence ledger | Defined by role | Assign named people, capacity, dates, and Ground evidence signoff |
 
@@ -90,7 +90,7 @@ The stack is not yet *proven*. Its highest engineering risks are sandboxing thir
 1. Run and record five observed creator walkthroughs; redesign every failed or ambiguous canvas gate.
 2. Recruit three design partners and operate one real multi-channel week with their existing tools and representative content.
 3. Test a binding purchase action and first-week replacement value.
-4. Resolve open threat-model decisions and assign executable security/conformance tests.
+4. Implement and verify ADR-0011 through ADR-0020; enable private vulnerability reporting and assign executable security/conformance tests.
 5. Review and lock v1 contracts across owning teams; generate implementation types from the schemas without semantic forks.
 6. Assign named people, capacity, and dates to the defined workstreams and produce the Ground evidence ledger signoff.
 

@@ -53,6 +53,43 @@ Electron supports the chosen TypeScript/React/MCP architecture but requires an e
 - https://www.electronjs.org/docs/latest/api/safe-storage
 - https://developer.apple.com/documentation/security/keychain-services/
 
+## Ground Security Decision Evidence
+
+The Ground security ADRs use primary specifications and platform documentation rather than treating framework defaults as guarantees:
+
+- Apple permits Developer ID/notarized distribution outside the Mac App Store and requires Hardened Runtime for notarization; the Share extension remains a separately sandboxed target with an App Group staging boundary.
+  - https://developer.apple.com/documentation/xcode/preparing-your-app-for-distribution
+  - https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution
+  - https://developer.apple.com/documentation/xcode/configuring-app-groups
+  - https://developer.apple.com/documentation/security/accessing-files-from-the-macos-app-sandbox
+- Electron's utility process and MessagePort APIs support a supervised private Harness channel; its security guidance still requires renderer sandboxing, context isolation, sender validation, restricted navigation, and current runtime updates.
+  - https://www.electronjs.org/docs/latest/api/utility-process
+  - https://www.electronjs.org/docs/latest/api/message-port-main
+  - https://www.electronjs.org/docs/latest/tutorial/process-model
+  - https://www.electronjs.org/docs/latest/tutorial/security
+- MCP HTTP authorization does not secure local stdio execution. The specification directs stdio implementations toward environment-sourced credentials, while MCP security guidance treats local servers as an arbitrary-code trust decision.
+  - https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization
+  - https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices
+- HPKE supplies recipient encryption but not application replay/order protection, so Clark combines TLS 1.3, an RFC 9180 suite, RFC 8032 signatures, RFC 8785 canonicalization, and durable replay/idempotency state.
+  - https://www.rfc-editor.org/rfc/rfc9180.html
+  - https://www.rfc-editor.org/info/rfc8032/
+  - https://www.rfc-editor.org/rfc/rfc8785.html
+  - https://www.rfc-editor.org/info/rfc8446/
+- Wasmtime/WASI provides explicit preopened capabilities for the executable-skill class. Node's own WASI documentation says `node:wasi` is not a secure sandbox for untrusted code, so it is not Clark's isolation boundary.
+  - https://docs.wasmtime.dev/security.html
+  - https://docs.wasmtime.dev/c-api/wasi_8h.html
+  - https://nodejs.org/api/wasi.html
+- OpenTelemetry leaves sensitive-data classification and filtering to the implementer; Electron can retain crash dumps locally without automatic upload. Clark therefore uses allowlisted local-first telemetry and explicit diagnostic upload consent.
+  - https://opentelemetry.io/docs/security/handling-sensitive-data/
+  - https://opentelemetry.io/docs/specs/otlp/
+  - https://www.electronjs.org/docs/latest/api/crash-reporter
+- Portable backups use the documented age v1 format rather than a Clark-specific cryptographic container.
+  - https://age-encryption.org/v1
+  - https://github.com/FiloSottile/age
+- GitHub private vulnerability reporting and repository security advisories supply the pre-release confidential intake/collaboration path selected in ADR-0020.
+  - https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/report-privately
+  - https://docs.github.com/en/code-security/concepts/vulnerability-reporting-and-management/repository-security-advisories
+
 ## Competitive Reality
 
 ### PixVerse Canvas

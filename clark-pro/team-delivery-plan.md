@@ -157,11 +157,11 @@ Before Stratum 1 begins, assign named owners and dates for:
 
 - five creator sessions and the analysis decision;
 - three design partners and purchase test;
-- ten open security decisions;
+- implementation and verification ownership for ADR-0011 through ADR-0020;
 - v1 contract review/signoff by W2–W10;
 - event upcaster and schema-generation approach;
 - hostile MCP/capability conformance plan;
-- skill sandbox decision;
+- Wasmtime/WASI skill-sandbox prototype and hostile-component evidence;
 - Mac native interaction/accessibility prototype;
 - team capacity/dependency plan;
 - Ground evidence ledger signoff.
