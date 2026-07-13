@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/loop-definition.schema.json
- * Source SHA-256: ba6b219b8c1b7f4b61c762b9c93b1a79a5345d8a76f403193676939ebedee038
+ * Source SHA-256: f3ef30c5b853338d62b05108e8e525dd4feb2f4dbad87a79e5041e28f07651e0
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -45,6 +45,7 @@ export type Node = {
     | "memory_correct"
     | "memory_forget"
     | "skill_promote"
+    | "skill_rollback"
     | "tool_package_activate"
     | "tool_package_rollback"
     | "conflict_resolve";

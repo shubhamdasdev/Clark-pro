@@ -278,6 +278,8 @@ skill declaration
 
 Text inside a skill can never expand this set.
 
+The permanent Harness now proves this lifecycle for one real bundled Class A package: it hashes the actual `SKILL.md`, derives and verifies the package source hash, records install and quarantine separately, runs deterministic declarative conformance, displays eleven promotion gates, and requires an explicit creator promotion. Synthetic revisions prove update suspension, unavailable-capability denial, and rollback. Promotion stores only the revision trust ceiling; there is deliberately no `skill.invoke` method until run-scoped four-way permission receipts and invocation provenance are implemented. The existing 19-case Wasmtime suite remains Ground evidence for denial primitives, not a production Class B host.
+
 ### Bundled skills
 
 - research with claim ledger;

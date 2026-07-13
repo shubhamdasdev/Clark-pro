@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/event-payloads.schema.json
- * Source SHA-256: 6ecc88a06c981f271207843987edcd0a3dc1e9cf8a8e2547e9bea3f07e8ac623
+ * Source SHA-256: b4bae771e2b4893e7343e3ad8304718bdf13d74a5154150a7e377baf0281b02e
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -55,6 +55,115 @@ export type Step = {
   executionLocation: "local" | "remote_explicit";
   egressItemIds?: string[];
   timeoutSeconds?: number;
+};
+export type ClarkGovernedAgentSkillPackage = {
+  [k: string]: unknown | undefined;
+} & {
+  $schema: "https://schemas.clark.pro/v1/skill-package.schema.json";
+  schemaVersion: 1;
+  id: string;
+  name: string;
+  description?: string;
+  revision: string;
+  source: {
+    publisherId: string;
+    kind: "bundled" | "registry" | "git" | "local" | "learned";
+    uri: string;
+    revision: string;
+    contentHash: string;
+    signature?: string;
+  };
+  executionClass: "A" | "B" | "C";
+  /**
+   * @minItems 1
+   */
+  files: [
+    {
+      path: string;
+      role: "skill_md" | "reference" | "asset" | "template" | "component" | "wit" | "fixture" | "native_script";
+      contentHash: string;
+      executable: boolean;
+    },
+    ...{
+      path: string;
+      role: "skill_md" | "reference" | "asset" | "template" | "component" | "wit" | "fixture" | "native_script";
+      contentHash: string;
+      executable: boolean;
+    }[]
+  ];
+  entrypoint?:
+    | {
+        kind: "wasm_component";
+        path: string;
+        contentHash: string;
+        interfaceRevision: string;
+        export: string;
+      }
+    | {
+        kind: "native_process";
+        path: string;
+        /**
+         * @maxItems 64
+         */
+        argv: string[];
+      };
+  requestedPermissions: Permissions;
+  sandbox?: {
+    runtime: "wasmtime";
+    runtimeVersion: string;
+    wasiModel: "component-preview2" | "core-preview1-ground-spike";
+    /**
+     * @minItems 8
+     * @maxItems 8
+     */
+    denyByDefault: [
+      "environment" | "stdin" | "terminal" | "network" | "clocks" | "random" | "filesystem" | "host_imports",
+      "environment" | "stdin" | "terminal" | "network" | "clocks" | "random" | "filesystem" | "host_imports",
+      "environment" | "stdin" | "terminal" | "network" | "clocks" | "random" | "filesystem" | "host_imports",
+      "environment" | "stdin" | "terminal" | "network" | "clocks" | "random" | "filesystem" | "host_imports",
+      "environment" | "stdin" | "terminal" | "network" | "clocks" | "random" | "filesystem" | "host_imports",
+      "environment" | "stdin" | "terminal" | "network" | "clocks" | "random" | "filesystem" | "host_imports",
+      "environment" | "stdin" | "terminal" | "network" | "clocks" | "random" | "filesystem" | "host_imports",
+      "environment" | "stdin" | "terminal" | "network" | "clocks" | "random" | "filesystem" | "host_imports"
+    ];
+    limits: {
+      fuel: number;
+      epochDeadlineMs: number;
+      memoryBytes: number;
+      instances: number;
+      tables: number;
+      outputBytes: number;
+      storageBytes: number;
+    };
+  };
+  lifecycle: {
+    state: "quarantined" | "testing" | "active" | "suspended" | "rolled_back";
+    trustBasis: "declarative_review" | "sandbox_verified" | "bundled_signed" | "developer_mode";
+    rollbackRevision: string | null;
+    remoteExecutionAllowed: boolean;
+  };
+  /**
+   * @minItems 1
+   */
+  tests: [
+    {
+      id: string;
+      fixture: string;
+      expected: "pass" | "deny" | "trap" | "quarantine";
+    },
+    ...{
+      id: string;
+      fixture: string;
+      expected: "pass" | "deny" | "trap" | "quarantine";
+    }[]
+  ];
+  compatibility: {
+    clarkApi: string;
+    /**
+     * @minItems 1
+     */
+    platforms: ["macos-arm64" | "macos-x64", ...("macos-arm64" | "macos-x64")[]];
+  };
 };
 export type ClarkGovernedToolPackage = {
   [k: string]: unknown | undefined;
@@ -788,6 +897,7 @@ export interface DecisionRecorded {
     | "memory_correct"
     | "memory_forget"
     | "skill_promote"
+    | "skill_rollback"
     | "tool_package_activate"
     | "tool_package_rollback"
     | "conflict_resolve";
@@ -1176,12 +1286,186 @@ export interface MemoryRetrievalRecorded {
 export interface SkillRevisionStateChanged {
   skillRevision: RevisionRef;
   sourceHash: string;
-  from: "unseen" | "installed" | "quarantined" | "active" | "failed" | "superseded";
-  to: "installed" | "quarantined" | "active" | "failed" | "superseded" | "rolled_back";
+  manifestHash?: string;
+  manifest?: ClarkGovernedAgentSkillPackage;
+  from: "unseen" | "installed" | "quarantined" | "active" | "suspended" | "failed" | "superseded";
+  to: "installed" | "quarantined" | "active" | "suspended" | "failed" | "superseded" | "rolled_back";
   effectivePermissions: string[];
   testStatus: "not_run" | "passed" | "failed";
+  conformance?: {
+    sourceIntegrity: boolean;
+    fileIntegrity: boolean;
+    executionBoundaryVerified: boolean;
+    declaredTestsExecuted: boolean;
+    /**
+     * @maxItems 20
+     */
+    observations:
+      | []
+      | [string]
+      | [string, string]
+      | [string, string, string]
+      | [string, string, string, string]
+      | [string, string, string, string, string]
+      | [string, string, string, string, string, string]
+      | [string, string, string, string, string, string, string]
+      | [string, string, string, string, string, string, string, string]
+      | [string, string, string, string, string, string, string, string, string]
+      | [string, string, string, string, string, string, string, string, string, string]
+      | [string, string, string, string, string, string, string, string, string, string, string]
+      | [string, string, string, string, string, string, string, string, string, string, string, string]
+      | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+      | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+      | [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ]
+      | [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ]
+      | [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ]
+      | [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ]
+      | [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ]
+      | [
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string,
+          string
+        ];
+  };
   decisionId?: string;
   rollbackRevision?: RevisionRef;
+  reason?: string;
+}
+/**
+ * This interface was referenced by `undefined`'s JSON-Schema
+ * via the `definition` "permissions".
+ */
+export interface Permissions {
+  capabilityIds: string[];
+  hostFunctions: string[];
+  actionClasses: (
+    | "read"
+    | "capture"
+    | "decision_record"
+    | "artifact_approve"
+    | "research"
+    | "local_transform"
+    | "model_generate"
+    | "media_generate"
+    | "external_write"
+    | "social_publish"
+    | "account_manage"
+    | "memory_mutate"
+    | "skill_mutate"
+    | "policy_override"
+    | "destructive"
+  )[];
+  networkDomains: string[];
+  credentialScopes: string[];
+  readInputs: string[];
+  writeOutputs: string[];
 }
 /**
  * This interface was referenced by `ClarkDomainEventPayloads`'s JSON-Schema
@@ -1300,7 +1584,7 @@ export interface ClarkCapabilityManifest {
       "auth" | "discover" | "validate" | "quote" | "execute" | "observe" | "cancel" | "reconcile" | "health" | "revoke"
     )[]
   ];
-  permissions: Permissions;
+  permissions: Permissions1;
   egress: Egress;
   async: Async;
   idempotency: Idempotency;
@@ -1323,7 +1607,7 @@ export interface ClarkCapabilityManifest {
  * This interface was referenced by `ClarkCapabilityManifest`'s JSON-Schema
  * via the `definition` "permissions".
  */
-export interface Permissions {
+export interface Permissions1 {
   actionClass:
     | "read"
     | "capture"

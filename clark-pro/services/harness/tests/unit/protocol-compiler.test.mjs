@@ -100,3 +100,20 @@ test("Tool Package inspection requests require exact workspace and revision iden
     workspaceId: "workspace.local", toolPackageId: "clark.toolpack.opencut.rewrite", revision: "latest"
   }), HarnessProtocolError);
 });
+
+test("Skill inspection and trust decisions require exact workspace and revision identity", () => {
+  assert.doesNotThrow(() => createRequest("skill.list", { workspaceId: "workspace.local", limit: 20 }));
+  assert.doesNotThrow(() => createRequest("skill.evaluate", {
+    workspaceId: "workspace.local", skillId: "clark.skill.evidence-brief-review", revision: "1.0.0"
+  }));
+  assert.doesNotThrow(() => createRequest("skill.resolve", {
+    workspaceId: "workspace.local", skillId: "clark.skill.evidence-brief-review", revision: "1.0.0",
+    action: "promote", reason: "Creator reviewed the exact files and trust ceiling.", idempotencyKey: "intent-skill-promote-0001"
+  }));
+  assert.throws(() => createRequest("skill.get", {
+    workspaceId: "workspace.local", skillId: "clark.skill.evidence-brief-review", revision: "latest"
+  }), HarnessProtocolError);
+  assert.throws(() => createRequest("skill.invoke", {
+    workspaceId: "workspace.local", skillId: "clark.skill.evidence-brief-review", revision: "1.0.0"
+  }), HarnessProtocolError);
+});

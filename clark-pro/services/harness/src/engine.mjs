@@ -1,6 +1,7 @@
 import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { toolPackageFixtureDirectory } from "@clark/contracts/paths";
 import { AssetStore } from "./asset-store.mjs";
 import { canonicalJson, sha256, stableToken } from "./canonical.mjs";
@@ -9,7 +10,10 @@ import { approvalIdForRun, EventStore } from "./event-store.mjs";
 import { compileIdeaRun, deriveRevisionRunIds, deriveRunIds, ideaInspectorManifest, structureIdea } from "./idea-compiler.mjs";
 import { bundledMcpSourceHash, BundledIdeaMcpAdapter } from "./mcp-capability-adapter.mjs";
 import { contractValidator } from "./protocol.mjs";
+import { evaluateSkillPackage, inspectSkillPackageDirectory, trustedSkillPermissionScopes } from "./skill-policy.mjs";
 import { evaluateToolPackage, toolPackageEvidenceStatus } from "./tool-package-policy.mjs";
+
+const bundledEvidenceBriefSkillDirectory = fileURLToPath(new URL("./bundled-skills/evidence-brief-review/1.0.0/", import.meta.url));
 
 export class HarnessError extends Error {
   constructor(code, message, retryable = false) {
@@ -32,6 +36,7 @@ export class HarnessEngine extends EventEmitter {
     this.store = new EventStore(path.join(dataDirectory, "clark.db"), { now, idFactory });
     this.mcpAdapter = mcpAdapter ?? new BundledIdeaMcpAdapter({ runtimeExecutable, workingDirectory: path.join(dataDirectory, "runtime", "mcp", "idea-inspector") });
     this.capabilityPolicy = capabilityPolicy;
+    this.skillPackageDirectories = new Map();
     this.recoveredRuns = 0;
     this.state = "recovering";
   }
@@ -91,6 +96,10 @@ export class HarnessEngine extends EventEmitter {
       case "memory.correct": return this.correctMemory(payload, context);
       case "memory.list": return this.listMemories(payload);
       case "memory.retrieve": return this.retrieveMemories(payload, context);
+      case "skill.list": return this.listSkills(payload);
+      case "skill.get": return this.getSkillInWorkspace(payload);
+      case "skill.evaluate": return this.evaluateSkillInWorkspace(payload, context);
+      case "skill.resolve": return this.resolveSkill(payload, context);
       case "tool_package.list": return this.listToolPackages(payload);
       case "tool_package.get": return this.getToolPackageInWorkspace(payload);
       case "tool_package.evaluate": return this.getToolPackageInWorkspace(payload);
@@ -112,6 +121,7 @@ export class HarnessEngine extends EventEmitter {
       });
     }
     this.ensureBundledCapability(workspaceId, context);
+    this.ensureBundledSkills(workspaceId, context);
     this.ensureBundledToolPackages(workspaceId, context);
     const workspace = this.store.getWorkspace(workspaceId);
     return { workspaceId, created: !existing, aggregateVersion: Number(workspace.aggregate_version) };
@@ -734,6 +744,283 @@ export class HarnessEngine extends EventEmitter {
       }
     }));
     return this.store.getCapability(workspaceId, ideaInspectorManifest.id, ideaInspectorManifest.version);
+  }
+
+  ensureBundledSkills(workspaceId, context = {}) {
+    const manifest = JSON.parse(fs.readFileSync(path.join(bundledEvidenceBriefSkillDirectory, "manifest.json"), "utf8"));
+    return this.registerSkillPackage({ workspaceId, manifest, packageDirectory: bundledEvidenceBriefSkillDirectory }, {
+      ...context, source: "system", actor: { type: "system", id: "system.skill-catalog" }
+    });
+  }
+
+  registerSkillPackage({ workspaceId, manifest, packageDirectory }, context = {}) {
+    if (!this.store.getWorkspace(workspaceId)) throw new HarnessError("not_found", "Workspace does not exist");
+    contractValidator.validateSkillPackage(manifest);
+    if (manifest.source.kind !== "bundled") throw new HarnessError("policy_denied", "Community Skill acquisition and signature verification are not implemented");
+    if (!packageDirectory || !path.isAbsolute(packageDirectory)) throw new HarnessError("invalid_request", "A verified absolute Skill package directory is required");
+    const manifestHash = sha256(canonicalJson(manifest));
+    const inspection = inspectSkillPackageDirectory(manifest, packageDirectory);
+    this.skillPackageDirectories.set(`${workspaceId}@${manifest.id}@${manifest.revision}`, packageDirectory);
+    const existing = this.store.getSkillPackage(workspaceId, manifest.id, manifest.revision);
+    if (existing) {
+      if (existing.manifest_hash !== manifestHash || existing.source_hash !== manifest.source.contentHash) {
+        throw new HarnessError("conflict", "Pinned Skill manifest changed without a revision");
+      }
+      const previousConformance = JSON.parse(existing.conformance_json);
+      if (canonicalJson(previousConformance) !== canonicalJson(inspection.conformance) || existing.test_status !== inspection.testStatus) {
+        const reason = inspection.testStatus === "passed"
+          ? "Exact bundled Skill bytes were reverified; creator promotion remains required."
+          : "Skill bytes or the declared execution boundary no longer pass conformance; active trust was revoked.";
+        this.store.transaction(() => this.store.appendEvent({
+          eventType: "skill.revision_quarantined", aggregateType: "skill", aggregateId: manifest.id,
+          workspaceId, commandId: context.requestId, actor: context.actor ?? { type: "system", id: "system.skill-catalog" }, source: context.source ?? "system", sensitivity: "workspace",
+          payload: this.skillEventPayload(manifest, existing.state, "quarantined", { ...inspection, effectivePermissions: [], reason })
+        }));
+        this.emit("skill.updated", { skillId: manifest.id, revision: manifest.revision, state: "quarantined" });
+      }
+      return this.store.getSkillPackage(workspaceId, manifest.id, manifest.revision);
+    }
+    const quarantineReason = inspection.testStatus === "passed"
+      ? "Exact bundled Class A bytes and declared fixture passed conformance; creator promotion is still required."
+      : "Skill remains quarantined because source, file, class-boundary, or regression evidence is incomplete.";
+    this.store.transaction(() => {
+      this.store.appendEvent({
+        eventType: "skill.revision_installed", aggregateType: "skill", aggregateId: manifest.id,
+        workspaceId, commandId: context.requestId, actor: context.actor ?? { type: "system", id: "system.skill-catalog" }, source: context.source ?? "system", sensitivity: "workspace",
+        payload: this.skillEventPayload(manifest, "unseen", "installed", {
+          testStatus: "not_run", conformance: inspection.conformance, effectivePermissions: [],
+          reason: "Exact bundled Skill bytes were retained without active trust or invocation authority."
+        })
+      });
+      this.store.appendEvent({
+        eventType: "skill.revision_quarantined", aggregateType: "skill", aggregateId: manifest.id,
+        workspaceId, commandId: context.requestId, actor: context.actor ?? { type: "system", id: "system.skill-catalog" }, source: context.source ?? "system", sensitivity: "workspace",
+        payload: this.skillEventPayload(manifest, "installed", "quarantined", { ...inspection, effectivePermissions: [], reason: quarantineReason })
+      });
+    });
+    this.emit("skill.updated", { skillId: manifest.id, revision: manifest.revision, state: "quarantined" });
+    return this.store.getSkillPackage(workspaceId, manifest.id, manifest.revision);
+  }
+
+  listSkills({ workspaceId, limit }) {
+    if (!this.store.getWorkspace(workspaceId)) throw new HarnessError("not_found", "Workspace does not exist");
+    return { skills: this.store.listSkillPackageRows(workspaceId, limit).map((row) => this.skillSummary(row)) };
+  }
+
+  getSkillInWorkspace({ workspaceId, skillId, revision }) {
+    const row = this.store.getSkillPackage(workspaceId, skillId, revision);
+    if (!row) throw new HarnessError("not_found", "Skill revision does not exist in this workspace");
+    return this.skillSummary(row);
+  }
+
+  evaluateSkillInWorkspace({ workspaceId, skillId, revision }, context = {}) {
+    const row = this.store.getSkillPackage(workspaceId, skillId, revision);
+    if (!row) throw new HarnessError("not_found", "Skill revision does not exist in this workspace");
+    const manifest = JSON.parse(row.manifest_json);
+    const packageDirectory = this.skillPackageDirectories.get(`${workspaceId}@${skillId}@${revision}`);
+    if (!packageDirectory) throw new HarnessError("policy_denied", "Skill package bytes are unavailable for exact evaluation");
+    const inspection = inspectSkillPackageDirectory(manifest, packageDirectory);
+    const unchanged = row.test_status === inspection.testStatus && canonicalJson(JSON.parse(row.conformance_json)) === canonicalJson(inspection.conformance);
+    if (!unchanged) {
+      const reason = inspection.testStatus === "passed"
+        ? "Exact Skill bytes were reverified after a conformance change; a separate creator promotion decision is still required."
+        : "Skill package bytes or conformance changed; active revision trust was revoked.";
+      this.store.transaction(() => this.store.appendEvent({
+        eventType: "skill.revision_quarantined", aggregateType: "skill", aggregateId: skillId,
+        workspaceId, commandId: context.requestId, actor: context.actor ?? { type: "system", id: "system.skill-catalog" }, source: context.source ?? "system", sensitivity: "workspace",
+        payload: this.skillEventPayload(manifest, row.state, "quarantined", { ...inspection, effectivePermissions: [], reason })
+      }));
+      this.emit("skill.updated", { skillId, revision, state: "quarantined" });
+    }
+    return this.getSkillInWorkspace({ workspaceId, skillId, revision });
+  }
+
+  resolveSkill(payload, context = {}) {
+    const { workspaceId, skillId, revision, action, reason, idempotencyKey } = payload;
+    const requestHash = sha256({ method: "skill.resolve", workspaceId, skillId, revision, action, reason });
+    const existingCommand = this.store.getCommand(idempotencyKey);
+    if (existingCommand) {
+      this.assertIdempotentMatch(existingCommand, "skill.resolve", requestHash);
+      const [subjectId, subjectRevision] = existingCommand.subject_id.split("@");
+      return this.getSkillInWorkspace({ workspaceId, skillId: subjectId, revision: subjectRevision });
+    }
+    const row = this.store.getSkillPackage(workspaceId, skillId, revision);
+    if (!row) throw new HarnessError("not_found", "Skill revision does not exist in this workspace");
+    const manifest = JSON.parse(row.manifest_json);
+    const conformance = JSON.parse(row.conformance_json);
+    const actor = context.actor ?? { type: "creator", id: "creator.local" };
+    const decisionId = `decision.skill.${stableToken(idempotencyKey)}`;
+
+    if (action === "promote") {
+      if (row.state !== "quarantined") throw new HarnessError("conflict", `Cannot promote Skill in ${row.state} state`);
+      const currentInspection = this.reverifySkillPackageBytes({ workspaceId, row, manifest, context });
+      const previousActiveRow = this.store.getActiveSkillPackage(workspaceId, skillId);
+      const evaluation = evaluateSkillPackage(manifest, {
+        conformance: currentInspection.conformance, testStatus: currentInspection.testStatus, installedCapabilities: this.store.listCapabilities(workspaceId),
+        previousActiveRevision: previousActiveRow?.revision ?? null
+      });
+      if (!evaluation.activationEligible) {
+        const blockers = evaluation.gates.filter((gate) => gate.status !== "pass").map((gate) => gate.label).join(", ");
+        throw new HarnessError("policy_denied", `Skill promotion gates are incomplete: ${blockers}`);
+      }
+      if (previousActiveRow && manifest.lifecycle.rollbackRevision !== previousActiveRow.revision) {
+        throw new HarnessError("policy_denied", "Skill update does not pin the currently active revision as its rollback target");
+      }
+      if (!previousActiveRow && manifest.lifecycle.rollbackRevision) {
+        throw new HarnessError("policy_denied", "A first Skill promotion cannot claim a rollback revision that was never active");
+      }
+      const effectivePermissions = trustedSkillPermissionScopes(manifest);
+      let result;
+      this.store.transaction(() => {
+        this.store.beginCommand({ idempotencyKey, method: "skill.resolve", requestHash, subjectId: `${skillId}@${revision}` });
+        this.store.appendEvent({
+          eventType: "decision.recorded", aggregateType: "decision", aggregateId: decisionId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: { decisionId, decisionType: "skill_promote", subjectRef: skillId, selectedOption: `promote@${revision}`, alternatives: ["keep_quarantined", "remove"], evidenceRefs: [], reason, reversible: true }
+        });
+        if (previousActiveRow) {
+          const previousManifest = JSON.parse(previousActiveRow.manifest_json);
+          this.store.appendEvent({
+            eventType: "skill.revision_suspended", aggregateType: "skill", aggregateId: skillId,
+            workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+            payload: this.skillEventPayload(previousManifest, "active", "suspended", {
+              testStatus: previousActiveRow.test_status, conformance: JSON.parse(previousActiveRow.conformance_json), effectivePermissions: [], decisionId,
+              reason: `Superseded by verified revision ${revision}; retained as the pinned rollback target.`
+            })
+          });
+        }
+        this.store.appendEvent({
+          eventType: "skill.revision_promoted", aggregateType: "skill", aggregateId: skillId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: this.skillEventPayload(manifest, "quarantined", "active", {
+            testStatus: currentInspection.testStatus, conformance: currentInspection.conformance, effectivePermissions, decisionId, reason,
+            ...(previousActiveRow ? { rollbackRevision: { id: skillId, revision: previousActiveRow.revision, contentHash: previousActiveRow.source_hash } } : {})
+          })
+        });
+        result = this.skillSummary(this.store.getSkillPackage(workspaceId, skillId, revision));
+        this.store.completeCommand(idempotencyKey, result);
+      });
+      this.emit("skill.updated", { skillId, revision, state: "active" });
+      return result;
+    }
+
+    if (action === "rollback") {
+      if (row.state !== "active") throw new HarnessError("conflict", `Cannot roll back Skill in ${row.state} state`);
+      const targetRevision = row.rollback_revision;
+      if (!targetRevision) throw new HarnessError("policy_denied", "Active Skill has no pinned rollback revision");
+      const targetRow = this.store.getSkillPackage(workspaceId, skillId, targetRevision);
+      if (!targetRow || targetRow.state !== "suspended") throw new HarnessError("policy_denied", "Pinned Skill rollback revision is not the suspended prior active revision");
+      const targetManifest = JSON.parse(targetRow.manifest_json);
+      const targetInspection = this.reverifySkillPackageBytes({ workspaceId, row: targetRow, manifest: targetManifest, context });
+      const targetConformance = targetInspection.conformance;
+      const targetEvaluation = evaluateSkillPackage(targetManifest, {
+        conformance: targetConformance, testStatus: targetInspection.testStatus,
+        installedCapabilities: this.store.listCapabilities(workspaceId), previousActiveRevision: null
+      });
+      if (!targetEvaluation.activationEligible) throw new HarnessError("policy_denied", "Pinned Skill rollback revision no longer passes trust gates");
+      const restoredPermissions = trustedSkillPermissionScopes(targetManifest);
+      let result;
+      this.store.transaction(() => {
+        this.store.beginCommand({ idempotencyKey, method: "skill.resolve", requestHash, subjectId: `${skillId}@${targetRevision}` });
+        this.store.appendEvent({
+          eventType: "decision.recorded", aggregateType: "decision", aggregateId: decisionId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: { decisionId, decisionType: "skill_rollback", subjectRef: skillId, selectedOption: `restore@${targetRevision}`, alternatives: ["keep_active", "suspend"], evidenceRefs: [], reason, reversible: true }
+        });
+        this.store.appendEvent({
+          eventType: "skill.revision_rolled_back", aggregateType: "skill", aggregateId: skillId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: this.skillEventPayload(manifest, "active", "rolled_back", {
+            testStatus: row.test_status, conformance, effectivePermissions: [], decisionId, reason,
+            rollbackRevision: { id: skillId, revision: targetRevision, contentHash: targetRow.source_hash }
+          })
+        });
+        this.store.appendEvent({
+          eventType: "skill.revision_promoted", aggregateType: "skill", aggregateId: skillId,
+          workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: "workspace",
+          payload: this.skillEventPayload(targetManifest, "suspended", "active", {
+            testStatus: targetInspection.testStatus, conformance: targetConformance, effectivePermissions: restoredPermissions, decisionId,
+            reason: `Restored by rollback from ${revision}: ${reason}`
+          })
+        });
+        result = this.skillSummary(this.store.getSkillPackage(workspaceId, skillId, targetRevision));
+        this.store.completeCommand(idempotencyKey, result);
+      });
+      this.emit("skill.updated", { skillId, revision: targetRevision, state: "active" });
+      return result;
+    }
+    throw new HarnessError("invalid_request", `Unsupported Skill action ${action}`);
+  }
+
+  reverifySkillPackageBytes({ workspaceId, row, manifest, context = {} }) {
+    const packageDirectory = this.skillPackageDirectories.get(`${workspaceId}@${manifest.id}@${manifest.revision}`);
+    if (!packageDirectory) throw new HarnessError("policy_denied", "Skill package bytes are unavailable for exact promotion-time verification");
+    const inspection = inspectSkillPackageDirectory(manifest, packageDirectory);
+    const unchanged = row.test_status === inspection.testStatus && canonicalJson(JSON.parse(row.conformance_json)) === canonicalJson(inspection.conformance);
+    if (unchanged) return inspection;
+    const reason = "Skill package bytes or conformance changed after quarantine; revision trust remains revoked.";
+    this.store.transaction(() => this.store.appendEvent({
+      eventType: "skill.revision_quarantined", aggregateType: "skill", aggregateId: manifest.id,
+      workspaceId, commandId: context.requestId, actor: context.actor ?? { type: "system", id: "system.skill-catalog" }, source: context.source ?? "system", sensitivity: "workspace",
+      payload: this.skillEventPayload(manifest, row.state, "quarantined", { ...inspection, effectivePermissions: [], reason })
+    }));
+    this.emit("skill.updated", { skillId: manifest.id, revision: manifest.revision, state: "quarantined" });
+    throw new HarnessError("policy_denied", reason);
+  }
+
+  skillEventPayload(manifest, from, to, extra = {}) {
+    const { effectivePermissions = [], testStatus = "not_run", conformance, ...rest } = extra;
+    const manifestHash = sha256(canonicalJson(manifest));
+    return {
+      skillRevision: { id: manifest.id, revision: manifest.revision, contentHash: manifest.source.contentHash },
+      sourceHash: manifest.source.contentHash,
+      manifestHash,
+      manifest,
+      from,
+      to,
+      effectivePermissions,
+      testStatus,
+      ...(conformance ? { conformance } : {}),
+      ...rest
+    };
+  }
+
+  skillSummary(row) {
+    const manifest = JSON.parse(row.manifest_json);
+    const conformance = JSON.parse(row.conformance_json);
+    const activeRow = this.store.getActiveSkillPackage(row.workspace_id, row.skill_id);
+    const previousActiveRevision = row.state === "active" ? manifest.lifecycle.rollbackRevision : activeRow?.revision ?? null;
+    const evaluation = evaluateSkillPackage(manifest, {
+      conformance, testStatus: row.test_status, installedCapabilities: this.store.listCapabilities(row.workspace_id), previousActiveRevision
+    });
+    return {
+      skillId: row.skill_id,
+      revision: row.revision,
+      name: manifest.name,
+      description: manifest.description ?? "",
+      publisherId: manifest.source.publisherId,
+      sourceKind: manifest.source.kind,
+      sourceRevision: manifest.source.revision,
+      sourceHash: row.source_hash,
+      manifestHash: row.manifest_hash,
+      executionClass: manifest.executionClass,
+      state: row.state,
+      trustBasis: row.trust_basis,
+      testStatus: row.test_status,
+      activationEligible: evaluation.activationEligible,
+      requestedPermissions: manifest.requestedPermissions,
+      trustedPermissionScopes: JSON.parse(row.effective_permissions_json),
+      fileCount: manifest.files.length,
+      executableFileCount: manifest.files.filter((file) => file.executable).length,
+      ...(row.rollback_revision ? { rollbackRevision: row.rollback_revision } : {}),
+      gates: evaluation.gates,
+      limitations: [
+        "Promotion trusts only this exact revision; each invocation still requires a run-scoped effective permission receipt.",
+        "Only bundled Class A acquisition and declarative conformance are implemented; community acquisition and production Class B/C execution remain blocked.",
+        "This milestone does not expose a direct Skill invocation endpoint."
+      ],
+      updatedAt: row.updated_at
+    };
   }
 
   ensureBundledToolPackages(workspaceId, context = {}) {

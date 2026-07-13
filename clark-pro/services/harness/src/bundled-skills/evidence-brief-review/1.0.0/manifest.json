@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/skill-package.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.skill.evidence-brief-review",
+  "name": "Evidence Brief Review",
+  "description": "A declarative procedure that reuses Clark's trusted zero-egress idea inspector while keeping structural completeness separate from observed proof.",
+  "revision": "1.0.0",
+  "source": {
+    "publisherId": "clark.first-party",
+    "kind": "bundled",
+    "uri": "clark://skills/evidence-brief-review/1.0.0",
+    "revision": "1.0.0",
+    "contentHash": "sha256:dcad9c820fd1296206326b5f1b56f369e249ceb711f228ba0b2648455a0d3716"
+  },
+  "executionClass": "A",
+  "files": [
+    {
+      "path": "SKILL.md",
+      "role": "skill_md",
+      "contentHash": "sha256:7a7566507d3d6a2afdf74dc95807571a9408a9fb87277a005758fcaa07736764",
+      "executable": false
+    }
+  ],
+  "requestedPermissions": {
+    "capabilityIds": ["clark.idea.inspect.mcp"],
+    "hostFunctions": [],
+    "actionClasses": ["local_transform"],
+    "networkDomains": [],
+    "credentialScopes": [],
+    "readInputs": [],
+    "writeOutputs": []
+  },
+  "lifecycle": {
+    "state": "quarantined",
+    "trustBasis": "declarative_review",
+    "rollbackRevision": null,
+    "remoteExecutionAllowed": false
+  },
+  "tests": [
+    {
+      "id": "evidence-brief-policy",
+      "fixture": "SKILL.md",
+      "expected": "pass"
+    }
+  ],
+  "compatibility": {
+    "clarkApi": "1.0.0",
+    "platforms": ["macos-arm64", "macos-x64"]
+  }
+}

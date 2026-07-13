@@ -6,6 +6,7 @@ const memorySensitivities = new Set(["public", "workspace", "personal", "confide
 const memoryPolicies = new Set(["default", "explicit_only", "never_send_to_model"]);
 const memoryActions = new Set(["promote", "reject", "dispute", "forget"]);
 const memoryDestinations = new Set(["creator_view", "local_model", "remote_model"]);
+const skillActions = new Set(["promote", "rollback"]);
 const toolPackageActions = new Set(["activate", "rollback"]);
 
 const api = Object.freeze({
@@ -110,6 +111,23 @@ const api = Object.freeze({
       return Promise.reject(new TypeError("A valid Tool Package decision is required"));
     }
     return ipcRenderer.invoke("desktop:resolve-tool-package", safe);
+  },
+  resolveSkill: (decision) => {
+    const safe = decision && typeof decision === "object" ? {
+      skillId: decision.skillId,
+      revision: decision.revision,
+      action: decision.action,
+      reason: decision.reason
+    } : undefined;
+    if (!safe || typeof safe.skillId !== "string" || typeof safe.revision !== "string" || !skillActions.has(safe.action) || typeof safe.reason !== "string" || safe.reason.trim().length < 3 || safe.reason.length > 1000) {
+      return Promise.reject(new TypeError("A valid Skill trust decision is required"));
+    }
+    return ipcRenderer.invoke("desktop:resolve-skill", safe);
+  },
+  evaluateSkill: (identity) => {
+    const safe = identity && typeof identity === "object" ? { skillId: identity.skillId, revision: identity.revision } : undefined;
+    if (!safe || typeof safe.skillId !== "string" || typeof safe.revision !== "string") return Promise.reject(new TypeError("An exact Skill revision is required"));
+    return ipcRenderer.invoke("desktop:evaluate-skill", safe);
   },
   onHarnessEvent: (listener) => {
     if (typeof listener !== "function") throw new TypeError("A listener function is required");

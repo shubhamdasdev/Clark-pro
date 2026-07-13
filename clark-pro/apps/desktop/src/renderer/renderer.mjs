@@ -103,6 +103,19 @@ const toolPackGates = document.querySelector("#tool-pack-gates");
 const toolPackDecision = document.querySelector("#tool-pack-decision");
 const recheckToolPack = document.querySelector("#recheck-tool-pack");
 const resolveToolPack = document.querySelector("#resolve-tool-pack");
+const skillConnectionState = document.querySelector("#skill-connection-state");
+const skillConnectionDetail = document.querySelector("#skill-connection-detail");
+const skillEyebrow = document.querySelector("#skill-eyebrow");
+const skillName = document.querySelector("#skill-name");
+const skillReason = document.querySelector("#skill-reason");
+const skillSource = document.querySelector("#skill-source");
+const skillFiles = document.querySelector("#skill-files");
+const skillRequested = document.querySelector("#skill-requested");
+const skillTrusted = document.querySelector("#skill-trusted");
+const skillGates = document.querySelector("#skill-gates");
+const skillDecision = document.querySelector("#skill-decision");
+const recheckSkill = document.querySelector("#recheck-skill");
+const resolveSkillButton = document.querySelector("#resolve-skill");
 const ideaForm = document.querySelector("#idea-loop-form");
 const ideaInput = document.querySelector("#idea-input");
 const revisionReasonGroup = document.querySelector("#revision-reason-group");
@@ -165,6 +178,7 @@ let harnessReady = false;
 let latestMemories = [];
 let selectedMemoryId;
 let selectedToolPackage;
+let selectedSkill;
 
 const runStateLabels = {
   planned: "Planned", running: "Running", recovering: "Recovering", waiting_approval: "Waiting approval",
@@ -418,6 +432,54 @@ function renderToolPackages(snapshot) {
   resolveToolPack.textContent = canRollback ? `Roll back to ${candidate.rollbackRevision}` : canActivate ? "Activate exact revision" : "Activation blocked";
 }
 
+function renderSkills(snapshot) {
+  const candidate = snapshot.skills?.find((skill) => skill.skillId === "clark.skill.evidence-brief-review") ?? snapshot.skills?.[0];
+  selectedSkill = candidate;
+  if (!candidate) {
+    skillConnectionState.textContent = "Unavailable";
+    skillConnectionState.className = "state failed";
+    skillConnectionDetail.textContent = "No workspace-scoped Skill projection";
+    skillReason.textContent = "No governed Skill revision is installed in this workspace.";
+    resolveSkillButton.disabled = true;
+    return;
+  }
+  skillConnectionState.textContent = candidate.state === "active" ? "Revision trusted" : humanize(candidate.state);
+  skillConnectionState.className = `state ${candidate.state === "active" ? "complete" : candidate.activationEligible ? "tested" : "quarantine"}`;
+  skillConnectionDetail.textContent = `${candidate.executionClass} · ${candidate.testStatus.replaceAll("_", " ")} · ${candidate.trustedPermissionScopes.length} trusted scopes`;
+  skillEyebrow.textContent = candidate.state === "active" ? `Trusted Class ${candidate.executionClass} revision` : `Bundled Class ${candidate.executionClass} candidate`;
+  skillName.textContent = `${candidate.name} ${candidate.revision}`;
+  skillReason.textContent = candidate.state === "active"
+    ? "This exact declarative revision is trusted. It still cannot run without a current run and an effective permission receipt."
+    : candidate.description;
+  skillSource.textContent = `${humanize(candidate.sourceKind)} ${candidate.sourceRevision} · ${shortHash(candidate.sourceHash)}`;
+  skillFiles.textContent = `${candidate.fileCount} ${candidate.fileCount === 1 ? "file" : "files"} · ${candidate.executableFileCount} executable · tests ${humanize(candidate.testStatus)}`;
+  skillRequested.textContent = `${candidate.requestedPermissions.capabilityIds.length} ${candidate.requestedPermissions.capabilityIds.length === 1 ? "capability" : "capabilities"} · ${candidate.requestedPermissions.actionClasses.map(humanize).join(", ") || "no actions"}`;
+  skillTrusted.textContent = candidate.trustedPermissionScopes.length ? `${candidate.trustedPermissionScopes.length} revision scopes · invocation still gated` : "None while quarantined";
+  skillGates.replaceChildren(...candidate.gates.map((gate) => {
+    const item = document.createElement("li");
+    const label = document.createElement("span");
+    label.textContent = gate.label;
+    const status = document.createElement("strong");
+    status.className = gate.status;
+    status.textContent = humanize(gate.status);
+    const evidence = document.createElement("small");
+    evidence.textContent = gate.evidence;
+    item.append(label, status, evidence);
+    return item;
+  }));
+  const blockers = candidate.gates.filter((gate) => gate.status !== "pass").length;
+  skillDecision.textContent = candidate.state === "active"
+    ? "Creator trust is revision-specific. No Skill code executed, no run approval was inferred, and no direct invocation endpoint exists."
+    : candidate.activationEligible
+      ? "Every promotion gate passes. Promotion stores the exact revision trust ceiling; each future invocation must intersect package trust, capabilities, workspace policy, and run approval."
+      : `${blockers} promotion gates remain pending or blocked. The retained package has no active trust or invocation authority.`;
+  const canPromote = candidate.activationEligible && candidate.state === "quarantined";
+  const canRollback = candidate.state === "active" && Boolean(candidate.rollbackRevision);
+  resolveSkillButton.disabled = !canPromote && !canRollback;
+  resolveSkillButton.dataset.action = canRollback ? "rollback" : "promote";
+  resolveSkillButton.textContent = canRollback ? `Roll back to ${candidate.rollbackRevision}` : canPromote ? "Promote exact revision" : candidate.state === "active" ? "Revision active" : "Trust blocked";
+}
+
 function setCanvasNode(name, title, detail) {
   const button = nodeButtons.find((candidate) => candidate.dataset.node === name);
   if (!button) return;
@@ -445,6 +507,7 @@ async function refreshHarness() {
       setHarnessAvailability(snapshot);
       renderRun(snapshot.runs?.[0]);
       renderMemory(snapshot);
+      renderSkills(snapshot);
       renderToolPackages(snapshot);
       return snapshot;
     })
@@ -596,13 +659,30 @@ recheckToolPack.addEventListener("click", async () => {
   recheckToolPack.disabled = true;
   try {
     const snapshot = await refreshHarness();
-    renderToolPackages(snapshot);
+    if (snapshot) renderToolPackages(snapshot);
     const candidate = snapshot?.toolPackages?.[0];
     announcer.textContent = candidate?.activationEligible
       ? "Tool Package gates pass, but activation still requires a separate creator decision."
       : "Tool Package gates rechecked. OpenCut remains upstream-blocked with zero installed authority.";
   } finally {
     recheckToolPack.disabled = false;
+  }
+});
+
+recheckSkill.addEventListener("click", async () => {
+  recheckSkill.disabled = true;
+  try {
+    if (!selectedSkill) return;
+    const candidate = await window.clarkDesktop.evaluateSkill({ skillId: selectedSkill.skillId, revision: selectedSkill.revision });
+    renderSkills({ skills: [candidate] });
+    await refreshHarness();
+    announcer.textContent = candidate.activationEligible
+      ? "Skill trust gates pass. Promotion still requires a separate creator decision and grants no invocation authority."
+      : "Skill trust gates rechecked. The revision remains quarantined without active trust.";
+  } catch (error) {
+    announcer.textContent = `Skill recheck failed: ${error.message}`;
+  } finally {
+    recheckSkill.disabled = false;
   }
 });
 
@@ -623,6 +703,28 @@ resolveToolPack.addEventListener("click", async () => {
     announcer.textContent = `Tool Package decision failed: ${error.message}`;
   } finally {
     renderToolPackages({ toolPackages: selectedToolPackage ? [selectedToolPackage] : [] });
+  }
+});
+
+resolveSkillButton.addEventListener("click", async () => {
+  if (!selectedSkill || resolveSkillButton.disabled) return;
+  const action = resolveSkillButton.dataset.action;
+  resolveSkillButton.disabled = true;
+  try {
+    const result = await window.clarkDesktop.resolveSkill({
+      skillId: selectedSkill.skillId,
+      revision: selectedSkill.revision,
+      action,
+      reason: action === "rollback" ? "Creator restored the exact suspended Skill revision." : "Creator reviewed the exact files, conformance gates, and revision trust ceiling."
+    });
+    announcer.textContent = action === "rollback"
+      ? `Skill trust rolled back to ${result.revision}; no invocation was started.`
+      : `Skill ${result.revision} promoted. Invocation still requires run-scoped permission intersection.`;
+    await refreshHarness();
+  } catch (error) {
+    announcer.textContent = `Skill trust decision failed: ${error.message}`;
+  } finally {
+    if (selectedSkill) renderSkills({ skills: [selectedSkill] });
   }
 });
 

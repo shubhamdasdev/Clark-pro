@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { EventStore } from "../../src/event-store.mjs";
 
-test("schema v1 databases migrate additively through Tool Package schema v5", async () => {
+test("schema v1 databases migrate additively through Skill Package schema v6", async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), "clark-db-migration-"));
   const databasePath = path.join(directory, "clark.db");
   const legacy = new DatabaseSync(databasePath);
@@ -27,7 +27,7 @@ test("schema v1 databases migrate additively through Tool Package schema v5", as
   let store;
   try {
     store = new EventStore(databasePath);
-    assert.equal(store.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get().value, "5");
+    assert.equal(store.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get().value, "6");
     const columns = store.database.prepare("PRAGMA table_info(runs)").all().map((column) => column.name);
     assert.equal(columns.includes("analysis_artifact_id"), true);
     assert.equal(columns.includes("analysis_version_id"), true);
@@ -43,6 +43,7 @@ test("schema v1 databases migrate additively through Tool Package schema v5", as
     assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM memories").get().count, 0);
     assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM memory_retrievals").get().count, 0);
     assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM tool_packages").get().count, 0);
+    assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM skill_packages").get().count, 0);
     assert.equal(store.journalMode, "wal");
   } finally {
     store?.close();

@@ -31,7 +31,7 @@ export class EventStore {
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       ) STRICT;
-      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '5');
+      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '6');
       CREATE TABLE IF NOT EXISTS events (
         sequence INTEGER PRIMARY KEY AUTOINCREMENT,
         event_id TEXT NOT NULL UNIQUE,
@@ -248,6 +248,25 @@ export class EventStore {
         PRIMARY KEY(workspace_id, tool_package_id, revision)
       ) STRICT;
       CREATE INDEX IF NOT EXISTS tool_packages_workspace_state ON tool_packages(workspace_id, state, updated_at DESC);
+      CREATE TABLE IF NOT EXISTS skill_packages (
+        workspace_id TEXT NOT NULL,
+        skill_id TEXT NOT NULL,
+        revision TEXT NOT NULL,
+        manifest_hash TEXT NOT NULL,
+        manifest_json TEXT NOT NULL,
+        source_hash TEXT NOT NULL,
+        state TEXT NOT NULL,
+        trust_basis TEXT NOT NULL,
+        test_status TEXT NOT NULL,
+        conformance_json TEXT NOT NULL,
+        effective_permissions_json TEXT NOT NULL,
+        status_reason TEXT NOT NULL,
+        decision_id TEXT,
+        rollback_revision TEXT,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY(workspace_id, skill_id, revision)
+      ) STRICT;
+      CREATE INDEX IF NOT EXISTS skill_packages_workspace_state ON skill_packages(workspace_id, state, updated_at DESC);
     `);
     let version = this.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get()?.value;
     if (version === "1") {
@@ -289,7 +308,11 @@ export class EventStore {
       this.database.prepare("UPDATE metadata SET value = '5' WHERE key = 'schema_version'").run();
       version = "5";
     }
-    if (version !== "5") throw new Error(`Unsupported Harness database schema ${version}`);
+    if (version === "5") {
+      this.database.prepare("UPDATE metadata SET value = '6' WHERE key = 'schema_version'").run();
+      version = "6";
+    }
+    if (version !== "6") throw new Error(`Unsupported Harness database schema ${version}`);
     const journalMode = this.database.prepare("PRAGMA journal_mode").get()?.journal_mode;
     if (journalMode !== "wal") throw new Error(`Harness database did not enter WAL mode: ${journalMode}`);
   }
@@ -500,6 +523,31 @@ export class EventStore {
         .run(event.aggregate.version, updatedAt, event.workspaceId);
       return;
     }
+    if (event.eventType.startsWith("skill.revision_")) {
+      const payload = event.payload;
+      const existing = this.getSkillPackage(event.workspaceId, payload.skillRevision.id, payload.skillRevision.revision);
+      const manifest = payload.manifest ?? (existing ? JSON.parse(existing.manifest_json) : undefined);
+      if (!manifest) throw new Error(`Skill ${payload.skillRevision.id}@${payload.skillRevision.revision} has no pinned manifest`);
+      contractValidator.validateSkillPackage(manifest);
+      const manifestHash = sha256(canonicalJson(manifest));
+      if (manifest.id !== payload.skillRevision.id || manifest.revision !== payload.skillRevision.revision || manifest.source.contentHash !== payload.sourceHash || payload.skillRevision.contentHash !== payload.sourceHash || (payload.manifestHash && payload.manifestHash !== manifestHash)) {
+        throw new Error(`Skill ${payload.skillRevision.id}@${payload.skillRevision.revision} manifest identity or hash mismatch`);
+      }
+      const conformance = payload.conformance ?? (existing ? JSON.parse(existing.conformance_json) : {
+        sourceIntegrity: false, fileIntegrity: false, executionBoundaryVerified: false, declaredTestsExecuted: false,
+        observations: ["Historical event has no replayable conformance evidence"]
+      });
+      this.database.prepare(`INSERT INTO skill_packages(workspace_id, skill_id, revision, manifest_hash, manifest_json, source_hash, state, trust_basis, test_status, conformance_json, effective_permissions_json, status_reason, decision_id, rollback_revision, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(workspace_id, skill_id, revision) DO UPDATE SET manifest_hash = excluded.manifest_hash, manifest_json = excluded.manifest_json, source_hash = excluded.source_hash, state = excluded.state, trust_basis = excluded.trust_basis, test_status = excluded.test_status, conformance_json = excluded.conformance_json, effective_permissions_json = excluded.effective_permissions_json, status_reason = excluded.status_reason, decision_id = excluded.decision_id, rollback_revision = excluded.rollback_revision, updated_at = excluded.updated_at`)
+        .run(
+          event.workspaceId, manifest.id, manifest.revision, manifestHash, canonicalJson(manifest), manifest.source.contentHash,
+          payload.to, manifest.lifecycle.trustBasis, payload.testStatus, canonicalJson(conformance), canonicalJson(payload.effectivePermissions),
+          payload.reason ?? `${payload.to} by governed skill lifecycle`, payload.decisionId ?? null,
+          payload.rollbackRevision?.revision ?? manifest.lifecycle.rollbackRevision ?? null, updatedAt
+        );
+      return;
+    }
     if (event.eventType.startsWith("tool_package.revision_")) {
       const payload = event.payload;
       const existing = this.getToolPackage(event.workspaceId, payload.toolPackageRevision.id, payload.toolPackageRevision.revision);
@@ -694,6 +742,21 @@ export class EventStore {
       .all(workspaceId, limit);
   }
 
+  getSkillPackage(workspaceId, skillId, revision) {
+    return this.database.prepare("SELECT * FROM skill_packages WHERE workspace_id = ? AND skill_id = ? AND revision = ?")
+      .get(workspaceId, skillId, revision);
+  }
+
+  getActiveSkillPackage(workspaceId, skillId) {
+    return this.database.prepare("SELECT * FROM skill_packages WHERE workspace_id = ? AND skill_id = ? AND state = 'active' ORDER BY updated_at DESC LIMIT 1")
+      .get(workspaceId, skillId);
+  }
+
+  listSkillPackageRows(workspaceId, limit = 50) {
+    return this.database.prepare("SELECT * FROM skill_packages WHERE workspace_id = ? ORDER BY updated_at DESC, skill_id, revision LIMIT ?")
+      .all(workspaceId, limit);
+  }
+
   evidenceRefExists(workspaceId, evidence) {
     if (["artifact", "source"].includes(evidence.type)) {
       if (!evidence.versionId) return false;
@@ -805,6 +868,7 @@ export class EventStore {
       bridgeClients: select("bridge_clients", "client_id"),
       memories: select("memories", "memory_id"),
       memoryRetrievals: select("memory_retrievals", "retrieval_id"),
+      skillPackages: select("skill_packages", "workspace_id, skill_id, revision"),
       toolPackages: select("tool_packages", "workspace_id, tool_package_id, revision")
     };
   }
@@ -813,7 +877,7 @@ export class EventStore {
     const events = this.eventEnvelopes();
     const checkpoints = this.database.prepare("SELECT * FROM checkpoints ORDER BY event_sequence").all();
     this.transaction(() => {
-      this.database.exec("DELETE FROM tool_packages; DELETE FROM memory_retrievals; DELETE FROM memories; DELETE FROM tool_calls; DELETE FROM capability_leases; DELETE FROM permission_receipts; DELETE FROM capabilities; DELETE FROM bridge_clients; DELETE FROM steps; DELETE FROM runs; DELETE FROM artifacts; DELETE FROM projects; DELETE FROM workspaces;");
+      this.database.exec("DELETE FROM skill_packages; DELETE FROM tool_packages; DELETE FROM memory_retrievals; DELETE FROM memories; DELETE FROM tool_calls; DELETE FROM capability_leases; DELETE FROM permission_receipts; DELETE FROM capabilities; DELETE FROM bridge_clients; DELETE FROM steps; DELETE FROM runs; DELETE FROM artifacts; DELETE FROM projects; DELETE FROM workspaces;");
       for (const event of events) this.applyProjection(event);
       const restore = this.database.prepare("INSERT OR REPLACE INTO checkpoints(checkpoint_id, run_id, event_sequence, state_json, created_at) VALUES (?, ?, ?, ?, ?)");
       for (const checkpoint of checkpoints) {

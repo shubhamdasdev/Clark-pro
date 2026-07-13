@@ -51,6 +51,11 @@ try {
   await page.screenshot({ path: path.join(outputDirectory, "connections.png") });
   await page.locator("#tool-pack-inspector").scrollIntoViewIfNeeded();
   await page.screenshot({ path: path.join(outputDirectory, "connections-tool-pack.png") });
+  await page.locator("#skill-inspector").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: path.join(outputDirectory, "connections-skill-quarantine.png") });
+  await page.getByRole("button", { name: "Promote exact revision" }).click();
+  await page.getByRole("button", { name: "Revision active" }).waitFor();
+  await page.screenshot({ path: path.join(outputDirectory, "connections-skill.png") });
   console.log(outputDirectory);
 } finally {
   if (electronApp) await electronApp.close().catch(() => {});

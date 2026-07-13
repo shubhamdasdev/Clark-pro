@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "reportId": "clark.harness.stratum-5.tool-pack-runtime",
-  "observedAt": "2026-07-13T01:59:17-05:00",
+  "reportId": "clark.harness.stratum-6.governed-skills",
+  "observedAt": "2026-07-13T02:39:57-05:00",
   "environment": {
     "platform": "macOS 26.2 (25C56)",
     "architecture": "arm64",
@@ -14,9 +14,9 @@
   "automated": {
     "result": "pass",
     "contractSchemas": 18,
-    "contractEventTypes": 62,
+    "contractEventTypes": 63,
     "contractRuntimeUpcasterTests": 5,
-    "harnessUnitTests": 22,
+    "harnessUnitTests": 26,
     "desktopBoundaryUnitTests": 10,
     "electronProcessTests": 2,
     "packagedAppTests": 1,
@@ -28,7 +28,7 @@
       "npm --prefix apps/desktop run verify:packaged"
     ],
     "observations": [
-      "The canonical four-step plan has zero network, credential, model, social, skill, file, build, publication, or paid-call authority and stops at an exact artifact-version creator wording gate.",
+      "The canonical four-step plan has zero network, credential, model, social, direct Skill invocation, file, build, publication, or paid-call authority and stops at an exact artifact-version creator wording gate.",
       "The source-hash-pinned bundled MCP server was discovered and invoked through the official SDK; exact tool schemas, a two-tool inventory, structured output, and the child environment profile were validated before its result entered canonical state.",
       "The stdio child received only Clark server identity, Electron-as-Node, locale, and production/development variables plus macOS's injected __CF_USER_TEXT_ENCODING; HOME, PATH, shell, user, and ambient token/key variables were absent.",
       "Capability registration, permission receipt, 15-second lease, requested/completed tool call, invocation receipt, analysis artifact, health transition, and lease revocation survived deterministic projection deletion/replay.",
@@ -38,7 +38,7 @@
       "Bridge discovery, resource listing, capture, immutable revision, scoped list/get, idempotent replay, cross-workspace denial, missing bearer, hostile Origin, invalid Host, and oversized-body cases passed.",
       "Bridge-originated capture and revision used the same Harness domain commands as Studio and recorded bridge_client actor/source/client metadata; compact Bridge lists exposed lineage/readiness without full idea text, and Bridge could not approve, build, or publish.",
       "A revision preserved stable logical artifact IDs with new version IDs and root/parent run lineage; pending approval invalidation, review-step cancellation, superseded-run cancellation, replacement capture, plan, and start were committed atomically.",
-      "Boot rebuilt projections, terminalized an interrupted MCP call as cancelled, revoked its orphaned lease, retried under a fresh lease, and revoked orphaned Bridge clients before accepting new work; the schema-v1 database migrated additively through schema v5 with legacy roots as revision 1 plus governed memory, retrieval, and Tool Package projections intact.",
+      "Boot rebuilt projections, terminalized an interrupted MCP call as cancelled, revoked its orphaned lease, retried under a fresh lease, and revoked orphaned Bridge clients before accepting new work; the schema-v1 database migrated additively through schema v6 with legacy roots as revision 1 plus governed memory, retrieval, Tool Package, and Skill Package projections intact.",
       "Killing the Electron utility process during a run caused supervised restart and durable recovery without duplicate brief creation.",
       "Development Electron exercised a two-revision path, proved the superseded approval invalidated, and keyboard-inspected the live idea → assessment → evidence → brief → review Canvas projection.",
       "Visual QA caught and fixed cross-view scroll retention and lineage wrapping; the regenerated Canvas screenshot shows revision lineage, 10/10 structural completeness, evidence_required readiness, and five open observed-proof gates.",
@@ -49,7 +49,12 @@
       "Projection deletion/rebuild reproduced memory and retrieval read models exactly, and the full per-workspace event hash chain remained valid.",
       "Each workspace registered the exact hash-pinned OpenCut candidate manifest into the immutable event log and Tool Package projection; eleven independently visible policy gates kept it blocked_upstream, not installed, and unable to register any adapter or capability authority.",
       "A synthetic zero-provider Tool Package proved immutable quarantine, explicit creator activation, verified update with atomic suspension of the retained rollback revision, and creator rollback that atomically removed current authority and restored the tested prior revision.",
-      "Tool Package activation rejected incomplete acquisition, stable-interface, legal, SBOM, vulnerability, provenance, adapter-to-capability hash, activation-test, and rollback-test evidence; installed package retention remained distinct from active execution authority."
+      "Tool Package activation rejected incomplete acquisition, stable-interface, legal, SBOM, vulnerability, provenance, adapter-to-capability hash, activation-test, and rollback-test evidence; installed package retention remained distinct from active execution authority.",
+      "The bundled Evidence Brief Review Skill used real SKILL.md bytes; the Harness verified its exact file hash, deterministic package source hash, non-executable mode, Class A boundary, fixture, compatibility, and installed capability before retaining it in quarantine.",
+      "Eleven Skill promotion gates passed without granting trust automatically. An explicit creator decision promoted the exact revision and stored only capability.clark.idea.inspect.mcp plus action.local_transform as the revision trust ceiling; no Skill invocation event or endpoint existed.",
+      "A Skill update requesting an unavailable provider capability remained quarantined while the prior active revision stayed active. Synthetic verified revisions proved atomic suspension on update and creator rollback to the exact retained revision.",
+      "A manifest that falsely claimed active lifecycle state was still installed into quarantine with zero trusted scopes; substituted SKILL.md bytes failed source/file gates, post-quarantine byte drift was rechecked and revoked by both explicit evaluation and promotion-time verification, and non-bundled community acquisition was denied before trust evaluation.",
+      "Skill and Tool Package projections survived full deletion/replay with the same immutable manifests, conformance evidence, runtime states, decisions, and per-workspace event hash chain."
     ]
   },
   "authority": {
@@ -71,7 +76,9 @@
       "scoped policy-aware memory retrieval with content-free receipts",
       "logical forgetting with projection redaction and retrieval exclusion",
       "workspace-scoped Tool Package catalog and eleven-gate evaluation",
-      "creator-decided synthetic Tool Package activation, update suspension, and rollback lifecycle"
+      "creator-decided synthetic Tool Package activation, update suspension, and rollback lifecycle",
+      "exact-byte bundled Class A Skill install, conformance, quarantine, and creator promotion",
+      "revision-specific Skill trust ceiling plus synthetic update suspension, expansion denial, and rollback"
     ],
     "explicitlyAbsent": [
       "real third-party Tool Pack acquisition, unpacking, build, or execution",
@@ -79,7 +86,8 @@
       "model or autonomous agent calls",
       "market research or observed evidence acquisition",
       "credentials and Keychain leases",
-      "skill execution",
+      "direct Skill invocation and execution",
+      "community Skill acquisition, signature/advisory verification, and production Class B/C hosting",
       "reflection-driven memory proposals, semantic/vector retrieval, and influenced-artifact tracing",
       "Bridge memory read or mutation scope",
       "social connections or publication",
@@ -91,6 +99,8 @@
     "The MCP idea inspector is a deterministic phrase/facet detector, not research, evidence acquisition, market judgment, originality scoring, model generation, or proof that the idea is commercially strong.",
     "Only one bundled zero-egress MCP capability and four narrow Bridge tools are executable. The synthetic Tool Package proves lifecycle mechanics without provider authority; safe archive acquisition/unpack/build, community-server execution, OAuth, Keychain brokering, provider reconciliation, and one active real third-party Tool Pack remain unproven.",
     "OpenCut is intentionally blocked at the reviewed immutable revision because it exposes no stable supported Editor API, MCP, headless, plugin-host, CLI, HTTP, library, WASM, or typed-file integration boundary. Clark has not installed, forked, embedded, or claimed compatibility with it.",
+    "The bundled Class A Skill proves package trust lifecycle, not agent execution. Promotion cannot run the Skill, infer run approval, or mint an invocation receipt; a future invocation path must implement the four-way permission intersection and provenance separately.",
+    "The 19-case Wasmtime suite remains a Ground denial-primitives spike using core Wasm/WASI Preview 1. It is not the production component-model/WIT Class B host and is not used to activate executable Skill code.",
     "Bridge caller disconnect after local mutation returns an ambiguity warning, but general cancellation, durable job status, external reconciliation, compensation, scheduling, and transition-chaos coverage remain future gates.",
     "The bearer file is owner-readable and short-lived but is not yet a Keychain-backed client pairing flow; the Bridge lifetime is tied to the app-supervised Harness.",
     "Node still labels node:sqlite experimental/release-candidate; EventStore preserves a replaceable boundary and migration/replay tests, but large-history and backup/restore evidence remain open.",

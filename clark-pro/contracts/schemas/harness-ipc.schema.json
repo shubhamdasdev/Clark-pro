@@ -30,6 +30,10 @@
             { "$ref": "#/$defs/memoryCorrectCommand" },
             { "$ref": "#/$defs/memoryListCommand" },
             { "$ref": "#/$defs/memoryRetrieveCommand" },
+            { "$ref": "#/$defs/skillListCommand" },
+            { "$ref": "#/$defs/skillGetCommand" },
+            { "$ref": "#/$defs/skillEvaluateCommand" },
+            { "$ref": "#/$defs/skillResolveCommand" },
             { "$ref": "#/$defs/toolPackageListCommand" },
             { "$ref": "#/$defs/toolPackageGetCommand" },
             { "$ref": "#/$defs/toolPackageEvaluateCommand" },
@@ -286,6 +290,62 @@
       },
       "additionalProperties": false
     },
+    "skillListCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "skill.list" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "limit"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 100 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "skillGetCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "skill.get" },
+        "payload": { "$ref": "#/$defs/skillIdentity" }
+      },
+      "additionalProperties": false
+    },
+    "skillEvaluateCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "skill.evaluate" },
+        "payload": { "$ref": "#/$defs/skillIdentity" }
+      },
+      "additionalProperties": false
+    },
+    "skillResolveCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "skill.resolve" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "skillId", "revision", "action", "reason", "idempotencyKey"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "skillId": { "$ref": "common.schema.json#/$defs/id" },
+            "revision": { "$ref": "common.schema.json#/$defs/semver" },
+            "action": { "enum": ["promote", "rollback"] },
+            "reason": { "type": "string", "minLength": 3, "maxLength": 1000 },
+            "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "toolPackageListCommand": {
       "type": "object",
       "required": ["method", "payload"],
@@ -377,7 +437,7 @@
         "schemaVersion": { "const": 1 },
         "kind": { "const": "response" },
         "requestId": { "$ref": "common.schema.json#/$defs/id" },
-        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "idea.revise", "run.get", "run.list", "approval.resolve", "memory.propose", "memory.resolve", "memory.correct", "memory.list", "memory.retrieve", "tool_package.list", "tool_package.get", "tool_package.evaluate", "tool_package.resolve", "capability.list", "bridge.status"] },
+        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "idea.revise", "run.get", "run.list", "approval.resolve", "memory.propose", "memory.resolve", "memory.correct", "memory.list", "memory.retrieve", "skill.list", "skill.get", "skill.evaluate", "skill.resolve", "tool_package.list", "tool_package.get", "tool_package.evaluate", "tool_package.resolve", "capability.list", "bridge.status"] },
         "ok": { "type": "boolean" },
         "result": {
           "oneOf": [
@@ -389,6 +449,8 @@
             { "$ref": "#/$defs/memoryMutationResult" },
             { "$ref": "#/$defs/memoryListResult" },
             { "$ref": "#/$defs/memoryRetrievalResult" },
+            { "$ref": "#/$defs/skillSummary" },
+            { "$ref": "#/$defs/skillListResult" },
             { "$ref": "#/$defs/toolPackageSummary" },
             { "$ref": "#/$defs/toolPackageListResult" },
             { "$ref": "#/$defs/capabilityListResult" },
@@ -420,7 +482,7 @@
         "schemaVersion": { "const": 1 },
         "kind": { "const": "event" },
         "sequence": { "type": "integer", "minimum": 1 },
-        "eventType": { "enum": ["harness.ready", "harness.recovering", "run.updated", "approval.required", "memory.updated", "tool_package.updated"] },
+        "eventType": { "enum": ["harness.ready", "harness.recovering", "run.updated", "approval.required", "memory.updated", "skill.updated", "tool_package.updated"] },
         "emittedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
         "payload": {
           "oneOf": [
@@ -429,6 +491,7 @@
             { "$ref": "#/$defs/runUpdatedPayload" },
             { "$ref": "#/$defs/approvalRequiredPayload" },
             { "$ref": "#/$defs/memoryUpdatedPayload" },
+            { "$ref": "#/$defs/skillUpdatedPayload" },
             { "$ref": "#/$defs/toolPackageUpdatedPayload" }
           ]
         }
@@ -536,6 +599,62 @@
         "policyRevisionId": { "$ref": "common.schema.json#/$defs/id" },
         "deduplicated": { "type": "boolean" }
       },
+      "additionalProperties": false
+    },
+    "skillIdentity": {
+      "type": "object",
+      "required": ["workspaceId", "skillId", "revision"],
+      "properties": {
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "skillId": { "$ref": "common.schema.json#/$defs/id" },
+        "revision": { "$ref": "common.schema.json#/$defs/semver" }
+      },
+      "additionalProperties": false
+    },
+    "skillGate": {
+      "type": "object",
+      "required": ["id", "label", "status", "evidence"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "status": { "enum": ["pass", "pending", "block"] },
+        "evidence": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      },
+      "additionalProperties": false
+    },
+    "skillSummary": {
+      "type": "object",
+      "required": ["skillId", "revision", "name", "description", "publisherId", "sourceKind", "sourceRevision", "sourceHash", "manifestHash", "executionClass", "state", "trustBasis", "testStatus", "activationEligible", "requestedPermissions", "trustedPermissionScopes", "fileCount", "executableFileCount", "gates", "limitations", "updatedAt"],
+      "properties": {
+        "skillId": { "$ref": "common.schema.json#/$defs/id" },
+        "revision": { "$ref": "common.schema.json#/$defs/semver" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "publisherId": { "$ref": "common.schema.json#/$defs/id" },
+        "sourceKind": { "enum": ["bundled", "registry", "git", "local", "learned"] },
+        "sourceRevision": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "sourceHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "manifestHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "executionClass": { "enum": ["A", "B", "C"] },
+        "state": { "enum": ["installed", "quarantined", "active", "suspended", "failed", "superseded", "rolled_back"] },
+        "trustBasis": { "enum": ["declarative_review", "sandbox_verified", "bundled_signed", "developer_mode"] },
+        "testStatus": { "enum": ["not_run", "passed", "failed"] },
+        "activationEligible": { "type": "boolean" },
+        "requestedPermissions": { "$ref": "skill-package.schema.json#/$defs/permissions" },
+        "trustedPermissionScopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "fileCount": { "type": "integer", "minimum": 1 },
+        "executableFileCount": { "type": "integer", "minimum": 0 },
+        "rollbackRevision": { "$ref": "common.schema.json#/$defs/semver" },
+        "gates": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/skillGate" } },
+        "limitations": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1, "maxLength": 1000 } },
+        "updatedAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "skillListResult": {
+      "type": "object",
+      "required": ["skills"],
+      "properties": { "skills": { "type": "array", "items": { "$ref": "#/$defs/skillSummary" }, "maxItems": 100 } },
       "additionalProperties": false
     },
     "toolPackageIdentity": {
@@ -691,6 +810,16 @@
       "properties": {
         "memoryId": { "$ref": "common.schema.json#/$defs/id" },
         "state": { "enum": ["proposed", "active", "disputed", "expired", "rejected", "forgotten"] }
+      },
+      "additionalProperties": false
+    },
+    "skillUpdatedPayload": {
+      "type": "object",
+      "required": ["skillId", "revision", "state"],
+      "properties": {
+        "skillId": { "$ref": "common.schema.json#/$defs/id" },
+        "revision": { "$ref": "common.schema.json#/$defs/semver" },
+        "state": { "enum": ["installed", "quarantined", "active", "suspended", "failed", "superseded", "rolled_back"] }
       },
       "additionalProperties": false
     },

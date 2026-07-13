@@ -23,6 +23,7 @@ const MEMORY_SENSITIVITIES = new Set(["public", "workspace", "personal", "confid
 const MEMORY_POLICIES = new Set(["default", "explicit_only", "never_send_to_model"]);
 const MEMORY_ACTIONS = new Set(["promote", "reject", "dispute", "forget"]);
 const MEMORY_DESTINATIONS = new Set(["creator_view", "local_model", "remote_model"]);
+const SKILL_ACTIONS = new Set(["promote", "rollback"]);
 const TOOL_PACKAGE_ACTIONS = new Set(["activate", "rollback"]);
 
 if (process.env.CLARK_TEST_USER_DATA) app.setPath("userData", process.env.CLARK_TEST_USER_DATA);
@@ -91,15 +92,16 @@ function installIpc() {
     if (!harnessSupervisor || harnessSupervisor.state !== "ready") {
       return { available: false, state: harnessSupervisor?.state ?? "stopped", runs: [] };
     }
-    const [status, list, memories, toolPackages, capabilities, bridge] = await Promise.all([
+    const [status, list, memories, skills, toolPackages, capabilities, bridge] = await Promise.all([
       harnessSupervisor.request("harness.status", {}),
       harnessSupervisor.request("run.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 10 }),
       harnessSupervisor.request("memory.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 100, includeForgotten: true }),
+      harnessSupervisor.request("skill.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 100 }),
       harnessSupervisor.request("tool_package.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 100 }),
       harnessSupervisor.request("capability.list", { workspaceId: LOCAL_WORKSPACE_ID }),
       harnessSupervisor.request("bridge.status", { workspaceId: LOCAL_WORKSPACE_ID })
     ]);
-    return { available: true, ...status, runs: list.runs, memories: memories.memories, toolPackages: toolPackages.toolPackages, capabilities: capabilities.capabilities, bridge };
+    return { available: true, ...status, runs: list.runs, memories: memories.memories, skills: skills.skills, toolPackages: toolPackages.toolPackages, capabilities: capabilities.capabilities, bridge };
   });
   ipcMain.handle("desktop:start-idea-loop", async (event, ideaText) => {
     assertTrustedSender(event, mainWindow?.webContents);
@@ -224,6 +226,30 @@ function installIpc() {
       action: decision.action,
       reason: decision.reason.trim(),
       idempotencyKey: `intent.tool-package.${decision.action}.${randomUUID()}`
+    });
+  });
+  ipcMain.handle("desktop:resolve-skill", async (event, decision) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    assertHarnessReady();
+    if (!decision || typeof decision !== "object" || typeof decision.skillId !== "string" || typeof decision.revision !== "string" || !SKILL_ACTIONS.has(decision.action)) throw new TypeError("A valid Skill trust decision is required");
+    if (typeof decision.reason !== "string" || decision.reason.trim().length < 3 || decision.reason.length > 1_000) throw new TypeError("A Skill trust decision reason is required");
+    return harnessSupervisor.request("skill.resolve", {
+      workspaceId: LOCAL_WORKSPACE_ID,
+      skillId: decision.skillId,
+      revision: decision.revision,
+      action: decision.action,
+      reason: decision.reason.trim(),
+      idempotencyKey: `intent.skill.${decision.action}.${randomUUID()}`
+    });
+  });
+  ipcMain.handle("desktop:evaluate-skill", async (event, identity) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    assertHarnessReady();
+    if (!identity || typeof identity !== "object" || typeof identity.skillId !== "string" || typeof identity.revision !== "string") throw new TypeError("An exact Skill revision is required");
+    return harnessSupervisor.request("skill.evaluate", {
+      workspaceId: LOCAL_WORKSPACE_ID,
+      skillId: identity.skillId,
+      revision: identity.revision
     });
   });
 }

@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/harness-ipc.schema.json
- * Source SHA-256: f72288f27ffad36ec80b3624be5a5d3984f9e3f22779dff27397c61f20a3fcea
+ * Source SHA-256: 2086e5158ebd236475f71ebbd59ccb74cd81e5ffec09d1e0d71ba2d9b021b892
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -24,6 +24,10 @@ export type Response = {
     | "memory.correct"
     | "memory.list"
     | "memory.retrieve"
+    | "skill.list"
+    | "skill.get"
+    | "skill.evaluate"
+    | "skill.resolve"
     | "tool_package.list"
     | "tool_package.get"
     | "tool_package.evaluate"
@@ -40,6 +44,8 @@ export type Response = {
     | MemoryMutationResult
     | MemoryListResult
     | MemoryRetrievalResult
+    | SkillSummary
+    | SkillListResult
     | ToolPackageSummary
     | ToolPackageListResult
     | CapabilityListResult
@@ -72,6 +78,10 @@ export interface Request {
     | MemoryCorrectCommand
     | MemoryListCommand
     | MemoryRetrieveCommand
+    | SkillListCommand
+    | SkillGetCommand
+    | SkillEvaluateCommand
+    | SkillResolveCommand
     | ToolPackageListCommand
     | ToolPackageGetCommand
     | ToolPackageEvaluateCommand
@@ -627,6 +637,37 @@ export interface MemoryRetrieveCommand {
     maxSensitivity: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
     includeExplicitOnly: boolean;
     limit: number;
+    idempotencyKey: string;
+  };
+}
+export interface SkillListCommand {
+  method: "skill.list";
+  payload: {
+    workspaceId: string;
+    limit: number;
+  };
+}
+export interface SkillGetCommand {
+  method: "skill.get";
+  payload: SkillIdentity;
+}
+export interface SkillIdentity {
+  workspaceId: string;
+  skillId: string;
+  revision: string;
+}
+export interface SkillEvaluateCommand {
+  method: "skill.evaluate";
+  payload: SkillIdentity;
+}
+export interface SkillResolveCommand {
+  method: "skill.resolve";
+  payload: {
+    workspaceId: string;
+    skillId: string;
+    revision: string;
+    action: "promote" | "rollback";
+    reason: string;
     idempotencyKey: string;
   };
 }
@@ -1414,6 +1455,73 @@ export interface MemoryRetrievalResult {
   policyRevisionId: string;
   deduplicated: boolean;
 }
+export interface SkillSummary {
+  skillId: string;
+  revision: string;
+  name: string;
+  description: string;
+  publisherId: string;
+  sourceKind: "bundled" | "registry" | "git" | "local" | "learned";
+  sourceRevision: string;
+  sourceHash: string;
+  manifestHash: string;
+  executionClass: "A" | "B" | "C";
+  state: "installed" | "quarantined" | "active" | "suspended" | "failed" | "superseded" | "rolled_back";
+  trustBasis: "declarative_review" | "sandbox_verified" | "bundled_signed" | "developer_mode";
+  testStatus: "not_run" | "passed" | "failed";
+  activationEligible: boolean;
+  requestedPermissions: Permissions;
+  trustedPermissionScopes: string[];
+  fileCount: number;
+  executableFileCount: number;
+  rollbackRevision?: string;
+  /**
+   * @minItems 1
+   */
+  gates: [SkillGate, ...SkillGate[]];
+  /**
+   * @minItems 1
+   */
+  limitations: [string, ...string[]];
+  updatedAt: string;
+}
+export interface Permissions {
+  capabilityIds: string[];
+  hostFunctions: string[];
+  actionClasses: (
+    | "read"
+    | "capture"
+    | "decision_record"
+    | "artifact_approve"
+    | "research"
+    | "local_transform"
+    | "model_generate"
+    | "media_generate"
+    | "external_write"
+    | "social_publish"
+    | "account_manage"
+    | "memory_mutate"
+    | "skill_mutate"
+    | "policy_override"
+    | "destructive"
+  )[];
+  networkDomains: string[];
+  credentialScopes: string[];
+  readInputs: string[];
+  writeOutputs: string[];
+}
+export interface SkillGate {
+  id: string;
+  label: string;
+  status: "pass" | "pending" | "block";
+  evidence: string;
+}
+export interface SkillListResult {
+  /**
+   * @maxItems 100
+   */
+  skills: SkillSummary[];
+}
 export interface ToolPackageSummary {
   toolPackageId: string;
   revision: string;
@@ -1542,6 +1650,7 @@ export interface Event {
     | "run.updated"
     | "approval.required"
     | "memory.updated"
+    | "skill.updated"
     | "tool_package.updated";
   emittedAt: string;
   payload:
@@ -1550,6 +1659,7 @@ export interface Event {
     | RunUpdatedPayload
     | ApprovalRequiredPayload
     | MemoryUpdatedPayload
+    | SkillUpdatedPayload
     | ToolPackageUpdatedPayload;
 }
 export interface HarnessReadyPayload {
@@ -1572,6 +1682,11 @@ export interface ApprovalRequiredPayload {
 export interface MemoryUpdatedPayload {
   memoryId: string;
   state: "proposed" | "active" | "disputed" | "expired" | "rejected" | "forgotten";
+}
+export interface SkillUpdatedPayload {
+  skillId: string;
+  revision: string;
+  state: "installed" | "quarantined" | "active" | "suspended" | "failed" | "superseded" | "rolled_back";
 }
 export interface ToolPackageUpdatedPayload {
   toolPackageId: string;

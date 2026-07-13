@@ -32,7 +32,7 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.equal(boundary.requireType, "undefined");
     assert.equal(boundary.processType, "undefined");
     assert.equal(boundary.protocol, "clark-app:");
-    assert.deepEqual(boundary.apiKeys, ["correctMemory", "getHarnessState", "getShellState", "onHarnessEvent", "onNavigate", "onTrustCenter", "proposeMemoryFromRun", "resolveIdeaApproval", "resolveMemory", "resolveToolPackage", "retrieveMemory", "reviseIdea", "setActiveSection", "startIdeaLoop", "version"]);
+    assert.deepEqual(boundary.apiKeys, ["correctMemory", "evaluateSkill", "getHarnessState", "getShellState", "onHarnessEvent", "onNavigate", "onTrustCenter", "proposeMemoryFromRun", "resolveIdeaApproval", "resolveMemory", "resolveSkill", "resolveToolPackage", "retrieveMemory", "reviseIdea", "setActiveSection", "startIdeaLoop", "version"]);
     assert.match(boundary.csp, /default-src 'none'/);
 
     await page.getByText(/Ready · \d+ events/).waitFor();
@@ -48,6 +48,12 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.equal(liveSnapshot.toolPackages[0].activationEligible, false);
     assert.deepEqual(liveSnapshot.toolPackages[0].componentCounts, { adapters: 0, capabilities: 0, skills: 0, converters: 0, uiContributions: 0 });
     assert.equal(liveSnapshot.capabilities.some((capability) => capability.id.includes("opencut")), false);
+    assert.equal(liveSnapshot.skills.length, 1);
+    assert.equal(liveSnapshot.skills[0].skillId, "clark.skill.evidence-brief-review");
+    assert.equal(liveSnapshot.skills[0].state, "quarantined");
+    assert.equal(liveSnapshot.skills[0].testStatus, "passed");
+    assert.equal(liveSnapshot.skills[0].activationEligible, true);
+    assert.deepEqual(liveSnapshot.skills[0].trustedPermissionScopes, []);
     const draftHash = await page.locator("#run-integrity").innerText();
     assert.match(draftHash, /sha256:[a-f0-9]{64}/);
     assert.match(await page.locator("#draft-text").innerText(), /Strongest framing/);
@@ -125,12 +131,26 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.match(await page.getByRole("listitem").filter({ hasText: "Bundled MCP idea inspector" }).innerText(), /live/i);
     assert.match(await page.getByRole("listitem").filter({ hasText: "Clark Bridge" }).innerText(), /live/i);
     assert.match(await page.getByRole("listitem").filter({ hasText: "OpenCut Tool Pack candidate" }).innerText(), /upstream blocked/i);
+    assert.match(await page.getByRole("listitem").filter({ hasText: "Agent Skills host" }).innerText(), /quarantined/i);
     assert.equal(await page.locator("#tool-pack-gates li").count(), 11);
     assert.match(await page.locator("#tool-pack-gates li").filter({ hasText: "Immutable source" }).innerText(), /pass/i);
     assert.match(await page.locator("#tool-pack-gates li").filter({ hasText: "Stable supported interface" }).innerText(), /block/i);
     assert.equal(await page.getByRole("button", { name: "Activation blocked" }).isDisabled(), true);
     await page.getByRole("button", { name: "Recheck gates" }).click();
     assert.match(await page.locator("#tool-pack-decision").innerText(), /No code, adapter, capability, converter, skill, or UI contribution/i);
+    assert.equal(await page.locator("#skill-gates li").count(), 11);
+    assert.equal(await page.locator("#skill-gates li").filter({ hasText: "Immutable source" }).getByText("Pass", { exact: true }).count(), 1);
+    assert.equal(await page.locator("#skill-gates li").filter({ hasText: "Run-specific invocation authority" }).getByText("Pass", { exact: true }).count(), 1);
+    await page.getByRole("button", { name: "Recheck skill" }).click();
+    assert.equal(await page.getByRole("button", { name: "Promote exact revision" }).isEnabled(), true);
+    await page.getByRole("button", { name: "Promote exact revision" }).click();
+    await page.getByRole("button", { name: "Revision active" }).waitFor();
+    assert.equal(await page.getByRole("button", { name: "Revision active" }).isDisabled(), true);
+    assert.match(await page.locator("#skill-decision").innerText(), /no direct invocation endpoint/i);
+    const trustedSkillSnapshot = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    assert.equal(trustedSkillSnapshot.skills[0].state, "active");
+    assert.deepEqual(trustedSkillSnapshot.skills[0].trustedPermissionScopes, ["capability.clark.idea.inspect.mcp", "action.local_transform"]);
+    assert.equal(boundary.apiKeys.includes("invokeSkill"), false);
     assert.equal(await page.getByText("Signed flows not built").count(), 1);
 
     const webPreferences = await electronApp.evaluate(({ BrowserWindow }) => {

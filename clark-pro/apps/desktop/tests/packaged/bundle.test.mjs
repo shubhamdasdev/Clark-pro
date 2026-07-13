@@ -36,6 +36,13 @@ test("packaged app contains and executes the supervised Harness", async () => {
     assert.equal(snapshot.toolPackages[0].activationEligible, false);
     assert.equal(snapshot.toolPackages[0].gates.length, 11);
     assert.equal(snapshot.capabilities.some((capability) => capability.id.includes("opencut")), false);
+    assert.equal(snapshot.skills.length, 1);
+    assert.equal(snapshot.skills[0].skillId, "clark.skill.evidence-brief-review");
+    assert.equal(snapshot.skills[0].state, "quarantined");
+    assert.equal(snapshot.skills[0].testStatus, "passed");
+    assert.equal(snapshot.skills[0].activationEligible, true);
+    assert.equal(snapshot.skills[0].gates.length, 11);
+    assert.deepEqual(snapshot.skills[0].trustedPermissionScopes, []);
     assert.equal(snapshot.bridge.state, "ready");
     assert.equal("token" in snapshot.bridge, false);
     assert.match(snapshot.runs[0].draft.contentHash, /^sha256:[a-f0-9]{64}$/);

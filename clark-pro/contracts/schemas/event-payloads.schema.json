@@ -199,7 +199,7 @@
       "required": ["decisionId", "decisionType", "subjectRef", "selectedOption", "alternatives", "evidenceRefs", "reversible"],
       "properties": {
         "decisionId": { "$ref": "common.schema.json#/$defs/id" },
-        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "memory_dispute", "memory_correct", "memory_forget", "skill_promote", "tool_package_activate", "tool_package_rollback", "conflict_resolve"] },
+        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "memory_dispute", "memory_correct", "memory_forget", "skill_promote", "skill_rollback", "tool_package_activate", "tool_package_rollback", "conflict_resolve"] },
         "subjectRef": { "$ref": "common.schema.json#/$defs/id" },
         "selectedOption": { "type": "string", "minLength": 1, "maxLength": 500 },
         "alternatives": { "type": "array", "items": { "type": "string", "maxLength": 500 }, "minItems": 1 },
@@ -382,12 +382,27 @@
       "properties": {
         "skillRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
         "sourceHash": { "$ref": "common.schema.json#/$defs/contentHash" },
-        "from": { "enum": ["unseen", "installed", "quarantined", "active", "failed", "superseded"] },
-        "to": { "enum": ["installed", "quarantined", "active", "failed", "superseded", "rolled_back"] },
+        "manifestHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "manifest": { "$ref": "skill-package.schema.json" },
+        "from": { "enum": ["unseen", "installed", "quarantined", "active", "suspended", "failed", "superseded"] },
+        "to": { "enum": ["installed", "quarantined", "active", "suspended", "failed", "superseded", "rolled_back"] },
         "effectivePermissions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
         "testStatus": { "enum": ["not_run", "passed", "failed"] },
+        "conformance": {
+          "type": "object",
+          "required": ["sourceIntegrity", "fileIntegrity", "executionBoundaryVerified", "declaredTestsExecuted", "observations"],
+          "properties": {
+            "sourceIntegrity": { "type": "boolean" },
+            "fileIntegrity": { "type": "boolean" },
+            "executionBoundaryVerified": { "type": "boolean" },
+            "declaredTestsExecuted": { "type": "boolean" },
+            "observations": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 500 }, "maxItems": 20 }
+          },
+          "additionalProperties": false
+        },
         "decisionId": { "$ref": "common.schema.json#/$defs/id" },
-        "rollbackRevision": { "$ref": "common.schema.json#/$defs/revisionRef" }
+        "rollbackRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+        "reason": { "type": "string", "maxLength": 1000 }
       },
       "additionalProperties": false
     },

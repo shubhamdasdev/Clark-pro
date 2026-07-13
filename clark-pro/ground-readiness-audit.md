@@ -1,6 +1,6 @@
 # Clark Pro — Ground Readiness Audit
 
-**Date:** July 12, 2026  
+**Date:** July 13, 2026
 **Decision:** Ground is not yet closed. Product direction and architecture are coherent, and bounded permanent implementation slices may continue behind the same contracts. Human/commercial evidence, native accessibility, named contract/team ownership, broader security-test ownership, and leadership signoff remain mandatory before capability fan-out or release claims.
 
 ## Evidence vocabulary
@@ -21,7 +21,7 @@
 | Clark consumes MCP capabilities | `mcp-ecosystem.md`, ADR-0004, capability manifests, 36-case MCP suite | Ground harness and contract-verified | Production Connect runtime, real-provider compatibility, and remote network-fault evidence |
 | Clark exposes its own MCP server | Clark Bridge docs, ADR-0004, Bridge exchange schema/fixture, official-SDK localhost server, interactive capture/revision/replay | Bounded production-path execution with hostile tests | Keychain pairing/token registry, concurrency/long-job semantics, broader catalog, and production security signoff |
 | Social-media connectivity | `mcp-ecosystem.md`, ADR-0006 | Defined | Recorded/sandbox adapter fixtures, real account capability matrix, platform approval evidence |
-| Installable skills | `memory-and-learning.md`, ADR-0007/0017, package schemas, 19-case Wasmtime suite | Ground contract/prototype-verified | Production component/WIT host, signing, process isolation, advisory automation, fuzzing, and Mac QA |
+| Installable skills | `memory-and-learning.md`, ADR-0007/0017, package schemas, 19-case Wasmtime suite, schema-v6 Skill projection, bundled exact-byte Class A package, eleven live gates, promotion/update/rollback tests | Bounded production-path Class A trust lifecycle | Community acquisition/signatures/advisories, run-scoped invocation receipts, production component/WIT host, Class C process isolation, fuzzing, and Mac QA |
 | Reuse mature open-source tools instead of rebuilding every engine | ADR-0022, Tool Package schema, workspace projection/gate evaluator, synthetic lifecycle proof, pinned OpenCut candidate | Bounded production-path lifecycle execution; OpenCut honestly upstream-blocked | Safe acquisition/unpack/build sandbox and at least one active real Tool Pack over a stable supported interface |
 | Hermes-like memory/personalization core | `memory-and-learning.md`, governed Harness projection, live Studio Memory view, ADR-0007 | Bounded production-path execution with automated proposal/retrieval/correction/forget proof | Real creator retrieval value, leakage/poisoning evaluation, semantic retrieval, influenced-artifact tracing, and complete physical-erasure design |
 | Whole product rather than throwaway MVP | `roadmap.md`, ADR-0010 | Defined | Every stratum must prove no alternate state/security path |
@@ -35,14 +35,15 @@
 | Product vision and differentiation | `vision.md`, `positioning-and-business.md`, research basis | Defined | Target-creator interviews and replacement-value evidence |
 | Canvas grammar and interaction | `the-canvas.md`, standalone prototype, screenshots, automated checks | Prototype-verified; human evidence pending | Five observed walkthrough records |
 | Harness architecture | `architecture.md`, ADR-0003 | Defined | Executable run/step state-machine specification |
-| Memory and learning model | `memory-and-learning.md`, ADR-0007, Harness schema-v5 memory projection, Studio Memory workspace | Defined with bounded executable governance | Retrieval/proposal evaluation protocol, real creator corpus, poisoning/leakage corpus, and cryptographic erasure/compaction |
+| Memory and learning model | `memory-and-learning.md`, ADR-0007, Harness schema-v6 memory and Skill projections, Studio Memory workspace | Defined with bounded executable governance | Retrieval/proposal evaluation protocol, real creator corpus, poisoning/leakage corpus, reflection-driven Skill proposals, and cryptographic erasure/compaction |
 | MCP and capability boundary | `mcp-ecosystem.md`, ADR-0004, `mcp-conformance/` | Ground contract/harness-verified | Production-boundary execution and named owner signoff |
 | Security model and trust boundaries | `security-and-threat-model.md`, ADR-0001/0005 and ADR-0011–0022 | Specified, with skill/MCP Ground suites and Tool Pack contract gates | Convert every remaining accepted security gate into owned executable production tests and release evidence |
 | Architecture decisions | `decisions/` registry and twenty-two accepted ADRs | Defined | Team review/signoff; superseding ADR for any invariant change |
-| Versioned domain event catalog | 62 types, 18 schemas, generated namespaces, representative stream, historical upcaster, Tool Pack lifecycle events, and memory retrieval receipts | Defined and Ground contract/runtime-verified | Team signoff and full production replay/restore evidence |
+| Versioned domain event catalog | 63 types, 18 schemas, generated namespaces, representative stream, historical upcaster, Tool Pack and Skill lifecycle events, and memory retrieval receipts | Defined and Ground contract/runtime-verified | Team signoff and full production replay/restore evidence |
 | Versioned loop contract | Loop JSON Schema, generated types, Full-Week and Reflection definitions | Defined and contract-verified | Runtime graph/compiler conformance |
 | Capability adapter contract | Capability schema, generated types, eight provider fixtures, 36 hostile MCP cases | Defined and Ground conformance-verified | Real adapter/provider compatibility matrix |
 | Governed Tool Pack contract | Source/license/SBOM/install/adapter/converter/UI/update/rollback schema, generated types, OpenCut blocked fixture, workspace projection, eleven live gate results, quarantine enforcement, synthetic activation/update/rollback proof, and eleven hostile activation rejections | Defined with bounded production-path lifecycle execution | Safe acquisition/unpack/build sandbox and one stable real external-tool integration with full capability/converter/activation/rollback evidence |
+| Governed Skill contract | Class A/B/C schema, exact bundled source/file hashes, workspace projection, eleven live promotion gates, creator decision, unavailable-capability denial, synthetic update suspension/rollback, and 19-case Wasmtime Ground evidence | Defined with bounded production-path Class A trust lifecycle | Community acquisition/signature/advisory verification, run-scoped invocation receipts, production Class B component/WIT host, Class C isolation, and hostile production fuzzing |
 | Threat-to-test matrix | Threat model plus owned MCP and skill executable suites | Partially executable, not signed off | Complete ADR-to-test ownership and name primary/backup responders |
 | Representative Full-Week fixture | Exact 50-object/46-edge project, two loops, 11-step run plan, events, eight capabilities, eleven failure/abuse cases | Contract-verified | Real creator artifacts and production runtime replay |
 | Platform, domain, credential, execution, recovery, release, and ecosystem ADRs | ADR-0001 through ADR-0022 | Defined | Verification gates remain future production evidence unless explicitly recorded in the ledger |
@@ -63,7 +64,7 @@
 - Review approval remains version-specific and separate from publication.
 - Memory inspection exposes evidence, confidence, contradiction, scope, and retrieval status.
 - Studio turns an exact brief/run into a proposal-only memory, requires an explicit creator state transition, creates linked append-only corrections, filters retrieval by scope/sensitivity/destination policy, and redacts forgotten projections while retaining the audit limitation onscreen.
-- Connections explains MCP host/client, Clark Bridge, social adapters, skill trust, and effective autonomy.
+- Connections explains MCP host/client, Clark Bridge, social adapters, Tool Pack readiness, exact Skill trust gates, requested versus trusted scopes, and effective autonomy.
 - A scoped Hermes Bridge capture creates one canonical Canvas object and receipt; replay emits no event, reload restores state, and Studio/Bridge hashes match.
 - Canvas supports bounded click-drag pan, zoom/fit, arrow-key lane navigation, Enter-to-inspect, command palette, and reversible staged/view state.
 - Review exposes a shared Reel A/B playhead with evidence, cost, policy, derivative impact, notes, selection, and approval.

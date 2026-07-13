@@ -88,7 +88,7 @@ The verifier performs draft-2020 JSON Schema checks and semantic checks for even
 Current checked fixture evidence:
 
 - 18 schema files, including governed capability-runtime, Tool Package, and private Harness IPC contracts plus an honestly upstream-blocked OpenCut candidate;
-- 62 event types and 10 representative payload-bearing events, including explicit capability permission/lease, governed memory retrieval, and Tool Pack lifecycle transitions;
+- 63 event types and 10 representative payload-bearing events, including explicit capability permission/lease, governed memory retrieval, Tool Pack lifecycle, and Skill suspension/rollback transitions;
 - 10 capability manifests, including a source-pinned zero-egress MCP idea inspector;
 - 3 loops, an 11-step Full-Week plan, and a 4-step Idea-to-Approved-Text plan;
 - exactly 50 project objects and 46 lineage edges;

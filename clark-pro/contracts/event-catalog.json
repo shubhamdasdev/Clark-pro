@@ -466,6 +466,16 @@
       "description": "Activates a tested skill revision under an explicit effective permission set."
     },
     {
+      "eventType": "skill.revision_suspended",
+      "schemaVersion": 1,
+      "aggregateType": "skill",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/skillRevisionStateChanged",
+      "compatibility": "additive",
+      "defaultSensitivity": "workspace",
+      "mutationClass": "security_state",
+      "description": "Removes active trust from a prior skill revision while retaining it as the exact rollback target."
+    },
+    {
       "eventType": "skill.revision_rolled_back",
       "schemaVersion": 1,
       "aggregateType": "skill",
