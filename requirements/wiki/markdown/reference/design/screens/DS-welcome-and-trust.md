@@ -8,7 +8,7 @@
 **Version:** 1.0
 **Created:** 2026-07-13
 **Updated:** 2026-07-13
-**Stories:** S-001-002, S-002-003, S-002-004, S-003-001
+**Stories:** S-001-001, S-001-002, S-002-001, S-002-003, S-002-004, S-003-001
 **Components:** ClarkAppShell, ClarkViewHeading, ClarkTrustGate, ClarkActionButton, ClarkPanel
 
 ---

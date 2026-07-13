@@ -8,7 +8,7 @@
 **Version:** 1.0
 **Created:** 2026-07-13
 **Updated:** 2026-07-13
-**Stories:** S-002-002, S-004-003, S-008-002, S-009-003, S-009-005
+**Stories:** S-002-002, S-004-003, S-008-002, S-009-002, S-009-003, S-009-005
 **Components:** ClarkAppShell, ClarkViewHeading, ClarkPanel, ClarkStateBadge, ClarkActionButton
 
 ---

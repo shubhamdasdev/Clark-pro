@@ -22,6 +22,9 @@ The primary Clark journey moves from inputs and a dry-run plan through evidence,
 
 ## Stories Covered
 
+- S-001-003 — Representative Creator Validation
+- S-001-004 — Commercial and Leadership Signoff
+- S-002-005 — Accessibility and Performance Release Evidence
 - S-003-003 — Source Ingestion and Claim Ledger
 - S-003-004 — Writing, Media, and Platform Variants
 - S-003-005 — Version-Specific Review and Policy Gates

@@ -25,6 +25,7 @@ Clark checkpoints where possible, classifies every incomplete step on relaunch, 
 - S-002-002 — Durable Event Store and Run Recovery
 - S-004-003 — Durable Bridge Tasks and Client Pairing
 - S-008-002 — Postiz Scheduling and Publication Ledger
+- S-009-002 — Encrypted Event Sync and Asset Mirror
 - S-009-003 — Scoped Remote Workers and Schedules
 - S-009-005 — Release, Hosted Continuity, and Tenant Isolation
 

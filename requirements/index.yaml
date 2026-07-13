@@ -2,7 +2,7 @@
 # Do not edit manually — regenerate with: pm index clark-pro
 
 project: clark-pro
-updated: "2026-07-13 17:00"
+updated: "2026-07-13 17:03"
 
 brief:
   problem: Professional operator-creators building across multiple channels lose intent, evidence, approvals, identity, and lessons as work moves between AI chats, research tools, editors, schedulers, and analytics dashboards. Clark Pro is a Mac-first creator operating system that keeps the workflow and the creator model in one inspectable, portable workspace, so automation can add leverage without taking hidden authority or erasing judgment.
@@ -86,7 +86,7 @@ stories:
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-001
   S-001-002:
     title: Ground Prototype and Evidence Ledger
     epic: E-001
@@ -110,7 +110,7 @@ stories:
     analytics: AE-001
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-001-004:
     title: Commercial and Leadership Signoff
     epic: E-001
@@ -122,7 +122,7 @@ stories:
     analytics: AE-001
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-002-001:
     title: Hardened Mac Shell Boundary
     epic: E-002
@@ -134,7 +134,7 @@ stories:
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-001
   S-002-002:
     title: Durable Event Store and Run Recovery
     epic: E-002
@@ -182,7 +182,7 @@ stories:
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-003-001:
     title: Immutable Idea Capture and Revision Lineage
     epic: E-003
@@ -530,7 +530,7 @@ stories:
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-008
   S-009-002:
     title: Encrypted Event Sync and Asset Mirror
     epic: E-009
@@ -542,7 +542,7 @@ stories:
     analytics: AE-009
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-015
   S-009-003:
     title: Scoped Remote Workers and Schedules
     epic: E-009

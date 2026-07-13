@@ -22,7 +22,9 @@ A creator establishes a trustworthy local workspace, confirms backup and credent
 
 ## Stories Covered
 
+- S-001-001 — Versioned Contracts and Upcasters
 - S-001-002 — Ground Prototype and Evidence Ledger
+- S-002-001 — Hardened Mac Shell Boundary
 - S-002-003 — Workspace Portability and Backup Recovery
 - S-002-004 — Keychain, Signing, and Safe Updates
 - S-003-001 — Immutable Idea Capture and Revision Lineage

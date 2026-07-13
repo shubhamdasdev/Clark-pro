@@ -24,6 +24,7 @@ A reviewer compares text or media with evidence, provider, Skill, memory, policy
 
 - S-003-002 — Evidence-Honest Idea Inspection and Canvas
 - S-003-005 — Version-Specific Review and Policy Gates
+- S-009-001 — Shared Workspaces, Roles, and Approval
 
 ## Flow
 
