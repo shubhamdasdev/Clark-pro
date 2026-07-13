@@ -29,9 +29,9 @@ The same canonical workspace must be usable from Clark Studio and Clark Bridge, 
 - versioned domain event and JSON schema catalog;
 - capability adapter contract;
 - loop definition contract;
-- threat model and trust boundaries;
+- authoritative threat model, trust boundaries, credential flows, and threat-to-test matrix;
 - representative Full-Week project fixture with realistic artifacts and failure cases;
-- architecture decision records for desktop shell, database, credential storage, model gateway, licensing, updates, and distribution.
+- accepted architecture decision records for desktop shell/processes, canonical state, harness, MCP/capabilities, credentials, distribution, memory/skills, remote/team topology, interaction model, and delivery governance.
 - positioning, packaging, replacement target, economic principles, and explicit commercial failure conditions.
 
 ### Gate
@@ -39,6 +39,7 @@ The same canonical workspace must be usable from Clark Studio and Clark Bridge, 
 - The canvas passes every quality gate in `the-canvas.md` with five representative users.
 - Engineering can trace every visible state to a domain object or event.
 - Security can explain every path from renderer to credential or external mutation.
+- Every Ground threat is mapped to a required executable test, and open security decisions block the correct dependent stratum.
 - Product can explain why Clark wins without claiming uniqueness for canvas, generation, MCP, or scheduling alone.
 - Target creators demonstrate first-week value, commit representative workflow data, and provide a binding willingness-to-pay signal under the gates in `positioning-and-business.md`.
 
@@ -270,6 +271,6 @@ Before implementation begins:
 2. Produce the clickable six-view Mac prototype using the Full-Week fixture.
 3. Run five creator walkthroughs focused on Focus-vs-Canvas comprehension, provenance, memory evidence, and authority.
 4. Recruit three design partners for a real multi-channel week and a binding willingness-to-pay test.
-5. Finalize the threat model and credential flows.
-6. Define the event catalog and capability adapter conformance suite.
+5. Resolve the open security decisions in `security-and-threat-model.md` and convert its register into owned executable test specifications.
+6. Define the event catalog, loop schemas, and capability adapter conformance suite.
 7. Convert the approved epics into team-owned release plans without weakening their acceptance gates.

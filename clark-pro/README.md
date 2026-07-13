@@ -52,13 +52,16 @@ Read these in order:
 1. **[vision.md](vision.md)** — product thesis, target user, differentiation, principles, and boundaries.
 2. **[the-canvas.md](the-canvas.md)** — the studio information architecture and visual grammar.
 3. **[architecture.md](architecture.md)** — Mac application, harness, data, security, agent, and deployment architecture.
-4. **[memory-and-learning.md](memory-and-learning.md)** — creator model, memory types, reflection, skill evolution, and governance.
-5. **[mcp-ecosystem.md](mcp-ecosystem.md)** — MCP client/server roles, capability adapters, skills, and social integration strategy.
-6. **[roadmap.md](roadmap.md)** — cumulative product strata and whole-product delivery gates; no throwaway MVP.
-7. **[research-basis.md](research-basis.md)** — current external evidence and competitive reality behind the v2 decisions.
-8. **[positioning-and-business.md](positioning-and-business.md)** — category, buyer, replacement target, packaging, economics, acquisition, and commercial validation gates.
-9. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
-10. **[prototype/](prototype/README.md)** — clickable six-view studio concept using a 50-object Full-Week fixture and a structured evaluation guide.
+4. **[decisions/](decisions/README.md)** — accepted ADRs, rejected alternatives, invariants, revisit triggers, and verification gates.
+5. **[security-and-threat-model.md](security-and-threat-model.md)** — assets, trust boundaries, threat register, credential flows, incident behavior, and security evidence requirements.
+6. **[memory-and-learning.md](memory-and-learning.md)** — creator model, memory types, reflection, skill evolution, and governance.
+7. **[mcp-ecosystem.md](mcp-ecosystem.md)** — MCP client/server roles, capability adapters, skills, and social integration strategy.
+8. **[roadmap.md](roadmap.md)** — cumulative product strata and whole-product delivery gates; no throwaway MVP.
+9. **[research-basis.md](research-basis.md)** — current external evidence and competitive reality behind the v2 decisions.
+10. **[positioning-and-business.md](positioning-and-business.md)** — category, buyer, replacement target, packaging, economics, acquisition, and commercial validation gates.
+11. **[ground-readiness-audit.md](ground-readiness-audit.md)** — requirement-by-requirement evidence and remaining blockers before implementation.
+12. **[product/](product/)** — detailed v2 requirements, flows, epics, acceptance gates, and implementation contracts.
+13. **[prototype/](prototype/README.md)** — clickable six-view studio concept using a 50-object Full-Week fixture and a structured evaluation guide.
 
 ## One-Line Pitch
 

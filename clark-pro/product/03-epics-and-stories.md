@@ -17,7 +17,7 @@
 
 - Versioned schemas for events, artifacts, graph, loops, runs, capabilities, decisions, publications, observations, memory, skills, and policies.
 - Architecture decision records.
-- Threat model for renderer, harness, connectors, skills, MCP clients/servers, credentials, updates, and remote workers.
+- Maintain the authoritative [threat model](../security-and-threat-model.md) and [ADR registry](../decisions/README.md) for renderer, harness, connectors, skills, MCP clients/servers, credentials, updates, and remote workers.
 
 **Acceptance:** schema compatibility and migration policy documented; no unresolved trust boundary blocks foundation work.
 

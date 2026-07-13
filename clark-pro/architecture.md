@@ -6,6 +6,8 @@ Clark is a local-first desktop system with a durable agent harness, not a browse
 
 The architecture is incremental but not disposable: every delivery stratum uses the same domain contracts, event log, identity model, permissions, credential broker, run protocol, and migration system.
 
+Accepted decisions and rejected alternatives are maintained in the [ADR registry](decisions/README.md). The authoritative trust boundaries, threat register, credential flows, and required security evidence are in the [security and threat model](security-and-threat-model.md). Architecture claims do not count as verified controls until the named executable evidence passes.
+
 ## Runtime Topology
 
 ```text
@@ -300,11 +302,12 @@ Asset metadata records MIME type, dimensions, duration, checksum, origin, rights
 
 - API keys, access tokens, refresh tokens, and encryption keys live in macOS Keychain.
 - Database rows store opaque credential references and scopes.
+- API-key entry uses a broker-owned native or isolated credential sheet; the raw value never enters ordinary renderer state.
 - OAuth uses PKCE and state validation.
 - Connector processes receive short-lived capability leases, not raw access to every secret.
 - Logs and model context pass through redaction.
 - Revocation immediately disables dependent capabilities and marks scheduled work blocked.
-- Clark Bridge uses explicit client registration, scoped tokens, and localhost-only binding by default.
+- Clark Bridge uses one-time local pairing, explicit client registration, scoped tokens, and localhost-only binding by default; long-lived client secrets are not rendered for copy/paste.
 
 ## MCP Dual Role
 
