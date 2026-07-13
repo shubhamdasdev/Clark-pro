@@ -37,6 +37,7 @@ const positiveTargets = [
   ["skill-package.schema.json", "fixtures/full-week/skills/weekly-reflection.class-a.skill.json"],
   ["skill-package.schema.json", "fixtures/full-week/skills/caption-check.class-b.skill.json"],
   ["skill-permission-receipt.schema.json", "fixtures/full-week/skills/caption-check.permission-receipt.json"],
+  ["mcp-conformance-plan.schema.json", "../mcp-conformance/conformance-plan.json"],
   ["loop-definition.schema.json", "fixtures/full-week/full-week.loop.json"],
   ["loop-definition.schema.json", "fixtures/full-week/reflection.loop.json"],
   ["run-plan.schema.json", "fixtures/full-week/run-plan.json"],
@@ -312,6 +313,22 @@ assert(publishEgress && !publishEgress.approvedByPolicy, "Publish egress must aw
 
 const threatText = fs.readFileSync(path.join(root, "..", "security-and-threat-model.md"), "utf8");
 const threatIds = new Set([...threatText.matchAll(/\| ([A-Z]+-[A-Z0-9]+) \|/g)].map((match) => match[1]));
+const mcpPlan = read("../mcp-conformance/conformance-plan.json");
+const mcpPlanValidator = ajv.getSchema(schemaId("mcp-conformance-plan.schema.json"));
+const criticalNonblockingPlan = structuredClone(mcpPlan);
+const criticalCase = criticalNonblockingPlan.cases.find((item) => item.severity === "critical");
+criticalCase.releaseBlocker = false;
+assert(!mcpPlanValidator(criticalNonblockingPlan), "Critical nonblocking MCP plan mutation unexpectedly passed schema validation");
+unique(mcpPlan.cases.map((item) => item.id), "MCP conformance case IDs");
+unique(mcpPlan.owners.map((item) => item.area), "MCP conformance owner areas");
+for (const area of ["connect", "bridge", "security", "quality", "incident"]) assert(mcpPlan.owners.some((owner) => owner.area === area), `MCP conformance plan lacks ${area} ownership`);
+for (const surface of ["connect_host", "clark_bridge"]) assert(mcpPlan.cases.some((item) => item.surface === surface), `MCP plan lacks ${surface} cases`);
+for (const transport of ["stdio", "streamable_http", "domain_adapter"]) assert(mcpPlan.cases.some((item) => item.transport === transport), `MCP plan lacks ${transport} cases`);
+for (const category of ["lifecycle", "framing", "schema", "metadata", "result", "timeout", "cancellation", "shutdown", "origin", "auth", "session", "scope", "replay", "egress", "tasks", "ui_state"]) assert(mcpPlan.cases.some((item) => item.category === category), `MCP plan lacks ${category} coverage`);
+for (const testCase of mcpPlan.cases) {
+  for (const threatId of testCase.threatIds) assert(threatIds.has(threatId), `${testCase.id} references unknown threat ${threatId}`);
+  if (["critical", "high"].includes(testCase.severity)) assert(testCase.releaseBlocker, `${testCase.id} is ${testCase.severity} but not release-blocking`);
+}
 const failureSuite = read("fixtures/full-week/failure-cases.json");
 unique(failureSuite.cases.map((item) => item.id), "Failure case IDs");
 for (const failureCase of failureSuite.cases) {
@@ -342,11 +359,14 @@ console.log(JSON.stringify({
   schemaFiles: fs.readdirSync(path.join(root, "schemas")).filter((name) => name.endsWith(".json")).length,
   positiveDocuments: positiveTargets.length,
   schemaNegativeDocumentsRejected: schemaNegativeTargets.length,
-  semanticNegativeDocumentsRejected: 4,
+  semanticNegativeDocumentsRejected: 5,
+  mcpCriticalNonblockingMutationsRejected: 1,
   bridgeSemanticNegativeCasesRejected: bridgeNegativeSuite.cases.length,
   bridgeExchanges: 1,
   skillPackages: 2,
   skillPermissionReceipts: 1,
+  mcpConformanceCases: mcpPlan.cases.length,
+  mcpExecutableOrContractCases: mcpPlan.cases.filter((item) => item.automation !== "planned").length,
   eventTypes: catalog.events.length,
   eventPayloadsValidated: stream.events.length,
   capabilities: capabilities.length,

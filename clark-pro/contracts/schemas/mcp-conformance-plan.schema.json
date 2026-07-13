@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/mcp-conformance-plan.schema.json",
+  "title": "Clark MCP Host and Bridge Conformance Plan",
+  "type": "object",
+  "required": ["$schema", "schemaVersion", "planId", "revision", "protocolRevision", "sdkBaseline", "owners", "blockingPolicy", "cases", "limitations"],
+  "properties": {
+    "$schema": { "const": "https://schemas.clark.pro/v1/mcp-conformance-plan.schema.json" },
+    "schemaVersion": { "const": 1 },
+    "planId": { "$ref": "common.schema.json#/$defs/id" },
+    "revision": { "$ref": "common.schema.json#/$defs/semver" },
+    "protocolRevision": { "const": "2025-11-25" },
+    "sdkBaseline": {
+      "type": "object",
+      "required": ["package", "version", "policy"],
+      "properties": {
+        "package": { "const": "@modelcontextprotocol/sdk" },
+        "version": { "$ref": "common.schema.json#/$defs/semver" },
+        "policy": { "enum": ["pinned-v1-production-baseline", "pinned-v2-after-stable-review"] }
+      },
+      "additionalProperties": false
+    },
+    "owners": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["area", "primaryRole", "backupRole", "artifactDuty"],
+        "properties": {
+          "area": { "enum": ["connect", "bridge", "security", "quality", "incident"] },
+          "primaryRole": { "type": "string", "minLength": 3, "maxLength": 160 },
+          "backupRole": { "type": "string", "minLength": 3, "maxLength": 160 },
+          "artifactDuty": { "type": "string", "minLength": 3, "maxLength": 500 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "blockingPolicy": {
+      "type": "object",
+      "required": ["critical", "high", "medium", "secretCanary", "duplicateEffect", "quarantineTriggers"],
+      "properties": {
+        "critical": { "const": "block_release_and_quarantine" },
+        "high": { "const": "block_capability_promotion" },
+        "medium": { "enum": ["block_when_protocol_must", "warn_with_owned_exception"] },
+        "secretCanary": { "const": "block_release_rotate_canary_review_logs" },
+        "duplicateEffect": { "const": "block_release_reconcile_and_incident_review" },
+        "quarantineTriggers": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "enum": ["protocol_corruption", "schema_abuse", "secret_canary", "scope_violation", "unbounded_resource", "untrusted_instruction", "replay_side_effect", "origin_failure", "auth_failure"] } }
+      },
+      "additionalProperties": false
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 24,
+      "items": {
+        "type": "object",
+        "required": ["id", "surface", "transport", "category", "threatIds", "severity", "ownerArea", "automation", "fixture", "expectedDisposition", "releaseBlocker", "acceptance"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^(HOST|BRIDGE)-[A-Z]+-[0-9]{2}$" },
+          "surface": { "enum": ["connect_host", "clark_bridge"] },
+          "transport": { "enum": ["stdio", "streamable_http", "domain_adapter"] },
+          "category": { "enum": ["baseline", "lifecycle", "framing", "schema", "metadata", "result", "timeout", "cancellation", "shutdown", "origin", "auth", "session", "scope", "replay", "egress", "tasks", "ui_state"] },
+          "threatIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z]+-[A-Z0-9]+$" } },
+          "severity": { "enum": ["critical", "high", "medium"] },
+          "ownerArea": { "enum": ["connect", "bridge", "security", "quality"] },
+          "automation": { "enum": ["executable", "contract", "planned"] },
+          "fixture": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "expectedDisposition": { "enum": ["allow", "reject", "quarantine", "cancel", "terminate", "redact_and_quarantine", "deduplicate", "degrade", "ask"] },
+          "releaseBlocker": { "type": "boolean" },
+          "acceptance": { "type": "string", "minLength": 3, "maxLength": 1000 },
+          "evidencePath": { "type": "string", "maxLength": 500 }
+        },
+        "additionalProperties": false,
+        "allOf": [
+          { "if": { "properties": { "severity": { "enum": ["critical", "high"] } }, "required": ["severity"] }, "then": { "properties": { "releaseBlocker": { "const": true } } } },
+          { "if": { "properties": { "automation": { "enum": ["executable", "contract"] } }, "required": ["automation"] }, "then": { "required": ["evidencePath"] } }
+        ]
+      }
+    },
+    "limitations": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 3, "maxLength": 1000 } }
+  },
+  "additionalProperties": false
+}

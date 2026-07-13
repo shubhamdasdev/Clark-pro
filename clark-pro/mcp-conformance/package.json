@@ -1,0 +1,13 @@
+{
+  "name": "@clark/mcp-conformance",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node verify.mjs",
+    "report": "node verify.mjs --write-report"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0"
+  }
+}

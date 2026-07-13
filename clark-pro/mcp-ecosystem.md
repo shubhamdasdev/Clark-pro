@@ -284,6 +284,12 @@ A connector or skill is production-ready only when it provides:
 - observability without secret leakage;
 - compatible license.
 
+### Ground hostile conformance boundary
+
+The versioned [`mcp-conformance` plan](mcp-conformance/conformance-plan.json) makes Clark's two MCP roles testable before production adapters fan out. It pins the stable protocol revision and SDK baseline, assigns primary/backup role ownership, defines severity and quarantine policy, and separates executable, shared-contract, and still-planned cases.
+
+The current Ground report runs a real official-SDK stdio baseline plus raw hostile stdio, hostile Streamable HTTP, localhost Bridge, domain-policy, and canonical-state fixtures. All 36 executable/shared-contract cases pass. This proves the Ground harness boundary, not production conformance; the same matrix must pass inside the shipped Connect/Bridge runtime against real providers and network faults.
+
 ## Research Basis
 
 - MCP defines clients, servers, tools, resources, prompts, elicitation, and experimental durable Tasks; Clark uses capability negotiation rather than assuming every server supports every feature.

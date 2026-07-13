@@ -58,6 +58,7 @@ Read these in order:
 7. **[SECURITY.md](../SECURITY.md)** — private reporting path, supported-version policy, response objectives, and safe-testing rules.
 8. **[memory-and-learning.md](memory-and-learning.md)** — creator model, memory types, reflection, skill evolution, and governance.
 9. **[mcp-ecosystem.md](mcp-ecosystem.md)** — MCP client/server roles, capability adapters, skills, and social integration strategy.
+   - **[mcp-conformance/](mcp-conformance/README.md)** — pinned SDK baseline and 36-case hostile Connect/Bridge Ground suite.
 10. **[roadmap.md](roadmap.md)** — cumulative product strata and whole-product delivery gates; no throwaway MVP.
 11. **[research-basis.md](research-basis.md)** — current external evidence and competitive reality behind the v2 decisions.
 12. **[positioning-and-business.md](positioning-and-business.md)** — category, buyer, replacement target, packaging, economics, acquisition, and commercial validation gates.
@@ -74,4 +75,4 @@ Read these in order:
 
 ## Current Status
 
-Ground-stratum product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system, with a clickable Focus/Canvas/Timeline/Review/Library/Memory/Connections prototype, twenty accepted ADRs, and versioned contracts. Bridge command/receipt semantics and Studio/Bridge state equivalence now pass at contract/prototype level. The machine-checked Ground ledger remains open: creator/commercial evidence, skill-sandbox proof, native accessibility, contract governance, named team capacity, security-test ownership, and leadership signoff are not yet proven. Implementation should not fan out by treating documents or prototype checks as substitutes for those gates.
+Ground-stratum product-definition stage. The original social-content canvas concept has been expanded into the full Mac-first creator operating system, with a clickable Focus/Canvas/Timeline/Review/Library/Memory/Connections prototype, twenty accepted ADRs, and versioned contracts. Bridge state equivalence, governed skill packages, the 19-case Wasmtime Ground spike, and the 36-case hostile MCP host/Bridge Ground suite now pass at their stated proof level. The machine-checked Ground ledger remains open: creator/commercial evidence, native Mac accessibility, generated contract/upcaster governance, named team capacity, broader security-test ownership, and leadership signoff are not yet proven. Implementation should not fan out by treating Ground harnesses or prototype checks as production evidence.

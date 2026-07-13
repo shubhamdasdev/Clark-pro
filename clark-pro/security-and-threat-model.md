@@ -147,6 +147,8 @@ Maturity values are **Specified**, **Implemented**, or **Verified**. Every row i
 | PRIV-01 | Provider retention/training/residency behavior conflicts with creator expectation | High | provider policy metadata, per-workspace allow/deny, visible egress destination, local alternative, no silent fallback to weaker policy | policy routing fixtures and provider configuration audit | Specified |
 | AVAIL-01 | Connector outage, provider removal, account revocation, or corrupted projection blocks access to owned work | High | local canonical state, projection rebuild, export fallback, adapter health, read-only recovery, backup/restore | outage and dependency-removal game days | Specified |
 
+The Ground [`mcp-conformance`](mcp-conformance/README.md) suite now makes all 36 MCP-S01/MCP-C01 protocol, transport, authorization, policy, and canonical-domain cases executable or contract-backed. Threat maturity stays **Specified** until these controls exist in the production Connect/Bridge runtime and the matrix passes there against real providers and network faults.
+
 ## 8. Credential and identity flows
 
 ### 8.1 API key entry

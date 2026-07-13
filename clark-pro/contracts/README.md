@@ -21,6 +21,7 @@ This directory is the machine-readable Ground layer shared by Studio, Harness, B
 | `schemas/bridge-exchange.schema.json` | Scoped Bridge client, command intent, permission decision, domain event, durable receipts, idempotent replay, and Studio/resource equivalence |
 | `schemas/skill-package.schema.json` | Agent Skill Class A/B/C package inventory, hashes, entrypoint, permissions, lifecycle, compatibility, tests, and sandbox limits |
 | `schemas/skill-permission-receipt.schema.json` | Four-way requested/installed/workspace/run permission intersection with effective and denied authority |
+| `schemas/mcp-conformance-plan.schema.json` | Two-sided MCP host/Bridge cases, ownership, severity, automation, disposition, evidence, and release-blocking policy |
 
 ## Versioning rules
 
@@ -72,7 +73,7 @@ The verifier performs draft-2020 JSON Schema checks and semantic checks for even
 
 Current checked fixture evidence:
 
-- 14 schema files, including the 34-entry Ground evidence ledger, Bridge exchange, governed skill package, and effective-permission receipt contracts;
+- 15 schema files, including the 34-entry Ground evidence ledger, Bridge exchange, governed skill package, permission receipt, and MCP conformance-plan contracts;
 - 52 event types and 10 representative payload-bearing events;
 - 8 capability manifests;
 - 2 loops and an 11-step compiled run plan;
@@ -80,7 +81,8 @@ Current checked fixture evidence:
 - 10 failure/abuse cases referencing 15 threat IDs;
 - 1 accepted Bridge capture/replay exchange plus 5 hostile semantic mutations rejected;
 - 2 governed skill packages and 1 four-way effective-permission receipt;
-- 7 schema-invalid and 4 semantic-invalid documents rejected, including Class A executable, Class B network/raw-credential, and Class C remote-execution attempts;
+- 36 owned MCP host/Bridge conformance cases, all executable or shared-contract and passing in the Ground harness;
+- 7 schema-invalid and 5 semantic-invalid documents rejected, including an exact mutation that marks a critical MCP case nonblocking;
 - zero dependency vulnerabilities at the configured audit threshold.
 
 The ledger's additional fail-closed semantic checks and generated status live in [`../evidence/`](../evidence/README.md).

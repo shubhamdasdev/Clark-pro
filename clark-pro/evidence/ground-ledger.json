@@ -3,7 +3,7 @@
   "schemaVersion": "1.0.0",
   "ledgerId": "clark.evidence.ground",
   "stratum": "ground",
-  "reviewedAt": "2026-07-12T21:30:00-05:00",
+  "reviewedAt": "2026-07-12T22:15:00-05:00",
   "currentGate": "before-stratum-1-implementation",
   "gateState": "open",
   "entries": [
@@ -78,14 +78,15 @@
         {"kind": "adr", "location": "decisions/0004-capabilities-above-mcp.md", "claim": "Places the Clark capability contract above MCP transport semantics.", "result": "pass"},
         {"kind": "schema", "location": "contracts/schemas/capability-manifest.schema.json", "claim": "Versions capability inputs, outputs, permissions, cost, approval, async, trust, and lifecycle.", "result": "pass"},
         {"kind": "fixture", "location": "contracts/fixtures/full-week/capabilities/research.search.mcp.json", "claim": "Represents a read-only research MCP capability.", "result": "pass"},
-        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Validates eight capability revisions and their use in loops and the compiled run plan.", "result": "pass", "command": "npm --prefix contracts run verify"}
+        {"kind": "automated_test", "location": "contracts/verify.mjs", "claim": "Validates eight capability revisions and their use in loops and the compiled run plan.", "result": "pass", "command": "npm --prefix contracts run verify"},
+        {"kind": "automated_test", "location": "mcp-conformance/verify.mjs", "claim": "Passes all thirty-two executable hostile/runtime cases plus four shared Bridge contract cases against the pinned protocol and SDK baseline.", "result": "pass", "command": "npm --prefix mcp-conformance run verify"}
       ],
       "acceptanceRule": "Ground requires versioned capability semantics and representative valid/invalid fixtures; hostile live-server conformance is a separate blocking delivery item.",
-      "limitations": ["No hostile stdio/HTTP MCP conformance runner exists."],
-      "nextAction": "Produce the hostile MCP plan and then implement it with exact-command, scope, revocation, timeout, and malformed-response fixtures.",
+      "limitations": ["The Ground runner is not the production Connect runtime.", "Real-provider compatibility, remote network-fault, production credential-broker, and production Tasks evidence remains unbuilt."],
+      "nextAction": "Carry the full thirty-six-case matrix into the production Connect/Bridge runtime and real-server compatibility matrix.",
       "groundBlocking": false,
       "releaseTarget": "stratum-3",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T22:15:00-05:00"
     },
     {
       "id": "OBJ-05",
@@ -533,16 +534,19 @@
       "requirement": "A concrete hostile MCP and capability conformance plan names cases, tools, owners, severity, and blocking policy.",
       "ownerRole": "Connect + Security + Quality Leads",
       "proofRequired": ["design_document", "signoff"],
-      "result": "missing",
+      "result": "specified_not_verified",
       "evidence": [
-        {"kind": "design_document", "location": "mcp-ecosystem.md", "claim": "Defines the boundary and risks but not an owned executable conformance test plan.", "result": "pass"}
+        {"kind": "design_document", "location": "mcp-conformance/README.md", "claim": "Defines the two-sided host/Bridge boundary, authoritative artifacts, owner roles, severity, blocking, quarantine, execution, and official protocol basis.", "result": "pass"},
+        {"kind": "schema", "location": "contracts/schemas/mcp-conformance-plan.schema.json", "claim": "Requires owners, evidence, dispositions, and release blocking for critical/high cases.", "result": "pass"},
+        {"kind": "fixture", "location": "mcp-conformance/conformance-plan.json", "claim": "Inventories thirty-six host/Bridge cases across stdio, Streamable HTTP, and canonical domain adapters.", "result": "pass"},
+        {"kind": "automated_test", "location": "mcp-conformance/verify.mjs", "claim": "Runs thirty-two SDK/raw transport/domain-policy cases and four shared Bridge contract cases with no missing plan result.", "result": "pass", "command": "npm --prefix mcp-conformance run report"}
       ],
       "acceptanceRule": "The plan covers hostile stdio/HTTP servers, malformed schemas/results, auth/scope, timeout, cancellation, replay, secret/egress canaries, UI state, and quarantine.",
-      "limitations": ["No test-case inventory, harness choice, named owner, or severity policy exists."],
-      "nextAction": "Write the conformance specification and assign Connect, Security, and Quality owners before MCP implementation begins.",
+      "limitations": ["Ownership is assigned to primary/backup roles, not real named people.", "Required Connect, Security, and Quality signoff has not occurred.", "The matrix has not yet run inside the production Connect/Bridge runtime."],
+      "nextAction": "Assign the real primary/backup people, run the matrix in the production boundary when implemented, and obtain attributable Connect/Security/Quality approval.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T22:15:00-05:00"
     },
     {
       "id": "GROUND-04",

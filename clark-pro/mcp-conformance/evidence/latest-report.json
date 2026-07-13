@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "reportId": "clark.mcp.conformance.ground",
+  "planRevision": "1.0.0",
+  "protocolRevision": "2025-11-25",
+  "sdkBaseline": {
+    "package": "@modelcontextprotocol/sdk",
+    "version": "1.29.0",
+    "policy": "pinned-v1-production-baseline"
+  },
+  "summary": {
+    "total": 36,
+    "passed": 36,
+    "planned": 0,
+    "executableAndContractCoverage": "36/36",
+    "releaseBlockingPlanned": 0
+  },
+  "cases": [
+    {
+      "id": "HOST-BASELINE-01",
+      "result": "pass",
+      "observation": "Official SDK 1.29.0 completed stdio initialize, discovery, call, and shutdown"
+    },
+    {
+      "id": "HOST-FRAMING-01",
+      "result": "pass",
+      "observation": "non-JSON-RPC stdout detected before initialization"
+    },
+    {
+      "id": "HOST-FRAMING-02",
+      "result": "pass",
+      "observation": "unmatched response ID detected"
+    },
+    {
+      "id": "HOST-LIFECYCLE-01",
+      "result": "pass",
+      "observation": "unsupported negotiated protocol detected"
+    },
+    {
+      "id": "HOST-LIFECYCLE-02",
+      "result": "pass",
+      "observation": "tools/list response arrived without negotiated tools capability"
+    },
+    {
+      "id": "HOST-SCHEMA-01",
+      "result": "pass",
+      "observation": "malformed required keyword rejected"
+    },
+    {
+      "id": "HOST-SCHEMA-02",
+      "result": "pass",
+      "observation": "schema nesting exceeded the 64-level registration budget"
+    },
+    {
+      "id": "HOST-METADATA-01",
+      "result": "pass",
+      "observation": "instruction-shaped server metadata classified as untrusted"
+    },
+    {
+      "id": "HOST-METADATA-02",
+      "result": "pass",
+      "observation": "instruction-shaped tool description classified as untrusted"
+    },
+    {
+      "id": "HOST-RESULT-01",
+      "result": "pass",
+      "observation": "131072-byte tool result exceeded the 65536-byte boundary"
+    },
+    {
+      "id": "HOST-EGRESS-01",
+      "result": "pass",
+      "observation": "credential canary detected before render/log/model use"
+    },
+    {
+      "id": "HOST-TIMEOUT-01",
+      "result": "pass",
+      "observation": "initialization deadline fired and child was terminated"
+    },
+    {
+      "id": "HOST-CANCEL-01",
+      "result": "pass",
+      "observation": "hard deadline emitted cancellation for the exact request ID"
+    },
+    {
+      "id": "HOST-SHUTDOWN-01",
+      "result": "pass",
+      "observation": "shutdown escalated stdin close → SIGTERM → SIGKILL on bounded deadlines"
+    },
+    {
+      "id": "HOST-HTTP-01",
+      "result": "pass",
+      "observation": "non-MCP HTTP response content type rejected before parsing/rendering"
+    },
+    {
+      "id": "HOST-HTTP-02",
+      "result": "pass",
+      "observation": "SSE event ID namespace did not match the negotiated session"
+    },
+    {
+      "id": "HOST-HTTP-03",
+      "result": "pass",
+      "observation": "authorization challenge pointed to a different resource origin; token forwarding denied"
+    },
+    {
+      "id": "HOST-HTTP-04",
+      "result": "pass",
+      "observation": "transport abort was followed by explicit cancellation for the exact request ID"
+    },
+    {
+      "id": "BRIDGE-BASELINE-01",
+      "result": "pass",
+      "observation": "localhost-only Bridge negotiated 2025-11-25 and issued a scoped session"
+    },
+    {
+      "id": "BRIDGE-ORIGIN-01",
+      "result": "pass",
+      "observation": "invalid Origin rejected before initialization"
+    },
+    {
+      "id": "BRIDGE-AUTH-01",
+      "result": "pass",
+      "observation": "missing client credential rejected with 401"
+    },
+    {
+      "id": "BRIDGE-AUTH-02",
+      "result": "pass",
+      "observation": "revoked client credential rejected before session use"
+    },
+    {
+      "id": "BRIDGE-FRAMING-01",
+      "result": "pass",
+      "observation": "incomplete Accept negotiation rejected"
+    },
+    {
+      "id": "BRIDGE-FRAMING-02",
+      "result": "pass",
+      "observation": "non-JSON request content rejected"
+    },
+    {
+      "id": "BRIDGE-FRAMING-03",
+      "result": "pass",
+      "observation": "invalid JSON returned bounded parse error"
+    },
+    {
+      "id": "BRIDGE-FRAMING-04",
+      "result": "pass",
+      "observation": "JSON-RPC batch rejected for pinned revision"
+    },
+    {
+      "id": "BRIDGE-LIFECYCLE-01",
+      "result": "pass",
+      "observation": "post-initialize request without protocol header rejected"
+    },
+    {
+      "id": "BRIDGE-SESSION-01",
+      "result": "pass",
+      "observation": "unknown/mismatched session rejected"
+    },
+    {
+      "id": "BRIDGE-LIFECYCLE-02",
+      "result": "pass",
+      "observation": "accepted notification returned empty HTTP 202"
+    },
+    {
+      "id": "BRIDGE-SCOPE-01",
+      "result": "pass",
+      "observation": "shared contract verifier passed the referenced Bridge invariant"
+    },
+    {
+      "id": "BRIDGE-SCOPE-02",
+      "result": "pass",
+      "observation": "shared contract verifier passed the referenced Bridge invariant"
+    },
+    {
+      "id": "BRIDGE-REPLAY-01",
+      "result": "pass",
+      "observation": "shared contract verifier passed the referenced Bridge invariant"
+    },
+    {
+      "id": "BRIDGE-SCOPE-03",
+      "result": "pass",
+      "observation": "reject: sensitivity_scope"
+    },
+    {
+      "id": "BRIDGE-EGRESS-01",
+      "result": "pass",
+      "observation": "reject: raw_credential_forbidden"
+    },
+    {
+      "id": "BRIDGE-TASKS-01",
+      "result": "pass",
+      "observation": "degrade: durable_clark_job_receipt"
+    },
+    {
+      "id": "BRIDGE-UI-01",
+      "result": "pass",
+      "observation": "shared contract verifier passed the referenced Bridge invariant"
+    }
+  ],
+  "result": "pass",
+  "limitations": [
+    "Role ownership is assigned, but real people and signoff are intentionally not fabricated.",
+    "The Ground runner proves a pinned SDK baseline and raw hostile boundaries; it is not the production Connect or Bridge runtime.",
+    "Schema depth is executable, while complete node-count, regex-complexity, and recursive-reference budgets still require the production schema compiler.",
+    "Real provider OAuth, remote network faults, production credential brokerage, and production Tasks interoperability remain later-stratum evidence."
+  ],
+  "generatedAt": "2026-07-13T02:19:33.863Z"
+}

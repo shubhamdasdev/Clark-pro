@@ -1,0 +1,26 @@
+{
+  "client": {
+    "clientId": "bridge.client.hermes-local",
+    "sensitivityScopes": ["public", "workspace"],
+    "actionScopes": ["capture", "read"],
+    "tasksNegotiated": false,
+    "rawCredentialAccess": false
+  },
+  "cases": [
+    {
+      "id": "BRIDGE-SCOPE-03",
+      "request": {"sensitivity": "confidential", "action": "read", "rawCredential": false, "taskAugmented": false},
+      "expected": {"disposition": "reject", "reason": "sensitivity_scope"}
+    },
+    {
+      "id": "BRIDGE-EGRESS-01",
+      "request": {"sensitivity": "workspace", "action": "read", "rawCredential": true, "taskAugmented": false},
+      "expected": {"disposition": "reject", "reason": "raw_credential_forbidden"}
+    },
+    {
+      "id": "BRIDGE-TASKS-01",
+      "request": {"sensitivity": "workspace", "action": "read", "rawCredential": false, "taskAugmented": true},
+      "expected": {"disposition": "degrade", "reason": "durable_clark_job_receipt"}
+    }
+  ]
+}
