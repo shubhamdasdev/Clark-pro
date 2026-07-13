@@ -1,4 +1,4 @@
-const sections = ["focus", "canvas", "connections"];
+const sections = ["focus", "canvas", "memory", "connections"];
 const tabs = new Map(sections.map((section) => [section, document.querySelector(`[data-section="${section}"]`)]));
 const views = new Map(sections.map((section) => [section, document.querySelector(`[data-view="${section}"]`)]));
 const announcer = document.querySelector("#announcer");
@@ -33,7 +33,7 @@ for (const [section, tab] of tabs) {
 
 document.addEventListener("keydown", (event) => {
   if (!event.metaKey || event.altKey || event.ctrlKey) return;
-  const shortcuts = { "1": "focus", "2": "canvas", "7": "connections" };
+  const shortcuts = { "1": "focus", "2": "canvas", "6": "memory", "7": "connections" };
   if (shortcuts[event.key]) {
     event.preventDefault();
     void activateSection(shortcuts[event.key], { focus: true });
@@ -112,9 +112,46 @@ const canvasReadiness = document.querySelector("#canvas-readiness");
 const evidenceGapList = document.querySelector("#evidence-gap-list");
 const approveBrief = document.querySelector("#approve-brief");
 const rejectBrief = document.querySelector("#reject-brief");
+const memoryMode = document.querySelector("#memory-mode");
+const memoryProposedCount = document.querySelector("#memory-proposed-count");
+const memoryActiveCount = document.querySelector("#memory-active-count");
+const memoryDisputedCount = document.querySelector("#memory-disputed-count");
+const memoryProposalForm = document.querySelector("#memory-proposal-form");
+const memoryStatement = document.querySelector("#memory-statement");
+const memoryLayer = document.querySelector("#memory-layer");
+const memoryPolicy = document.querySelector("#memory-policy");
+const memorySensitivity = document.querySelector("#memory-sensitivity");
+const memoryConfidence = document.querySelector("#memory-confidence");
+const memoryEvidenceContext = document.querySelector("#memory-evidence-context");
+const proposeMemoryButton = document.querySelector("#propose-memory");
+const memoryRetrievalForm = document.querySelector("#memory-retrieval-form");
+const memoryQuery = document.querySelector("#memory-query");
+const memoryDestination = document.querySelector("#memory-destination");
+const memoryMaxSensitivity = document.querySelector("#memory-max-sensitivity");
+const memoryIncludeExplicit = document.querySelector("#memory-include-explicit");
+const retrieveMemoryButton = document.querySelector("#retrieve-memory");
+const memoryRetrievalResult = document.querySelector("#memory-retrieval-result");
+const memoryLedgerCount = document.querySelector("#memory-ledger-count");
+const memoryList = document.querySelector("#memory-list");
+const memoryInspectorHeading = document.querySelector("#memory-inspector-heading");
+const memoryInspectorStatement = document.querySelector("#memory-inspector-statement");
+const memoryInspectorState = document.querySelector("#memory-inspector-state");
+const memoryInspectorScope = document.querySelector("#memory-inspector-scope");
+const memoryInspectorPolicy = document.querySelector("#memory-inspector-policy");
+const memoryInspectorEvidence = document.querySelector("#memory-inspector-evidence");
+const memoryDecisionReason = document.querySelector("#memory-decision-reason");
+const promoteMemoryButton = document.querySelector("#promote-memory");
+const rejectMemoryButton = document.querySelector("#reject-memory");
+const disputeMemoryButton = document.querySelector("#dispute-memory");
+const forgetMemoryButton = document.querySelector("#forget-memory");
+const memoryCorrectionForm = document.querySelector("#memory-correction-form");
+const memoryCorrection = document.querySelector("#memory-correction");
+const memoryCorrectionReason = document.querySelector("#memory-correction-reason");
 let latestRun;
 let refreshPromise;
 let harnessReady = false;
+let latestMemories = [];
+let selectedMemoryId;
 
 const runStateLabels = {
   planned: "Planned", running: "Running", recovering: "Recovering", waiting_approval: "Waiting approval",
@@ -142,7 +179,7 @@ function setHarnessAvailability(snapshot) {
   bridgeConnectionState.textContent = bridgeLive ? "Live" : snapshot.bridge?.state ?? "Unavailable";
   bridgeConnectionState.className = `state ${bridgeLive ? "complete" : "waiting"}`;
   bridgeConnectionDetail.textContent = bridgeLive
-    ? `${snapshot.bridge.host}:${snapshot.bridge.port} · ${snapshot.bridge.tools.length} scoped tools · bearer kept outside renderer`
+    ? `${snapshot.bridge.host}:${snapshot.bridge.port} · ${snapshot.bridge.tools.length} scoped tools · memory requires a separate future pairing scope`
     : "Authenticated localhost MCP unavailable";
   runButton.disabled = !ready;
 }
@@ -235,6 +272,96 @@ function renderCanvas(run, assessment) {
   inspectNode(selected);
 }
 
+function renderMemory(snapshot) {
+  latestMemories = snapshot.memories ?? [];
+  const count = (state) => latestMemories.filter((memory) => memory.state === state).length;
+  const activeCount = count("active");
+  memoryMode.textContent = `${activeCount} active`;
+  memoryProposedCount.textContent = String(count("proposed"));
+  memoryActiveCount.textContent = String(activeCount);
+  memoryDisputedCount.textContent = String(count("disputed"));
+  memoryLedgerCount.textContent = `${latestMemories.length} immutable ${latestMemories.length === 1 ? "claim" : "claims"}`;
+  const evidenceReady = harnessReady && Boolean(latestRun?.draft);
+  proposeMemoryButton.disabled = !evidenceReady;
+  retrieveMemoryButton.disabled = !harnessReady;
+  memoryEvidenceContext.textContent = evidenceReady
+    ? `Evidence: ${shortId(latestRun.draft.artifactId)} @ ${shortId(latestRun.draft.versionId)} + run ${shortId(latestRun.runId)}. Proposal only.`
+    : "Create an Idea Foundry brief to attach an exact artifact version and durable run.";
+
+  if (!latestMemories.some((memory) => memory.memoryId === selectedMemoryId)) {
+    selectedMemoryId = latestMemories.find((memory) => memory.state !== "forgotten")?.memoryId ?? latestMemories[0]?.memoryId;
+  }
+  if (!latestMemories.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "No governed claims yet.";
+    memoryList.replaceChildren(empty);
+  } else {
+    memoryList.replaceChildren(...latestMemories.map(memoryCard));
+  }
+  renderMemoryInspector();
+}
+
+function memoryCard(memory) {
+  const item = document.createElement("div");
+  item.setAttribute("role", "listitem");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `memory-card${memory.memoryId === selectedMemoryId ? " selected" : ""}`;
+  button.setAttribute("aria-pressed", String(memory.memoryId === selectedMemoryId));
+  const statement = document.createElement("strong");
+  statement.textContent = memory.statement;
+  const state = document.createElement("span");
+  state.className = `state ${memoryStateClass(memory.state)}`;
+  state.textContent = humanize(memory.state);
+  const detail = document.createElement("small");
+  detail.textContent = `${humanize(memory.layer)} · ${Math.round(memory.confidence * 100)}% · ${humanize(memory.retrievalPolicy)}`;
+  button.append(statement, state, detail);
+  button.addEventListener("click", () => {
+    selectedMemoryId = memory.memoryId;
+    renderMemory({ memories: latestMemories });
+    announcer.textContent = `${memory.statement} selected. State: ${humanize(memory.state)}.`;
+  });
+  item.append(button);
+  return item;
+}
+
+function renderMemoryInspector() {
+  const memory = latestMemories.find((candidate) => candidate.memoryId === selectedMemoryId);
+  const actionButtons = [promoteMemoryButton, rejectMemoryButton, disputeMemoryButton, forgetMemoryButton];
+  if (!memory) {
+    memoryInspectorHeading.textContent = "Nothing selected";
+    memoryInspectorStatement.textContent = "Select a claim to review its evidence, scope, and authority.";
+    [memoryInspectorState, memoryInspectorScope, memoryInspectorPolicy, memoryInspectorEvidence].forEach((element) => { element.textContent = "—"; });
+    actionButtons.forEach((button) => { button.hidden = true; });
+    memoryDecisionReason.disabled = true;
+    memoryCorrectionForm.hidden = true;
+    return;
+  }
+  memoryInspectorHeading.textContent = `${humanize(memory.layer)} claim`;
+  memoryInspectorStatement.textContent = memory.statement;
+  memoryInspectorState.textContent = `${humanize(memory.state)}${memory.retrievalEligible ? " · retrievable" : " · excluded"}`;
+  memoryInspectorScope.textContent = Object.values(memory.scope).map(shortId).join(" / ");
+  memoryInspectorPolicy.textContent = `${humanize(memory.retrievalPolicy)} · ${humanize(memory.sensitivity)}`;
+  memoryInspectorEvidence.textContent = memory.evidence.length
+    ? memory.evidence.map((reference) => `${reference.type}:${shortId(reference.refId)}${reference.versionId ? `@${shortId(reference.versionId)}` : ""}`).join(", ")
+    : memory.searchDerivativesDeleted ? "Redacted from active projection" : "No evidence";
+  memoryDecisionReason.disabled = false;
+  promoteMemoryButton.hidden = !["proposed", "disputed"].includes(memory.state);
+  rejectMemoryButton.hidden = memory.state !== "proposed";
+  disputeMemoryButton.hidden = !["proposed", "active"].includes(memory.state);
+  forgetMemoryButton.hidden = !["proposed", "active", "disputed", "expired", "rejected"].includes(memory.state);
+  memoryCorrectionForm.hidden = !["proposed", "active"].includes(memory.state);
+  if (document.activeElement !== memoryCorrection) memoryCorrection.value = memory.state === "forgotten" ? "" : memory.statement;
+}
+
+function memoryStateClass(state) {
+  if (state === "active") return "complete";
+  if (state === "proposed") return "waiting";
+  if (["disputed", "rejected", "forgotten", "expired"].includes(state)) return "failed";
+  return "specified";
+}
+
 function setCanvasNode(name, title, detail) {
   const button = nodeButtons.find((candidate) => candidate.dataset.node === name);
   if (!button) return;
@@ -261,6 +388,7 @@ async function refreshHarness() {
     .then((snapshot) => {
       setHarnessAvailability(snapshot);
       renderRun(snapshot.runs?.[0]);
+      renderMemory(snapshot);
       return snapshot;
     })
     .catch((error) => {
@@ -314,6 +442,99 @@ async function resolveBrief(decision) {
 
 approveBrief.addEventListener("click", () => void resolveBrief("approve"));
 rejectBrief.addEventListener("click", () => void resolveBrief("reject"));
+
+memoryProposalForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!latestRun?.draft) return;
+  proposeMemoryButton.disabled = true;
+  try {
+    const result = await window.clarkDesktop.proposeMemoryFromRun({
+      runId: latestRun.runId,
+      statement: memoryStatement.value,
+      layer: memoryLayer.value,
+      confidence: Number(memoryConfidence.value),
+      sensitivity: memorySensitivity.value,
+      retrievalPolicy: memoryPolicy.value
+    });
+    selectedMemoryId = result.memory.memoryId;
+    announcer.textContent = "Memory proposed with exact evidence. It is excluded from retrieval until you promote it.";
+    await refreshHarness();
+  } catch (error) {
+    announcer.textContent = `Memory proposal failed: ${error.message}`;
+  } finally {
+    proposeMemoryButton.disabled = !harnessReady || !latestRun?.draft;
+  }
+});
+
+async function resolveSelectedMemory(action) {
+  const memory = latestMemories.find((candidate) => candidate.memoryId === selectedMemoryId);
+  if (!memory) return;
+  [promoteMemoryButton, rejectMemoryButton, disputeMemoryButton, forgetMemoryButton].forEach((button) => { button.disabled = true; });
+  try {
+    const result = await window.clarkDesktop.resolveMemory({ memoryId: memory.memoryId, action, reason: memoryDecisionReason.value });
+    selectedMemoryId = result.memory.memoryId;
+    announcer.textContent = action === "forget"
+      ? "Memory removed from retrieval and redacted in the active projection; its immutable audit event remains."
+      : `Memory ${action} decision recorded. State: ${result.memory.state}.`;
+    await refreshHarness();
+  } catch (error) {
+    announcer.textContent = `Memory decision failed: ${error.message}`;
+  } finally {
+    [promoteMemoryButton, rejectMemoryButton, disputeMemoryButton, forgetMemoryButton].forEach((button) => { button.disabled = false; });
+  }
+}
+
+promoteMemoryButton.addEventListener("click", () => void resolveSelectedMemory("promote"));
+rejectMemoryButton.addEventListener("click", () => void resolveSelectedMemory("reject"));
+disputeMemoryButton.addEventListener("click", () => void resolveSelectedMemory("dispute"));
+forgetMemoryButton.addEventListener("click", () => void resolveSelectedMemory("forget"));
+
+memoryCorrectionForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const memory = latestMemories.find((candidate) => candidate.memoryId === selectedMemoryId);
+  if (!memory) return;
+  const button = document.querySelector("#correct-memory");
+  button.disabled = true;
+  try {
+    const result = await window.clarkDesktop.correctMemory({
+      memoryId: memory.memoryId,
+      statement: memoryCorrection.value,
+      reason: memoryCorrectionReason.value
+    });
+    selectedMemoryId = result.memory.memoryId;
+    announcer.textContent = "Correction recorded: the old claim is disputed and a linked replacement proposal is waiting for review.";
+    await refreshHarness();
+  } catch (error) {
+    announcer.textContent = `Memory correction failed: ${error.message}`;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+memoryRetrievalForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  retrieveMemoryButton.disabled = true;
+  try {
+    const result = await window.clarkDesktop.retrieveMemory({
+      query: memoryQuery.value,
+      destination: memoryDestination.value,
+      maxSensitivity: memoryMaxSensitivity.value,
+      includeExplicitOnly: memoryIncludeExplicit.checked
+    });
+    const summary = document.createElement("p");
+    summary.textContent = `${result.memories.length} active ${result.memories.length === 1 ? "claim" : "claims"} · ${humanize(result.destination)} · audit ${shortHash(result.queryHash)}`;
+    const list = document.createElement("ul");
+    list.append(...result.memories.map((memory) => listItem(memory.statement)));
+    memoryRetrievalResult.replaceChildren(summary, list);
+    announcer.textContent = `${result.memories.length} policy-eligible memory claims retrieved. The raw query was not written to the event log.`;
+  } catch (error) {
+    announcer.textContent = `Memory retrieval failed: ${error.message}`;
+  } finally {
+    retrieveMemoryButton.disabled = !harnessReady;
+    await refreshHarness();
+  }
+});
+
 window.clarkDesktop.onHarnessEvent(() => void refreshHarness());
 
 const initialState = await window.clarkDesktop.getShellState();

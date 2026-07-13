@@ -39,6 +39,7 @@ process.parentPort.once("message", (connectionEvent) => {
   const emitProtocolEvent = (eventType, payload) => port.postMessage(createProtocolEvent(++sequence, eventType, payload));
   engine.on("run.updated", (payload) => emitProtocolEvent("run.updated", payload));
   engine.on("approval.required", (payload) => emitProtocolEvent("approval.required", payload));
+  engine.on("memory.updated", (payload) => emitProtocolEvent("memory.updated", payload));
 
   port.on("message", (messageEvent) => {
     queue = queue.then(async () => {

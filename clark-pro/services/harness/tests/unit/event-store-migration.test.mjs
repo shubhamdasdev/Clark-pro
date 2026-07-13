@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { EventStore } from "../../src/event-store.mjs";
 
-test("schema v1 databases migrate additively through capability runtime and revision lineage schema v3", async () => {
+test("schema v1 databases migrate additively through governed memory schema v4", async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), "clark-db-migration-"));
   const databasePath = path.join(directory, "clark.db");
   const legacy = new DatabaseSync(databasePath);
@@ -27,7 +27,7 @@ test("schema v1 databases migrate additively through capability runtime and revi
   let store;
   try {
     store = new EventStore(databasePath);
-    assert.equal(store.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get().value, "3");
+    assert.equal(store.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get().value, "4");
     const columns = store.database.prepare("PRAGMA table_info(runs)").all().map((column) => column.name);
     assert.equal(columns.includes("analysis_artifact_id"), true);
     assert.equal(columns.includes("analysis_version_id"), true);
@@ -40,6 +40,8 @@ test("schema v1 databases migrate additively through capability runtime and revi
     assert.equal(migratedRun.revision_number, 1);
     assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM capabilities").get().count, 0);
     assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM bridge_clients").get().count, 0);
+    assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM memories").get().count, 0);
+    assert.equal(store.database.prepare("SELECT COUNT(*) AS count FROM memory_retrievals").get().count, 0);
     assert.equal(store.journalMode, "wal");
   } finally {
     store?.close();

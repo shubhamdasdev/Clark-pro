@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/harness-ipc.schema.json
- * Source SHA-256: 8ef9fcbb39ec8ac8940382fc942251984cb1fe367f97db62f5ec62d3d279c58f
+ * Source SHA-256: 6fe19f29e6ad991ced76811860bd1750828659215eda5d5ea6b413931fd8eb9e
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -19,6 +19,11 @@ export type Response = {
     | "run.get"
     | "run.list"
     | "approval.resolve"
+    | "memory.propose"
+    | "memory.resolve"
+    | "memory.correct"
+    | "memory.list"
+    | "memory.retrieve"
     | "capability.list"
     | "bridge.status";
   ok: boolean;
@@ -28,6 +33,9 @@ export type Response = {
     | LoopStartResult
     | RunSummary
     | RunListResult
+    | MemoryMutationResult
+    | MemoryListResult
+    | MemoryRetrievalResult
     | CapabilityListResult
     | BridgeStatusResult;
   error?: Error;
@@ -53,6 +61,11 @@ export interface Request {
     | RunGetCommand
     | RunListCommand
     | ApprovalResolveCommand
+    | MemoryProposeCommand
+    | MemoryResolveCommand
+    | MemoryCorrectCommand
+    | MemoryListCommand
+    | MemoryRetrieveCommand
     | CapabilityListCommand
     | BridgeStatusCommand;
 }
@@ -108,6 +121,502 @@ export interface ApprovalResolveCommand {
     approvalId: string;
     decision: "approve" | "reject";
     reason?: string;
+    idempotencyKey: string;
+  };
+}
+export interface MemoryProposeCommand {
+  method: "memory.propose";
+  payload: {
+    workspaceId: string;
+    layer: "identity" | "semantic" | "episodic" | "procedural" | "performance";
+    statement: string;
+    /**
+     * @minItems 1
+     * @maxItems 20
+     */
+    evidence:
+      | [EvidenceRef]
+      | [EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ];
+    /**
+     * @maxItems 20
+     */
+    contradictions:
+      | []
+      | [EvidenceRef]
+      | [EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ]
+      | [
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef,
+          EvidenceRef
+        ];
+    confidence: number;
+    scope: MemoryScope;
+    sensitivity: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
+    retrievalPolicy: "default" | "explicit_only" | "never_send_to_model";
+    expiresAt?: string;
+    idempotencyKey: string;
+  };
+}
+export interface EvidenceRef {
+  type: "source" | "artifact" | "decision" | "observation" | "correction" | "run" | "publication" | "policy";
+  refId: string;
+  versionId?: string;
+  excerptHash?: string;
+}
+export interface MemoryScope {
+  workspaceId: string;
+  projectId?: string;
+  platform?: string;
+  loopId?: string;
+  accountConnectionId?: string;
+}
+export interface MemoryResolveCommand {
+  method: "memory.resolve";
+  payload: {
+    workspaceId: string;
+    memoryId: string;
+    action: "promote" | "reject" | "dispute" | "forget";
+    reason: string;
+    idempotencyKey: string;
+  };
+}
+export interface MemoryCorrectCommand {
+  method: "memory.correct";
+  payload: {
+    workspaceId: string;
+    memoryId: string;
+    statement: string;
+    reason: string;
+    confidence?: number;
+    scope?: MemoryScope;
+    sensitivity?: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
+    retrievalPolicy?: "default" | "explicit_only" | "never_send_to_model";
+    expiresAt?: string;
+    idempotencyKey: string;
+  };
+}
+export interface MemoryListCommand {
+  method: "memory.list";
+  payload: {
+    workspaceId: string;
+    limit: number;
+    includeForgotten: boolean;
+  };
+}
+export interface MemoryRetrieveCommand {
+  method: "memory.retrieve";
+  payload: {
+    workspaceId: string;
+    query: string;
+    purpose: string;
+    destination: "creator_view" | "local_model" | "remote_model";
+    scope: MemoryScope;
+    maxSensitivity: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
+    includeExplicitOnly: boolean;
+    limit: number;
     idempotencyKey: string;
   };
 }
@@ -184,6 +693,686 @@ export interface RunListResult {
    */
   runs: RunSummary[];
 }
+export interface MemoryMutationResult {
+  memory: MemorySummary;
+  deduplicated: boolean;
+}
+export interface MemorySummary {
+  memoryId: string;
+  workspaceId: string;
+  layer: "identity" | "semantic" | "episodic" | "procedural" | "performance";
+  statement: string;
+  /**
+   * @maxItems 20
+   */
+  evidence:
+    | []
+    | [EvidenceRef]
+    | [EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ];
+  /**
+   * @maxItems 20
+   */
+  contradictions:
+    | []
+    | [EvidenceRef]
+    | [EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef, EvidenceRef]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ]
+    | [
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef,
+        EvidenceRef
+      ];
+  confidence: number;
+  scope: MemoryScope;
+  sensitivity: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
+  retrievalPolicy: "default" | "explicit_only" | "never_send_to_model";
+  state: "proposed" | "active" | "disputed" | "expired" | "rejected" | "forgotten";
+  retrievalEligible: boolean;
+  createdBy: "creator" | "reflection_agent" | "import";
+  supersedesMemoryId?: string;
+  replacementMemoryId?: string;
+  decisionId?: string;
+  expiresAt?: string;
+  searchDerivativesDeleted: boolean;
+  matchedTerms?: number;
+  updatedAt: string;
+}
+export interface MemoryListResult {
+  /**
+   * @maxItems 100
+   */
+  memories: MemorySummary[];
+}
+export interface MemoryRetrievalResult {
+  retrievalId: string;
+  queryHash: string;
+  purpose: string;
+  destination: "creator_view" | "local_model" | "remote_model";
+  /**
+   * @maxItems 20
+   */
+  memories:
+    | []
+    | [MemorySummary]
+    | [MemorySummary, MemorySummary]
+    | [MemorySummary, MemorySummary, MemorySummary]
+    | [MemorySummary, MemorySummary, MemorySummary, MemorySummary]
+    | [MemorySummary, MemorySummary, MemorySummary, MemorySummary, MemorySummary]
+    | [MemorySummary, MemorySummary, MemorySummary, MemorySummary, MemorySummary, MemorySummary]
+    | [MemorySummary, MemorySummary, MemorySummary, MemorySummary, MemorySummary, MemorySummary, MemorySummary]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ]
+    | [
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary,
+        MemorySummary
+      ];
+  policyRevisionId: string;
+  deduplicated: boolean;
+}
 export interface CapabilityListResult {
   /**
    * @maxItems 100
@@ -235,9 +1424,10 @@ export interface Event {
   schemaVersion: 1;
   kind: "event";
   sequence: number;
-  eventType: "harness.ready" | "harness.recovering" | "run.updated" | "approval.required";
+  eventType: "harness.ready" | "harness.recovering" | "run.updated" | "approval.required" | "memory.updated";
   emittedAt: string;
-  payload: HarnessReadyPayload | HarnessRecoveringPayload | RunUpdatedPayload | ApprovalRequiredPayload;
+  payload:
+    HarnessReadyPayload | HarnessRecoveringPayload | RunUpdatedPayload | ApprovalRequiredPayload | MemoryUpdatedPayload;
 }
 export interface HarnessReadyPayload {
   protocolVersion: 1;
@@ -255,4 +1445,8 @@ export interface ApprovalRequiredPayload {
   runId: string;
   approvalId: string;
   subjectRef: string;
+}
+export interface MemoryUpdatedPayload {
+  memoryId: string;
+  state: "proposed" | "active" | "disputed" | "expired" | "rejected" | "forgotten";
 }

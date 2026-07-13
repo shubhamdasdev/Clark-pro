@@ -32,7 +32,7 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.equal(boundary.requireType, "undefined");
     assert.equal(boundary.processType, "undefined");
     assert.equal(boundary.protocol, "clark-app:");
-    assert.deepEqual(boundary.apiKeys, ["getHarnessState", "getShellState", "onHarnessEvent", "onNavigate", "onTrustCenter", "resolveIdeaApproval", "reviseIdea", "setActiveSection", "startIdeaLoop", "version"]);
+    assert.deepEqual(boundary.apiKeys, ["correctMemory", "getHarnessState", "getShellState", "onHarnessEvent", "onNavigate", "onTrustCenter", "proposeMemoryFromRun", "resolveIdeaApproval", "resolveMemory", "retrieveMemory", "reviseIdea", "setActiveSection", "startIdeaLoop", "version"]);
     assert.match(boundary.csp, /default-src 'none'/);
 
     await page.getByText(/Ready · \d+ events/).waitFor();
@@ -68,11 +68,13 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
       return {
         top: applicationMenu.items.map((item) => item.label),
         canvas: applicationMenu.getMenuItemById("view-canvas")?.accelerator,
+        memory: applicationMenu.getMenuItemById("view-memory")?.accelerator,
         services: applicationMenu.items[0].submenu.items.some((item) => item.role === "services")
       };
     });
     assert.equal(menu.services, true);
     assert.equal(menu.canvas, "CmdOrCtrl+2");
+    assert.equal(menu.memory, "CmdOrCtrl+6");
     assert.ok(menu.top.includes("Edit"));
     assert.ok(menu.top.includes("Window"));
 
@@ -85,8 +87,31 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.match(await page.locator(":focus").innerText(), /Thesis stress-test/);
     assert.match(await page.locator("#canvas-readiness").innerText(), /Evidence required/);
     assert.equal(await page.locator("#evidence-gap-list li").count(), 5);
-    assert.equal(await page.locator("h1").count(), 3);
+    assert.equal(await page.locator("h1").count(), 4);
     assert.equal(await page.locator("h1:visible").count(), 1);
+
+    await page.keyboard.press("Meta+6");
+    await page.getByRole("heading", { name: "Memory", level: 1 }).waitFor();
+    await page.getByRole("button", { name: "Propose memory" }).click();
+    await page.getByText("Proposed · excluded", { exact: true }).waitFor();
+    assert.match(await page.locator("#memory-inspector-evidence").innerText(), /artifact:/);
+    await page.getByRole("button", { name: "Retrieve active claims" }).click();
+    await page.getByText(/0 active claims · Creator view/i).waitFor();
+    await page.getByRole("button", { name: "Promote", exact: true }).click();
+    await page.getByText("Active · retrievable", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "Retrieve active claims" }).click();
+    await page.getByText(/1 active claim · Creator view/i).waitFor();
+    await page.locator("#memory-correction").fill("Creator prefers operational explanations that separate observed evidence from aspirational claims.");
+    await page.getByRole("button", { name: "Propose corrected claim" }).click();
+    await page.getByText("2 immutable claims", { exact: true }).waitFor();
+    await page.getByText("Proposed · excluded", { exact: true }).waitFor();
+    assert.equal(await page.locator(".memory-card").filter({ hasText: "Disputed" }).count(), 1);
+    await page.getByRole("button", { name: "Promote", exact: true }).click();
+    await page.getByText("Active · retrievable", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "Forget", exact: true }).click();
+    await page.getByText("Forgotten · excluded", { exact: true }).waitFor();
+    assert.equal(await page.locator("#memory-inspector-statement").innerText(), "[forgotten]");
+    assert.match(await page.getByText(/immutable audit event remains until cryptographic erasure/i).innerText(), /compaction/);
 
     await page.keyboard.press("Meta+7");
     await page.getByRole("heading", { name: "Connections", level: 1 }).waitFor();

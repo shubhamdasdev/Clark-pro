@@ -82,24 +82,26 @@ Performance memory supports descriptive comparison and retrieval. It does not cl
 Every active item includes:
 
 ```yaml
-id: mem_...
-type: identity | semantic | episodic | procedural | performance
+id: memory.identity....
+layer: identity | semantic | episodic | procedural | performance
 statement: "Direct, specific openings are preferred over generic list hooks."
-scope: workspace | project | platform | loop | account
-status: proposed | active | disputed | expired | forgotten
+scope:
+  workspaceId: workspace.local
+  projectId: project.creator
+status: proposed | active | disputed | expired | rejected | forgotten
 confidence: 0.74
 evidence:
   - eventId: decision_...
     relation: supports
   - observationId: obs_...
     relation: weakly-supports
-createdBy: human | reflection-agent | import
+createdBy: creator | reflection_agent | import
 createdAt: ...
 validFrom: ...
 validUntil: null
 supersedes: null
-sensitivity: normal | personal | confidential | secret-reference
-retrievalPolicy: default | explicit-only | never-send-to-model
+sensitivity: public | workspace | personal | confidential | secret_reference
+retrievalPolicy: default | explicit_only | never_send_to_model
 ```
 
 Confidence is an aid to review and retrieval, not a truth score.
@@ -156,6 +158,12 @@ The Memory view must support:
 - delete derived embeddings and summaries when the source is forgotten.
 
 Forget is a real operation, not hiding a row from the UI.
+
+### Executable slice and deletion boundary
+
+The permanent Harness/Studio slice currently implements exact evidence-bound proposals, creator promotion/rejection/dispute/forget decisions, append-only corrections, workspace/project scope filtering, sensitivity ceilings, `explicit_only` authorization, `never_send_to_model` enforcement, and content-free retrieval audit receipts. Retrieval accepts only active, unexpired claims and stores a query hash plus returned memory IDs rather than the raw query.
+
+Forgetting immediately excludes the claim from retrieval, replaces its projected statement with `[forgotten]`, clears projected evidence and contradictions, and records that search derivatives were deleted. The original event payload remains in the append-only event log until a future cryptographic-erasure or compaction mechanism can remove it without breaking audit integrity. Therefore the current slice proves governed logical forgetting, not complete physical deletion. Bridge memory access is also intentionally absent until a separately reviewed pairing scope exists.
 
 ## Creator Model Sections
 

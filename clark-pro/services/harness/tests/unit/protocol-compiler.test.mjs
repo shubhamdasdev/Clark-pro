@@ -68,3 +68,21 @@ test("idea revision requests require explicit parent lineage and a reason", () =
     idempotencyKey: "intent-revise-0001"
   }), HarnessProtocolError);
 });
+
+test("memory mutation and retrieval requests require workspace scope, evidence, and explicit send policy", () => {
+  const scope = { workspaceId: "workspace.local", projectId: "project.idea-lab" };
+  assert.doesNotThrow(() => createRequest("memory.propose", {
+    workspaceId: "workspace.local", layer: "identity", statement: "Creator prefers evidence-first explanations.",
+    evidence: [{ type: "run", refId: "run.idea.12345678" }], contradictions: [], confidence: 0.7,
+    scope, sensitivity: "personal", retrievalPolicy: "explicit_only", idempotencyKey: "intent-memory-propose-0001"
+  }));
+  assert.doesNotThrow(() => createRequest("memory.retrieve", {
+    workspaceId: "workspace.local", query: "evidence explanations", purpose: "Creator-visible inspection",
+    destination: "creator_view", scope, maxSensitivity: "personal", includeExplicitOnly: true,
+    limit: 10, idempotencyKey: "intent-memory-retrieve-0001"
+  }));
+  assert.throws(() => createRequest("memory.retrieve", {
+    workspaceId: "workspace.local", query: "evidence", purpose: "Remote context", destination: "remote_model",
+    scope, maxSensitivity: "personal", limit: 10, idempotencyKey: "intent-memory-retrieve-0002"
+  }), HarnessProtocolError);
+});

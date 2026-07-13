@@ -1,4 +1,4 @@
-export const SECTIONS = Object.freeze(["focus", "canvas", "connections"]);
+export const SECTIONS = Object.freeze(["focus", "canvas", "memory", "connections"]);
 
 export function createMenuTemplate({ appName = "Clark Studio", navigate, showTrustCenter }) {
   const go = (section) => () => navigate(section);
@@ -33,6 +33,7 @@ export function createMenuTemplate({ appName = "Clark Studio", navigate, showTru
       submenu: [
         { id: "view-focus", label: "Focus", accessibilityLabel: "Open Focus view", accelerator: "CmdOrCtrl+1", click: go("focus") },
         { id: "view-canvas", label: "Canvas", accessibilityLabel: "Open Canvas view", accelerator: "CmdOrCtrl+2", click: go("canvas") },
+        { id: "view-memory", label: "Memory", accessibilityLabel: "Open Memory view", accelerator: "CmdOrCtrl+6", click: go("memory") },
         { id: "view-connections", label: "Connections", accessibilityLabel: "Open Connections view", accelerator: "CmdOrCtrl+7", click: go("connections") },
         { type: "separator" },
         { id: "trust-center", label: "Trust Center", accelerator: "CmdOrCtrl+Shift+T", click: showTrustCenter },

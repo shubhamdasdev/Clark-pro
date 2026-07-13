@@ -16,7 +16,8 @@ This package is the permanent local run substrate defined by ADR-0002, ADR-0003,
 - an official-SDK Clark Bridge MCP server bound to `127.0.0.1` on an ephemeral port, with Host/Origin/body checks, a 256-bit bearer stored only in an owner-readable connection file, one-workspace client scope, and capture/revision/read tools only;
 - boot-time event/row integrity verification and projection rebuild before durable step recovery;
 - durable step attempts, checkpoint metadata, creator decision events, and approval/publishing separation;
-- additive SQLite schema-v3 migration that restores older runs as revision-one roots and preserves deterministic event replay;
+- governed memory claims with exact evidence references, proposal-only creation, explicit promotion/rejection/dispute/forget decisions, append-only correction lineage, scoped retrieval policies, content-free retrieval receipts, and deterministic replay;
+- additive SQLite schema-v4 migration that restores older runs as revision-one roots, adds memory/retrieval projections, and preserves deterministic event replay;
 - zero network, credential, model, social, skill, file, build, or publication authority in this executable loop; the only tool call is a bundled deterministic zero-egress MCP transform.
 
 ## Deliberate limitations
@@ -25,6 +26,8 @@ This package is the permanent local run substrate defined by ADR-0002, ADR-0003,
 - This loop is a deterministic thesis-structure baseline, not research, observed evidence, model generation, a general graph compiler, or proof of creator value. The MCP inspector marks ten explicit facets and always keeps market evidence unobserved until a separate evidence path supplies it.
 - The current process has no Keychain credential leases, third-party MCP/tool installation, external jobs, budgets beyond zero-cost local work, scheduling, backup/export, or signed release evidence.
 - Clark Bridge currently exposes `clark.idea.start`, `clark.idea.revise`, `clark.runs.list`, `clark.run.get`, and one compact run resource. It cannot approve, mutate memory, install skills, access credentials, build, or publish.
+- Studio memory is deliberately not enumerable through the currently paired Bridge client. Any future Bridge memory surface requires a separate explicit memory-read scope and privacy review.
+- Forgetting immediately removes a claim from retrieval, redacts the active projection, clears projected evidence/contradictions, and records derivative deletion. The original personal event payload remains in the immutable log until cryptographic erasure or compaction exists, so this slice does not claim complete physical deletion.
 - Recovery coverage proves an interrupted local run plus orphaned capability/Bridge revocation; broader transition chaos, in-flight cancellation, and ambiguous external-mutation reconciliation remain release gates.
 
 ## Verify

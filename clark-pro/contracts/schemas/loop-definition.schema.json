@@ -129,7 +129,7 @@
         "outputs": { "type": "array", "items": { "$ref": "#/$defs/port" } },
         "capabilityRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
         "nestedLoopRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
-        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "skill_promote", "conflict_resolve"] },
+        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "memory_dispute", "memory_correct", "memory_forget", "skill_promote", "conflict_resolve"] },
         "gateType": { "enum": ["human", "evidence", "brand", "platform", "budget", "disclosure", "legal", "confidentiality", "quality", "accessibility"] },
         "actionClass": { "$ref": "common.schema.json#/$defs/actionClass" },
         "approval": { "$ref": "common.schema.json#/$defs/approvalRequirement" },

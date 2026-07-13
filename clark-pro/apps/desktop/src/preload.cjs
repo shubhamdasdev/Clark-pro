@@ -1,6 +1,11 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-const allowedSections = new Set(["focus", "canvas", "connections"]);
+const allowedSections = new Set(["focus", "canvas", "memory", "connections"]);
+const memoryLayers = new Set(["identity", "semantic", "episodic", "procedural", "performance"]);
+const memorySensitivities = new Set(["public", "workspace", "personal", "confidential", "secret_reference"]);
+const memoryPolicies = new Set(["default", "explicit_only", "never_send_to_model"]);
+const memoryActions = new Set(["promote", "reject", "dispute", "forget"]);
+const memoryDestinations = new Set(["creator_view", "local_model", "remote_model"]);
 
 const api = Object.freeze({
   version: "0.1.0",
@@ -52,6 +57,46 @@ const api = Object.freeze({
       return Promise.reject(new TypeError("A valid approval decision is required"));
     }
     return ipcRenderer.invoke("desktop:resolve-idea-approval", safe);
+  },
+  proposeMemoryFromRun: (proposal) => {
+    const safe = proposal && typeof proposal === "object" ? {
+      runId: proposal.runId,
+      statement: proposal.statement,
+      layer: proposal.layer,
+      confidence: proposal.confidence,
+      sensitivity: proposal.sensitivity,
+      retrievalPolicy: proposal.retrievalPolicy
+    } : undefined;
+    if (!safe || typeof safe.runId !== "string" || typeof safe.statement !== "string" || safe.statement.trim().length < 3 || safe.statement.length > 4000 || !memoryLayers.has(safe.layer) || typeof safe.confidence !== "number" || safe.confidence < 0 || safe.confidence > 1 || !memorySensitivities.has(safe.sensitivity) || !memoryPolicies.has(safe.retrievalPolicy)) {
+      return Promise.reject(new TypeError("A valid evidence-bound memory proposal is required"));
+    }
+    return ipcRenderer.invoke("desktop:propose-memory-from-run", safe);
+  },
+  resolveMemory: (decision) => {
+    const safe = decision && typeof decision === "object" ? { memoryId: decision.memoryId, action: decision.action, reason: decision.reason } : undefined;
+    if (!safe || typeof safe.memoryId !== "string" || !memoryActions.has(safe.action) || typeof safe.reason !== "string" || safe.reason.trim().length < 3 || safe.reason.length > 1000) {
+      return Promise.reject(new TypeError("A valid memory decision is required"));
+    }
+    return ipcRenderer.invoke("desktop:resolve-memory", safe);
+  },
+  correctMemory: (correction) => {
+    const safe = correction && typeof correction === "object" ? { memoryId: correction.memoryId, statement: correction.statement, reason: correction.reason } : undefined;
+    if (!safe || typeof safe.memoryId !== "string" || typeof safe.statement !== "string" || safe.statement.trim().length < 3 || safe.statement.length > 4000 || typeof safe.reason !== "string" || safe.reason.trim().length < 3 || safe.reason.length > 1000) {
+      return Promise.reject(new TypeError("A valid append-only memory correction is required"));
+    }
+    return ipcRenderer.invoke("desktop:correct-memory", safe);
+  },
+  retrieveMemory: (request) => {
+    const safe = request && typeof request === "object" ? {
+      query: request.query,
+      destination: request.destination,
+      maxSensitivity: request.maxSensitivity,
+      includeExplicitOnly: request.includeExplicitOnly
+    } : undefined;
+    if (!safe || typeof safe.query !== "string" || safe.query.trim().length < 1 || safe.query.length > 1000 || !memoryDestinations.has(safe.destination) || !memorySensitivities.has(safe.maxSensitivity) || typeof safe.includeExplicitOnly !== "boolean") {
+      return Promise.reject(new TypeError("A valid scoped memory retrieval is required"));
+    }
+    return ipcRenderer.invoke("desktop:retrieve-memory", safe);
   },
   onHarnessEvent: (listener) => {
     if (typeof listener !== "function") throw new TypeError("A listener function is required");

@@ -27,6 +27,9 @@
           <button id="tab-canvas" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-canvas" tabindex="-1" data-section="canvas">
             <span aria-hidden="true">⌘</span><span>Canvas</span><kbd>⌘2</kbd>
           </button>
+          <button id="tab-memory" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-memory" tabindex="-1" data-section="memory">
+            <span aria-hidden="true">◫</span><span>Memory</span><kbd>⌘6</kbd>
+          </button>
           <button id="tab-connections" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-connections" tabindex="-1" data-section="connections">
             <span aria-hidden="true">◇</span><span>Connections</span><kbd>⌘7</kbd>
           </button>
@@ -150,6 +153,74 @@
           </div>
         </section>
 
+        <section id="view-memory" class="view" role="tabpanel" aria-labelledby="tab-memory" data-view="memory" hidden>
+          <div class="view-heading">
+            <div><p class="eyebrow">Governed creator context</p><h1>Memory</h1><p>Evidence-backed claims stay proposals until you promote them. Every correction, retrieval, and forgetting decision is auditable.</p></div>
+            <span id="memory-mode" class="mode-badge">0 active</span>
+          </div>
+          <div class="memory-metrics" aria-label="Memory governance summary">
+            <article><span id="memory-proposed-count">0</span><p>Proposals waiting</p></article>
+            <article><span id="memory-active-count">0</span><p>Active claims</p></article>
+            <article><span id="memory-disputed-count">0</span><p>Disputed claims</p></article>
+          </div>
+          <div class="memory-layout">
+            <div class="memory-controls">
+              <section class="panel memory-panel" aria-labelledby="memory-propose-heading">
+                <div class="panel-heading"><h2 id="memory-propose-heading">Propose from durable work</h2><span>Never auto-promoted</span></div>
+                <form id="memory-proposal-form" class="memory-form">
+                  <label for="memory-statement">Candidate claim</label>
+                  <textarea id="memory-statement" minlength="3" maxlength="4000" rows="3" required>Creator prefers evidence-first operational explanations.</textarea>
+                  <div class="field-grid">
+                    <label>Layer<select id="memory-layer"><option value="identity">Identity</option><option value="semantic">Semantic</option><option value="episodic">Episodic</option><option value="procedural">Procedural</option><option value="performance">Performance</option></select></label>
+                    <label>Retrieval<select id="memory-policy"><option value="default">Default</option><option value="explicit_only">Explicit each time</option><option value="never_send_to_model">Never send to model</option></select></label>
+                    <label>Sensitivity<select id="memory-sensitivity"><option value="personal">Personal</option><option value="workspace">Workspace</option><option value="confidential">Confidential</option><option value="public">Public</option></select></label>
+                    <label>Confidence<input id="memory-confidence" type="number" min="0" max="1" step="0.01" value="0.72" required></label>
+                  </div>
+                  <p id="memory-evidence-context" class="governance-note">Create an Idea Foundry brief to attach exact evidence.</p>
+                  <button id="propose-memory" class="primary-action" type="submit" disabled>Propose memory</button>
+                </form>
+              </section>
+              <section class="panel memory-panel" aria-labelledby="memory-retrieve-heading">
+                <div class="panel-heading"><h2 id="memory-retrieve-heading">Retrieve with policy</h2><span>Content-free audit receipt</span></div>
+                <form id="memory-retrieval-form" class="memory-form compact-form">
+                  <label for="memory-query">Context query</label>
+                  <input id="memory-query" type="search" maxlength="1000" value="evidence operational" required>
+                  <div class="field-grid">
+                    <label>Destination<select id="memory-destination"><option value="creator_view">Creator view</option><option value="local_model">Local model</option><option value="remote_model">Remote model</option></select></label>
+                    <label>Max sensitivity<select id="memory-max-sensitivity"><option value="personal">Personal</option><option value="workspace">Workspace</option><option value="confidential">Confidential</option><option value="public">Public</option></select></label>
+                  </div>
+                  <label class="check-row"><input id="memory-include-explicit" type="checkbox"> Authorize explicit-only claims for this retrieval</label>
+                  <button id="retrieve-memory" class="secondary-action" type="submit">Retrieve active claims</button>
+                </form>
+                <div id="memory-retrieval-result" class="retrieval-result" aria-live="polite"><p>No retrieval recorded in this session.</p></div>
+              </section>
+            </div>
+            <div class="memory-ledger-column">
+              <section class="panel memory-panel memory-ledger" aria-labelledby="memory-ledger-heading">
+                <div class="panel-heading"><h2 id="memory-ledger-heading">Claim ledger</h2><span id="memory-ledger-count">0 immutable claims</span></div>
+                <div id="memory-list" class="memory-list" role="list"><p class="empty-state">No governed claims yet.</p></div>
+              </section>
+              <aside id="memory-inspector" class="panel memory-inspector" aria-labelledby="memory-inspector-heading">
+                <p class="eyebrow">Selected claim</p><h2 id="memory-inspector-heading">Nothing selected</h2>
+                <p id="memory-inspector-statement" class="memory-statement">Select a claim to review its evidence, scope, and authority.</p>
+                <dl><div><dt>State</dt><dd id="memory-inspector-state">—</dd></div><div><dt>Scope</dt><dd id="memory-inspector-scope">—</dd></div><div><dt>Policy</dt><dd id="memory-inspector-policy">—</dd></div><div><dt>Evidence</dt><dd id="memory-inspector-evidence">—</dd></div></dl>
+                <label class="decision-reason" for="memory-decision-reason">Decision reason<input id="memory-decision-reason" type="text" minlength="3" maxlength="1000" value="Creator reviewed the evidence and chose this state."></label>
+                <div id="memory-state-actions" class="memory-actions">
+                  <button id="promote-memory" class="primary-action" type="button">Promote</button><button id="reject-memory" class="secondary-action" type="button">Reject</button><button id="dispute-memory" class="secondary-action" type="button">Dispute</button><button id="forget-memory" class="danger-action" type="button">Forget</button>
+                </div>
+                <form id="memory-correction-form" class="correction-form">
+                  <label for="memory-correction">Append-only correction</label>
+                  <textarea id="memory-correction" minlength="3" maxlength="4000" rows="2" required></textarea>
+                  <label for="memory-correction-reason">Why the old claim is wrong</label>
+                  <input id="memory-correction-reason" type="text" minlength="3" maxlength="1000" value="Creator supplied a more accurate replacement." required>
+                  <button id="correct-memory" class="secondary-action" type="submit">Propose corrected claim</button>
+                </form>
+                <p class="forget-limit">Forget removes the claim from retrieval and redacts the active projection. The immutable audit event remains until cryptographic erasure or compaction is implemented.</p>
+              </aside>
+            </div>
+          </div>
+        </section>
+
         <section id="view-connections" class="view" role="tabpanel" aria-labelledby="tab-connections" data-view="connections" hidden>
           <div class="view-heading">
             <div><p class="eyebrow">Capability boundary</p><h1>Connections</h1><p>Nothing gains authority merely because it was discovered or installed.</p></div>
@@ -164,7 +235,7 @@
               <div class="connection-icon mcp" aria-hidden="true">M</div><div><h2>Bundled MCP idea inspector</h2><p id="capability-connection-detail">Exact stdio process · connecting</p></div><span id="capability-connection-state" class="state specified">Starting</span>
             </article>
             <article class="connection-card" role="listitem">
-              <div class="connection-icon bridge" aria-hidden="true">B</div><div><h2>Clark Bridge</h2><p id="bridge-connection-detail">Authenticated localhost MCP · connecting</p></div><span id="bridge-connection-state" class="state specified">Starting</span>
+              <div class="connection-icon bridge" aria-hidden="true">B</div><div><h2>Clark Bridge</h2><p id="bridge-connection-detail">Authenticated localhost MCP · memory unavailable without a separate pairing scope</p></div><span id="bridge-connection-state" class="state specified">Starting</span>
             </article>
             <article class="connection-card" role="listitem">
               <div class="connection-icon harness" aria-hidden="true">H</div><div><h2>Clark Harness</h2><p id="harness-connection-detail">Supervised utility process · connecting</p></div><span id="harness-connection-state" class="state specified">Starting</span>

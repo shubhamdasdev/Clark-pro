@@ -31,7 +31,7 @@ export class EventStore {
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       ) STRICT;
-      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '3');
+      INSERT OR IGNORE INTO metadata(key, value) VALUES ('schema_version', '4');
       CREATE TABLE IF NOT EXISTS events (
         sequence INTEGER PRIMARY KEY AUTOINCREMENT,
         event_id TEXT NOT NULL UNIQUE,
@@ -193,6 +193,42 @@ export class EventStore {
         expires_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       ) STRICT;
+      CREATE TABLE IF NOT EXISTS memories (
+        memory_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        layer TEXT NOT NULL,
+        statement TEXT NOT NULL,
+        evidence_json TEXT NOT NULL,
+        contradictions_json TEXT NOT NULL,
+        confidence REAL NOT NULL,
+        scope_json TEXT NOT NULL,
+        sensitivity TEXT NOT NULL,
+        retrieval_policy TEXT NOT NULL,
+        state TEXT NOT NULL,
+        created_by TEXT NOT NULL,
+        supersedes_memory_id TEXT,
+        replacement_memory_id TEXT,
+        decision_id TEXT,
+        expires_at TEXT,
+        search_derivatives_deleted INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT NOT NULL
+      ) STRICT;
+      CREATE INDEX IF NOT EXISTS memories_workspace_state ON memories(workspace_id, state, updated_at DESC);
+      CREATE TABLE IF NOT EXISTS memory_retrievals (
+        retrieval_id TEXT PRIMARY KEY,
+        workspace_id TEXT NOT NULL,
+        query_hash TEXT NOT NULL,
+        purpose TEXT NOT NULL,
+        destination TEXT NOT NULL,
+        scope_json TEXT NOT NULL,
+        memory_ids_json TEXT NOT NULL,
+        result_count INTEGER NOT NULL,
+        max_sensitivity TEXT NOT NULL,
+        explicit_only_authorized INTEGER NOT NULL,
+        influence_state TEXT NOT NULL,
+        policy_revision_id TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      ) STRICT;
     `);
     let version = this.database.prepare("SELECT value FROM metadata WHERE key = 'schema_version'").get()?.value;
     if (version === "1") {
@@ -226,7 +262,11 @@ export class EventStore {
       }
       version = "3";
     }
-    if (version !== "3") throw new Error(`Unsupported Harness database schema ${version}`);
+    if (version === "3") {
+      this.database.prepare("UPDATE metadata SET value = '4' WHERE key = 'schema_version'").run();
+      version = "4";
+    }
+    if (version !== "4") throw new Error(`Unsupported Harness database schema ${version}`);
     const journalMode = this.database.prepare("PRAGMA journal_mode").get()?.journal_mode;
     if (journalMode !== "wal") throw new Error(`Harness database did not enter WAL mode: ${journalMode}`);
   }
@@ -399,6 +439,44 @@ export class EventStore {
         .run(state, updatedAt, event.payload.subjectRef);
       return;
     }
+    if (event.eventType === "memory.proposed") {
+      const payload = event.payload;
+      this.database.prepare(`INSERT INTO memories(memory_id, workspace_id, layer, statement, evidence_json, contradictions_json, confidence, scope_json, sensitivity, retrieval_policy, state, created_by, supersedes_memory_id, expires_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'proposed', ?, ?, ?, ?)`)
+        .run(
+          payload.memoryId, event.workspaceId, payload.layer, payload.statement,
+          canonicalJson(payload.evidence), canonicalJson(payload.contradictions), payload.confidence,
+          canonicalJson(payload.scope), payload.sensitivity, payload.retrievalPolicy ?? "default",
+          payload.createdBy ?? "creator", payload.supersedesMemoryId ?? null, payload.expiresAt ?? null, updatedAt
+        );
+      return;
+    }
+    if (["memory.promoted", "memory.rejected", "memory.disputed", "memory.forgotten"].includes(event.eventType)) {
+      const payload = event.payload;
+      const forgotten = event.eventType === "memory.forgotten";
+      const result = this.database.prepare(`UPDATE memories SET state = ?, decision_id = ?, replacement_memory_id = COALESCE(?, replacement_memory_id),
+        statement = CASE WHEN ? THEN '[forgotten]' ELSE statement END,
+        evidence_json = CASE WHEN ? THEN '[]' ELSE evidence_json END,
+        contradictions_json = CASE WHEN ? THEN '[]' ELSE contradictions_json END,
+        search_derivatives_deleted = CASE WHEN ? THEN 1 ELSE search_derivatives_deleted END,
+        updated_at = ? WHERE memory_id = ? AND workspace_id = ?`)
+        .run(payload.to, payload.decisionId, payload.replacementMemoryId ?? null, forgotten ? 1 : 0, forgotten ? 1 : 0, forgotten ? 1 : 0, forgotten ? 1 : 0, updatedAt, payload.memoryId, event.workspaceId);
+      if (result.changes !== 1) throw new Error(`Memory projection missing ${payload.memoryId}`);
+      return;
+    }
+    if (event.eventType === "memory.retrieval_recorded") {
+      const payload = event.payload;
+      this.database.prepare(`INSERT INTO memory_retrievals(retrieval_id, workspace_id, query_hash, purpose, destination, scope_json, memory_ids_json, result_count, max_sensitivity, explicit_only_authorized, influence_state, policy_revision_id, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(
+          payload.retrievalId, event.workspaceId, payload.queryHash, payload.purpose, payload.destination,
+          canonicalJson(payload.scope), canonicalJson(payload.memoryIds), payload.resultCount, payload.maxSensitivity,
+          payload.explicitOnlyAuthorized ? 1 : 0, payload.influenceState, payload.policyRevisionId, updatedAt
+        );
+      this.database.prepare("UPDATE workspaces SET aggregate_version = ?, updated_at = ? WHERE workspace_id = ?")
+        .run(event.aggregate.version, updatedAt, event.workspaceId);
+      return;
+    }
     if (event.eventType === "capability.revision_registered" || event.eventType === "capability.health_changed") {
       const existing = this.getCapability(event.workspaceId, event.payload.capabilityRevision.id, event.payload.capabilityRevision.revision);
       const manifest = event.payload.manifest ?? existing?.manifest;
@@ -540,6 +618,33 @@ export class EventStore {
     return this.database.prepare("SELECT * FROM bridge_clients WHERE client_id = ?").get(clientId);
   }
 
+  getMemory(memoryId) {
+    return this.database.prepare("SELECT * FROM memories WHERE memory_id = ?").get(memoryId);
+  }
+
+  listMemoryRows(workspaceId, limit = 50, includeForgotten = false) {
+    return this.database.prepare(`SELECT * FROM memories WHERE workspace_id = ? AND (? = 1 OR state != 'forgotten') ORDER BY updated_at DESC, memory_id LIMIT ?`)
+      .all(workspaceId, includeForgotten ? 1 : 0, limit);
+  }
+
+  listActiveMemoryRows(workspaceId) {
+    return this.database.prepare("SELECT * FROM memories WHERE workspace_id = ? AND state = 'active' ORDER BY updated_at DESC, memory_id").all(workspaceId);
+  }
+
+  getMemoryRetrieval(retrievalId) {
+    return this.database.prepare("SELECT * FROM memory_retrievals WHERE retrieval_id = ?").get(retrievalId);
+  }
+
+  evidenceRefExists(workspaceId, evidence) {
+    if (["artifact", "source"].includes(evidence.type)) {
+      if (!evidence.versionId) return false;
+      return Boolean(this.database.prepare("SELECT 1 FROM artifacts WHERE workspace_id = ? AND artifact_id = ? AND version_id = ?").get(workspaceId, evidence.refId, evidence.versionId));
+    }
+    if (evidence.type === "run") return Boolean(this.database.prepare("SELECT 1 FROM runs WHERE workspace_id = ? AND run_id = ?").get(workspaceId, evidence.refId));
+    const aggregateType = evidence.type === "correction" ? "decision" : evidence.type;
+    return Boolean(this.database.prepare("SELECT 1 FROM events WHERE workspace_id = ? AND aggregate_type = ? AND aggregate_id = ? LIMIT 1").get(workspaceId, aggregateType, evidence.refId));
+  }
+
   listWorkspaces() {
     return this.database.prepare("SELECT * FROM workspaces ORDER BY workspace_id").all();
   }
@@ -638,7 +743,9 @@ export class EventStore {
       permissionReceipts: select("permission_receipts", "receipt_id"),
       capabilityLeases: select("capability_leases", "lease_id"),
       toolCalls: select("tool_calls", "call_id"),
-      bridgeClients: select("bridge_clients", "client_id")
+      bridgeClients: select("bridge_clients", "client_id"),
+      memories: select("memories", "memory_id"),
+      memoryRetrievals: select("memory_retrievals", "retrieval_id")
     };
   }
 
@@ -646,7 +753,7 @@ export class EventStore {
     const events = this.eventEnvelopes();
     const checkpoints = this.database.prepare("SELECT * FROM checkpoints ORDER BY event_sequence").all();
     this.transaction(() => {
-      this.database.exec("DELETE FROM tool_calls; DELETE FROM capability_leases; DELETE FROM permission_receipts; DELETE FROM capabilities; DELETE FROM bridge_clients; DELETE FROM steps; DELETE FROM runs; DELETE FROM artifacts; DELETE FROM projects; DELETE FROM workspaces;");
+      this.database.exec("DELETE FROM memory_retrievals; DELETE FROM memories; DELETE FROM tool_calls; DELETE FROM capability_leases; DELETE FROM permission_receipts; DELETE FROM capabilities; DELETE FROM bridge_clients; DELETE FROM steps; DELETE FROM runs; DELETE FROM artifacts; DELETE FROM projects; DELETE FROM workspaces;");
       for (const event of events) this.applyProjection(event);
       const restore = this.database.prepare("INSERT OR REPLACE INTO checkpoints(checkpoint_id, run_id, event_sequence, state_json, created_at) VALUES (?, ?, ?, ?, ?)");
       for (const checkpoint of checkpoints) {

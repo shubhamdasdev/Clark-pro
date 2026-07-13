@@ -199,7 +199,7 @@
       "required": ["decisionId", "decisionType", "subjectRef", "selectedOption", "alternatives", "evidenceRefs", "reversible"],
       "properties": {
         "decisionId": { "$ref": "common.schema.json#/$defs/id" },
-        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "skill_promote", "conflict_resolve"] },
+        "decisionType": { "enum": ["angle_select", "canonical_select", "claim_accept", "artifact_approve", "publish_approve", "policy_override", "memory_promote", "memory_dispute", "memory_correct", "memory_forget", "skill_promote", "conflict_resolve"] },
         "subjectRef": { "$ref": "common.schema.json#/$defs/id" },
         "selectedOption": { "type": "string", "minLength": 1, "maxLength": 500 },
         "alternatives": { "type": "array", "items": { "type": "string", "maxLength": 500 }, "minItems": 1 },
@@ -326,6 +326,9 @@
         },
         "sensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
         "retrievalState": { "const": "proposal_only" },
+        "retrievalPolicy": { "enum": ["default", "explicit_only", "never_send_to_model"] },
+        "createdBy": { "enum": ["creator", "reflection_agent", "import"] },
+        "supersedesMemoryId": { "$ref": "common.schema.json#/$defs/id" },
         "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" }
       },
       "additionalProperties": false
@@ -339,7 +342,37 @@
         "to": { "enum": ["active", "rejected", "disputed", "expired", "forgotten"] },
         "decisionId": { "$ref": "common.schema.json#/$defs/id" },
         "reason": { "type": "string", "maxLength": 1000 },
-        "searchDerivativesDeleted": { "type": "boolean" }
+        "searchDerivativesDeleted": { "type": "boolean" },
+        "replacementMemoryId": { "$ref": "common.schema.json#/$defs/id" }
+      },
+      "additionalProperties": false
+    },
+    "memoryRetrievalRecorded": {
+      "type": "object",
+      "required": ["retrievalId", "queryHash", "purpose", "destination", "scope", "memoryIds", "resultCount", "maxSensitivity", "explicitOnlyAuthorized", "influenceState", "policyRevisionId"],
+      "properties": {
+        "retrievalId": { "$ref": "common.schema.json#/$defs/id" },
+        "queryHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "purpose": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "destination": { "enum": ["creator_view", "local_model", "remote_model"] },
+        "scope": {
+          "type": "object",
+          "required": ["workspaceId"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "projectId": { "$ref": "common.schema.json#/$defs/id" },
+            "platform": { "$ref": "common.schema.json#/$defs/id" },
+            "loopId": { "$ref": "common.schema.json#/$defs/id" },
+            "accountConnectionId": { "$ref": "common.schema.json#/$defs/id" }
+          },
+          "additionalProperties": false
+        },
+        "memoryIds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true, "maxItems": 20 },
+        "resultCount": { "type": "integer", "minimum": 0, "maximum": 20 },
+        "maxSensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+        "explicitOnlyAuthorized": { "type": "boolean" },
+        "influenceState": { "const": "context_candidate" },
+        "policyRevisionId": { "$ref": "common.schema.json#/$defs/id" }
       },
       "additionalProperties": false
     },

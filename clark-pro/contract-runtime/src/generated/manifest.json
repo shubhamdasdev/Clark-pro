@@ -53,9 +53,9 @@
     },
     {
       "source": "event-payloads.schema.json",
-      "sourceSha256": "548580f4d225783b15518608530d81dbd71c8dc820a33b6c3a2961a01b3992f5",
+      "sourceSha256": "b1b0f1691f2c688cd62d7909cc6b5fb1bbdba53e3712cb52b65ebfbeb3f9891c",
       "generated": "event-payloads.ts",
-      "generatedSha256": "9023d76525bff41838f7fd92b35618257bdb40fb9adfd379c6ea43ce8859bf3e"
+      "generatedSha256": "c4d034e51703b2506d475e4914fba00c018d02f8b88f5313eced5bd7806655bd"
     },
     {
       "source": "event-stream.schema.json",
@@ -77,15 +77,15 @@
     },
     {
       "source": "harness-ipc.schema.json",
-      "sourceSha256": "8ef9fcbb39ec8ac8940382fc942251984cb1fe367f97db62f5ec62d3d279c58f",
+      "sourceSha256": "6fe19f29e6ad991ced76811860bd1750828659215eda5d5ea6b413931fd8eb9e",
       "generated": "harness-ipc.ts",
-      "generatedSha256": "e81cffb2e46148895b022b625a2539ae2aeba0f86dd8d56bfd7ec94859ef6d1e"
+      "generatedSha256": "bcde49f26de6d87d793e0fb5c3aabc918c4c1e50451787060f9c8771ac84e290"
     },
     {
       "source": "loop-definition.schema.json",
-      "sourceSha256": "2f3fb0db3c3bdb5dfa9e680e611a28baafd756c173b894b7b1d6efcf1285dc46",
+      "sourceSha256": "a8e7727c53d7e1d79ed0590652f49309a114e5db78558918a4c185f3347995e4",
       "generated": "loop-definition.ts",
-      "generatedSha256": "a8957bfac54657e911527deb2531b14923e8b9d4a29313a27e175bab648ed2a3"
+      "generatedSha256": "1033e0833116d4f7e8a58520b4c911c95629442217cf14f70aa19ddea3fee2cf"
     },
     {
       "source": "mcp-conformance-plan.schema.json",

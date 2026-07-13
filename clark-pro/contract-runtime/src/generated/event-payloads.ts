@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/event-payloads.schema.json
- * Source SHA-256: 548580f4d225783b15518608530d81dbd71c8dc820a33b6c3a2961a01b3992f5
+ * Source SHA-256: b1b0f1691f2c688cd62d7909cc6b5fb1bbdba53e3712cb52b65ebfbeb3f9891c
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -467,6 +467,9 @@ export interface DecisionRecorded {
     | "publish_approve"
     | "policy_override"
     | "memory_promote"
+    | "memory_dispute"
+    | "memory_correct"
+    | "memory_forget"
     | "skill_promote"
     | "conflict_resolve";
   subjectRef: string;
@@ -671,6 +674,9 @@ export interface MemoryProposed {
   };
   sensitivity: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
   retrievalState: "proposal_only";
+  retrievalPolicy?: "default" | "explicit_only" | "never_send_to_model";
+  createdBy?: "creator" | "reflection_agent" | "import";
+  supersedesMemoryId?: string;
   expiresAt?: string;
 }
 /**
@@ -684,6 +690,165 @@ export interface MemoryStateChanged {
   decisionId: string;
   reason?: string;
   searchDerivativesDeleted?: boolean;
+  replacementMemoryId?: string;
+}
+/**
+ * This interface was referenced by `ClarkDomainEventPayloads`'s JSON-Schema
+ * via the `definition` "memoryRetrievalRecorded".
+ */
+export interface MemoryRetrievalRecorded {
+  retrievalId: string;
+  queryHash: string;
+  purpose: string;
+  destination: "creator_view" | "local_model" | "remote_model";
+  scope: {
+    workspaceId: string;
+    projectId?: string;
+    platform?: string;
+    loopId?: string;
+    accountConnectionId?: string;
+  };
+  /**
+   * @maxItems 20
+   */
+  memoryIds:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string, string, string]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]
+    | [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ];
+  resultCount: number;
+  maxSensitivity: "public" | "workspace" | "personal" | "confidential" | "secret_reference";
+  explicitOnlyAuthorized: boolean;
+  influenceState: "context_candidate";
+  policyRevisionId: string;
 }
 /**
  * This interface was referenced by `ClarkDomainEventPayloads`'s JSON-Schema

@@ -18,6 +18,11 @@ let harnessSupervisor;
 
 const LOCAL_WORKSPACE_ID = "workspace.local";
 const LOCAL_PROJECT_ID = "project.idea-lab";
+const MEMORY_LAYERS = new Set(["identity", "semantic", "episodic", "procedural", "performance"]);
+const MEMORY_SENSITIVITIES = new Set(["public", "workspace", "personal", "confidential", "secret_reference"]);
+const MEMORY_POLICIES = new Set(["default", "explicit_only", "never_send_to_model"]);
+const MEMORY_ACTIONS = new Set(["promote", "reject", "dispute", "forget"]);
+const MEMORY_DESTINATIONS = new Set(["creator_view", "local_model", "remote_model"]);
 
 if (process.env.CLARK_TEST_USER_DATA) app.setPath("userData", process.env.CLARK_TEST_USER_DATA);
 app.setName("Clark Studio");
@@ -85,13 +90,14 @@ function installIpc() {
     if (!harnessSupervisor || harnessSupervisor.state !== "ready") {
       return { available: false, state: harnessSupervisor?.state ?? "stopped", runs: [] };
     }
-    const [status, list, capabilities, bridge] = await Promise.all([
+    const [status, list, memories, capabilities, bridge] = await Promise.all([
       harnessSupervisor.request("harness.status", {}),
       harnessSupervisor.request("run.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 10 }),
+      harnessSupervisor.request("memory.list", { workspaceId: LOCAL_WORKSPACE_ID, limit: 100, includeForgotten: true }),
       harnessSupervisor.request("capability.list", { workspaceId: LOCAL_WORKSPACE_ID }),
       harnessSupervisor.request("bridge.status", { workspaceId: LOCAL_WORKSPACE_ID })
     ]);
-    return { available: true, ...status, runs: list.runs, capabilities: capabilities.capabilities, bridge };
+    return { available: true, ...status, runs: list.runs, memories: memories.memories, capabilities: capabilities.capabilities, bridge };
   });
   ipcMain.handle("desktop:start-idea-loop", async (event, ideaText) => {
     assertTrustedSender(event, mainWindow?.webContents);
@@ -135,6 +141,79 @@ function installIpc() {
       idempotencyKey: `intent.approval.${randomUUID()}`
     });
   });
+  ipcMain.handle("desktop:propose-memory-from-run", async (event, proposal) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    assertHarnessReady();
+    if (!proposal || typeof proposal !== "object" || typeof proposal.runId !== "string") throw new TypeError("A durable run is required");
+    if (typeof proposal.statement !== "string" || proposal.statement.trim().length < 3 || proposal.statement.length > 4_000) throw new TypeError("Memory statement must be between 3 and 4,000 characters");
+    if (!MEMORY_LAYERS.has(proposal.layer) || !MEMORY_SENSITIVITIES.has(proposal.sensitivity) || !MEMORY_POLICIES.has(proposal.retrievalPolicy)) throw new TypeError("Memory governance fields are invalid");
+    if (typeof proposal.confidence !== "number" || proposal.confidence < 0 || proposal.confidence > 1) throw new TypeError("Memory confidence must be between 0 and 1");
+    const run = await harnessSupervisor.request("run.get", { workspaceId: LOCAL_WORKSPACE_ID, runId: proposal.runId });
+    if (!run.draft) throw new TypeError("The selected run has no exact-version brief evidence");
+    return harnessSupervisor.request("memory.propose", {
+      workspaceId: LOCAL_WORKSPACE_ID,
+      layer: proposal.layer,
+      statement: proposal.statement.trim(),
+      evidence: [
+        { type: "artifact", refId: run.draft.artifactId, versionId: run.draft.versionId },
+        { type: "run", refId: run.runId }
+      ],
+      contradictions: [],
+      confidence: proposal.confidence,
+      scope: { workspaceId: LOCAL_WORKSPACE_ID, projectId: run.projectId },
+      sensitivity: proposal.sensitivity,
+      retrievalPolicy: proposal.retrievalPolicy,
+      idempotencyKey: `intent.memory.propose.${randomUUID()}`
+    });
+  });
+  ipcMain.handle("desktop:resolve-memory", async (event, decision) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    assertHarnessReady();
+    if (!decision || typeof decision !== "object" || typeof decision.memoryId !== "string" || !MEMORY_ACTIONS.has(decision.action)) throw new TypeError("A valid memory decision is required");
+    if (typeof decision.reason !== "string" || decision.reason.trim().length < 3 || decision.reason.length > 1_000) throw new TypeError("A decision reason is required");
+    return harnessSupervisor.request("memory.resolve", {
+      workspaceId: LOCAL_WORKSPACE_ID,
+      memoryId: decision.memoryId,
+      action: decision.action,
+      reason: decision.reason.trim(),
+      idempotencyKey: `intent.memory.${decision.action}.${randomUUID()}`
+    });
+  });
+  ipcMain.handle("desktop:correct-memory", async (event, correction) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    assertHarnessReady();
+    if (!correction || typeof correction !== "object" || typeof correction.memoryId !== "string") throw new TypeError("A memory is required");
+    if (typeof correction.statement !== "string" || correction.statement.trim().length < 3 || correction.statement.length > 4_000) throw new TypeError("Corrected statement must be between 3 and 4,000 characters");
+    if (typeof correction.reason !== "string" || correction.reason.trim().length < 3 || correction.reason.length > 1_000) throw new TypeError("A correction reason is required");
+    return harnessSupervisor.request("memory.correct", {
+      workspaceId: LOCAL_WORKSPACE_ID,
+      memoryId: correction.memoryId,
+      statement: correction.statement.trim(),
+      reason: correction.reason.trim(),
+      idempotencyKey: `intent.memory.correct.${randomUUID()}`
+    });
+  });
+  ipcMain.handle("desktop:retrieve-memory", async (event, request) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    assertHarnessReady();
+    if (!request || typeof request !== "object" || typeof request.query !== "string" || request.query.trim().length < 1 || request.query.length > 1_000) throw new TypeError("A retrieval query is required");
+    if (!MEMORY_DESTINATIONS.has(request.destination) || !MEMORY_SENSITIVITIES.has(request.maxSensitivity) || typeof request.includeExplicitOnly !== "boolean") throw new TypeError("Retrieval policy is invalid");
+    return harnessSupervisor.request("memory.retrieve", {
+      workspaceId: LOCAL_WORKSPACE_ID,
+      query: request.query.trim(),
+      purpose: "Creator-requested context review in the governed Memory workspace.",
+      destination: request.destination,
+      scope: { workspaceId: LOCAL_WORKSPACE_ID, projectId: LOCAL_PROJECT_ID },
+      maxSensitivity: request.maxSensitivity,
+      includeExplicitOnly: request.includeExplicitOnly,
+      limit: 20,
+      idempotencyKey: `intent.memory.retrieve.${randomUUID()}`
+    });
+  });
+}
+
+function assertHarnessReady() {
+  if (!harnessSupervisor || harnessSupervisor.state !== "ready") throw new TypeError("Harness is not ready");
 }
 
 async function startHarness() {

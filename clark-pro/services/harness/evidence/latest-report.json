@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "reportId": "clark.harness.stratum-3.idea-foundry",
-  "observedAt": "2026-07-13T00:51:13-05:00",
+  "reportId": "clark.harness.stratum-4.governed-memory",
+  "observedAt": "2026-07-13T01:26:45-05:00",
   "environment": {
     "platform": "macOS 26.2 (25C56)",
     "architecture": "arm64",
@@ -14,9 +14,9 @@
   "automated": {
     "result": "pass",
     "contractSchemas": 18,
-    "contractEventTypes": 60,
+    "contractEventTypes": 61,
     "contractRuntimeUpcasterTests": 5,
-    "harnessUnitTests": 17,
+    "harnessUnitTests": 19,
     "desktopBoundaryUnitTests": 10,
     "electronProcessTests": 2,
     "packagedAppTests": 1,
@@ -38,11 +38,15 @@
       "Bridge discovery, resource listing, capture, immutable revision, scoped list/get, idempotent replay, cross-workspace denial, missing bearer, hostile Origin, invalid Host, and oversized-body cases passed.",
       "Bridge-originated capture and revision used the same Harness domain commands as Studio and recorded bridge_client actor/source/client metadata; compact Bridge lists exposed lineage/readiness without full idea text, and Bridge could not approve, build, or publish.",
       "A revision preserved stable logical artifact IDs with new version IDs and root/parent run lineage; pending approval invalidation, review-step cancellation, superseded-run cancellation, replacement capture, plan, and start were committed atomically.",
-      "Boot rebuilt projections, terminalized an interrupted MCP call as cancelled, revoked its orphaned lease, retried under a fresh lease, and revoked orphaned Bridge clients before accepting new work; the schema-v1 database migrated additively through schema v3 with legacy roots as revision 1.",
+      "Boot rebuilt projections, terminalized an interrupted MCP call as cancelled, revoked its orphaned lease, retried under a fresh lease, and revoked orphaned Bridge clients before accepting new work; the schema-v1 database migrated additively through schema v4 with legacy roots as revision 1 and governed memory projections intact.",
       "Killing the Electron utility process during a run caused supervised restart and durable recovery without duplicate brief creation.",
       "Development Electron exercised a two-revision path, proved the superseded approval invalidated, and keyboard-inspected the live idea → assessment → evidence → brief → review Canvas projection.",
       "Visual QA caught and fixed cross-view scroll retention and lineage wrapping; the regenerated Canvas screenshot shows revision lineage, 10/10 structural completeness, evidence_required readiness, and five open observed-proof gates.",
-      "Development Electron and the packaged-ASAR app completed the real MCP step and rendered both the MCP capability and Clark Bridge as live without exposing the Bridge token."
+      "Development Electron and the packaged-ASAR app completed the real MCP step and rendered both the MCP capability and Clark Bridge as live without exposing the Bridge token.",
+      "Memory proposals required exact same-workspace evidence references and remained excluded from retrieval until an explicit creator promotion decision; cross-workspace evidence failed closed.",
+      "Scoped retrieval enforced active state, expiry, project/workspace containment, sensitivity ceilings, explicit-only authorization, and never-send-to-model destination policy while persisting only the query hash, returned IDs, and policy receipt.",
+      "Append-only correction disputed the old claim and created a linked replacement proposal with correction-decision evidence; forgetting redacted the projected statement and evidence, deleted search derivatives, and prevented both fresh and idempotently replayed retrieval from returning the forgotten claim.",
+      "Projection deletion/rebuild reproduced memory and retrieval read models exactly, and the full per-workspace event hash chain remained valid."
     ]
   },
   "authority": {
@@ -58,7 +62,11 @@
       "run query/list",
       "exact-version approval or rejection",
       "live event-backed Idea Foundry Canvas projection",
-      "authenticated single-workspace Clark Bridge capture/revision/read"
+      "authenticated single-workspace Clark Bridge capture/revision/read",
+      "evidence-bound memory proposal and creator state decisions",
+      "append-only memory correction lineage",
+      "scoped policy-aware memory retrieval with content-free receipts",
+      "logical forgetting with projection redaction and retrieval exclusion"
     ],
     "explicitlyAbsent": [
       "third-party MCP or Tool Pack installation",
@@ -67,7 +75,8 @@
       "market research or observed evidence acquisition",
       "credentials and Keychain leases",
       "skill execution",
-      "creator memory retrieval or mutation",
+      "reflection-driven memory proposals, semantic/vector retrieval, and influenced-artifact tracing",
+      "Bridge memory read or mutation scope",
       "social connections or publication",
       "product build authorization",
       "remote workers and team synchronization"
@@ -79,6 +88,8 @@
     "Bridge caller disconnect after local mutation returns an ambiguity warning, but general cancellation, durable job status, external reconciliation, compensation, scheduling, and transition-chaos coverage remain future gates.",
     "The bearer file is owner-readable and short-lived but is not yet a Keychain-backed client pairing flow; the Bridge lifetime is tied to the app-supervised Harness.",
     "Node still labels node:sqlite experimental/release-candidate; EventStore preserves a replaceable boundary and migration/replay tests, but large-history and backup/restore evidence remain open.",
-    "The inspection bundle is unsigned. No Developer ID signing, Hardened Runtime, notarization, stapling, Gatekeeper acceptance, or signed update artifact exists."
+    "The inspection bundle is unsigned. No Developer ID signing, Hardened Runtime, notarization, stapling, Gatekeeper acceptance, or signed update artifact exists.",
+    "Forget is logically effective for the active projection and retrieval, but the original personal event payload remains in the immutable log until cryptographic erasure or compaction exists; complete physical deletion is not claimed.",
+    "Retrieval is bounded lexical matching in this slice, not semantic/vector ranking, creator-value validation, or a leakage/poisoning evaluation."
   ]
 }

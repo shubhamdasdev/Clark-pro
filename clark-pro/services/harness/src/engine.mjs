@@ -2,7 +2,7 @@ import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import path from "node:path";
 import { AssetStore } from "./asset-store.mjs";
-import { canonicalJson, sha256 } from "./canonical.mjs";
+import { canonicalJson, sha256, stableToken } from "./canonical.mjs";
 import { evaluateCapabilityLease } from "./capability-policy.mjs";
 import { approvalIdForRun, EventStore } from "./event-store.mjs";
 import { compileIdeaRun, deriveRevisionRunIds, deriveRunIds, ideaInspectorManifest, structureIdea } from "./idea-compiler.mjs";
@@ -84,6 +84,11 @@ export class HarnessEngine extends EventEmitter {
       case "run.get": return this.getRunInWorkspace(payload.workspaceId, payload.runId);
       case "run.list": return { runs: this.store.listRunRows(payload.workspaceId, payload.limit).map((row) => this.runSummary(row)) };
       case "approval.resolve": return this.resolveApproval(payload, context);
+      case "memory.propose": return this.proposeMemory(payload, context);
+      case "memory.resolve": return this.resolveMemory(payload, context);
+      case "memory.correct": return this.correctMemory(payload, context);
+      case "memory.list": return this.listMemories(payload);
+      case "memory.retrieve": return this.retrieveMemories(payload, context);
       case "capability.list": return this.listCapabilities(payload.workspaceId);
       default: throw new HarnessError("invalid_request", `Unsupported Harness method ${method}`);
     }
@@ -403,6 +408,253 @@ export class HarnessEngine extends EventEmitter {
     this.store.completeCommand(idempotencyKey, result);
     this.emit("run.updated", { runId, state: result.state });
     return result;
+  }
+
+  proposeMemory(payload, context = {}) {
+    const normalized = {
+      ...payload,
+      statement: String(payload.statement).replace(/\s+/g, " ").trim(),
+      contradictions: payload.contradictions ?? []
+    };
+    const { workspaceId, layer, statement, evidence, contradictions, confidence, scope, sensitivity, retrievalPolicy, expiresAt, idempotencyKey } = normalized;
+    this.assertMemoryWorkspaceAndEvidence(workspaceId, scope, [...evidence, ...contradictions]);
+    if (expiresAt && Date.parse(expiresAt) <= Date.parse(this.now())) throw new HarnessError("invalid_request", "Memory expiry must be in the future");
+    const requestHash = sha256({ method: "memory.propose", ...normalized, idempotencyKey: undefined });
+    const existing = this.store.getCommand(idempotencyKey);
+    if (existing) {
+      this.assertIdempotentMatch(existing, "memory.propose", requestHash);
+      return { memory: this.getMemoryInWorkspace(workspaceId, existing.subject_id), deduplicated: true };
+    }
+    const memoryId = `memory.${layer}.${stableToken(idempotencyKey)}`;
+    const actor = context.actor ?? { type: "creator", id: "creator.local" };
+    const createdBy = context.source === "reflection" ? "reflection_agent" : context.source === "import" ? "import" : "creator";
+    let result;
+    this.store.transaction(() => {
+      this.store.beginCommand({ idempotencyKey, method: "memory.propose", requestHash, subjectId: memoryId });
+      this.store.appendEvent({
+        eventType: "memory.proposed", aggregateType: "memory", aggregateId: memoryId,
+        workspaceId, projectId: scope.projectId, commandId: context.requestId, idempotencyKey,
+        actor, source: context.source ?? "studio", metadata: context.clientId ? { clientId: context.clientId } : undefined, sensitivity,
+        payload: {
+          memoryId, layer, statement, evidence, contradictions, confidence, scope, sensitivity,
+          retrievalState: "proposal_only", retrievalPolicy, createdBy, ...(expiresAt ? { expiresAt } : {})
+        }
+      });
+      result = { memory: this.memorySummary(this.store.getMemory(memoryId)), deduplicated: false };
+      this.store.completeCommand(idempotencyKey, result);
+    });
+    this.emit("memory.updated", { memoryId, state: "proposed" });
+    return result;
+  }
+
+  resolveMemory(payload, context = {}) {
+    const { workspaceId, memoryId, action, reason, idempotencyKey } = payload;
+    const row = this.store.getMemory(memoryId);
+    if (!row || row.workspace_id !== workspaceId) throw new HarnessError("not_found", "Memory does not exist in this workspace");
+    const requestHash = sha256({ method: "memory.resolve", workspaceId, memoryId, action, reason });
+    const existing = this.store.getCommand(idempotencyKey);
+    if (existing) {
+      this.assertIdempotentMatch(existing, "memory.resolve", requestHash);
+      return { memory: this.getMemoryInWorkspace(workspaceId, memoryId), deduplicated: true };
+    }
+    const transitions = {
+      promote: { allowed: ["proposed", "disputed"], to: "active", eventType: "memory.promoted", decisionType: "memory_promote", alternatives: ["reject", "dispute"] },
+      reject: { allowed: ["proposed"], to: "rejected", eventType: "memory.rejected", decisionType: "memory_promote", alternatives: ["promote", "dispute"] },
+      dispute: { allowed: ["proposed", "active"], to: "disputed", eventType: "memory.disputed", decisionType: "memory_dispute", alternatives: ["keep", "correct", "forget"] },
+      forget: { allowed: ["proposed", "active", "disputed", "expired", "rejected"], to: "forgotten", eventType: "memory.forgotten", decisionType: "memory_forget", alternatives: ["keep", "dispute"] }
+    };
+    const transition = transitions[action];
+    if (!transition?.allowed.includes(row.state)) throw new HarnessError("conflict", `Cannot ${action} memory in ${row.state} state`);
+    const decisionId = `decision.memory.${stableToken(idempotencyKey)}`;
+    const evidenceRefs = JSON.parse(row.evidence_json);
+    const actor = context.actor ?? { type: "creator", id: "creator.local" };
+    let result;
+    this.store.transaction(() => {
+      this.store.beginCommand({ idempotencyKey, method: "memory.resolve", requestHash, subjectId: memoryId });
+      this.store.appendEvent({
+        eventType: "decision.recorded", aggregateType: "decision", aggregateId: decisionId,
+        workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: row.sensitivity,
+        payload: {
+          decisionId, decisionType: transition.decisionType, subjectRef: memoryId, selectedOption: action,
+          alternatives: transition.alternatives, evidenceRefs, reason, reversible: action !== "forget"
+        }
+      });
+      this.store.appendEvent({
+        eventType: transition.eventType, aggregateType: "memory", aggregateId: memoryId,
+        workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: row.sensitivity,
+        payload: {
+          memoryId, from: row.state, to: transition.to, decisionId, reason,
+          ...(action === "forget" ? { searchDerivativesDeleted: true } : {})
+        }
+      });
+      result = { memory: this.memorySummary(this.store.getMemory(memoryId)), deduplicated: false };
+      this.store.completeCommand(idempotencyKey, result);
+    });
+    this.emit("memory.updated", { memoryId, state: transition.to });
+    return result;
+  }
+
+  correctMemory(payload, context = {}) {
+    const { workspaceId, memoryId, reason, idempotencyKey } = payload;
+    const row = this.store.getMemory(memoryId);
+    if (!row || row.workspace_id !== workspaceId) throw new HarnessError("not_found", "Memory does not exist in this workspace");
+    const statement = String(payload.statement).replace(/\s+/g, " ").trim();
+    const overrides = {
+      ...(payload.confidence !== undefined ? { confidence: payload.confidence } : {}),
+      ...(payload.scope ? { scope: payload.scope } : {}),
+      ...(payload.sensitivity ? { sensitivity: payload.sensitivity } : {}),
+      ...(payload.retrievalPolicy ? { retrievalPolicy: payload.retrievalPolicy } : {}),
+      ...(payload.expiresAt ? { expiresAt: payload.expiresAt } : {})
+    };
+    const requestHash = sha256({ method: "memory.correct", workspaceId, memoryId, statement, reason, ...overrides });
+    const existing = this.store.getCommand(idempotencyKey);
+    if (existing) {
+      this.assertIdempotentMatch(existing, "memory.correct", requestHash);
+      return { memory: this.getMemoryInWorkspace(workspaceId, existing.subject_id), deduplicated: true };
+    }
+    if (!["proposed", "active"].includes(row.state)) throw new HarnessError("conflict", `Cannot correct memory in ${row.state} state`);
+    const scope = payload.scope ?? JSON.parse(row.scope_json);
+    this.assertMemoryWorkspaceAndEvidence(workspaceId, scope, []);
+    const expiresAt = payload.expiresAt ?? row.expires_at ?? undefined;
+    if (expiresAt && Date.parse(expiresAt) <= Date.parse(this.now())) throw new HarnessError("invalid_request", "Corrected memory expiry must be in the future");
+    const replacementMemoryId = `memory.${row.layer}.${stableToken(idempotencyKey)}`;
+    const decisionId = `decision.memory.${stableToken(`${idempotencyKey}.correction`)}`;
+    const originalEvidence = JSON.parse(row.evidence_json).slice(0, 19);
+    const evidence = [...originalEvidence, { type: "correction", refId: decisionId }];
+    const contradictions = JSON.parse(row.contradictions_json);
+    const actor = context.actor ?? { type: "creator", id: "creator.local" };
+    let result;
+    this.store.transaction(() => {
+      this.store.beginCommand({ idempotencyKey, method: "memory.correct", requestHash, subjectId: replacementMemoryId });
+      this.store.appendEvent({
+        eventType: "decision.recorded", aggregateType: "decision", aggregateId: decisionId,
+        workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: payload.sensitivity ?? row.sensitivity,
+        payload: {
+          decisionId, decisionType: "memory_correct", subjectRef: memoryId, selectedOption: "create_replacement",
+          alternatives: ["keep", "dispute", "forget"], evidenceRefs: originalEvidence, reason, reversible: true
+        }
+      });
+      this.store.appendEvent({
+        eventType: "memory.disputed", aggregateType: "memory", aggregateId: memoryId,
+        workspaceId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: row.sensitivity,
+        payload: { memoryId, from: row.state, to: "disputed", decisionId, reason, replacementMemoryId }
+      });
+      this.store.appendEvent({
+        eventType: "memory.proposed", aggregateType: "memory", aggregateId: replacementMemoryId,
+        workspaceId, projectId: scope.projectId, commandId: context.requestId, idempotencyKey, actor, source: context.source ?? "studio", sensitivity: payload.sensitivity ?? row.sensitivity,
+        payload: {
+          memoryId: replacementMemoryId, layer: row.layer, statement, evidence, contradictions,
+          confidence: payload.confidence ?? row.confidence, scope, sensitivity: payload.sensitivity ?? row.sensitivity,
+          retrievalState: "proposal_only", retrievalPolicy: payload.retrievalPolicy ?? row.retrieval_policy,
+          createdBy: "creator", supersedesMemoryId: memoryId, ...(expiresAt ? { expiresAt } : {})
+        }
+      });
+      result = { memory: this.memorySummary(this.store.getMemory(replacementMemoryId)), deduplicated: false };
+      this.store.completeCommand(idempotencyKey, result);
+    });
+    this.emit("memory.updated", { memoryId: replacementMemoryId, state: "proposed" });
+    return result;
+  }
+
+  listMemories({ workspaceId, limit, includeForgotten }) {
+    if (!this.store.getWorkspace(workspaceId)) throw new HarnessError("not_found", "Workspace does not exist");
+    return { memories: this.store.listMemoryRows(workspaceId, limit, includeForgotten).map((row) => this.memorySummary(row)) };
+  }
+
+  retrieveMemories(payload, context = {}) {
+    const { workspaceId, purpose, destination, scope, maxSensitivity, includeExplicitOnly, limit, idempotencyKey } = payload;
+    const query = String(payload.query).replace(/\s+/g, " ").trim();
+    this.assertMemoryWorkspaceAndEvidence(workspaceId, scope, []);
+    const requestHash = sha256({ method: "memory.retrieve", workspaceId, query, purpose, destination, scope, maxSensitivity, includeExplicitOnly, limit });
+    const existing = this.store.getCommand(idempotencyKey);
+    if (existing) {
+      this.assertIdempotentMatch(existing, "memory.retrieve", requestHash);
+      return this.reconstructMemoryRetrieval(existing.subject_id, true);
+    }
+    const sensitivityRank = new Map(["public", "workspace", "personal", "confidential", "secret_reference"].map((value, index) => [value, index]));
+    const terms = query === "*" ? [] : [...new Set(query.toLowerCase().match(/[a-z0-9]{2,}/g) ?? [])];
+    const modelDestination = destination === "local_model" || destination === "remote_model";
+    const candidates = this.store.listActiveMemoryRows(workspaceId)
+      .filter((row) => !row.expires_at || Date.parse(row.expires_at) > Date.parse(this.now()))
+      .filter((row) => sensitivityRank.get(row.sensitivity) <= sensitivityRank.get(maxSensitivity))
+      .filter((row) => scopeContains(JSON.parse(row.scope_json), scope))
+      .filter((row) => row.retrieval_policy !== "explicit_only" || includeExplicitOnly)
+      .filter((row) => !modelDestination || row.retrieval_policy !== "never_send_to_model")
+      .map((row) => ({ row, matchedTerms: terms.filter((term) => row.statement.toLowerCase().includes(term)).length }))
+      .filter((candidate) => terms.length === 0 || candidate.matchedTerms > 0)
+      .sort((left, right) => right.matchedTerms - left.matchedTerms || right.row.confidence - left.row.confidence || right.row.updated_at.localeCompare(left.row.updated_at))
+      .slice(0, limit);
+    const retrievalId = `retrieval.memory.${stableToken(idempotencyKey)}`;
+    const queryHash = sha256({ query });
+    const policyRevisionId = "policy.creator-default";
+    let result;
+    this.store.transaction(() => {
+      this.store.beginCommand({ idempotencyKey, method: "memory.retrieve", requestHash, subjectId: retrievalId });
+      this.store.appendEvent({
+        eventType: "memory.retrieval_recorded", aggregateType: "workspace", aggregateId: workspaceId,
+        workspaceId, commandId: context.requestId, idempotencyKey,
+        actor: context.actor ?? { type: "creator", id: "creator.local" }, source: context.source ?? "studio", sensitivity: maxSensitivity,
+        payload: {
+          retrievalId, queryHash, purpose, destination, scope, memoryIds: candidates.map(({ row }) => row.memory_id),
+          resultCount: candidates.length, maxSensitivity, explicitOnlyAuthorized: includeExplicitOnly,
+          influenceState: "context_candidate", policyRevisionId
+        }
+      });
+      result = {
+        retrievalId, queryHash, purpose, destination,
+        memories: candidates.map(({ row, matchedTerms }) => this.memorySummary(row, { matchedTerms })),
+        policyRevisionId, deduplicated: false
+      };
+      this.store.completeCommand(idempotencyKey, result);
+    });
+    return result;
+  }
+
+  reconstructMemoryRetrieval(retrievalId, deduplicated) {
+    const receipt = this.store.getMemoryRetrieval(retrievalId);
+    if (!receipt) throw new HarnessError("internal", "Memory retrieval receipt is missing");
+    const memories = JSON.parse(receipt.memory_ids_json)
+      .map((memoryId) => this.store.getMemory(memoryId))
+      .filter((row) => row?.state === "active" && (!row.expires_at || Date.parse(row.expires_at) > Date.parse(this.now())))
+      .map((row) => this.memorySummary(row));
+    return {
+      retrievalId, queryHash: receipt.query_hash, purpose: receipt.purpose, destination: receipt.destination,
+      memories, policyRevisionId: receipt.policy_revision_id, deduplicated
+    };
+  }
+
+  getMemoryInWorkspace(workspaceId, memoryId) {
+    const row = this.store.getMemory(memoryId);
+    if (!row || row.workspace_id !== workspaceId) throw new HarnessError("not_found", "Memory does not exist in this workspace");
+    return this.memorySummary(row);
+  }
+
+  memorySummary(row, extra = {}) {
+    if (!row) throw new HarnessError("internal", "Memory projection is missing");
+    const retrievalEligible = row.state === "active" && (!row.expires_at || Date.parse(row.expires_at) > Date.parse(this.now()));
+    return {
+      memoryId: row.memory_id, workspaceId: row.workspace_id, layer: row.layer, statement: row.statement,
+      evidence: JSON.parse(row.evidence_json), contradictions: JSON.parse(row.contradictions_json), confidence: row.confidence,
+      scope: JSON.parse(row.scope_json), sensitivity: row.sensitivity, retrievalPolicy: row.retrieval_policy,
+      state: row.state, retrievalEligible, createdBy: row.created_by,
+      ...(row.supersedes_memory_id ? { supersedesMemoryId: row.supersedes_memory_id } : {}),
+      ...(row.replacement_memory_id ? { replacementMemoryId: row.replacement_memory_id } : {}),
+      ...(row.decision_id ? { decisionId: row.decision_id } : {}),
+      ...(row.expires_at ? { expiresAt: row.expires_at } : {}),
+      searchDerivativesDeleted: Boolean(row.search_derivatives_deleted), ...extra, updatedAt: row.updated_at
+    };
+  }
+
+  assertMemoryWorkspaceAndEvidence(workspaceId, scope, evidenceRefs) {
+    if (!this.store.getWorkspace(workspaceId)) throw new HarnessError("not_found", "Workspace does not exist");
+    if (scope.workspaceId !== workspaceId) throw new HarnessError("policy_denied", "Memory scope must remain inside the command workspace");
+    if (scope.projectId) {
+      const project = this.store.getProject(scope.projectId);
+      if (!project || project.workspace_id !== workspaceId) throw new HarnessError("policy_denied", "Memory project scope is outside the command workspace");
+    }
+    for (const evidence of evidenceRefs) {
+      if (!this.store.evidenceRefExists(workspaceId, evidence)) throw new HarnessError("invalid_request", `Memory evidence does not resolve in this workspace: ${evidence.type}:${evidence.refId}`);
+    }
   }
 
   getRun(runId) {
@@ -740,6 +992,13 @@ function capabilityPermissionEvent(row, permissionReceipt) {
     correlationId: row.run_id ?? row.runId, sensitivity: "secret_reference",
     payload: { permissionReceipt }
   };
+}
+
+function scopeContains(memoryScope, requestedScope) {
+  for (const [key, value] of Object.entries(memoryScope)) {
+    if (requestedScope[key] !== value) return false;
+  }
+  return true;
 }
 
 export function requestHash(method, payload) {

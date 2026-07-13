@@ -25,6 +25,11 @@
             { "$ref": "#/$defs/runGetCommand" },
             { "$ref": "#/$defs/runListCommand" },
             { "$ref": "#/$defs/approvalResolveCommand" },
+            { "$ref": "#/$defs/memoryProposeCommand" },
+            { "$ref": "#/$defs/memoryResolveCommand" },
+            { "$ref": "#/$defs/memoryCorrectCommand" },
+            { "$ref": "#/$defs/memoryListCommand" },
+            { "$ref": "#/$defs/memoryRetrieveCommand" },
             { "$ref": "#/$defs/capabilityListCommand" },
             { "$ref": "#/$defs/bridgeStatusCommand" }
           ]
@@ -152,6 +157,131 @@
       },
       "additionalProperties": false
     },
+    "memoryScope": {
+      "type": "object",
+      "required": ["workspaceId"],
+      "properties": {
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "projectId": { "$ref": "common.schema.json#/$defs/id" },
+        "platform": { "$ref": "common.schema.json#/$defs/id" },
+        "loopId": { "$ref": "common.schema.json#/$defs/id" },
+        "accountConnectionId": { "$ref": "common.schema.json#/$defs/id" }
+      },
+      "additionalProperties": false
+    },
+    "memoryProposeCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "memory.propose" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "layer", "statement", "evidence", "contradictions", "confidence", "scope", "sensitivity", "retrievalPolicy", "idempotencyKey"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "layer": { "enum": ["identity", "semantic", "episodic", "procedural", "performance"] },
+            "statement": { "type": "string", "minLength": 3, "maxLength": 4000 },
+            "evidence": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidenceRef" }, "minItems": 1, "maxItems": 20 },
+            "contradictions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidenceRef" }, "maxItems": 20 },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "scope": { "$ref": "#/$defs/memoryScope" },
+            "sensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+            "retrievalPolicy": { "enum": ["default", "explicit_only", "never_send_to_model"] },
+            "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+            "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "memoryResolveCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "memory.resolve" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "memoryId", "action", "reason", "idempotencyKey"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "memoryId": { "$ref": "common.schema.json#/$defs/id" },
+            "action": { "enum": ["promote", "reject", "dispute", "forget"] },
+            "reason": { "type": "string", "minLength": 3, "maxLength": 1000 },
+            "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "memoryCorrectCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "memory.correct" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "memoryId", "statement", "reason", "idempotencyKey"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "memoryId": { "$ref": "common.schema.json#/$defs/id" },
+            "statement": { "type": "string", "minLength": 3, "maxLength": 4000 },
+            "reason": { "type": "string", "minLength": 3, "maxLength": 1000 },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "scope": { "$ref": "#/$defs/memoryScope" },
+            "sensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+            "retrievalPolicy": { "enum": ["default", "explicit_only", "never_send_to_model"] },
+            "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+            "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "memoryListCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "memory.list" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "limit", "includeForgotten"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "includeForgotten": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "memoryRetrieveCommand": {
+      "type": "object",
+      "required": ["method", "payload"],
+      "properties": {
+        "method": { "const": "memory.retrieve" },
+        "payload": {
+          "type": "object",
+          "required": ["workspaceId", "query", "purpose", "destination", "scope", "maxSensitivity", "includeExplicitOnly", "limit", "idempotencyKey"],
+          "properties": {
+            "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+            "query": { "type": "string", "minLength": 1, "maxLength": 1000 },
+            "purpose": { "type": "string", "minLength": 3, "maxLength": 500 },
+            "destination": { "enum": ["creator_view", "local_model", "remote_model"] },
+            "scope": { "$ref": "#/$defs/memoryScope" },
+            "maxSensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+            "includeExplicitOnly": { "type": "boolean" },
+            "limit": { "type": "integer", "minimum": 1, "maximum": 20 },
+            "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "capabilityListCommand": {
       "type": "object",
       "required": ["method", "payload"],
@@ -187,7 +317,7 @@
         "schemaVersion": { "const": 1 },
         "kind": { "const": "response" },
         "requestId": { "$ref": "common.schema.json#/$defs/id" },
-        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "idea.revise", "run.get", "run.list", "approval.resolve", "capability.list", "bridge.status"] },
+        "method": { "enum": ["harness.status", "workspace.ensure", "loop.start", "idea.revise", "run.get", "run.list", "approval.resolve", "memory.propose", "memory.resolve", "memory.correct", "memory.list", "memory.retrieve", "capability.list", "bridge.status"] },
         "ok": { "type": "boolean" },
         "result": {
           "oneOf": [
@@ -196,6 +326,9 @@
             { "$ref": "#/$defs/loopStartResult" },
             { "$ref": "#/$defs/runSummary" },
             { "$ref": "#/$defs/runListResult" },
+            { "$ref": "#/$defs/memoryMutationResult" },
+            { "$ref": "#/$defs/memoryListResult" },
+            { "$ref": "#/$defs/memoryRetrievalResult" },
             { "$ref": "#/$defs/capabilityListResult" },
             { "$ref": "#/$defs/bridgeStatusResult" }
           ]
@@ -225,14 +358,15 @@
         "schemaVersion": { "const": 1 },
         "kind": { "const": "event" },
         "sequence": { "type": "integer", "minimum": 1 },
-        "eventType": { "enum": ["harness.ready", "harness.recovering", "run.updated", "approval.required"] },
+        "eventType": { "enum": ["harness.ready", "harness.recovering", "run.updated", "approval.required", "memory.updated"] },
         "emittedAt": { "$ref": "common.schema.json#/$defs/timestamp" },
         "payload": {
           "oneOf": [
             { "$ref": "#/$defs/harnessReadyPayload" },
             { "$ref": "#/$defs/harnessRecoveringPayload" },
             { "$ref": "#/$defs/runUpdatedPayload" },
-            { "$ref": "#/$defs/approvalRequiredPayload" }
+            { "$ref": "#/$defs/approvalRequiredPayload" },
+            { "$ref": "#/$defs/memoryUpdatedPayload" }
           ]
         }
       },
@@ -282,6 +416,62 @@
       "required": ["runs"],
       "properties": {
         "runs": { "type": "array", "items": { "$ref": "#/$defs/runSummary" }, "maxItems": 50 }
+      },
+      "additionalProperties": false
+    },
+    "memorySummary": {
+      "type": "object",
+      "required": ["memoryId", "workspaceId", "layer", "statement", "evidence", "contradictions", "confidence", "scope", "sensitivity", "retrievalPolicy", "state", "retrievalEligible", "createdBy", "searchDerivativesDeleted", "updatedAt"],
+      "properties": {
+        "memoryId": { "$ref": "common.schema.json#/$defs/id" },
+        "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
+        "layer": { "enum": ["identity", "semantic", "episodic", "procedural", "performance"] },
+        "statement": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "evidence": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidenceRef" }, "maxItems": 20 },
+        "contradictions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/evidenceRef" }, "maxItems": 20 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "scope": { "$ref": "#/$defs/memoryScope" },
+        "sensitivity": { "$ref": "common.schema.json#/$defs/sensitivity" },
+        "retrievalPolicy": { "enum": ["default", "explicit_only", "never_send_to_model"] },
+        "state": { "enum": ["proposed", "active", "disputed", "expired", "rejected", "forgotten"] },
+        "retrievalEligible": { "type": "boolean" },
+        "createdBy": { "enum": ["creator", "reflection_agent", "import"] },
+        "supersedesMemoryId": { "$ref": "common.schema.json#/$defs/id" },
+        "replacementMemoryId": { "$ref": "common.schema.json#/$defs/id" },
+        "decisionId": { "$ref": "common.schema.json#/$defs/id" },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/timestamp" },
+        "searchDerivativesDeleted": { "type": "boolean" },
+        "matchedTerms": { "type": "integer", "minimum": 0 },
+        "updatedAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+      },
+      "additionalProperties": false
+    },
+    "memoryMutationResult": {
+      "type": "object",
+      "required": ["memory", "deduplicated"],
+      "properties": {
+        "memory": { "$ref": "#/$defs/memorySummary" },
+        "deduplicated": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "memoryListResult": {
+      "type": "object",
+      "required": ["memories"],
+      "properties": { "memories": { "type": "array", "items": { "$ref": "#/$defs/memorySummary" }, "maxItems": 100 } },
+      "additionalProperties": false
+    },
+    "memoryRetrievalResult": {
+      "type": "object",
+      "required": ["retrievalId", "queryHash", "purpose", "destination", "memories", "policyRevisionId", "deduplicated"],
+      "properties": {
+        "retrievalId": { "$ref": "common.schema.json#/$defs/id" },
+        "queryHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "purpose": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "destination": { "enum": ["creator_view", "local_model", "remote_model"] },
+        "memories": { "type": "array", "items": { "$ref": "#/$defs/memorySummary" }, "maxItems": 20 },
+        "policyRevisionId": { "$ref": "common.schema.json#/$defs/id" },
+        "deduplicated": { "type": "boolean" }
       },
       "additionalProperties": false
     },
@@ -362,6 +552,15 @@
         "runId": { "$ref": "common.schema.json#/$defs/id" },
         "approvalId": { "$ref": "common.schema.json#/$defs/id" },
         "subjectRef": { "$ref": "common.schema.json#/$defs/id" }
+      },
+      "additionalProperties": false
+    },
+    "memoryUpdatedPayload": {
+      "type": "object",
+      "required": ["memoryId", "state"],
+      "properties": {
+        "memoryId": { "$ref": "common.schema.json#/$defs/id" },
+        "state": { "enum": ["proposed", "active", "disputed", "expired", "rejected", "forgotten"] }
       },
       "additionalProperties": false
     },

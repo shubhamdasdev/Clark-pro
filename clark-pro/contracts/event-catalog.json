@@ -426,6 +426,16 @@
       "description": "Removes a memory from retrieval and deletes derived search/vector material."
     },
     {
+      "eventType": "memory.retrieval_recorded",
+      "schemaVersion": 1,
+      "aggregateType": "workspace",
+      "payloadRef": "./schemas/event-payloads.schema.json#/$defs/memoryRetrievalRecorded",
+      "compatibility": "additive",
+      "defaultSensitivity": "personal",
+      "mutationClass": "local_state",
+      "description": "Records a content-free receipt for scoped active-memory retrieval and its model-send policy."
+    },
+    {
       "eventType": "skill.revision_installed",
       "schemaVersion": 1,
       "aggregateType": "skill",

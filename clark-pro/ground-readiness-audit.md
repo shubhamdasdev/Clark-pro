@@ -23,7 +23,7 @@
 | Social-media connectivity | `mcp-ecosystem.md`, ADR-0006 | Defined | Recorded/sandbox adapter fixtures, real account capability matrix, platform approval evidence |
 | Installable skills | `memory-and-learning.md`, ADR-0007/0017, package schemas, 19-case Wasmtime suite | Ground contract/prototype-verified | Production component/WIT host, signing, process isolation, advisory automation, fuzzing, and Mac QA |
 | Reuse mature open-source tools instead of rebuilding every engine | ADR-0022, Tool Package schema, semantic verifier, pinned OpenCut candidate | Ground contract-verified; OpenCut honestly upstream-blocked | Production installer/quarantine/update/rollback runtime and at least one active Tool Pack over a stable supported interface |
-| Hermes-like memory/personalization core | `memory-and-learning.md`, prototype Memory view, ADR-0007 | Prototype-verified at interaction level | Real creator retrieval value, leakage/poisoning evaluation, correction/forget proof |
+| Hermes-like memory/personalization core | `memory-and-learning.md`, governed Harness projection, live Studio Memory view, ADR-0007 | Bounded production-path execution with automated proposal/retrieval/correction/forget proof | Real creator retrieval value, leakage/poisoning evaluation, semantic retrieval, influenced-artifact tracing, and complete physical-erasure design |
 | Whole product rather than throwaway MVP | `roadmap.md`, ADR-0010 | Defined | Every stratum must prove no alternate state/security path |
 | Incremental architecture from Ground upward | `roadmap.md`, ADR dependency stack | Defined | Versioned contracts and team-owned release plans |
 | Proper product/team direction | product requirements, epics, flows, positioning/business | Defined | Named ownership, capacity/dependency plan, design partners, willingness-to-pay evidence |
@@ -35,11 +35,11 @@
 | Product vision and differentiation | `vision.md`, `positioning-and-business.md`, research basis | Defined | Target-creator interviews and replacement-value evidence |
 | Canvas grammar and interaction | `the-canvas.md`, standalone prototype, screenshots, automated checks | Prototype-verified; human evidence pending | Five observed walkthrough records |
 | Harness architecture | `architecture.md`, ADR-0003 | Defined | Executable run/step state-machine specification |
-| Memory and learning model | `memory-and-learning.md`, ADR-0007 | Defined | Retrieval/proposal evaluation protocol and real creator corpus |
+| Memory and learning model | `memory-and-learning.md`, ADR-0007, Harness schema-v4 memory projection, Studio Memory workspace | Defined with bounded executable governance | Retrieval/proposal evaluation protocol, real creator corpus, poisoning/leakage corpus, and cryptographic erasure/compaction |
 | MCP and capability boundary | `mcp-ecosystem.md`, ADR-0004, `mcp-conformance/` | Ground contract/harness-verified | Production-boundary execution and named owner signoff |
 | Security model and trust boundaries | `security-and-threat-model.md`, ADR-0001/0005 and ADR-0011–0022 | Specified, with skill/MCP Ground suites and Tool Pack contract gates | Convert every remaining accepted security gate into owned executable production tests and release evidence |
 | Architecture decisions | `decisions/` registry and twenty-two accepted ADRs | Defined | Team review/signoff; superseding ADR for any invariant change |
-| Versioned domain event catalog | 60 types, 18 schemas, generated namespaces, representative stream, historical upcaster, and Tool Pack lifecycle events | Defined and Ground contract/runtime-verified | Team signoff and full production replay/restore evidence |
+| Versioned domain event catalog | 61 types, 18 schemas, generated namespaces, representative stream, historical upcaster, Tool Pack lifecycle events, and memory retrieval receipts | Defined and Ground contract/runtime-verified | Team signoff and full production replay/restore evidence |
 | Versioned loop contract | Loop JSON Schema, generated types, Full-Week and Reflection definitions | Defined and contract-verified | Runtime graph/compiler conformance |
 | Capability adapter contract | Capability schema, generated types, eight provider fixtures, 36 hostile MCP cases | Defined and Ground conformance-verified | Real adapter/provider compatibility matrix |
 | Governed Tool Pack contract | Source/license/SBOM/install/adapter/converter/UI/update/rollback schema, generated types, OpenCut blocked fixture, valid-active shape, active-without-adapter and eleven hostile activation rejections | Defined and Ground contract-verified | Production installer and one stable external-tool integration with full activation/rollback evidence |
@@ -49,7 +49,7 @@
 | Business/category architecture | `positioning-and-business.md` | Defined as hypotheses | Ten interviews, three real-week design partners, binding willingness-to-pay |
 | Team-owned release plan | `team-delivery-plan.md` defines ten workstreams, dependencies, decision/contract ownership, readiness/done, and evidence ledger | Defined by role | Assign named people, capacity, dates, and Ground evidence signoff |
 | Machine-checked Ground evidence ledger | `evidence/ground-ledger.json`, JSON Schema, semantic negative fixture, verifier, generated status | Defined and verifier-checked open | Resolve blocking proof, keep statuses evidence-bound, and obtain seven-role named signoff |
-| Native Mac interaction shell | `apps/desktop/`, ten boundary tests, two Electron E2E tests, packaged-app test, live Idea Foundry screenshots | Bounded executable evidence, not release-verified | VoiceOver/accessibility and design review; native trust flows; signed, hardened, notarized, Gatekeeper-accepted release bundle |
+| Native Mac interaction shell | `apps/desktop/`, ten boundary tests, two Electron E2E tests, packaged-app test, live Idea Foundry and governed Memory screenshots | Bounded executable evidence, not release-verified | VoiceOver/accessibility and design review; native trust flows; signed, hardened, notarized, Gatekeeper-accepted release bundle |
 
 ## Canvas evidence audit
 
@@ -62,6 +62,7 @@
 - Impact preview exposes downstream staleness and estimated regeneration cost before execution.
 - Review approval remains version-specific and separate from publication.
 - Memory inspection exposes evidence, confidence, contradiction, scope, and retrieval status.
+- Studio turns an exact brief/run into a proposal-only memory, requires an explicit creator state transition, creates linked append-only corrections, filters retrieval by scope/sensitivity/destination policy, and redacts forgotten projections while retaining the audit limitation onscreen.
 - Connections explains MCP host/client, Clark Bridge, social adapters, skill trust, and effective autonomy.
 - A scoped Hermes Bridge capture creates one canonical Canvas object and receipt; replay emits no event, reload restores state, and Studio/Bridge hashes match.
 - Canvas supports bounded click-drag pan, zoom/fit, arrow-key lane navigation, Enter-to-inspect, command palette, and reversible staged/view state.
