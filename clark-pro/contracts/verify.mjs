@@ -34,6 +34,9 @@ const positiveTargets = [
   ["event-catalog.schema.json", "event-catalog.json"],
   ["ground-evidence-ledger.schema.json", "../evidence/ground-ledger.json"],
   ["bridge-exchange.schema.json", "fixtures/full-week/bridge.capture.exchange.json"],
+  ["skill-package.schema.json", "fixtures/full-week/skills/weekly-reflection.class-a.skill.json"],
+  ["skill-package.schema.json", "fixtures/full-week/skills/caption-check.class-b.skill.json"],
+  ["skill-permission-receipt.schema.json", "fixtures/full-week/skills/caption-check.permission-receipt.json"],
   ["loop-definition.schema.json", "fixtures/full-week/full-week.loop.json"],
   ["loop-definition.schema.json", "fixtures/full-week/reflection.loop.json"],
   ["run-plan.schema.json", "fixtures/full-week/run-plan.json"],
@@ -52,7 +55,11 @@ for (const [schema, data] of positiveTargets) validate(schema, data, true);
 const schemaNegativeTargets = [
   ["capability-manifest.schema.json", "fixtures/negative/raw-secret.capability.invalid.json"],
   ["capability-manifest.schema.json", "fixtures/negative/missing-output-schema.capability.invalid.json"],
-  ["project-fixture.schema.json", "fixtures/negative/fractional-money.project.invalid.json"]
+  ["project-fixture.schema.json", "fixtures/negative/fractional-money.project.invalid.json"],
+  ["skill-package.schema.json", "fixtures/negative/class-a-executable.skill.invalid.json"],
+  ["skill-package.schema.json", "fixtures/negative/class-b-network.skill.invalid.json"],
+  ["skill-package.schema.json", "fixtures/negative/class-b-raw-credential.skill.invalid.json"],
+  ["skill-package.schema.json", "fixtures/negative/class-c-remote.skill.invalid.json"]
 ];
 for (const [schema, data] of schemaNegativeTargets) validate(schema, data, false);
 
@@ -140,6 +147,25 @@ for (const negativeCase of bridgeNegativeSuite.cases) {
   }
   assert(rejection, `${negativeCase.id} was not rejected`);
   assert(rejection.message.includes(negativeCase.expectedReason), `${negativeCase.id} rejected for unexpected reason: ${rejection.message}`);
+}
+
+const classASkill = read("fixtures/full-week/skills/weekly-reflection.class-a.skill.json");
+const classBSkill = read("fixtures/full-week/skills/caption-check.class-b.skill.json");
+const skillReceipt = read("fixtures/full-week/skills/caption-check.permission-receipt.json");
+for (const skill of [classASkill, classBSkill]) {
+  unique(skill.files.map((file) => file.path), `${skill.id} file paths`);
+}
+assert(classBSkill.entrypoint.contentHash === classBSkill.files.find((file) => file.path === classBSkill.entrypoint.path)?.contentHash, "Class B entrypoint hash differs from inventory");
+assert(classBSkill.sandbox.runtime === "wasmtime", "Class B runtime is not Wasmtime");
+assert(classBSkill.requestedPermissions.networkDomains.length === 0, "Class B requested direct network");
+assert(classBSkill.requestedPermissions.credentialScopes.length === 0, "Class B requested raw credential scope");
+const permissionKeys = ["capabilityIds", "hostFunctions", "actionClasses", "networkDomains", "credentialScopes", "readInputs", "writeOutputs"];
+for (const key of permissionKeys) {
+  const sources = Object.values(skillReceipt.sources).map((source) => source[key]);
+  const calculated = sources[0].filter((value) => sources.every((source) => source.includes(value))).sort();
+  assert(JSON.stringify(calculated) === JSON.stringify([...skillReceipt.effective[key]].sort()), `Skill effective ${key} is not the four-way intersection`);
+  const denied = skillReceipt.sources.skillRequest[key].filter((value) => !calculated.includes(value)).sort();
+  assert(JSON.stringify(denied) === JSON.stringify([...skillReceipt.denied[key]].sort()), `Skill denied ${key} is not the request remainder`);
 }
 
 const stream = read("fixtures/full-week/events.json");
@@ -319,6 +345,8 @@ console.log(JSON.stringify({
   semanticNegativeDocumentsRejected: 4,
   bridgeSemanticNegativeCasesRejected: bridgeNegativeSuite.cases.length,
   bridgeExchanges: 1,
+  skillPackages: 2,
+  skillPermissionReceipts: 1,
   eventTypes: catalog.events.length,
   eventPayloadsValidated: stream.events.length,
   capabilities: capabilities.length,

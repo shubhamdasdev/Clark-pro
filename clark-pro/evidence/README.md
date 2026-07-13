@@ -22,6 +22,7 @@ The ledger deliberately distinguishes:
 | `verify.mjs` | Schema, semantic, path, closure, signoff, and anti-fabrication verifier |
 | `fixtures/negative-entry.verified-without-observation.json` | Proves that a prototype cannot be relabeled as verified human evidence |
 | `status.md` | Generated concise summary of current counts and blocking entries |
+| `../skills-sandbox/evidence/latest-sandbox-receipt.json` | Attributable pinned-runtime result for the hostile Class B Ground suite |
 
 ## Run
 

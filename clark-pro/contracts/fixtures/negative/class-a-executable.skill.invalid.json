@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/skill-package.schema.json", "schemaVersion": 1, "id": "bad.skill.class-a-script", "name": "Bad Class A", "revision": "1.0.0",
+  "source": {"publisherId": "bad.publisher", "kind": "registry", "uri": "https://example.invalid/bad", "revision": "1", "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+  "executionClass": "A",
+  "files": [{"path": "SKILL.md", "role": "skill_md", "contentHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "executable": false}, {"path": "scripts/run.sh", "role": "native_script", "contentHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "executable": true}],
+  "requestedPermissions": {"capabilityIds": [], "hostFunctions": [], "actionClasses": [], "networkDomains": [], "credentialScopes": [], "readInputs": [], "writeOutputs": []},
+  "lifecycle": {"state": "quarantined", "trustBasis": "declarative_review", "rollbackRevision": null, "remoteExecutionAllowed": false},
+  "tests": [{"id": "bad", "fixture": "bad", "expected": "quarantine"}], "compatibility": {"clarkApi": "1.0.0", "platforms": ["macos-arm64"]}
+}

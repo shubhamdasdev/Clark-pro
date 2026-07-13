@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/skill-permission-receipt.schema.json",
+  "title": "Clark Skill Effective Permission Receipt",
+  "type": "object",
+  "required": ["$schema", "schemaVersion", "receiptId", "skillRevision", "invocationId", "decision", "sources", "effective", "denied", "evaluatedAt"],
+  "properties": {
+    "$schema": { "const": "https://schemas.clark.pro/v1/skill-permission-receipt.schema.json" },
+    "schemaVersion": { "const": 1 },
+    "receiptId": { "$ref": "common.schema.json#/$defs/id" },
+    "skillRevision": { "$ref": "common.schema.json#/$defs/revisionRef" },
+    "invocationId": { "$ref": "common.schema.json#/$defs/id" },
+    "decision": { "enum": ["allow", "deny", "ask"] },
+    "sources": {
+      "type": "object",
+      "required": ["skillRequest", "installedCapabilities", "workspacePolicy", "runApproval"],
+      "properties": {
+        "skillRequest": { "$ref": "skill-package.schema.json#/$defs/permissions" },
+        "installedCapabilities": { "$ref": "skill-package.schema.json#/$defs/permissions" },
+        "workspacePolicy": { "$ref": "skill-package.schema.json#/$defs/permissions" },
+        "runApproval": { "$ref": "skill-package.schema.json#/$defs/permissions" }
+      },
+      "additionalProperties": false
+    },
+    "effective": { "$ref": "skill-package.schema.json#/$defs/permissions" },
+    "denied": { "$ref": "skill-package.schema.json#/$defs/permissions" },
+    "evaluatedAt": { "$ref": "common.schema.json#/$defs/timestamp" }
+  },
+  "additionalProperties": false
+}

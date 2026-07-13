@@ -17,6 +17,8 @@ The Canvas now supports click-drag panning, 65–140% zoom, fit-to-view, relatio
 
 Connections includes a Bridge state-equivalence proof. A verified Hermes client issues `clark.capture` with capture-only workspace scope, receives one durable `source.captured` receipt, and creates the same object Canvas renders. Replaying the intent emits no new event; reloading restores the 51-object receipt-backed state for the current browser session.
 
+Connections also exposes the governed skill execution classes and an inspectable Class B receipt. The receipt distinguishes requested from effective permissions, shows the four-way intersection, and reports the 19 hostile Wasmtime Ground cases without presenting the Ground spike as the production component sandbox.
+
 The prototype validates information architecture and interaction contracts. It is not an alternate implementation path; production work follows the Electron, event, harness, memory, policy, and capability contracts in the authoritative architecture documents.
 
 ## Preview
@@ -40,6 +42,10 @@ The prototype validates information architecture and interaction contracts. It i
 ### Connections
 
 ![Connections view](connections-preview.png)
+
+### Governed skill receipt
+
+![Governed Class A/B/C and Wasmtime receipt](skill-proof-preview.png)
 
 ### Studio ↔ Bridge state proof
 

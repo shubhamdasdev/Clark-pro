@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.clark.pro/v1/skill-package.schema.json",
+  "title": "Clark Governed Agent Skill Package",
+  "type": "object",
+  "required": ["$schema", "schemaVersion", "id", "name", "revision", "source", "executionClass", "files", "requestedPermissions", "lifecycle", "tests", "compatibility"],
+  "properties": {
+    "$schema": { "const": "https://schemas.clark.pro/v1/skill-package.schema.json" },
+    "schemaVersion": { "const": 1 },
+    "id": { "$ref": "common.schema.json#/$defs/id" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "revision": { "$ref": "common.schema.json#/$defs/semver" },
+    "source": {
+      "type": "object",
+      "required": ["publisherId", "kind", "uri", "revision", "contentHash"],
+      "properties": {
+        "publisherId": { "$ref": "common.schema.json#/$defs/id" },
+        "kind": { "enum": ["bundled", "registry", "git", "local", "learned"] },
+        "uri": { "type": "string", "format": "uri-reference", "minLength": 1, "maxLength": 4096 },
+        "revision": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+        "signature": { "type": "string", "minLength": 16, "maxLength": 4096 }
+      },
+      "additionalProperties": false
+    },
+    "executionClass": { "enum": ["A", "B", "C"] },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "contains": { "type": "object", "properties": { "path": { "const": "SKILL.md" }, "role": { "const": "skill_md" } }, "required": ["path", "role"] },
+      "items": {
+        "type": "object",
+        "required": ["path", "role", "contentHash", "executable"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1, "maxLength": 500, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$" },
+          "role": { "enum": ["skill_md", "reference", "asset", "template", "component", "wit", "fixture", "native_script"] },
+          "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+          "executable": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "entrypoint": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind", "path", "contentHash", "interfaceRevision", "export"],
+          "properties": {
+            "kind": { "const": "wasm_component" },
+            "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+\\.wasm$" },
+            "contentHash": { "$ref": "common.schema.json#/$defs/contentHash" },
+            "interfaceRevision": { "$ref": "common.schema.json#/$defs/semver" },
+            "export": { "$ref": "common.schema.json#/$defs/id" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "path", "argv"],
+          "properties": {
+            "kind": { "const": "native_process" },
+            "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$" },
+            "argv": { "type": "array", "items": { "type": "string", "maxLength": 500 }, "maxItems": 64 }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "requestedPermissions": { "$ref": "#/$defs/permissions" },
+    "sandbox": {
+      "type": "object",
+      "required": ["runtime", "runtimeVersion", "wasiModel", "denyByDefault", "limits"],
+      "properties": {
+        "runtime": { "const": "wasmtime" },
+        "runtimeVersion": { "$ref": "common.schema.json#/$defs/semver" },
+        "wasiModel": { "enum": ["component-preview2", "core-preview1-ground-spike"] },
+        "denyByDefault": { "type": "array", "items": { "enum": ["environment", "stdin", "terminal", "network", "clocks", "random", "filesystem", "host_imports"] }, "minItems": 8, "maxItems": 8, "uniqueItems": true },
+        "limits": {
+          "type": "object",
+          "required": ["fuel", "epochDeadlineMs", "memoryBytes", "instances", "tables", "outputBytes", "storageBytes"],
+          "properties": {
+            "fuel": { "type": "integer", "minimum": 1 },
+            "epochDeadlineMs": { "type": "integer", "minimum": 1, "maximum": 300000 },
+            "memoryBytes": { "type": "integer", "minimum": 65536 },
+            "instances": { "type": "integer", "minimum": 1, "maximum": 64 },
+            "tables": { "type": "integer", "minimum": 0, "maximum": 64 },
+            "outputBytes": { "type": "integer", "minimum": 1 },
+            "storageBytes": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["state", "trustBasis", "rollbackRevision", "remoteExecutionAllowed"],
+      "properties": {
+        "state": { "enum": ["quarantined", "testing", "active", "suspended", "rolled_back"] },
+        "trustBasis": { "enum": ["declarative_review", "sandbox_verified", "bundled_signed", "developer_mode"] },
+        "rollbackRevision": { "type": ["string", "null"], "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$" },
+        "remoteExecutionAllowed": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "tests": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["id", "fixture", "expected"], "properties": { "id": { "$ref": "common.schema.json#/$defs/id" }, "fixture": { "type": "string", "minLength": 1, "maxLength": 500 }, "expected": { "enum": ["pass", "deny", "trap", "quarantine"] } }, "additionalProperties": false } },
+    "compatibility": { "type": "object", "required": ["clarkApi", "platforms"], "properties": { "clarkApi": { "$ref": "common.schema.json#/$defs/semver" }, "platforms": { "type": "array", "items": { "enum": ["macos-arm64", "macos-x64"] }, "minItems": 1, "uniqueItems": true } }, "additionalProperties": false }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "executionClass": { "const": "A" } }, "required": ["executionClass"] },
+      "then": {
+        "not": { "required": ["entrypoint"] },
+        "properties": {
+          "files": { "items": { "properties": { "role": { "not": { "enum": ["component", "native_script"] } }, "executable": { "const": false } } } },
+          "requestedPermissions": { "properties": { "hostFunctions": { "maxItems": 0 }, "networkDomains": { "maxItems": 0 }, "credentialScopes": { "maxItems": 0 }, "readInputs": { "maxItems": 0 }, "writeOutputs": { "maxItems": 0 } } },
+          "lifecycle": { "properties": { "trustBasis": { "const": "declarative_review" } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "executionClass": { "const": "B" } }, "required": ["executionClass"] },
+      "then": {
+        "required": ["entrypoint", "sandbox"],
+        "properties": {
+          "entrypoint": { "properties": { "kind": { "const": "wasm_component" } } },
+          "requestedPermissions": { "properties": { "networkDomains": { "maxItems": 0 }, "credentialScopes": { "maxItems": 0 } } },
+          "lifecycle": { "properties": { "trustBasis": { "const": "sandbox_verified" } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "executionClass": { "const": "C" } }, "required": ["executionClass"] },
+      "then": {
+        "required": ["entrypoint"],
+        "not": { "required": ["sandbox"] },
+        "properties": {
+          "entrypoint": { "properties": { "kind": { "const": "native_process" } } },
+          "lifecycle": { "properties": { "trustBasis": { "enum": ["bundled_signed", "developer_mode"] }, "remoteExecutionAllowed": { "const": false } } }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "permissions": {
+      "type": "object",
+      "required": ["capabilityIds", "hostFunctions", "actionClasses", "networkDomains", "credentialScopes", "readInputs", "writeOutputs"],
+      "properties": {
+        "capabilityIds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true },
+        "hostFunctions": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "actionClasses": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/actionClass" }, "uniqueItems": true },
+        "networkDomains": { "type": "array", "items": { "type": "string", "format": "hostname" }, "uniqueItems": true },
+        "credentialScopes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/permissionScope" }, "uniqueItems": true },
+        "readInputs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true },
+        "writeOutputs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/id" }, "uniqueItems": true }
+      },
+      "additionalProperties": false
+    }
+  }
+}

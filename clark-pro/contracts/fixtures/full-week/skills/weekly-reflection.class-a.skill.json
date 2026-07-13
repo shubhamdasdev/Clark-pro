@@ -1,0 +1,34 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/skill-package.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.skill.weekly-reflection",
+  "name": "Weekly Reflection",
+  "description": "A declarative procedure that turns approved observations into reviewable memory and skill proposals.",
+  "revision": "1.2.0",
+  "source": {
+    "publisherId": "clark.first-party",
+    "kind": "bundled",
+    "uri": "clark://skills/weekly-reflection",
+    "revision": "1.2.0",
+    "contentHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "executionClass": "A",
+  "files": [
+    {"path": "SKILL.md", "role": "skill_md", "contentHash": "sha256:1212121212121212121212121212121212121212121212121212121212121212", "executable": false},
+    {"path": "references/rubric.md", "role": "reference", "contentHash": "sha256:1313131313131313131313131313131313131313131313131313131313131313", "executable": false}
+  ],
+  "requestedPermissions": {
+    "capabilityIds": ["clark.reflect.local"],
+    "hostFunctions": [],
+    "actionClasses": ["memory_mutate", "skill_mutate"],
+    "networkDomains": [],
+    "credentialScopes": [],
+    "readInputs": [],
+    "writeOutputs": []
+  },
+  "lifecycle": {"state": "active", "trustBasis": "declarative_review", "rollbackRevision": "1.1.0", "remoteExecutionAllowed": true},
+  "tests": [
+    {"id": "reflection-fixture", "fixture": "fixtures/full-week/reflection.loop.json", "expected": "pass"}
+  ],
+  "compatibility": {"clarkApi": "1.0.0", "platforms": ["macos-arm64", "macos-x64"]}
+}

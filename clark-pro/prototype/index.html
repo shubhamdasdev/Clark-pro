@@ -145,6 +145,9 @@ svg.lucide { width: 16px; height: 16px; }
     #clark-studio-vis .cs-system-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
     #clark-studio-vis .cs-system-row:last-child { border-bottom: 0; }
     #clark-studio-vis .cs-bridge-proof { margin-top: 16px; }
+    #clark-studio-vis .cs-skill-proof { margin-top: 16px; }
+    #clark-studio-vis .cs-skill-proof summary { cursor: pointer; font-weight: 600; }
+    #clark-studio-vis .cs-skill-proof details[open] summary { margin-bottom: 10px; }
     #clark-studio-vis .cs-proof-hash { overflow-wrap: anywhere; }
     #clark-studio-vis .cs-inspector { position: sticky; top: 0; }
     #clark-studio-vis .cs-mini-meter { height: 6px; background: var(--muted); overflow: hidden; }
@@ -358,7 +361,7 @@ svg.lucide { width: 16px; height: 16px; }
     </section>
 
     <section class="cs-view" id="cs-view-connections" role="tabpanel" aria-labelledby="cs-tab-connections" hidden>
-      <div class="cs-statusline"><span class="viz-badge">Harness healthy</span><span class="viz-badge">Bridge on</span><span class="viz-badge">4 MCP servers</span><span class="viz-badge">6 social accounts</span><span class="viz-badge">12 trusted skills</span></div>
+      <div class="cs-statusline"><span class="viz-badge">Harness healthy</span><span class="viz-badge">Bridge on</span><span class="viz-badge">4 MCP servers</span><span class="viz-badge">6 social accounts</span><span class="viz-badge">2 governed skill fixtures</span></div>
       <div class="cs-two">
         <div>
           <h3>Connected capabilities</h3>
@@ -382,6 +385,25 @@ svg.lucide { width: 16px; height: 16px; }
             <button type="button" class="btn cs-system-action" data-action="Connect social account">Connect social account</button>
             <button type="button" class="btn cs-system-action" data-action="Install Agent Skill">Install skill</button>
           </div>
+          <section class="card cs-skill-proof" aria-labelledby="cs-skill-proof-title">
+            <div class="cs-inline"><span class="viz-badge">Ground verified</span><span class="text-small text-muted">Package trust + sandbox receipt</span></div>
+            <h3 id="cs-skill-proof-title">Skills cannot grant themselves authority</h3>
+            <div class="cs-system-list">
+              <div class="cs-system-row"><div><strong>Weekly Reflection · Class A</strong><div class="text-small text-muted">Declarative only · no executable files, imports, network, credentials, or host filesystem</div></div><span class="viz-badge">Active</span></div>
+              <div class="cs-system-row"><div><strong>Caption Check · Class B</strong><div class="text-small text-muted">Pinned Wasmtime 46.0.1 · component/WIT contract · isolated input + output refs</div></div><span class="viz-badge">Testing</span></div>
+              <div class="cs-system-row"><div><strong>Native package · Class C</strong><div class="text-small text-muted">Signed Clark bundle or explicit local developer mode only · remote execution forbidden</div></div><span class="viz-badge">High risk</span></div>
+            </div>
+            <details id="cs-skill-receipt">
+              <summary>Inspect effective permission and sandbox receipt</summary>
+              <div class="cs-system-list">
+                <div class="cs-system-row"><div><strong>Requested capabilities</strong><div class="text-small text-muted">research.search.mcp + model.structured.generate</div></div><span class="viz-badge">2</span></div>
+                <div class="cs-system-row"><div><strong>Effective intersection</strong><div class="text-small text-muted">skill request ∩ installed trust ∩ workspace policy ∩ run approval</div></div><span class="viz-badge">research only</span></div>
+                <div class="cs-system-row"><div><strong>Denied from this run</strong><div class="text-small text-muted">model generation · direct network · raw credential scopes</div></div><span class="viz-badge">Fail closed</span></div>
+                <div class="cs-system-row"><div><strong>Hostile runtime cases</strong><div class="text-small text-muted">imports, network, process, env, preopens, traversal, symlink, write, fuel, deadline, memory, output, ANSI, credential canaries</div></div><span class="viz-badge">19 / 19 pass</span></div>
+              </div>
+              <p class="text-small text-muted">Ground proof uses core Wasm/WASI Preview 1 to verify engine controls. Production still requires pinned components/WIT, explicit WasiDirPerms, streaming output termination, signing, advisory monitoring, and process isolation.</p>
+            </details>
+          </section>
           <section class="card cs-bridge-proof" id="cs-bridge-proof" aria-labelledby="cs-bridge-proof-title">
             <div class="cs-inline"><span class="viz-badge" id="cs-bridge-receipt-badge">Ready</span><span class="text-small text-muted">Studio ↔ Bridge state proof</span></div>
             <h3 id="cs-bridge-proof-title">Capture through Hermes, inspect the same object in Studio</h3>
@@ -410,7 +432,7 @@ svg.lucide { width: 16px; height: 16px; }
           <p class="text-small"><strong>Long work:</strong> MCP Tasks when negotiated; Clark jobs otherwise.</p>
           <button type="button" class="btn cs-system-action" data-action="Register MCP client">Register client</button>
           <h3 class="cs-spacer-top">Skills</h3>
-          <p class="text-small">12 trusted · 2 updates quarantined · 1 learned procedure awaiting tests.</p>
+          <p class="text-small">Class A declarative by default · Class B sandboxed · Class C visibly high-risk. Updates return to quarantine and rerun hostile fixtures.</p>
           <button type="button" class="btn cs-system-action" data-action="Review skill quarantine">Review quarantine</button>
           <h3 class="cs-spacer-top">Effective autonomy</h3>
           <p class="text-small"><strong>Auto:</strong> scoped reads, retrieval, validation, and reversible local transforms.</p>

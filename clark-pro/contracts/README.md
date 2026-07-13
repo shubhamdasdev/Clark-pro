@@ -19,6 +19,8 @@ This directory is the machine-readable Ground layer shared by Studio, Harness, B
 | `schemas/failure-fixtures.schema.json` | Expected safety/recovery behavior for failure, abuse, and policy cases |
 | `schemas/ground-evidence-ledger.schema.json` | Ground requirement, proof class, result, limitation, blocker, release target, and attributable signoff records |
 | `schemas/bridge-exchange.schema.json` | Scoped Bridge client, command intent, permission decision, domain event, durable receipts, idempotent replay, and Studio/resource equivalence |
+| `schemas/skill-package.schema.json` | Agent Skill Class A/B/C package inventory, hashes, entrypoint, permissions, lifecycle, compatibility, tests, and sandbox limits |
+| `schemas/skill-permission-receipt.schema.json` | Four-way requested/installed/workspace/run permission intersection with effective and denied authority |
 
 ## Versioning rules
 
@@ -70,14 +72,15 @@ The verifier performs draft-2020 JSON Schema checks and semantic checks for even
 
 Current checked fixture evidence:
 
-- 12 schema files, including the 34-entry Ground evidence ledger and Bridge exchange contracts;
+- 14 schema files, including the 34-entry Ground evidence ledger, Bridge exchange, governed skill package, and effective-permission receipt contracts;
 - 52 event types and 10 representative payload-bearing events;
 - 8 capability manifests;
 - 2 loops and an 11-step compiled run plan;
 - exactly 50 project objects and 46 lineage edges;
 - 10 failure/abuse cases referencing 15 threat IDs;
 - 1 accepted Bridge capture/replay exchange plus 5 hostile semantic mutations rejected;
-- 3 schema-invalid and 4 semantic-invalid documents rejected;
+- 2 governed skill packages and 1 four-way effective-permission receipt;
+- 7 schema-invalid and 4 semantic-invalid documents rejected, including Class A executable, Class B network/raw-credential, and Class C remote-execution attempts;
 - zero dependency vulnerabilities at the configured audit threshold.
 
 The ledger's additional fail-closed semantic checks and generated status live in [`../evidence/`](../evidence/README.md).

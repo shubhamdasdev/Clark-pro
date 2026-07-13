@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "clark.skill-sandbox.ground-spike",
+  "runtime": {
+    "name": "wasmtime",
+    "version": "wasmtime 46.0.1 (823d1b8f2 2026-06-24)",
+    "release": "v46.0.1",
+    "releaseArchiveSha256": "acee50be70dbe90b0ab2ac7db1321fc44715153a1b1cc58291c97b6d7cffc558",
+    "wasiModel": "core-preview1-ground-spike"
+  },
+  "policy": {
+    "environmentInherited": false,
+    "networkInterfacesDefined": false,
+    "filesystemDefault": "none",
+    "preopens": "one_fixture_directory",
+    "preopenWriteBehavior": "denied_by_readonly_host_fixture",
+    "rawCredentialsExposed": false,
+    "outputLimitBytes": 16,
+    "memoryLimitBytes": 65536,
+    "fuel": 10000,
+    "engineDeadlineMs": 20
+  },
+  "cases": [
+    {
+      "id": "runtime-pinned",
+      "boundary": "supply_chain",
+      "result": "pass",
+      "observation": "wasmtime 46.0.1 (823d1b8f2 2026-06-24)"
+    },
+    {
+      "id": "runtime-release-digest",
+      "boundary": "supply_chain",
+      "result": "pass",
+      "observation": "release archive sha256:acee50be70dbe90b0ab2ac7db1321fc44715153a1b1cc58291c97b6d7cffc558"
+    },
+    {
+      "id": "environment-deny",
+      "boundary": "environment",
+      "result": "pass",
+      "observation": "guest observed 0 inherited environment entries"
+    },
+    {
+      "id": "credential-env-canary",
+      "boundary": "credentials",
+      "result": "pass",
+      "observation": "host credential canary was not inherited"
+    },
+    {
+      "id": "undeclared-host-deny",
+      "boundary": "host_imports",
+      "result": "pass",
+      "observation": "link failed closed because the host did not define the requested authority"
+    },
+    {
+      "id": "network-import-deny",
+      "boundary": "network",
+      "result": "pass",
+      "observation": "link failed closed because the host did not define the requested authority"
+    },
+    {
+      "id": "process-spawn-deny",
+      "boundary": "process",
+      "result": "pass",
+      "observation": "link failed closed because the host did not define the requested authority"
+    },
+    {
+      "id": "filesystem-default-deny",
+      "boundary": "filesystem",
+      "result": "pass",
+      "observation": "path_open errno=8 without a preopen"
+    },
+    {
+      "id": "filesystem-exact-preopen",
+      "boundary": "filesystem",
+      "result": "pass",
+      "observation": "the one declared input opened with errno=0"
+    },
+    {
+      "id": "filesystem-traversal-deny",
+      "boundary": "filesystem",
+      "result": "pass",
+      "observation": "parent traversal failed with errno=63"
+    },
+    {
+      "id": "filesystem-symlink-escape-deny",
+      "boundary": "filesystem",
+      "result": "pass",
+      "observation": "symlink escape failed with errno=32"
+    },
+    {
+      "id": "filesystem-readonly-deny",
+      "boundary": "filesystem",
+      "result": "pass",
+      "observation": "write/create failed with errno=2"
+    },
+    {
+      "id": "credential-file-canary",
+      "boundary": "credentials",
+      "result": "pass",
+      "observation": "credential canary outside the preopen stayed unreachable"
+    },
+    {
+      "id": "fuel-exhaustion-trap",
+      "boundary": "fuel",
+      "result": "pass",
+      "observation": "infinite loop trapped after consuming 10,000 fuel"
+    },
+    {
+      "id": "epoch-deadline-trap",
+      "boundary": "wall_time",
+      "result": "pass",
+      "observation": "infinite loop trapped at the 20ms engine deadline"
+    },
+    {
+      "id": "memory-growth-deny",
+      "boundary": "memory",
+      "result": "pass",
+      "observation": "memory.grow returned -1; -1 is fail-closed"
+    },
+    {
+      "id": "output-budget-reject",
+      "boundary": "output",
+      "result": "pass",
+      "observation": "receipt rejected 24 captured bytes above the 16-byte budget"
+    },
+    {
+      "id": "stdout-captured",
+      "boundary": "output",
+      "result": "pass",
+      "observation": "captured 23 stdout bytes in the child pipe"
+    },
+    {
+      "id": "stdout-sanitized-and-truncated",
+      "boundary": "terminal",
+      "result": "pass",
+      "observation": "ANSI controls were removed and the display preview was byte-limited"
+    }
+  ],
+  "fixtureHashes": {
+    "environment-probe.wat": "sha256:8b6c6681aaac7715f86ff2ab03fe6f1d01f4fd46ca7402ae1c03f4b3bb80ed42",
+    "infinite-loop.wat": "sha256:a41a5c807061c0cf10536b80137f1d3ec6c8c82886cb1584d153cf0c22f07905",
+    "memory-grow.wat": "sha256:c846b32d330100a9c53df6ac87a3fd04e618886e95c2d855aeaa4a6b4e55f4ac",
+    "network-import.wat": "sha256:9baffa028653e8baf4e17f3ce7ecd774fa5540c03141f95e6aaccd5dd11ba9b3",
+    "output-flood.wat": "sha256:b22873a8da7ce20148e0dbc35149eceab54d1017440604ce73281dfd745890d7",
+    "path-allowed.wat": "sha256:79405c1a0225bd5bff07282070cc38e4a3c9c414d43c51a8f9b9d8bfe3311dcc",
+    "path-symlink.wat": "sha256:0bbdcbdb22d3b24c6bca4220aee32cc4cb8305011545483db89a7cc0c1a683e9",
+    "path-traversal.wat": "sha256:f2734e1b591e61fe265c676fabbef70fdfc7a84b71957564217dcce7229861a3",
+    "path-write.wat": "sha256:0ffe96fbe94d3f2b2c44a364f191299aa47b10183c1fc11f2266b3d07b986994",
+    "process-import.wat": "sha256:37555dcb38b199c43ad8a1a9a5137cf945b533255147c4c31e617aeef3469a06",
+    "stdout-control.wat": "sha256:5ab121d6d90d8ad6603e0a1334ef4cddada0ae4b6386fabe3363c2953f09cae3",
+    "undeclared-host-import.wat": "sha256:8c7684a9e9332d93adbe66bce8a6956ebb6660537b1e578e04781309e2604ce9"
+  },
+  "result": "pass",
+  "limitations": [
+    "This Ground spike proves Wasmtime CLI denial and metering primitives with core Wasm/WASI Preview 1; production must use pinned components and WIT interfaces.",
+    "The CLI directory flag does not express WasiDirPerms; this spike combines one exact preopen with a read-only host fixture. Production embedding must set explicit read-only directory and file capabilities.",
+    "The orchestrator rejects captured output above budget after the fixture returns. Production must enforce the byte limit while streaming and terminate the guest on overflow.",
+    "It does not replace process isolation, advisory monitoring, signed package verification, macOS runtime QA, or production fuzzing."
+  ],
+  "generatedAt": "2026-07-13T02:03:07.885953+00:00"
+}

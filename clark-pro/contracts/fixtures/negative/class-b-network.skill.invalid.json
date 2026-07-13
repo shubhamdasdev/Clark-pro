@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/skill-package.schema.json", "schemaVersion": 1, "id": "bad.skill.class-b-network", "name": "Bad Network Skill", "revision": "1.0.0",
+  "source": {"publisherId": "bad.publisher", "kind": "registry", "uri": "https://example.invalid/bad", "revision": "1", "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+  "executionClass": "B", "files": [{"path": "SKILL.md", "role": "skill_md", "contentHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "executable": false}, {"path": "run.wasm", "role": "component", "contentHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "executable": true}],
+  "entrypoint": {"kind": "wasm_component", "path": "run.wasm", "contentHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "interfaceRevision": "1.0.0", "export": "run"},
+  "requestedPermissions": {"capabilityIds": [], "hostFunctions": [], "actionClasses": ["read"], "networkDomains": ["api.example.com"], "credentialScopes": [], "readInputs": [], "writeOutputs": []},
+  "sandbox": {"runtime": "wasmtime", "runtimeVersion": "46.0.1", "wasiModel": "component-preview2", "denyByDefault": ["environment", "stdin", "terminal", "network", "clocks", "random", "filesystem", "host_imports"], "limits": {"fuel": 1, "epochDeadlineMs": 1, "memoryBytes": 65536, "instances": 1, "tables": 0, "outputBytes": 1, "storageBytes": 0}},
+  "lifecycle": {"state": "quarantined", "trustBasis": "sandbox_verified", "rollbackRevision": null, "remoteExecutionAllowed": false}, "tests": [{"id": "bad", "fixture": "bad", "expected": "deny"}], "compatibility": {"clarkApi": "1.0.0", "platforms": ["macos-arm64"]}
+}

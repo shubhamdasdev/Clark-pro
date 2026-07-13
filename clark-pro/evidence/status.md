@@ -1,7 +1,7 @@
 # Clark Pro — Ground Evidence Status
 
 **Generated from:** `evidence/ground-ledger.json`
-**Reviewed:** 2026-07-12T20:45:00-05:00
+**Reviewed:** 2026-07-12T21:30:00-05:00
 **Gate:** OPEN
 **Signoff:** pending
 
@@ -14,18 +14,17 @@ A passing verifier means the ledger is internally honest and its referenced file
 | contract_verified | 3 |
 | defined | 3 |
 | human_evidence_pending | 16 |
-| missing | 7 |
-| prototype_verified | 2 |
-| specified_not_verified | 3 |
+| missing | 6 |
+| prototype_verified | 4 |
+| specified_not_verified | 2 |
 
-## Open Ground requirements (26)
+## Open Ground requirements (24)
 
 Some entries share one future evidence run—for example, the five creator sessions cover the aggregate objective and multiple Canvas/business requirements. Counts are requirement-level, not separate recruiting tasks.
 
 | ID | Area | Result | Owner | Next action |
 |---|---|---|---|---|
 | OBJ-03 | objective | human_evidence_pending | Product + Design + Research Leads | Run five observed walkthroughs, synthesize the matrix, redesign every failed critical gate, and retest before Ground signoff. |
-| OBJ-07 | objective | specified_not_verified | Memory/Skills + Security Leads | Define the package contract, build the Class B sandbox spike, and run traversal, network, environment, resource, and credential canaries. |
 | OBJ-08 | objective | human_evidence_pending | Memory/Skills + Product + Research Leads | Measure memory comprehension in the five walkthroughs, then define the retrieval/leakage/correction/forget evaluation corpus. |
 | CANVAS-01 | canvas | human_evidence_pending | Design + Research Leads | Run task 1 in five observed sessions and record assistance, wrong turns, completion, and explanation. |
 | CANVAS-02 | canvas | human_evidence_pending | Design + Research Leads | Time the lineage task in every walkthrough and redesign if the threshold or comprehension rule fails. |
@@ -48,7 +47,6 @@ Some entries share one future evidence run—for example, the five creator sessi
 | GROUND-04 | delivery | specified_not_verified | Security + Quality + Release Leads | Create the threat/ADR-to-test plan, assign primary/backup owners, and rehearse the reporting path before beta. |
 | GROUND-05 | delivery | missing | Desktop + Design + Quality Leads | Build a bounded signed Mac interaction shell using the accepted topology and run keyboard/VoiceOver/native-prompt checks before full Studio implementation. |
 | GROUND-06 | delivery | missing | Product Lead | Product leadership must assign the real team and record capacity/dependency commitments without collapsing accountabilities. |
-| GROUND-07 | delivery | missing | Memory/Skills + Security + Quality Leads | Build the narrow Class B spike and malicious fixture suite before installable executable skills enter implementation. |
 | GROUND-08 | delivery | missing | Quality Lead | Resolve blocking entries, rerun verification, then record named approvals without editing evidence status beyond what artifacts prove. |
 
 ## Required signoff

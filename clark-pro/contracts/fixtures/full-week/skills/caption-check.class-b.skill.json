@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/skill-package.schema.json",
+  "schemaVersion": 1,
+  "id": "clark.skill.caption-check",
+  "name": "Caption Check",
+  "description": "A sandboxed component that checks an explicitly selected caption and emits an isolated report.",
+  "revision": "1.0.0",
+  "source": {
+    "publisherId": "creator.verified-lab",
+    "kind": "registry",
+    "uri": "https://skills.clark.pro/creator.verified-lab/caption-check",
+    "revision": "sha256-7a9c",
+    "contentHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "signature": "ed25519:ground-fixture-signature"
+  },
+  "executionClass": "B",
+  "files": [
+    {"path": "SKILL.md", "role": "skill_md", "contentHash": "sha256:2323232323232323232323232323232323232323232323232323232323232323", "executable": false},
+    {"path": "components/caption-check.wasm", "role": "component", "contentHash": "sha256:2424242424242424242424242424242424242424242424242424242424242424", "executable": true},
+    {"path": "wit/clark-skill.wit", "role": "wit", "contentHash": "sha256:2525252525252525252525252525252525252525252525252525252525252525", "executable": false},
+    {"path": "fixtures/safe-caption.json", "role": "fixture", "contentHash": "sha256:2626262626262626262626262626262626262626262626262626262626262626", "executable": false}
+  ],
+  "entrypoint": {
+    "kind": "wasm_component",
+    "path": "components/caption-check.wasm",
+    "contentHash": "sha256:2424242424242424242424242424242424242424242424242424242424242424",
+    "interfaceRevision": "1.0.0",
+    "export": "clark.skill.run"
+  },
+  "requestedPermissions": {
+    "capabilityIds": ["model.structured.generate", "research.search.mcp"],
+    "hostFunctions": ["clark.artifact.read", "clark.output.write"],
+    "actionClasses": ["read", "research", "model_generate"],
+    "networkDomains": [],
+    "credentialScopes": [],
+    "readInputs": ["artifact.caption.selected"],
+    "writeOutputs": ["artifact.caption-report.isolated"]
+  },
+  "sandbox": {
+    "runtime": "wasmtime",
+    "runtimeVersion": "46.0.1",
+    "wasiModel": "component-preview2",
+    "denyByDefault": ["environment", "stdin", "terminal", "network", "clocks", "random", "filesystem", "host_imports"],
+    "limits": {"fuel": 1000000, "epochDeadlineMs": 2000, "memoryBytes": 16777216, "instances": 1, "tables": 2, "outputBytes": 65536, "storageBytes": 1048576}
+  },
+  "lifecycle": {"state": "testing", "trustBasis": "sandbox_verified", "rollbackRevision": null, "remoteExecutionAllowed": false},
+  "tests": [
+    {"id": "caption-safe", "fixture": "fixtures/safe-caption.json", "expected": "pass"},
+    {"id": "caption-network-denied", "fixture": "skills-sandbox/fixtures/network-import.wat", "expected": "deny"},
+    {"id": "caption-fuel-trap", "fixture": "skills-sandbox/fixtures/infinite-loop.wat", "expected": "trap"}
+  ],
+  "compatibility": {"clarkApi": "1.0.0", "platforms": ["macos-arm64", "macos-x64"]}
+}

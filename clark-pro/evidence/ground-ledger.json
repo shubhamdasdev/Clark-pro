@@ -3,7 +3,7 @@
   "schemaVersion": "1.0.0",
   "ledgerId": "clark.evidence.ground",
   "stratum": "ground",
-  "reviewedAt": "2026-07-12T20:45:00-05:00",
+  "reviewedAt": "2026-07-12T21:30:00-05:00",
   "currentGate": "before-stratum-1-implementation",
   "gateState": "open",
   "entries": [
@@ -136,18 +136,21 @@
       "requirement": "Installable and learned skills are governed packages with quarantine, effective permissions, tests, promotion, rollback, and a real executable sandbox boundary.",
       "ownerRole": "Memory/Skills + Security Leads",
       "proofRequired": ["design_document", "adr", "schema", "prototype", "automated_test"],
-      "result": "specified_not_verified",
+      "result": "prototype_verified",
       "evidence": [
         {"kind": "design_document", "location": "memory-and-learning.md", "claim": "Defines skill sources, package shape, proposals, tests, promotion, regression, trust, and rollback.", "result": "pass"},
         {"kind": "adr", "location": "decisions/0017-skill-execution-sandbox.md", "claim": "Accepts declarative skills by default and Wasmtime/WASI for untrusted executable components.", "result": "pass"},
-        {"kind": "prototype", "location": "prototype/index.html", "claim": "Connections exposes trusted, quarantined, and learned skill states.", "result": "pass"}
+        {"kind": "schema", "location": "contracts/schemas/skill-package.schema.json", "claim": "Versions Class A/B/C packages, file hashes, entrypoints, requested permissions, lifecycle, tests, compatibility, and mandatory Class B limits.", "result": "pass"},
+        {"kind": "schema", "location": "contracts/schemas/skill-permission-receipt.schema.json", "claim": "Records requested, installed, workspace, run-approval, effective, and denied permission sets.", "result": "pass"},
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "Connections exposes Class A/B/C trust and an inspectable requested-versus-effective sandbox receipt.", "result": "pass"},
+        {"kind": "automated_test", "location": "skills-sandbox/verify.py", "claim": "Runs nineteen hostile cases against the pinned official Wasmtime 46.0.1 CLI and emits a hash-attributed receipt.", "result": "pass", "command": "python3 skills-sandbox/verify.py --write-receipt"}
       ],
       "acceptanceRule": "Ground requires a versioned skill package schema plus a hostile Wasmtime/WASI prototype proving deny-all capability behavior and resource termination.",
-      "limitations": ["No skill package schema exists.", "No executable Wasmtime/WASI hostile-component evidence exists."],
-      "nextAction": "Define the package contract, build the Class B sandbox spike, and run traversal, network, environment, resource, and credential canaries.",
+      "limitations": ["The Ground runner uses core Wasm/WASI Preview 1 rather than the production component/WIT embedding.", "The CLI preopen uses a read-only host fixture rather than explicit embedded WasiDirPerms, and output overflow is rejected after capture rather than terminating during streaming.", "Production signing, process isolation, advisory automation, fuzzing, and Mac release QA remain unbuilt."],
+      "nextAction": "Implement the pinned component/WIT host with explicit directory/file permissions and streaming output termination, then rerun the hostile suite after every runtime, interface, or permission change.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T21:30:00-05:00"
     },
     {
       "id": "OBJ-08",
@@ -599,16 +602,19 @@
       "requirement": "The Wasmtime/WASI Class B skill sandbox is exercised against hostile components and resource-exhaustion cases.",
       "ownerRole": "Memory/Skills + Security + Quality Leads",
       "proofRequired": ["prototype", "automated_test"],
-      "result": "missing",
+      "result": "prototype_verified",
       "evidence": [
-        {"kind": "adr", "location": "decisions/0017-skill-execution-sandbox.md", "claim": "Selects the sandbox architecture and verification gates but is not executable evidence.", "result": "pass"}
+        {"kind": "adr", "location": "decisions/0017-skill-execution-sandbox.md", "claim": "Selects the sandbox architecture and verification gates.", "result": "pass"},
+        {"kind": "prototype", "location": "skills-sandbox/README.md", "claim": "Defines the narrow Ground spike, official runtime bootstrap, hostile boundaries, receipt, and explicit production limitations.", "result": "pass"},
+        {"kind": "automated_test", "location": "skills-sandbox/verify.py", "claim": "Executes nineteen Wasmtime cases covering pinned supply chain, environment, credentials, imports, network, process spawn, filesystem/preopen/write/traversal/symlink, fuel, deadline, memory, output, and terminal control behavior.", "result": "pass", "command": "python3 skills-sandbox/verify.py --write-receipt"},
+        {"kind": "fixture", "location": "skills-sandbox/evidence/latest-sandbox-receipt.json", "claim": "Records nineteen passing cases, runtime/archive identity, fixture hashes, policy values, and limitations.", "result": "pass"}
       ],
       "acceptanceRule": "Traversal, symlink escape, undeclared imports, network, environment, process, resource, terminal, and credential canaries fail within declared limits and produce receipts.",
-      "limitations": ["No Wasmtime embedding, WIT host interface, hostile component, or resource-metering result exists."],
-      "nextAction": "Build the narrow Class B spike and malicious fixture suite before installable executable skills enter implementation.",
+      "limitations": ["This is executable Ground proof of runtime primitives, not the production component/WIT embedding.", "Explicit embedded WasiDirPerms, streaming output termination, signing, process isolation, advisory automation, fuzzing, and native Mac QA remain required."],
+      "nextAction": "Carry the hostile fixtures into the production component/WIT host and prevent promotion until the remaining production isolation and supply-chain gates pass.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T21:30:00-05:00"
     },
     {
       "id": "GROUND-08",

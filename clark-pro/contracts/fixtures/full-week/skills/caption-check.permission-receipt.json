@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/skill-permission-receipt.schema.json",
+  "schemaVersion": 1,
+  "receiptId": "skill.receipt.caption-check.ground",
+  "skillRevision": {"id": "clark.skill.caption-check", "revision": "1.0.0", "contentHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"},
+  "invocationId": "skill.invocation.caption-check.ground",
+  "decision": "allow",
+  "sources": {
+    "skillRequest": {"capabilityIds": ["model.structured.generate", "research.search.mcp"], "hostFunctions": ["clark.artifact.read", "clark.output.write"], "actionClasses": ["read", "research", "model_generate"], "networkDomains": [], "credentialScopes": [], "readInputs": ["artifact.caption.selected"], "writeOutputs": ["artifact.caption-report.isolated"]},
+    "installedCapabilities": {"capabilityIds": ["model.structured.generate", "research.search.mcp"], "hostFunctions": ["clark.artifact.read", "clark.output.write"], "actionClasses": ["read", "research", "model_generate"], "networkDomains": [], "credentialScopes": [], "readInputs": ["artifact.caption.selected"], "writeOutputs": ["artifact.caption-report.isolated"]},
+    "workspacePolicy": {"capabilityIds": ["research.search.mcp"], "hostFunctions": ["clark.artifact.read", "clark.output.write"], "actionClasses": ["read", "research"], "networkDomains": [], "credentialScopes": [], "readInputs": ["artifact.caption.selected"], "writeOutputs": ["artifact.caption-report.isolated"]},
+    "runApproval": {"capabilityIds": ["research.search.mcp"], "hostFunctions": ["clark.artifact.read", "clark.output.write"], "actionClasses": ["read", "research"], "networkDomains": [], "credentialScopes": [], "readInputs": ["artifact.caption.selected"], "writeOutputs": ["artifact.caption-report.isolated"]}
+  },
+  "effective": {"capabilityIds": ["research.search.mcp"], "hostFunctions": ["clark.artifact.read", "clark.output.write"], "actionClasses": ["read", "research"], "networkDomains": [], "credentialScopes": [], "readInputs": ["artifact.caption.selected"], "writeOutputs": ["artifact.caption-report.isolated"]},
+  "denied": {"capabilityIds": ["model.structured.generate"], "hostFunctions": [], "actionClasses": ["model_generate"], "networkDomains": [], "credentialScopes": [], "readInputs": [], "writeOutputs": []},
+  "evaluatedAt": "2026-07-12T21:00:00-05:00"
+}

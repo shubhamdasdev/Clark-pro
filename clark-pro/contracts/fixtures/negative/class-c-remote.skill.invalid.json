@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schemas.clark.pro/v1/skill-package.schema.json", "schemaVersion": 1, "id": "bad.skill.class-c-remote", "name": "Bad Remote Native Skill", "revision": "1.0.0",
+  "source": {"publisherId": "bad.publisher", "kind": "local", "uri": "file:./bad", "revision": "1", "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+  "executionClass": "C", "files": [{"path": "SKILL.md", "role": "skill_md", "contentHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "executable": false}, {"path": "scripts/run.sh", "role": "native_script", "contentHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "executable": true}],
+  "entrypoint": {"kind": "native_process", "path": "scripts/run.sh", "argv": []},
+  "requestedPermissions": {"capabilityIds": [], "hostFunctions": [], "actionClasses": ["local_transform"], "networkDomains": [], "credentialScopes": [], "readInputs": [], "writeOutputs": []},
+  "lifecycle": {"state": "quarantined", "trustBasis": "developer_mode", "rollbackRevision": null, "remoteExecutionAllowed": true},
+  "tests": [{"id": "bad", "fixture": "bad", "expected": "quarantine"}], "compatibility": {"clarkApi": "1.0.0", "platforms": ["macos-arm64"]}
+}

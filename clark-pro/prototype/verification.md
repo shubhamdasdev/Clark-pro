@@ -22,6 +22,8 @@ Executed in a controlled Chromium browser against the standalone `index.html`:
 | Promoting a memory preserves its evidence inspection while reducing the proposal count | Pass |
 | Focus exposes automatic, always-ask, never-automatic, and remote-data boundaries | Pass |
 | Connections exposes effective autonomy and the permission intersection | Pass |
+| Expanding the skill receipt distinguishes requested, effective, and denied permissions | Pass |
+| Skill receipt exposes Class A/B/C boundaries and the 19-case Wasmtime Ground result | Pass |
 | Canvas renders all 50 objects inside a bounded pannable surface | Pass |
 | Click-drag pans the Canvas without mutating canonical object position | Pass |
 | Zoom out changes 100% → 90%; Undo restores 100%; Redo becomes available | Pass |
@@ -66,6 +68,9 @@ Combined recorded result:
   "bridgeStateHashesEqual": true,
   "bridgeReloadRestored": true,
   "bridgeCanvasInspector": "Bridge capture",
+  "skillReceiptOpen": true,
+  "skillClassesVisible": 3,
+  "skillHostileCases": "19 / 19 pass",
   "activeView": "cs-view-connections"
 }
 ```
@@ -105,6 +110,7 @@ The prototype does not introduce page-level horizontal overflow at either checke
 - Review: two media versions share a playhead and expose evidence/cost/policy/derivative comparison plus annotations; approval remains separate from publication authority.
 - Memory: active, proposed, and disputed items are distinguishable; evidence inspection separates confidence and contradiction from explicit Promote/Reject actions.
 - Connections: MCP host/server roles, social account states, skill trust/quarantine, Clark Bridge clients, harness health, and effective autonomy are visible.
+- Skill proof: Class A/B/C trust is visibly distinct; the effective permission intersection, denied authority, hostile-case result, and Ground-to-production limitations are inspectable in a native disclosure control.
 - Bridge proof: client scope, command intent, permission intersection, event receipt, idempotent replay, state hash, Studio projection, and Bridge resource identity are visible in one interaction.
 
 Updated Focus, selected-publication Canvas, synchronized Review, inspected-memory, and Connections surfaces were visually reviewed at desktop and narrow widths after the interaction pass. The controlled browser reported no runtime warnings or errors.
