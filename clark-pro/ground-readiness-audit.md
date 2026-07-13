@@ -8,14 +8,14 @@
 - **Defined** — authoritative product/architecture artifact exists and is internally consistent.
 - **Prototype-verified** — behavior is exercised in the clickable artifact and automated checks.
 - **Human evidence pending** — expert reasoning exists but representative creator behavior is unobserved.
-- **Specified, not verified** — controls/tests are designed but no production runtime exists to prove them.
+- **Specified, not verified** — controls/tests are designed and may have bounded executable proof, but required production or human evidence remains incomplete.
 - **Missing** — required Ground artifact has not yet been produced.
 
 ## Original product objective
 
 | Requirement | Authoritative evidence | Status | Remaining proof |
 |---|---|---|---|
-| Mac application first | `vision.md`, `architecture.md`, ADR-0001 | Defined | Native interaction prototype and signed runtime evidence in Stratum 1 |
+| Mac application first | `vision.md`, `architecture.md`, ADR-0001, `apps/desktop/` | Defined with bounded executable shell | Observed VoiceOver/design review and Developer ID/Hardened Runtime/notarization/Gatekeeper release evidence |
 | Durable harness and loops | `architecture.md`, `roadmap.md`, ADR-0003, `contracts/` | Defined and contract-verified | Production run state machine and forced-recovery tests |
 | Canvas must be strong before implementation | `the-canvas.md`, `prototype/`, ADR-0009 | Prototype-verified; human evidence pending | Five observed sessions must pass the canvas rubric and failed gates must be redesigned |
 | Clark consumes MCP capabilities | `mcp-ecosystem.md`, ADR-0004, capability manifests, 36-case MCP suite | Ground harness and contract-verified | Production Connect runtime, real-provider compatibility, and remote network-fault evidence |
@@ -49,6 +49,7 @@
 | Business/category architecture | `positioning-and-business.md` | Defined as hypotheses | Ten interviews, three real-week design partners, binding willingness-to-pay |
 | Team-owned release plan | `team-delivery-plan.md` defines ten workstreams, dependencies, decision/contract ownership, readiness/done, and evidence ledger | Defined by role | Assign named people, capacity, dates, and Ground evidence signoff |
 | Machine-checked Ground evidence ledger | `evidence/ground-ledger.json`, JSON Schema, semantic negative fixture, verifier, generated status | Defined and verifier-checked open | Resolve blocking proof, keep statuses evidence-bound, and obtain seven-role named signoff |
+| Native Mac interaction shell | `apps/desktop/`, eight automated tests, local bundle inspection report | Specified, not verified | VoiceOver/accessibility and design review; native trust flows; signed, hardened, notarized, Gatekeeper-accepted release bundle |
 
 ## Canvas evidence audit
 
@@ -73,7 +74,7 @@
 - An expert can find lineage within ten measured seconds.
 - The canvas is better than the creator's current coordination system.
 - Media comparison is superior with real video, audio, text, and image artifacts rather than representative cards.
-- Node-position drag, graph rewire, durable edits, VoiceOver/screen-reader use, and Mac-native behavior are usable.
+- Node-position drag, graph rewire, durable edits, and VoiceOver/screen-reader use are usable; the bounded Mac shell proves menus, keyboard semantics, isolation, and restoration but not these broader behaviors.
 - Studio and a real Bridge client remain consistent under concurrent commands.
 - The system delivers first-week value strong enough to change behavior or earn payment.
 

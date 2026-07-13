@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "reportId": "clark.desktop.ground-05",
+  "observedAt": "2026-07-12T22:40:52-05:00",
+  "environment": {
+    "platform": "macOS 26.2 (25C56)",
+    "architecture": "arm64",
+    "node": "25.6.1",
+    "electron": "43.1.0",
+    "playwright": "1.61.1",
+    "electronBuilder": "26.15.3"
+  },
+  "automated": {
+    "result": "pass",
+    "total": 8,
+    "passed": 8,
+    "commands": [
+      "npm --prefix apps/desktop run test",
+      "npm --prefix apps/desktop run test:e2e"
+    ],
+    "observations": [
+      "The renderer exposed neither global require nor global process.",
+      "The preload exposed exactly five named shell members and no raw IPC primitive.",
+      "IPC sender validation accepted only the expected main frame and webContents identity.",
+      "BrowserWindow reported contextIsolation=true, sandbox=true, nodeIntegration=false, webSecurity=true, and webviewTag=false.",
+      "The application menu contained native macOS Services, Edit, Window, and Clark view accelerators.",
+      "Keyboard navigation opened Focus, Canvas, and Connections; Canvas arrow navigation moved semantic focus between objects.",
+      "Only one visible level-one heading was present per view, with named tabs, lists, buttons, panels, and live status semantics.",
+      "The active view and clamped window bounds survived a complete Electron quit and relaunch."
+    ]
+  },
+  "localBundleInspection": {
+    "result": "expected_release_failure",
+    "command": "npm --prefix apps/desktop run pack:mac",
+    "bundle": "apps/desktop/dist/mac-arm64/Clark Studio.app",
+    "bundleIdentifier": "com.clarkpro.studio",
+    "asarIntegrity": "present",
+    "signature": "ad-hoc linker signature only",
+    "teamIdentifier": null,
+    "strictCodeSignVerification": "fail",
+    "gatekeeperAssessment": "fail",
+    "interpretation": "The bundle is suitable only for local interaction inspection. It is not a signed, hardened, notarized, stapled, or Gatekeeper-accepted release artifact."
+  },
+  "humanEvidence": {
+    "voiceOverTask": "not_run",
+    "accessibilityExpertReview": "not_run",
+    "designReview": "not_run"
+  },
+  "unimplementedNativeFlows": [
+    "Developer ID release signing and notarization",
+    "Hardened Runtime and entitlement inventory",
+    "Keychain credential broker",
+    "TCC notification request",
+    "security-scoped workspace file access",
+    "Share Extension staging boundary",
+    "signed updater and rollback",
+    "Harness utility process"
+  ]
+}

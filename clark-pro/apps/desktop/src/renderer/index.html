@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+    <title>Clark Studio</title>
+    <link rel="stylesheet" href="/app.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to workspace</a>
+    <div class="app-shell">
+      <header class="titlebar" aria-label="Clark Studio window">
+        <div class="brand" aria-label="Clark Studio">
+          <span class="brand-mark" aria-hidden="true">C</span>
+          <span>Clark</span>
+        </div>
+        <p class="workspace-name">Creator launch system</p>
+        <span class="local-badge">Local shell</span>
+      </header>
+
+      <nav class="rail" aria-label="Primary views">
+        <div class="nav-group" role="tablist" aria-label="Studio views" aria-orientation="vertical">
+          <button id="tab-focus" class="nav-item" type="button" role="tab" aria-selected="true" aria-controls="view-focus" data-section="focus">
+            <span aria-hidden="true">◉</span><span>Focus</span><kbd>⌘1</kbd>
+          </button>
+          <button id="tab-canvas" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-canvas" tabindex="-1" data-section="canvas">
+            <span aria-hidden="true">⌘</span><span>Canvas</span><kbd>⌘2</kbd>
+          </button>
+          <button id="tab-connections" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-connections" tabindex="-1" data-section="connections">
+            <span aria-hidden="true">◇</span><span>Connections</span><kbd>⌘7</kbd>
+          </button>
+        </div>
+        <div class="rail-note">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Harness boundary planned</span>
+        </div>
+      </nav>
+
+      <main id="workspace" class="workspace" tabindex="-1">
+        <div id="announcer" class="sr-only" role="status" aria-live="polite"></div>
+
+        <section id="view-focus" class="view" role="tabpanel" aria-labelledby="tab-focus" data-view="focus">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Sunday, July 12</p>
+              <h1>Focus</h1>
+              <p>One clear operating picture before the tools start moving.</p>
+            </div>
+            <button class="primary-action" type="button" disabled>Capture idea</button>
+          </div>
+          <div class="metric-row" aria-label="Workspace summary">
+            <article><span>1</span><p>Decision waiting</p></article>
+            <article><span>3</span><p>Active loops</p></article>
+            <article><span>0</span><p>Unreviewed publishes</p></article>
+          </div>
+          <div class="content-grid">
+            <section class="panel priority-panel" aria-labelledby="priority-heading">
+              <div class="panel-heading"><h2 id="priority-heading">Next best work</h2><span>Creator-controlled</span></div>
+              <ol class="work-list">
+                <li><button type="button"><span class="number">01</span><span><strong>Approve the launch narrative</strong><small>Decision gate · 12 min</small></span><span aria-hidden="true">→</span></button></li>
+                <li><button type="button"><span class="number">02</span><span><strong>Review the video assembly</strong><small>Artifact review · 8 min</small></span><span aria-hidden="true">→</span></button></li>
+                <li><button type="button"><span class="number">03</span><span><strong>Resolve a memory contradiction</strong><small>Personalization · 5 min</small></span><span aria-hidden="true">→</span></button></li>
+              </ol>
+            </section>
+            <aside class="panel confidence-panel" aria-labelledby="confidence-heading">
+              <div class="panel-heading"><h2 id="confidence-heading">System confidence</h2><span class="health">Bounded</span></div>
+              <dl>
+                <div><dt>Runtime contracts</dt><dd>Generated</dd></div>
+                <div><dt>OpenCut Tool Pack</dt><dd>Quarantined</dd></div>
+                <div><dt>Publish authority</dt><dd>Review required</dd></div>
+                <div><dt>Native release</dt><dd>Unsigned proof</dd></div>
+              </dl>
+            </aside>
+          </div>
+        </section>
+
+        <section id="view-canvas" class="view" role="tabpanel" aria-labelledby="tab-canvas" data-view="canvas" hidden>
+          <div class="view-heading">
+            <div><p class="eyebrow">Launch system · 7 objects</p><h1>Canvas</h1><p>A keyboard-readable production graph, with every edge still inspectable.</p></div>
+            <span class="mode-badge">Structure view</span>
+          </div>
+          <p id="canvas-help" class="keyboard-help">Use arrow keys to move between objects. Press Enter to inspect the selected object.</p>
+          <div class="canvas-layout">
+            <ol class="node-flow" aria-label="Launch production graph" aria-describedby="canvas-help">
+              <li><button type="button" class="node-card selected" data-node="idea"><span class="node-type">Source</span><strong>Creator thesis</strong><small>Captured locally · trusted</small></button></li>
+              <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
+              <li><button type="button" class="node-card" data-node="narrative"><span class="node-type">Skill</span><strong>Launch narrative</strong><small>Review gate required</small></button></li>
+              <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
+              <li><button type="button" class="node-card" data-node="video"><span class="node-type">Tool Pack</span><strong>Video assembly</strong><small>OpenCut candidate · blocked</small></button></li>
+            </ol>
+            <aside class="panel inspector" aria-labelledby="inspector-heading">
+              <p class="eyebrow">Selected object</p><h2 id="inspector-heading">Creator thesis</h2>
+              <dl><div><dt>Authority</dt><dd>Read only</dd></div><div><dt>Lineage</dt><dd>Capture → Idea</dd></div><div><dt>Trust</dt><dd>Local source</dd></div></dl>
+              <button type="button" disabled>Open details</button>
+            </aside>
+          </div>
+        </section>
+
+        <section id="view-connections" class="view" role="tabpanel" aria-labelledby="tab-connections" data-view="connections" hidden>
+          <div class="view-heading">
+            <div><p class="eyebrow">Capability boundary</p><h1>Connections</h1><p>Nothing gains authority merely because it was discovered or installed.</p></div>
+            <button id="review-trust" class="primary-action" type="button">Review trust</button>
+          </div>
+          <div id="trust-summary" class="trust-summary" tabindex="-1" aria-labelledby="trust-heading">
+            <div><p class="eyebrow">Trust center</p><h2 id="trust-heading">3 decisions remain explicit</h2></div>
+            <p>File, credential, and publish access stay separate. A permission change forces re-review.</p>
+          </div>
+          <div class="connection-list" role="list" aria-label="Configured capability packages">
+            <article class="connection-card" role="listitem">
+              <div class="connection-icon mcp" aria-hidden="true">M</div><div><h2>Clark MCP host</h2><p>Local stdio and Streamable HTTP boundary</p></div><span class="state specified">Specified</span>
+            </article>
+            <article class="connection-card" role="listitem">
+              <div class="connection-icon opencut" aria-hidden="true">O</div><div><h2>OpenCut Tool Pack candidate</h2><p>Pinned upstream rewrite · no executable authority</p></div><span class="state quarantine">Quarantined</span>
+            </article>
+            <article class="connection-card" role="listitem">
+              <div class="connection-icon skill" aria-hidden="true">S</div><div><h2>Agent Skills host</h2><p>Install, test, promote, and roll back packages</p></div><span class="state tested">Sandbox tested</span>
+            </article>
+          </div>
+          <section class="native-prompts" aria-labelledby="native-heading">
+            <div class="panel-heading"><h2 id="native-heading">Native trust language</h2><span>Interaction proof only</span></div>
+            <div class="prompt-grid">
+              <article><strong>Files</strong><p>“Choose the workspace Clark may use.” No broad Home-folder access.</p><span>File picker planned</span></article>
+              <article><strong>Credentials</strong><p>“Allow Clark to use this account?” Secret values never enter the canvas.</p><span>Keychain broker planned</span></article>
+              <article><strong>Notifications</strong><p>Requested only after you choose background completion alerts.</p><span>TCC flow planned</span></article>
+              <article><strong>Updates & Share</strong><p>Publisher identity, signature, permissions, and rollback appear before activation.</p><span>Signed flows not built</span></article>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/renderer.mjs"></script>
+  </body>
+</html>

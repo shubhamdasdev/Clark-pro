@@ -34,6 +34,7 @@ The same canonical workspace must be usable from Clark Studio and Clark Bridge, 
 - representative Full-Week project fixture with realistic artifacts and failure cases;
 - accepted architecture decision records for desktop shell/processes, canonical state, harness, MCP/capabilities, credentials, distribution, memory/skills, remote/team topology, interaction model, and delivery governance;
 - positioning, packaging, replacement target, economic principles, and explicit commercial failure conditions.
+- bounded executable Electron shell proving native menus, hardened renderer/preload defaults, keyboard semantics, and window/view restoration while preserving release-signing and observed VoiceOver gates.
 
 ### Gate
 

@@ -67,6 +67,12 @@ The product's center is a rich React graph, TypeScript MCP ecosystem, background
 
 Mac quality is a product requirement rather than a framework label. Clark must implement native keyboard behavior, window restoration, drag/drop, Quick Look, menu-bar status, Keychain, notifications, file coordination, accessibility, and notarization. A future Swift helper or extension may provide Share Extension and deeper system integration without moving the harness into Swift.
 
+### Executable Ground shell
+
+`apps/desktop` is the first bounded implementation on this permanent topology. It uses Electron 43.1.0, a secure custom local protocol, native macOS menu roles, an allowlisted preload bridge, denied navigation/popups/webviews/permissions, screen-clamped window restoration, and semantic keyboard-operable Focus, Canvas, and Connections surfaces. Its renderer is deliberately framework-light while the interaction and security boundary is tested; Stratum 1 may introduce the accepted React/TypeScript renderer without changing the main/preload authority model.
+
+This shell is implementation evidence, not a release candidate. The local bundle is explicitly unsigned by a Developer ID and has not passed Hardened Runtime, notarization, Gatekeeper, observed VoiceOver, Keychain/TCC, Share Extension, updater, Harness, or production persistence gates. Those limitations are recorded in `apps/desktop/evidence/latest-report.json` and remain blocking.
+
 ## Process Boundaries
 
 ### Renderer process
@@ -377,7 +383,7 @@ Local-first does not mean painting the product into a single-user corner.
 ```text
 clark-pro/
   apps/
-    desktop/                 # Electron main, preload, renderer
+    desktop/                 # executable Electron main, preload, renderer, and native-shell evidence
     bridge-cli/              # local admin and MCP setup CLI
   services/
     harness/                 # durable runtime and IPC/API

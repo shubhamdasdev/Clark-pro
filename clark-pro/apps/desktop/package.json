@@ -1,0 +1,41 @@
+{
+  "name": "@clark-pro/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Bounded native macOS interaction shell for Clark Pro",
+  "main": "src/main.mjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/unit/*.test.mjs",
+    "test:e2e": "node --test --test-timeout=60000 tests/e2e/*.test.mjs",
+    "verify": "npm run test && npm run test:e2e",
+    "capture:qa": "node scripts/capture-qa.mjs",
+    "pack:mac": "electron-builder --mac dir --publish never"
+  },
+  "devDependencies": {
+    "electron": "43.1.0",
+    "electron-builder": "26.15.3",
+    "playwright": "1.61.1"
+  },
+  "build": {
+    "appId": "com.clarkpro.studio",
+    "productName": "Clark Studio",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "identity": null,
+      "hardenedRuntime": false,
+      "target": [
+        "dir"
+      ]
+    }
+  }
+}

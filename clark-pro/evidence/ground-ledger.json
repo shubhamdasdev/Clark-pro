@@ -3,7 +3,7 @@
   "schemaVersion": "1.0.0",
   "ledgerId": "clark.evidence.ground",
   "stratum": "ground",
-  "reviewedAt": "2026-07-12T22:30:00-05:00",
+  "reviewedAt": "2026-07-12T22:40:52-05:00",
   "currentGate": "before-stratum-1-implementation",
   "gateState": "open",
   "entries": [
@@ -20,11 +20,11 @@
         {"kind": "adr", "location": "decisions/0011-mac-entitlements-and-share-extension.md", "claim": "Accepts Developer ID, notarization, Hardened Runtime, and the Share-extension boundary.", "result": "pass"}
       ],
       "acceptanceRule": "Ground requires an accepted permanent Mac topology. Signed runtime, entitlements, notarization, native QA, and release evidence belong to Stratum 1.",
-      "limitations": ["No signed Mac runtime exists yet."],
-      "nextAction": "Build the signed Stratum 1 vertical slice through the accepted process topology without creating a browser-only production path.",
+      "limitations": ["A bounded native runtime now exists, but no Developer ID-signed, hardened, notarized, or Gatekeeper-accepted release runtime exists."],
+      "nextAction": "Extend the bounded desktop shell through the accepted Harness and persistence topology, then produce the signed Stratum 1 release evidence without creating an alternate browser path.",
       "groundBlocking": false,
       "releaseTarget": "stratum-1",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T22:40:52-05:00"
     },
     {
       "id": "OBJ-02",
@@ -580,16 +580,18 @@
       "requirement": "A Mac-native interaction and accessibility prototype covers menu roles, VoiceOver, keyboard conventions, window behavior, and native trust prompts.",
       "ownerRole": "Desktop + Design + Quality Leads",
       "proofRequired": ["prototype", "automated_test", "expert_review"],
-      "result": "missing",
+      "result": "specified_not_verified",
       "evidence": [
-        {"kind": "prototype", "location": "prototype/index.html", "claim": "The web prototype demonstrates keyboard semantics and responsive interaction but is not a signed native Mac interaction artifact.", "result": "pass"}
+        {"kind": "prototype", "location": "apps/desktop/README.md", "claim": "Documents the executable Electron shell, native menu and restoration behavior, hardened renderer boundary, interaction scope, and explicit non-claims.", "result": "pass"},
+        {"kind": "automated_test", "location": "apps/desktop/evidence/latest-report.json", "claim": "Records eight passing unit/Electron tests for isolation, IPC sender validation, native menu inventory, keyboard semantics, view accessibility structure, and full-quit restoration, plus the expected unsigned-bundle release failure.", "result": "pass", "command": "npm --prefix apps/desktop run verify"},
+        {"kind": "prototype", "location": "prototype/index.html", "claim": "The broader web prototype remains the responsive whole-product interaction reference while the native shell covers the bounded Focus, Canvas, and Connections slice.", "result": "pass"}
       ],
       "acceptanceRule": "The native prototype passes keyboard and VoiceOver task checks and demonstrates menu, window, Share, notification, Keychain/TCC, and update trust language.",
-      "limitations": ["No Electron/Swift native prototype or VoiceOver evidence exists."],
-      "nextAction": "Build a bounded signed Mac interaction shell using the accepted topology and run keyboard/VoiceOver/native-prompt checks before full Studio implementation.",
+      "limitations": ["No observed VoiceOver task, accessibility expert review, or design review exists.", "The local inspection bundle has only an ad-hoc linker signature and fails strict signing and Gatekeeper assessment; Developer ID signing, Hardened Runtime, notarization, and stapling were not performed.", "Keychain, TCC notification, file-bookmark, Share Extension, signed updater, and Harness flows are represented only by explicit trust language and remain unimplemented."],
+      "nextAction": "Run the committed VoiceOver and keyboard task with an accessibility expert, complete design review, implement the native trust flows, and produce Developer ID/Hardened Runtime/notarization/Gatekeeper evidence before closing GROUND-05.",
       "groundBlocking": true,
       "releaseTarget": "ground",
-      "updatedAt": "2026-07-12T20:20:00-05:00"
+      "updatedAt": "2026-07-12T22:40:52-05:00"
     },
     {
       "id": "GROUND-06",
