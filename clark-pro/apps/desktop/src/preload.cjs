@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-const allowedSections = new Set(["focus", "canvas", "memory", "connections"]);
+const allowedSections = new Set(["focus", "canvas", "review", "memory", "connections"]);
 const memoryLayers = new Set(["identity", "semantic", "episodic", "procedural", "performance"]);
 const memorySensitivities = new Set(["public", "workspace", "personal", "confidential", "secret_reference"]);
 const memoryPolicies = new Set(["default", "explicit_only", "never_send_to_model"]);
@@ -53,11 +53,12 @@ const api = Object.freeze({
       runId: decision.runId,
       approvalId: decision.approvalId,
       decision: decision.decision,
-      ...(typeof decision.reason === "string" ? { reason: decision.reason } : {})
+      reason: decision.reason
     } : undefined;
-    if (!safe || typeof safe.runId !== "string" || typeof safe.approvalId !== "string" || !["approve", "reject"].includes(safe.decision)) {
-      return Promise.reject(new TypeError("A valid approval decision is required"));
+    if (!safe || typeof safe.runId !== "string" || typeof safe.approvalId !== "string" || !["approve", "reject"].includes(safe.decision) || typeof safe.reason !== "string" || safe.reason.trim().length < 3 || safe.reason.length > 1000) {
+      return Promise.reject(new TypeError("A valid approval decision and reason are required"));
     }
+    safe.reason = safe.reason.trim();
     return ipcRenderer.invoke("desktop:resolve-idea-approval", safe);
   },
   proposeMemoryFromRun: (proposal) => {

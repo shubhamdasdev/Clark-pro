@@ -151,13 +151,13 @@
         "method": { "const": "approval.resolve" },
         "payload": {
           "type": "object",
-          "required": ["workspaceId", "runId", "approvalId", "decision", "idempotencyKey"],
+          "required": ["workspaceId", "runId", "approvalId", "decision", "reason", "idempotencyKey"],
           "properties": {
             "workspaceId": { "$ref": "common.schema.json#/$defs/id" },
             "runId": { "$ref": "common.schema.json#/$defs/id" },
             "approvalId": { "$ref": "common.schema.json#/$defs/id" },
             "decision": { "enum": ["approve", "reject"] },
-            "reason": { "type": "string", "maxLength": 1000 },
+            "reason": { "type": "string", "minLength": 3, "maxLength": 1000, "pattern": "^\\s*\\S[\\s\\S]+\\S\\s*$" },
             "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 256 }
           },
           "additionalProperties": false

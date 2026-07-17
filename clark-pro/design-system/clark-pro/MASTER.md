@@ -12,6 +12,7 @@ Clark helps independent creators turn rough ideas into clear, reviewable work wh
 | --- | --- | --- |
 | Today | What should I work on now? | Capture an idea, create a structured brief, review the exact version |
 | Shape | Is the idea clear and what proof is missing? | Inspect the idea-to-brief flow and its evidence gaps |
+| Review | What changed, and exactly what am I approving? | Compare immutable brief versions and record an exact-version approve/reject decision with a reason |
 | Knowledge | What does Clark remember about my work? | Propose, review, retrieve, correct, dispute, and forget claims |
 | Integrations | What tools can act, and with which permissions? | Inspect local services, OpenCut package gates, and Skill trust |
 
@@ -111,4 +112,5 @@ The implementation uses three layers: primitive values, semantic roles, then com
 - OpenCut remains a candidate until its exact activation gates pass.
 - Skill promotion means revision trust, not run permission or execution.
 - Approval pins wording only; it does not validate demand, authorize a build, or publish anything.
+- Review decisions require an explicit reason and remain pinned to the selected content hash; superseded authority never transfers to a newer revision.
 - Forgetting removes a claim from active retrieval; the current immutable audit limitation must remain discoverable.

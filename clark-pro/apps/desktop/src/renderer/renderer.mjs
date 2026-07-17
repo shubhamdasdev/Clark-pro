@@ -1,7 +1,10 @@
-const sections = ["focus", "canvas", "memory", "connections"];
+import { changedLineIndexes } from "./comparison.mjs";
+
+const sections = ["focus", "canvas", "review", "memory", "connections"];
 const sectionLabels = {
   focus: "Today",
   canvas: "Shape",
+  review: "Review",
   memory: "Knowledge",
   connections: "Integrations"
 };
@@ -11,6 +14,10 @@ const announcer = document.querySelector("#announcer");
 
 async function activateSection(section, { focus = false, persist = true } = {}) {
   if (!sections.includes(section)) return;
+  if (document.querySelector("dialog[open]") && section !== "review") {
+    announcer.textContent = "Finish or cancel the open decision before changing views.";
+    return;
+  }
   const changed = tabs.get(section).getAttribute("aria-selected") !== "true";
   for (const name of sections) {
     const selected = name === section;
@@ -39,7 +46,7 @@ for (const [section, tab] of tabs) {
 
 document.addEventListener("keydown", (event) => {
   if (!event.metaKey || event.altKey || event.ctrlKey) return;
-  const shortcuts = { "1": "focus", "2": "canvas", "6": "memory", "7": "connections" };
+  const shortcuts = { "1": "focus", "2": "canvas", "3": "review", "6": "memory", "7": "connections" };
   if (shortcuts[event.key]) {
     event.preventDefault();
     void activateSection(shortcuts[event.key], { focus: true });
@@ -159,8 +166,43 @@ const readinessGaps = document.querySelector("#readiness-gaps");
 const canvasLineage = document.querySelector("#canvas-lineage");
 const canvasReadiness = document.querySelector("#canvas-readiness");
 const evidenceGapList = document.querySelector("#evidence-gap-list");
-const approveBrief = document.querySelector("#approve-brief");
-const rejectBrief = document.querySelector("#reject-brief");
+const improveBrief = document.querySelector("#improve-brief");
+const openReview = document.querySelector("#open-review");
+const reviewMode = document.querySelector("#review-mode");
+const reviewQueueCount = document.querySelector("#review-queue-count");
+const reviewQueue = document.querySelector("#review-queue");
+const reviewEmpty = document.querySelector("#review-empty");
+const reviewComparison = document.querySelector("#review-comparison");
+const reviewStartIdea = document.querySelector("#review-start-idea");
+const reviewVersionLabel = document.querySelector("#review-version-label");
+const reviewComparisonHeading = document.querySelector("#review-comparison-heading");
+const reviewRevisionNote = document.querySelector("#review-revision-note");
+const reviewState = document.querySelector("#review-state");
+const reviewCurrentHash = document.querySelector("#review-current-hash");
+const reviewParentVersion = document.querySelector("#review-parent-version");
+const reviewPreviousHeading = document.querySelector("#review-previous-heading");
+const reviewPreviousHash = document.querySelector("#review-previous-hash");
+const reviewPreviousText = document.querySelector("#review-previous-text");
+const reviewCurrentHeading = document.querySelector("#review-current-heading");
+const reviewCurrentShortHash = document.querySelector("#review-current-short-hash");
+const reviewCurrentText = document.querySelector("#review-current-text");
+const reviewVersionGate = document.querySelector("#review-version-gate");
+const reviewLineageGate = document.querySelector("#review-lineage-gate");
+const reviewEvidenceGate = document.querySelector("#review-evidence-gate");
+const reviewDecisionHeading = document.querySelector("#review-decision-heading");
+const reviewDecisionHelp = document.querySelector("#review-decision-help");
+const openReviewDecision = document.querySelector("#open-review-decision");
+const reviewDecisionDialog = document.querySelector("#review-decision-dialog");
+const reviewDecisionForm = document.querySelector("#review-decision-form");
+const reviewDialogTitle = document.querySelector("#review-dialog-title");
+const reviewDialogVersion = document.querySelector("#review-dialog-version");
+const reviewDialogHash = document.querySelector("#review-dialog-hash");
+const reviewDecisionApprove = document.querySelector("#review-decision-approve");
+const reviewDecisionReject = document.querySelector("#review-decision-reject");
+const reviewDecisionReason = document.querySelector("#review-decision-reason");
+const reviewDecisionError = document.querySelector("#review-decision-error");
+const cancelReviewDecision = document.querySelector("#cancel-review-decision");
+const submitReviewDecision = document.querySelector("#submit-review-decision");
 const memoryMode = document.querySelector("#memory-mode");
 const memoryProposedCount = document.querySelector("#memory-proposed-count");
 const memoryActiveCount = document.querySelector("#memory-active-count");
@@ -197,6 +239,9 @@ const memoryCorrectionForm = document.querySelector("#memory-correction-form");
 const memoryCorrection = document.querySelector("#memory-correction");
 const memoryCorrectionReason = document.querySelector("#memory-correction-reason");
 let latestRun;
+let latestRuns = [];
+let selectedReviewRunId;
+let reviewDecisionPending = false;
 let refreshPromise;
 let harnessReady = false;
 let latestMemories = [];
@@ -363,6 +408,185 @@ function renderCanvas(run, assessment) {
   evidenceGapList.replaceChildren(...gaps.map((gap) => listItem(humanize(gap))));
   const selected = nodeButtons.find((button) => button.classList.contains("selected")) ?? nodeButtons[0];
   inspectNode(selected);
+}
+
+function renderReview(runs = latestRuns) {
+  latestRuns = runs;
+  const waitingRuns = latestRuns.filter((run) => run.state === "waiting_approval" && run.approval?.state === "waiting");
+  reviewMode.textContent = waitingRuns.length
+    ? `${waitingRuns.length} waiting for you`
+    : latestRuns.length ? "All caught up" : "Nothing waiting";
+  reviewQueueCount.textContent = `${latestRuns.length} ${latestRuns.length === 1 ? "version" : "versions"}`;
+
+  if (!latestRuns.some((run) => run.runId === selectedReviewRunId)) {
+    selectedReviewRunId = waitingRuns[0]?.runId ?? latestRuns[0]?.runId;
+  }
+
+  if (!latestRuns.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "Create a working brief to begin a review.";
+    reviewQueue.replaceChildren(empty);
+    reviewEmpty.hidden = false;
+    reviewComparison.hidden = true;
+    return;
+  }
+
+  reviewQueue.replaceChildren(...latestRuns.map(reviewQueueItem));
+  const run = latestRuns.find((candidate) => candidate.runId === selectedReviewRunId) ?? latestRuns[0];
+  const parent = run.parentRunId ? latestRuns.find((candidate) => candidate.runId === run.parentRunId) : undefined;
+  const status = reviewStatus(run);
+  const assessment = parseThesis(run.analysis?.text);
+  const canDecide = run.state === "waiting_approval" && run.approval?.state === "waiting";
+
+  reviewEmpty.hidden = true;
+  reviewComparison.hidden = false;
+  reviewVersionLabel.textContent = `Version ${run.revisionNumber} · ${run.parentRunId ? "revision" : "first version"}`;
+  reviewComparisonHeading.textContent = `Working brief · version ${run.revisionNumber}`;
+  reviewRevisionNote.textContent = run.revisionReason
+    ? `Revision reason: ${run.revisionReason}`
+    : "First captured version. No earlier revision reason exists.";
+  reviewState.textContent = status.label;
+  reviewState.className = `state ${status.className}`;
+  reviewCurrentHash.textContent = run.draft?.contentHash ?? "Brief is still being prepared";
+  reviewCurrentShortHash.textContent = run.draft ? shortHash(run.draft.contentHash) : "Preparing";
+  reviewCurrentHeading.textContent = `Version ${run.revisionNumber}`;
+  reviewVersionGate.textContent = run.draft ? `Exact local version · ${shortHash(run.draft.contentHash)}` : "Exact version is still being prepared";
+  reviewLineageGate.textContent = parent
+    ? `Based on version ${parent.revisionNumber}`
+    : run.parentRunId ? "Parent retained outside recent history" : "First-version lineage retained";
+
+  if (parent?.draft) {
+    reviewParentVersion.textContent = `Version ${parent.revisionNumber} · ${shortHash(parent.draft.contentHash)}`;
+    reviewPreviousHeading.textContent = `Version ${parent.revisionNumber}`;
+    reviewPreviousHash.textContent = shortHash(parent.draft.contentHash);
+    renderComparedText(reviewPreviousText, parent.draft.text, run.draft?.text, "removed");
+  } else {
+    reviewParentVersion.textContent = run.parentRunId ? `Parent ${shortId(run.parentRunId)} · outside recent history` : "No parent · first captured version";
+    reviewPreviousHeading.textContent = run.parentRunId ? "Earlier version unavailable" : "No parent version";
+    reviewPreviousHash.textContent = "—";
+    const placeholder = document.createElement("p");
+    placeholder.className = "comparison-placeholder";
+    placeholder.textContent = run.parentRunId
+      ? "The parent remains in canonical history but is outside this recent-version window."
+      : "This is the first version, so there is no earlier brief to compare.";
+    reviewPreviousText.replaceChildren(placeholder);
+  }
+  renderComparedText(reviewCurrentText, run.draft?.text ?? "The brief is still being prepared.", parent?.draft?.text, parent?.draft ? "added" : undefined);
+
+  if (assessment) {
+    const { explicitCount, totalCount } = assessment.structuralCompleteness;
+    reviewEvidenceGate.textContent = `${explicitCount}/${totalCount} parts clear · observed evidence still required`;
+  } else {
+    reviewEvidenceGate.textContent = "Real-world evidence still required";
+  }
+
+  const decision = reviewDecisionCopy(run);
+  reviewDecisionHeading.textContent = decision.heading;
+  reviewDecisionHelp.textContent = decision.help;
+  openReviewDecision.disabled = !canDecide;
+  openReviewDecision.textContent = canDecide ? `Decide on version ${run.revisionNumber}` : decision.button;
+}
+
+function reviewQueueItem(run) {
+  const item = document.createElement("div");
+  item.setAttribute("role", "listitem");
+  const button = document.createElement("button");
+  const status = reviewStatus(run);
+  const selected = run.runId === selectedReviewRunId;
+  button.type = "button";
+  button.className = `review-queue-item${selected ? " selected" : ""}`;
+  button.dataset.runId = run.runId;
+  button.setAttribute("aria-pressed", String(selected));
+  button.setAttribute("aria-label", `Version ${run.revisionNumber}, ${status.label}`);
+
+  const heading = document.createElement("span");
+  heading.className = "review-queue-item-heading";
+  const title = document.createElement("strong");
+  title.textContent = `Version ${run.revisionNumber}`;
+  const state = document.createElement("span");
+  state.className = `state ${status.className}`;
+  state.textContent = status.label;
+  heading.append(title, state);
+
+  const reason = document.createElement("p");
+  reason.textContent = run.revisionReason ?? (run.parentRunId ? "Revised wording" : "First captured brief");
+  const details = document.createElement("small");
+  details.textContent = `${run.draft ? shortHash(run.draft.contentHash) : "preparing"} · ${formatReviewTime(run.updatedAt)}`;
+  button.append(heading, reason, details);
+  button.addEventListener("click", () => {
+    selectedReviewRunId = run.runId;
+    renderReview(latestRuns);
+    [...reviewQueue.querySelectorAll(".review-queue-item")]
+      .find((candidate) => candidate.dataset.runId === run.runId)
+      ?.focus();
+    announcer.textContent = `Version ${run.revisionNumber} selected. ${status.label}.`;
+  });
+  item.append(button);
+  return item;
+}
+
+function reviewStatus(run) {
+  if (run.approval?.state === "rejected") return { label: "Needs revision", className: "failed" };
+  if (run.state === "failed") return { label: "Run stopped", className: "failed" };
+  if (run.approval?.state === "waiting") return { label: "Waiting", className: "waiting" };
+  if (run.approval?.state === "approved" || run.state === "completed") return { label: "Approved", className: "complete" };
+  if (run.approval?.state === "invalidated") return { label: "Superseded", className: "specified" };
+  if (["planned", "running", "recovering"].includes(run.state)) return { label: "Preparing", className: "running" };
+  return { label: humanize(run.state), className: "specified" };
+}
+
+function reviewDecisionCopy(run) {
+  if (run.approval?.state === "rejected") {
+    return { heading: "This version was sent back", help: `Reason: ${run.approval?.reason ?? "Creator requested a revision."} Revise the idea in Today to create a new review.`, button: "Needs revision" };
+  }
+  if (run.state === "failed") {
+    return { heading: "This run stopped before your decision", help: "No creator rejection was recorded. Check the run status in Today before retrying or revising.", button: "Run stopped" };
+  }
+  if (run.approval?.state === "waiting" && run.state === "waiting_approval") {
+    return { heading: "Your decision is required", help: "Approve or send back this exact wording. Record a reason either way.", button: "Decide on this version" };
+  }
+  if (run.approval?.state === "approved" || run.state === "completed") {
+    return { heading: "This wording is approved", help: `Reason: ${run.approval?.reason ?? "Creator approved the exact wording."} Nothing was published.`, button: "Already approved" };
+  }
+  if (run.approval?.state === "invalidated") {
+    return { heading: "A newer version replaced this gate", help: "This version remains in history, but its old approval authority cannot transfer forward.", button: "Superseded" };
+  }
+  return { heading: "Decision not ready", help: "The exact brief must finish preparing before a decision can be recorded.", button: "Not ready" };
+}
+
+function renderComparedText(container, text, comparisonText, changeClass) {
+  const pre = document.createElement("pre");
+  const lines = String(text).split("\n");
+  const changedIndexes = comparisonText === undefined
+    ? new Set()
+    : changedLineIndexes(lines, String(comparisonText).split("\n"));
+  for (const [index, line] of lines.entries()) {
+    const row = document.createElement("span");
+    const changed = changedIndexes.has(index) && changeClass;
+    row.className = `comparison-line${changed && changeClass ? ` ${changeClass}` : ""}`;
+    const marker = document.createElement("span");
+    marker.className = "comparison-change-marker";
+    marker.setAttribute("aria-hidden", "true");
+    marker.textContent = changed ? (changeClass === "added" ? "+" : "−") : "";
+    if (changed) {
+      const changeLabel = document.createElement("span");
+      changeLabel.className = "sr-only";
+      changeLabel.textContent = `${changeClass === "added" ? "Added" : "Removed"} line: `;
+      row.append(changeLabel);
+    }
+    const copy = document.createElement("span");
+    copy.textContent = line || " ";
+    row.append(marker, copy);
+    pre.append(row);
+  }
+  container.replaceChildren(pre);
+}
+
+function formatReviewTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Saved locally";
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(date);
 }
 
 function renderMemory(snapshot) {
@@ -576,6 +800,7 @@ async function refreshHarness() {
     .then((snapshot) => {
       setHarnessAvailability(snapshot);
       renderRun(snapshot.runs?.[0]);
+      renderReview(snapshot.runs ?? []);
       renderMemory(snapshot);
       renderSkills(snapshot);
       renderToolPackages(snapshot);
@@ -597,6 +822,7 @@ ideaForm.addEventListener("submit", async (event) => {
     const result = latestRun
       ? await window.clarkDesktop.reviseIdea({ parentRunId: latestRun.runId, ideaText: ideaInput.value, revisionReason: revisionReason.value })
       : await window.clarkDesktop.startIdeaLoop(ideaInput.value);
+    selectedReviewRunId = result.run.runId;
     renderRun(result.run);
     if (latestRun?.revisionNumber > 1) revisionReason.value = "";
     announcer.textContent = latestRun?.revisionNumber > 1
@@ -609,29 +835,108 @@ ideaForm.addEventListener("submit", async (event) => {
   }
 });
 
-async function resolveBrief(decision) {
-  if (!latestRun?.approval) return;
-  approveBrief.disabled = true;
-  rejectBrief.disabled = true;
-  try {
-    const run = await window.clarkDesktop.resolveIdeaApproval({
-      runId: latestRun.runId,
-      approvalId: latestRun.approval.approvalId,
-      decision,
-      reason: decision === "approve" ? "Creator approved the exact local brief version." : "Creator requested a revised brief."
-    });
-    renderRun(run);
-    announcer.textContent = decision === "approve" ? "This exact brief version is approved. Nothing was published." : "The brief was sent back for revision.";
-  } catch (error) {
-    announcer.textContent = `Approval decision failed: ${error.message}`;
-  } finally {
-    approveBrief.disabled = false;
-    rejectBrief.disabled = false;
-  }
+openReview.addEventListener("click", () => {
+  if (latestRun) selectedReviewRunId = latestRun.runId;
+  void activateSection("review", { focus: true });
+});
+
+improveBrief.addEventListener("click", () => {
+  const target = revisionReasonGroup.hidden ? ideaInput : revisionReason;
+  target.focus();
+  target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+  announcer.textContent = "Update the idea and explain what the next version will improve.";
+});
+
+reviewStartIdea.addEventListener("click", () => void activateSection("focus", { focus: true }));
+openReviewDecision.addEventListener("click", () => openReviewDecisionDialog());
+cancelReviewDecision.addEventListener("click", () => reviewDecisionDialog.close("cancel"));
+reviewDecisionApprove.addEventListener("change", updateReviewDecisionDialog);
+reviewDecisionReject.addEventListener("change", updateReviewDecisionDialog);
+reviewDecisionDialog.addEventListener("close", () => {
+  reviewDecisionError.hidden = true;
+  reviewDecisionReason.setCustomValidity("");
+});
+reviewDecisionDialog.addEventListener("cancel", (event) => {
+  if (!reviewDecisionPending) return;
+  event.preventDefault();
+  announcer.textContent = "The decision is still being recorded. Keep this window open until it finishes.";
+});
+
+function openReviewDecisionDialog() {
+  const run = latestRuns.find((candidate) => candidate.runId === selectedReviewRunId);
+  if (!run?.approval || run.state !== "waiting_approval" || run.approval.state !== "waiting") return;
+  reviewDecisionApprove.checked = true;
+  reviewDecisionReason.value = "";
+  reviewDecisionError.hidden = true;
+  reviewDialogVersion.textContent = `Version ${run.revisionNumber}`;
+  reviewDialogHash.textContent = `Exact brief ${run.draft.contentHash}`;
+  updateReviewDecisionDialog();
+  reviewDecisionDialog.showModal();
+  reviewDecisionApprove.focus();
 }
 
-approveBrief.addEventListener("click", () => void resolveBrief("approve"));
-rejectBrief.addEventListener("click", () => void resolveBrief("reject"));
+function updateReviewDecisionDialog() {
+  const run = latestRuns.find((candidate) => candidate.runId === selectedReviewRunId);
+  const decision = reviewDecisionReject.checked ? "reject" : "approve";
+  reviewDialogTitle.textContent = decision === "approve"
+    ? `Approve version ${run?.revisionNumber ?? "—"}?`
+    : `Send version ${run?.revisionNumber ?? "—"} back?`;
+  submitReviewDecision.textContent = decision === "approve" ? "Approve exact version" : "Send back for revision";
+  submitReviewDecision.className = decision === "approve" ? "primary-action" : "danger-action";
+}
+
+reviewDecisionForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const run = latestRuns.find((candidate) => candidate.runId === selectedReviewRunId);
+  const decision = reviewDecisionReject.checked ? "reject" : "approve";
+  const reason = reviewDecisionReason.value.trim();
+  if (!run?.approval || run.state !== "waiting_approval" || run.approval.state !== "waiting") {
+    reviewDecisionError.textContent = "This version is no longer waiting. Close this dialog and review the latest state.";
+    reviewDecisionError.hidden = false;
+    return;
+  }
+  if (reason.length < 3) {
+    reviewDecisionReason.setCustomValidity("Enter at least three characters so the decision has a useful reason.");
+    reviewDecisionError.textContent = "Add a short reason before recording this decision.";
+    reviewDecisionError.hidden = false;
+    reviewDecisionReason.reportValidity();
+    reviewDecisionReason.focus();
+    return;
+  }
+
+  reviewDecisionReason.setCustomValidity("");
+  reviewDecisionError.hidden = true;
+  reviewDecisionPending = true;
+  submitReviewDecision.disabled = true;
+  cancelReviewDecision.disabled = true;
+  reviewDecisionApprove.disabled = true;
+  reviewDecisionReject.disabled = true;
+  submitReviewDecision.textContent = decision === "approve" ? "Recording approval…" : "Recording decision…";
+  try {
+    const resolved = await window.clarkDesktop.resolveIdeaApproval({
+      runId: run.runId,
+      approvalId: run.approval.approvalId,
+      decision,
+      reason
+    });
+    selectedReviewRunId = resolved.runId;
+    reviewDecisionDialog.close(decision);
+    await refreshHarness();
+    announcer.textContent = decision === "approve"
+      ? `Version ${resolved.revisionNumber} approved. The decision is pinned to ${shortHash(resolved.draft.contentHash)} and nothing was published.`
+      : `Version ${resolved.revisionNumber} sent back with your reason. Its history remains intact.`;
+  } catch (error) {
+    reviewDecisionError.textContent = `The decision was not recorded: ${error.message}. Review the version state and try again.`;
+    reviewDecisionError.hidden = false;
+  } finally {
+    reviewDecisionPending = false;
+    submitReviewDecision.disabled = false;
+    cancelReviewDecision.disabled = false;
+    reviewDecisionApprove.disabled = false;
+    reviewDecisionReject.disabled = false;
+    updateReviewDecisionDialog();
+  }
+});
 
 memoryProposalForm.addEventListener("submit", async (event) => {
   event.preventDefault();

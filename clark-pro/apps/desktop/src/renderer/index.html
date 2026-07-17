@@ -37,6 +37,10 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7.5h8M5 12h14M5 16.5h10"/><path d="m16 5 3 3-3 3"/></svg>
               <span>Shape</span><kbd>⌘2</kbd>
             </button>
+            <button id="tab-review" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-review" tabindex="-1" data-section="review">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v3h3v13H4V7h3V4Z"/><path d="M8 12h8M8 16h5M9 4h6v4H9z"/></svg>
+              <span>Review</span><kbd>⌘3</kbd>
+            </button>
             <button id="tab-memory" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-memory" tabindex="-1" data-section="memory">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5.5A2.5 2.5 0 0 1 8.5 3H19v15H8.5A2.5 2.5 0 0 0 6 20.5v-15Z"/><path d="M6 18.5A2.5 2.5 0 0 1 8.5 16H19"/></svg>
               <span>Knowledge</span><kbd>⌘6</kbd>
@@ -148,8 +152,8 @@
                 </section>
                 <pre id="draft-text" tabindex="0"></pre>
                 <div id="approval-actions" class="approval-actions" hidden>
-                  <p>Approve this wording or send it back for another revision. This does not publish or validate the idea.</p>
-                  <div><button id="reject-brief" type="button" class="secondary-action">Revise it</button><button id="approve-brief" type="button" class="primary-action">Approve this version</button></div>
+                  <p>This exact version is waiting in Review. Compare it with the earlier wording before you decide.</p>
+                  <div><button id="improve-brief" type="button" class="secondary-action">Improve the idea</button><button id="open-review" type="button" class="primary-action">Open Review</button></div>
                 </div>
                 <details class="technical-note">
                   <summary>Version and audit details</summary>
@@ -198,6 +202,110 @@
               </section>
             </aside>
           </div>
+        </section>
+
+        <section id="view-review" class="view" role="tabpanel" aria-labelledby="tab-review" data-view="review" hidden>
+          <header class="view-heading">
+            <div>
+              <p class="eyebrow">Exact wording, explicit decision</p>
+              <h1>Review</h1>
+              <p class="display-copy">Compare the work. Decide what moves forward.</p>
+              <p class="view-description">Read the current brief beside its parent, inspect what the decision does—and does not—authorize, then record your reason.</p>
+            </div>
+            <span id="review-mode" class="mode-badge">Nothing waiting</span>
+          </header>
+
+          <div class="review-layout">
+            <aside class="panel review-queue-panel" aria-labelledby="review-queue-heading">
+              <div class="panel-heading review-queue-heading">
+                <div><p class="eyebrow">Version history</p><h2 id="review-queue-heading">Briefs</h2></div>
+                <span id="review-queue-count">0 versions</span>
+              </div>
+              <div id="review-queue" class="review-queue" role="list">
+                <p class="empty-state">Create a working brief to begin a review.</p>
+              </div>
+            </aside>
+
+            <section class="panel review-workspace" aria-labelledby="review-workspace-heading">
+              <h2 id="review-workspace-heading" class="sr-only">Version review workspace</h2>
+              <div id="review-empty" class="review-empty">
+                <div class="empty-symbol" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M7 4h10v3h3v13H4V7h3V4Z"/><path d="M8 12h8M8 16h5M9 4h6v4H9z"/></svg>
+                </div>
+                <p class="eyebrow">No brief selected</p>
+                <h2>Your exact-version decisions will live here.</h2>
+                <p>Start with an idea, then return to compare versions and approve or reject the wording.</p>
+                <button id="review-start-idea" class="secondary-action" type="button">Go to Today</button>
+              </div>
+
+              <article id="review-comparison" hidden>
+                <header class="review-comparison-heading">
+                  <div>
+                    <p id="review-version-label" class="eyebrow">Selected version</p>
+                    <h2 id="review-comparison-heading">Working brief</h2>
+                    <p id="review-revision-note" class="review-revision-note">Choose a version to inspect its lineage.</p>
+                  </div>
+                  <span id="review-state" class="state specified">Not selected</span>
+                </header>
+
+                <dl class="review-provenance" aria-label="Selected version provenance">
+                  <div><dt>Exact brief</dt><dd id="review-current-hash">—</dd></div>
+                  <div><dt>Based on</dt><dd id="review-parent-version">—</dd></div>
+                  <div><dt>Decision scope</dt><dd>Wording only</dd></div>
+                  <div><dt>External action</dt><dd>None</dd></div>
+                </dl>
+
+                <div class="version-comparison" aria-label="Brief version comparison">
+                  <article class="comparison-pane previous-version">
+                    <header><div><p class="eyebrow">Earlier</p><h3 id="review-previous-heading">No parent version</h3></div><span id="review-previous-hash">—</span></header>
+                    <div id="review-previous-text" class="comparison-text" tabindex="0"><p class="comparison-placeholder">This is the first version, so there is no earlier brief to compare.</p></div>
+                  </article>
+                  <article class="comparison-pane current-version">
+                    <header><div><p class="eyebrow">Current</p><h3 id="review-current-heading">Selected brief</h3></div><span id="review-current-short-hash">—</span></header>
+                    <div id="review-current-text" class="comparison-text" tabindex="0"><p class="comparison-placeholder">Select a version to read its exact wording.</p></div>
+                  </article>
+                </div>
+
+                <section class="review-gates" aria-labelledby="review-gates-heading">
+                  <div class="section-heading"><div><p class="eyebrow">Before you decide</p><h3 id="review-gates-heading">What this approval means</h3></div></div>
+                  <ul>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-8"/></svg><div><strong id="review-version-gate">Exact local version</strong><p>The decision is pinned to one content hash.</p></div></li>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-8"/></svg><div><strong id="review-lineage-gate">Lineage reference retained</strong><p>The parent reference and revision reason stay visible.</p></div></li>
+                    <li class="warning"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 3 20h18L12 4Z"/><path d="M12 9v5M12 17h.01"/></svg><div><strong id="review-evidence-gate">Real-world evidence still required</strong><p>Approval does not prove demand, payment, or repeat use.</p></div></li>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5.5 6v5.1c0 4.2 2.7 8.1 6.5 9.2 3.8-1.1 6.5-5 6.5-9.2V6L12 3Z"/><path d="m9.5 12 1.7 1.7 3.5-3.7"/></svg><div><strong>No publishing permission</strong><p>No file, account, build, or publication action is granted.</p></div></li>
+                  </ul>
+                </section>
+
+                <footer class="review-decision-bar">
+                  <div><strong id="review-decision-heading">No decision available</strong><p id="review-decision-help">Select a version that is waiting for your review.</p></div>
+                  <button id="open-review-decision" class="primary-action" type="button" disabled>Decide on this version</button>
+                </footer>
+              </article>
+            </section>
+          </div>
+
+          <dialog id="review-decision-dialog" class="decision-dialog" aria-labelledby="review-dialog-title" aria-describedby="review-dialog-description">
+            <form id="review-decision-form" novalidate>
+              <div class="decision-dialog-heading">
+                <div><p class="eyebrow">Creator decision</p><h2 id="review-dialog-title">Review this exact version</h2></div>
+                <span id="review-dialog-version" class="quiet-badge">Version —</span>
+              </div>
+              <p id="review-dialog-description" class="decision-dialog-description">Choose what happens to this wording. Nothing will be published or sent to an account.</p>
+              <p id="review-dialog-hash" class="decision-hash">Exact brief —</p>
+              <fieldset class="decision-options">
+                <legend>What do you want to do?</legend>
+                <label><input id="review-decision-approve" type="radio" name="review-decision" value="approve" checked><span><strong>Approve this wording</strong><small>Pin this exact brief as approved. No other authority is granted.</small></span></label>
+                <label><input id="review-decision-reject" type="radio" name="review-decision" value="reject"><span><strong>Send it back</strong><small>Keep the version and lineage, but mark it as needing revision.</small></span></label>
+              </fieldset>
+              <label class="decision-reason-field" for="review-decision-reason">Why are you making this decision?<textarea id="review-decision-reason" minlength="3" maxlength="1000" rows="3" required aria-describedby="review-decision-reason-help"></textarea></label>
+              <p id="review-decision-reason-help" class="field-help">Your reason is stored with the exact-version decision and helps future you understand the choice.</p>
+              <p id="review-decision-error" class="field-error" role="alert" hidden></p>
+              <div class="decision-dialog-actions">
+                <button id="cancel-review-decision" class="secondary-action" type="button">Cancel</button>
+                <button id="submit-review-decision" class="primary-action" type="submit">Approve exact version</button>
+              </div>
+            </form>
+          </dialog>
         </section>
 
         <section id="view-memory" class="view" role="tabpanel" aria-labelledby="tab-memory" data-view="memory" hidden>

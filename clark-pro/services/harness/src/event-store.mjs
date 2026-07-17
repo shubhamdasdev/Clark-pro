@@ -816,6 +816,15 @@ export class EventStore {
     return row ? { ...row, response: row.response_json ? JSON.parse(row.response_json) : undefined } : undefined;
   }
 
+  latestArtifactDecision(runId, subjectRef) {
+    const rows = this.database.prepare("SELECT envelope_json FROM events WHERE correlation_id = ? AND event_type = 'decision.recorded' ORDER BY sequence DESC").all(runId);
+    for (const row of rows) {
+      const event = JSON.parse(row.envelope_json);
+      if (event.payload.decisionType === "artifact_approve" && event.payload.subjectRef === subjectRef) return event;
+    }
+    return undefined;
+  }
+
   completeCommand(idempotencyKey, response) {
     this.database.prepare("UPDATE commands SET response_json = ?, completed_at = ? WHERE idempotency_key = ?")
       .run(canonicalJson(response), this.now(), idempotencyKey);

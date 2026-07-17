@@ -2,7 +2,7 @@
 /**
  * GENERATED FILE — DO NOT EDIT.
  * Source: contracts/schemas/harness-ipc.schema.json
- * Source SHA-256: 2086e5158ebd236475f71ebbd59ccb74cd81e5ffec09d1e0d71ba2d9b021b892
+ * Source SHA-256: c9e0128cc09853060f8c5da9b978cfa46b4237af97f6c0be13537ab15bac6072
  * Generator: json-schema-to-typescript@15.0.4
  */
 
@@ -140,7 +140,7 @@ export interface ApprovalResolveCommand {
     runId: string;
     approvalId: string;
     decision: "approve" | "reject";
-    reason?: string;
+    reason: string;
     idempotencyKey: string;
   };
 }

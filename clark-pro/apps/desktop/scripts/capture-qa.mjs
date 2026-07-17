@@ -31,6 +31,13 @@ try {
   await page.keyboard.press("Meta+2");
   await page.getByRole("heading", { name: "Shape", level: 1 }).waitFor();
   await page.screenshot({ path: path.join(outputDirectory, "canvas.png") });
+  await page.keyboard.press("Meta+3");
+  await page.getByRole("heading", { name: "Review", level: 1 }).waitFor();
+  await page.screenshot({ path: path.join(outputDirectory, "review.png") });
+  await page.getByRole("button", { name: "Decide on version 2" }).click();
+  await page.getByRole("dialog").waitFor();
+  await page.screenshot({ path: path.join(outputDirectory, "review-decision.png") });
+  await page.getByRole("button", { name: "Cancel" }).click();
   await page.keyboard.press("Meta+6");
   await page.getByRole("heading", { name: "Knowledge", level: 1 }).waitFor();
   await page.getByRole("button", { name: "Send for review" }).click();
@@ -61,6 +68,11 @@ try {
   await page.getByRole("button", { name: "Version trusted" }).waitFor();
   await page.screenshot({ path: path.join(outputDirectory, "connections-skill.png") });
   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.keyboard.press("Meta+3");
+  await page.getByRole("heading", { name: "Review", level: 1 }).waitFor();
+  await page.locator("#workspace").evaluate((element) => { element.scrollTop = 0; });
+  await page.waitForTimeout(150);
+  await page.screenshot({ path: path.join(outputDirectory, "review-dark.png") });
   await page.keyboard.press("Meta+1");
   await page.getByRole("heading", { name: "Today", level: 1 }).waitFor();
   await page.locator("#workspace").evaluate((element) => { element.scrollTop = 0; });

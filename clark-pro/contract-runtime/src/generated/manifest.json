@@ -77,9 +77,9 @@
     },
     {
       "source": "harness-ipc.schema.json",
-      "sourceSha256": "2086e5158ebd236475f71ebbd59ccb74cd81e5ffec09d1e0d71ba2d9b021b892",
+      "sourceSha256": "c9e0128cc09853060f8c5da9b978cfa46b4237af97f6c0be13537ab15bac6072",
       "generated": "harness-ipc.ts",
-      "generatedSha256": "7fb2c45a676e2a0a411a9e7fda94d1efbe987195d16b97f7b8eb01f2a01aaef5"
+      "generatedSha256": "5463ce8a9d8d43652c8cb66bc0b7b97456e622840a57671d970a71754eaa3bfa"
     },
     {
       "source": "loop-definition.schema.json",

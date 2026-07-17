@@ -71,20 +71,93 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.equal(revisedSnapshot.runs[1].approval.state, "invalidated");
     assert.equal(JSON.parse(revisedSnapshot.runs[0].analysis.text).readiness, "evidence_required");
     assert.equal(JSON.parse(revisedSnapshot.runs[0].analysis.text).evidenceState, "not_observed");
-    await page.getByRole("button", { name: "Approve this version" }).click();
-    await page.getByText("Approved", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "Open Review" }).click();
+    await page.getByRole("heading", { name: "Review", level: 1 }).waitFor();
+    assert.equal(await page.getByRole("tab", { name: /Review/ }).getAttribute("aria-selected"), "true");
+    assert.equal(await page.locator("#review-queue [role=listitem]").count(), 2);
+    assert.match(await page.locator("#review-queue [role=listitem]").filter({ hasText: "Version 2" }).innerText(), /waiting/i);
+    assert.match(await page.locator("#review-queue [role=listitem]").filter({ hasText: "Version 1" }).innerText(), /superseded/i);
+    await page.getByRole("button", { name: "Version 1, Superseded" }).click();
+    assert.equal(await page.locator(":focus").getAttribute("aria-label"), "Version 1, Superseded");
+    await page.getByRole("button", { name: "Version 2, Waiting" }).click();
+    assert.equal(await page.locator(":focus").getAttribute("aria-label"), "Version 2, Waiting");
+    assert.equal(await page.locator("#review-current-hash").innerText(), revisedSnapshot.runs[0].draft.contentHash);
+    assert.match(await page.locator("#review-parent-version").innerText(), /Version 1/i);
+    assert.match(await page.locator("#review-previous-text").innerText(), /creator operating system/i);
+    assert.match(await page.locator("#review-current-text").innerText(), /solo professional creators/i);
+    assert.ok(await page.locator("#review-current-text .added").count() > 0);
+    assert.ok(await page.locator("#review-previous-text .removed").count() > 0);
+    assert.equal(await page.locator("#review-current-text .added .comparison-change-marker").first().innerText(), "+");
+    assert.match(await page.locator("#review-current-text .added .sr-only").first().textContent(), /Added line/);
+    assert.match(await page.locator("#review-evidence-gate").innerText(), /10\/10 parts clear/i);
+
+    const boundaryEventCount = revisedSnapshot.database.eventCount;
+    const invalidDecision = await page.evaluate(async ({ runId, approvalId }) => {
+      try {
+        await window.clarkDesktop.resolveIdeaApproval({ runId, approvalId, decision: "approve", reason: "  " });
+        return undefined;
+      } catch (error) {
+        return { name: error.name, message: error.message };
+      }
+    }, { runId: revisedSnapshot.runs[0].runId, approvalId: revisedSnapshot.runs[0].approval.approvalId });
+    assert.ok(["Error", "TypeError"].includes(invalidDecision.name));
+    assert.match(invalidDecision.message, /decision and reason/i);
+    assert.equal((await page.evaluate(() => window.clarkDesktop.getHarnessState())).database.eventCount, boundaryEventCount);
+
+    await electronApp.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setBounds({ x: 120, y: 120, width: 940, height: 640 }));
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    const reviewMinimumLayout = await page.evaluate(() => ({
+      documentOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      workspaceOverflow: document.querySelector("#workspace").scrollWidth - document.querySelector("#workspace").clientWidth,
+      reviewColumns: getComputedStyle(document.querySelector(".review-layout")).gridTemplateColumns
+    }));
+    assert.ok(reviewMinimumLayout.documentOverflow <= 1, `Review document overflows by ${reviewMinimumLayout.documentOverflow}px`);
+    assert.ok(reviewMinimumLayout.workspaceOverflow <= 1, `Review workspace overflows by ${reviewMinimumLayout.workspaceOverflow}px`);
+    assert.equal(reviewMinimumLayout.reviewColumns.trim().split(/\s+/).length, 1);
+
+    const beforeCancel = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    await page.getByRole("button", { name: "Decide on version 2" }).click();
+    await page.getByRole("dialog").waitFor();
+    assert.match(await page.locator("#review-dialog-hash").innerText(), new RegExp(revisedSnapshot.runs[0].draft.contentHash));
+    const dialogBounds = await page.getByRole("dialog").boundingBox();
+    assert.ok(dialogBounds.width <= 940 && dialogBounds.height <= 640);
+    await page.keyboard.press("Meta+1");
+    assert.equal(await page.getByRole("dialog").isVisible(), true);
+    assert.equal(await page.getByRole("heading", { name: "Review", level: 1 }).isVisible(), true);
+    await page.getByRole("button", { name: "Cancel" }).click();
+    await page.getByRole("dialog").waitFor({ state: "hidden" });
+    const afterCancel = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    assert.equal(afterCancel.database.eventCount, beforeCancel.database.eventCount);
+    assert.equal(afterCancel.runs[0].approval.state, "waiting");
+
+    await electronApp.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setBounds({ x: 120, y: 120, width: 1280, height: 800 }));
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
+    await page.getByRole("button", { name: "Decide on version 2" }).click();
+    await page.getByRole("button", { name: "Approve exact version" }).click();
+    await page.getByText("Add a short reason before recording this decision.").waitFor();
+    const approvalReason = "The audience, workaround, wedge, business model, and proof plan are specific enough to test.";
+    await page.locator("#review-decision-reason").fill(approvalReason);
+    await page.getByRole("button", { name: "Approve exact version" }).click();
+    await page.locator("#review-state").filter({ hasText: "Approved" }).waitFor();
+    const approvedSnapshot = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    assert.equal(approvedSnapshot.runs[0].approval.state, "approved");
+    assert.equal(approvedSnapshot.runs[0].approval.reason, approvalReason);
+    assert.equal(approvedSnapshot.runs[0].draft.contentHash, revisedSnapshot.runs[0].draft.contentHash);
 
     const menu = await electronApp.evaluate(({ Menu }) => {
       const applicationMenu = Menu.getApplicationMenu();
       return {
         top: applicationMenu.items.map((item) => item.label),
         canvas: applicationMenu.getMenuItemById("view-canvas")?.accelerator,
+        review: applicationMenu.getMenuItemById("view-review")?.accelerator,
         memory: applicationMenu.getMenuItemById("view-memory")?.accelerator,
         services: applicationMenu.items[0].submenu.items.some((item) => item.role === "services")
       };
     });
     assert.equal(menu.services, true);
     assert.equal(menu.canvas, "CmdOrCtrl+2");
+    assert.equal(menu.review, "CmdOrCtrl+3");
     assert.equal(menu.memory, "CmdOrCtrl+6");
     assert.ok(menu.top.includes("Edit"));
     assert.ok(menu.top.includes("Window"));
@@ -98,8 +171,13 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.match(await page.locator(":focus").innerText(), /Idea check/);
     assert.match(await page.locator("#canvas-readiness").innerText(), /ready to test/i);
     assert.equal(await page.locator("#evidence-gap-list li").count(), 5);
-    assert.equal(await page.locator("h1").count(), 4);
+    assert.equal(await page.locator("h1").count(), 5);
     assert.equal(await page.locator("h1:visible").count(), 1);
+
+    await page.keyboard.press("Meta+3");
+    await page.getByRole("heading", { name: "Review", level: 1 }).waitFor();
+    assert.match(await page.locator("#review-decision-heading").innerText(), /wording is approved/i);
+    assert.match(await page.locator("#review-decision-help").innerText(), /business model, and proof plan/i);
 
     await page.keyboard.press("Meta+6");
     await page.getByRole("heading", { name: "Knowledge", level: 1 }).waitFor();
@@ -211,7 +289,45 @@ test("renderer boundary, native menu, keyboard views, accessibility, and restora
     assert.equal(restoredBounds.width, 940);
     assert.equal(restoredBounds.height, 640);
     await restoredPage.keyboard.press("Meta+1");
-    await restoredPage.getByText("Approved", { exact: true }).waitFor();
+    await restoredPage.locator("#run-state").filter({ hasText: "Approved" }).waitFor();
+  } finally {
+    if (electronApp) await electronApp.close().catch(() => {});
+    await rm(userData, { recursive: true, force: true });
+  }
+});
+
+test("Review records a reasoned rejection without granting or losing exact-version history", async () => {
+  const userData = await mkdtemp(path.join(os.tmpdir(), "clark-review-reject-e2e-"));
+  let electronApp;
+  try {
+    electronApp = await launch(userData);
+    const page = await electronApp.firstWindow();
+    await page.getByText(/Saved locally · \d+ updates/).waitFor();
+    await page.getByRole("button", { name: "Shape this idea" }).click();
+    await page.locator("#run-state").filter({ hasText: "Waiting for review" }).waitFor();
+    const before = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    const exactHash = before.runs[0].draft.contentHash;
+
+    await page.getByRole("button", { name: "Open Review" }).click();
+    await page.getByRole("button", { name: "Decide on version 1" }).click();
+    await page.getByLabel("Send it back").check();
+    await page.getByRole("button", { name: "Send back for revision" }).waitFor();
+    const rejectionReason = "The target creator and evidence test are still too broad.";
+    await page.locator("#review-decision-reason").fill(rejectionReason);
+    await page.getByRole("button", { name: "Send back for revision" }).click();
+    await page.locator("#review-state").filter({ hasText: "Needs revision" }).waitFor();
+
+    const rejected = await page.evaluate(() => window.clarkDesktop.getHarnessState());
+    assert.equal(rejected.runs[0].state, "failed");
+    assert.equal(rejected.runs[0].approval.state, "rejected");
+    assert.equal(rejected.runs[0].approval.reason, rejectionReason);
+    assert.equal(rejected.runs[0].draft.contentHash, exactHash);
+    assert.match(await page.locator("#review-decision-help").innerText(), /target creator and evidence test/i);
+    assert.equal(await page.getByRole("button", { name: "Needs revision", exact: true }).isDisabled(), true);
+
+    await page.keyboard.press("Meta+1");
+    await page.locator("#run-state").filter({ hasText: "Revision needed" }).waitFor();
+    assert.equal(await page.locator("#revision-reason").isVisible(), true);
   } finally {
     if (electronApp) await electronApp.close().catch(() => {});
     await rm(userData, { recursive: true, force: true });
