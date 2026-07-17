@@ -27,7 +27,7 @@ const SKILL_ACTIONS = new Set(["promote", "rollback"]);
 const TOOL_PACKAGE_ACTIONS = new Set(["activate", "rollback"]);
 
 if (process.env.CLARK_TEST_USER_DATA) app.setPath("userData", process.env.CLARK_TEST_USER_DATA);
-app.setName("Clark Studio");
+app.setName("Clark Pro");
 app.enableSandbox();
 protocol.registerSchemesAsPrivileged([
   {
@@ -304,8 +304,8 @@ async function createMainWindow() {
     minWidth: 780,
     minHeight: 560,
     show: false,
-    title: "Clark Studio",
-    backgroundColor: "#111318",
+    title: "Clark Pro",
+    backgroundColor: "#151513",
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 18, y: 18 },
     webPreferences: {

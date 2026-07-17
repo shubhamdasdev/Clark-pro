@@ -1,4 +1,4 @@
-# Clark Studio Mac shell and local Harness
+# Clark Pro Mac app and local Harness
 
 This is the first executable desktop-and-Harness slice on Clark's permanent Electron topology. It proves a narrow creator loop, durable process boundary, and interaction boundary; it is not yet the complete Studio or a release candidate.
 
@@ -7,15 +7,15 @@ This is the first executable desktop-and-Harness slice on Clark's permanent Elec
 - a native macOS application menu with standard roles and Clark navigation shortcuts;
 - a sandboxed renderer with context isolation, no Node integration, a restrictive CSP, denied navigation/popups/webviews/permissions, and an allowlisted custom protocol;
 - a small validated preload API;
-- keyboard-operable Focus, Canvas, Memory, Connections, and trust-center interactions;
+- keyboard-operable Today, Shape, Knowledge, Integrations, and permission-review interactions;
 - persisted and screen-clamped window bounds plus active-view restoration;
 - an app-supervised Electron `utilityProcess` connected only to main through a transferred, schema-validated MessagePort;
 - an explicit minimal child environment, bounded/redacted diagnostics, restart budget, request deadlines, message-size and in-flight limits, and stale/replayed channel rejection;
 - SQLite/WAL append-only events, transactional projections, checkpoints, command idempotency, per-workspace hash chains, pinned compiled plans, and content-addressed text assets;
 - a contract-compiled, zero-egress `Idea to Approved Text` loop with a real bundled MCP inspection step, durable recovery, and exact-version creator approval/rejection;
-- live Connections state for the source-pinned stdio MCP capability and the authenticated localhost Clark Bridge, without exposing the Bridge bearer to the renderer;
-- live Focus and Connections projections that survive renderer reload, Harness death, application quit/relaunch, and packaged-ASAR execution;
-- a live governed Memory workspace with exact brief/run evidence, proposal-only claims, creator promotion/rejection/dispute/forget actions, append-only correction, sensitivity/destination-aware retrieval, and explicit-only/never-send-to-model policy controls;
+- live Integrations state for the source-pinned stdio MCP capability and the authenticated localhost Clark Bridge, without exposing the Bridge bearer to the renderer;
+- live Today and Integrations projections that survive renderer reload, Harness death, application quit/relaunch, and packaged-ASAR execution;
+- a live governed Knowledge workspace with exact brief/run evidence, proposal-only claims, creator approval/rejection/dispute/removal actions, append-only correction, sensitivity/destination-aware retrieval, and ask-every-time/never-send-to-model policy controls;
 - a live Tool Pack gate review that shows OpenCut's immutable source pin separately from ten still-pending/blocked interface, legal, supply-chain, acquisition, adapter, activation, and rollback gates; activation remains disabled with zero installed authority;
 - a live Skill trust review that shows exact source/files, Class A isolation, requested versus trusted scopes, eleven promotion gates, creator promotion, and the explicit absence of direct invocation authority;
 - automated boundary, persistence, recovery, menu, keyboard, semantic-accessibility, relaunch, and packaged-app tests.

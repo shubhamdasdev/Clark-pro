@@ -1,4 +1,10 @@
 const sections = ["focus", "canvas", "memory", "connections"];
+const sectionLabels = {
+  focus: "Today",
+  canvas: "Shape",
+  memory: "Knowledge",
+  connections: "Integrations"
+};
 const tabs = new Map(sections.map((section) => [section, document.querySelector(`[data-section="${section}"]`)]));
 const views = new Map(sections.map((section) => [section, document.querySelector(`[data-view="${section}"]`)]));
 const announcer = document.querySelector("#announcer");
@@ -13,8 +19,8 @@ async function activateSection(section, { focus = false, persist = true } = {}) 
     views.get(name).hidden = !selected;
   }
   if (focus) tabs.get(section).focus();
-  announcer.textContent = `${tabs.get(section).textContent.trim()} view opened`;
-  document.title = `${section[0].toUpperCase()}${section.slice(1)} — Clark Studio`;
+  announcer.textContent = `${sectionLabels[section]} view opened`;
+  document.title = `${sectionLabels[section]} — Clark Pro`;
   if (changed) document.querySelector("#workspace").scrollTop = 0;
   if (persist) await window.clarkDesktop.setActiveSection(section);
 }
@@ -41,11 +47,11 @@ document.addEventListener("keydown", (event) => {
 });
 
 let nodeDetails = {
-  idea: ["Idea thesis", "Creator input only", "No revision", "Local canonical", "Not assessed"],
-  assessment: ["Thesis stress-test", "No mutation authority", "Idea → MCP assessment", "Local zero-egress", "Not assessed"],
-  evidence: ["Observed proof", "No evidence inferred", "Assessment → evidence gates", "Citations required", "Not observed"],
-  brief: ["Idea brief", "Proposal only", "Assessment → deterministic brief", "Local artifact", "Not created"],
-  review: ["Exact-version review", "Creator decision", "Brief → review gate", "Hash pinned", "Not waiting"]
+  idea: ["Your idea", "You", "No version yet", "Stored on this Mac", "Not assessed"],
+  assessment: ["Idea check", "Clark can inspect, not change", "Your idea", "Runs on this Mac", "Not assessed"],
+  evidence: ["Proof needed", "No proof is assumed", "Questions from the idea check", "Real observations required", "Not observed"],
+  brief: ["Working brief", "Proposal for your review", "Your idea and its clarity check", "Stored on this Mac", "Not created"],
+  review: ["Your review", "You", "The exact working brief", "No publishing permission", "Nothing waiting"]
 };
 const nodeButtons = [...document.querySelectorAll(".node-card")];
 const inspector = document.querySelector(".inspector");
@@ -74,10 +80,28 @@ nodeButtons.forEach((button, index) => {
 
 function focusTrustCenter() {
   document.querySelector("#trust-summary").focus();
-  announcer.textContent = "Trust center. Three decisions remain explicit.";
+  announcer.textContent = "Permission summary. Files, accounts, and publishing remain separate decisions.";
 }
 
 document.querySelector("#review-trust").addEventListener("click", focusTrustCenter);
+const todayDate = document.querySelector("#today-date");
+const startIdeaButton = document.querySelector("#start-idea");
+const focusStage = document.querySelector("#focus-stage");
+const focusProgress = document.querySelector("#focus-progress");
+const focusStageDetail = document.querySelector("#focus-stage-detail");
+
+todayDate.textContent = new Intl.DateTimeFormat(undefined, {
+  weekday: "long",
+  month: "long",
+  day: "numeric"
+}).format(new Date());
+
+startIdeaButton.addEventListener("click", () => {
+  document.querySelector("#idea-input").focus();
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelector("#idea-loop-form").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+});
+
 window.clarkDesktop.onNavigate((section) => void activateSection(section, { focus: true }));
 window.clarkDesktop.onTrustCenter(() => {
   void activateSection("connections", { persist: false }).then(focusTrustCenter);
@@ -181,33 +205,55 @@ let selectedToolPackage;
 let selectedSkill;
 
 const runStateLabels = {
-  planned: "Planned", running: "Running", recovering: "Recovering", waiting_approval: "Waiting approval",
-  completed: "Completed", failed: "Revision required", cancelled: "Cancelled"
+  planned: "Preparing", running: "Shaping", recovering: "Restoring", waiting_approval: "Waiting for review",
+  completed: "Approved", failed: "Revision needed", cancelled: "Cancelled"
+};
+
+const memoryKindLabels = {
+  identity: "Preference",
+  semantic: "Fact",
+  episodic: "Past work",
+  procedural: "Process",
+  performance: "Performance"
+};
+
+const memoryPolicyLabels = {
+  default: "Use when relevant",
+  explicit_only: "Ask every time",
+  never_send_to_model: "Keep out of models"
+};
+
+const memoryDestinationLabels = {
+  creator_view: "This view only",
+  local_model: "Local model",
+  remote_model: "Remote model"
 };
 
 function setHarnessAvailability(snapshot) {
   const ready = snapshot.available && snapshot.state === "ready";
   harnessReady = ready;
-  harnessState.textContent = ready ? `Ready · ${snapshot.database.eventCount} events` : runStateLabels[snapshot.state] ?? "Unavailable";
-  harnessRail.textContent = ready ? "Harness live · SQLite WAL" : `Harness ${snapshot.state ?? "unavailable"}`;
-  harnessConnectionState.textContent = ready ? "Live" : snapshot.state ?? "Unavailable";
+  const updateCount = snapshot.database?.eventCount ?? 0;
+  harnessState.textContent = ready ? `Saved locally · ${updateCount} updates` : runStateLabels[snapshot.state] ?? "Unavailable";
+  harnessRail.textContent = ready ? "All changes saved locally" : "Local workspace unavailable";
+  document.querySelector("#harness-rail-status").classList.toggle("ready", ready);
+  harnessConnectionState.textContent = ready ? "Available" : snapshot.state ?? "Unavailable";
   harnessConnectionState.className = `state ${ready ? "complete" : "waiting"}`;
-  harnessConnectionDetail.textContent = ready ? `Supervised utility process · SQLite WAL · ${snapshot.database.eventCount} events` : "Supervised utility process unavailable";
+  harnessConnectionDetail.textContent = ready ? `Your work is saved on this Mac · ${updateCount} recorded updates` : "Your local workspace could not be opened";
   const inspector = snapshot.capabilities
     ?.filter((capability) => capability.id === "clark.idea.inspect.mcp")
     .sort((left, right) => right.version.localeCompare(left.version, undefined, { numeric: true }))[0];
   const inspectorLive = ready && inspector?.state === "healthy";
-  capabilityConnectionState.textContent = inspectorLive ? "Live" : inspector?.state ?? "Unavailable";
+  capabilityConnectionState.textContent = inspectorLive ? "Available" : inspector?.state ?? "Unavailable";
   capabilityConnectionState.className = `state ${inspectorLive ? "complete" : "waiting"}`;
   capabilityConnectionDetail.textContent = inspector
-    ? `Exact stdio · ${inspector.actionClass} · no network or credential scopes`
-    : "Exact stdio process unavailable";
+    ? "Built in · runs locally · no account or network access"
+    : "The built-in idea check is unavailable";
   const bridgeLive = ready && snapshot.bridge?.state === "ready";
-  bridgeConnectionState.textContent = bridgeLive ? "Live" : snapshot.bridge?.state ?? "Unavailable";
+  bridgeConnectionState.textContent = bridgeLive ? "Available" : snapshot.bridge?.state ?? "Unavailable";
   bridgeConnectionState.className = `state ${bridgeLive ? "complete" : "waiting"}`;
   bridgeConnectionDetail.textContent = bridgeLive
-    ? `${snapshot.bridge.host}:${snapshot.bridge.port} · ${snapshot.bridge.tools.length} scoped tools · memory requires a separate future pairing scope`
-    : "Authenticated localhost MCP unavailable";
+    ? `Private connection on this Mac · ${snapshot.bridge.tools.length} scoped tools · knowledge remains separate`
+    : "The private local tool connection is unavailable";
   runButton.disabled = !ready;
 }
 
@@ -219,9 +265,12 @@ function renderRun(run) {
     thesisReadiness.hidden = true;
     revisionReasonGroup.hidden = true;
     revisionReason.required = false;
-    ideaFormContext.textContent = "Local deterministic stress-test · $0 · no network, model, credentials, build, or publishing authority";
-    runButton.textContent = "Structure idea";
+    ideaFormContext.textContent = "Runs on this Mac. Nothing is published or sent to an account.";
+    runButton.textContent = "Shape this idea";
     runButton.disabled = !harnessReady;
+    focusStage.textContent = "Ready to begin";
+    focusProgress.textContent = "Step 1 of 3";
+    focusStageDetail.textContent = "Write the idea in your own words. It does not need to be polished.";
     renderCanvas();
     return;
   }
@@ -240,12 +289,29 @@ function renderRun(run) {
   revisionReason.required = canRevise;
   if (document.activeElement !== ideaInput) ideaInput.value = run.idea.text;
   ideaFormContext.textContent = canRevise
-    ? `Revision ${run.revisionNumber} is immutable · describe why the next revision is stronger`
-    : "Wait for the current durable run to reach review before revising.";
-  runButton.textContent = canRevise ? "Create stronger revision" : "Run in progress";
+    ? `Version ${run.revisionNumber} is saved. Explain what the next version improves.`
+    : "Clark is shaping this idea locally. You can revise it when the working brief is ready.";
+  runButton.textContent = canRevise ? "Shape a new revision" : "Shaping locally…";
   runButton.disabled = !harnessReady || !canRevise;
   const lineage = `revision ${run.revisionNumber}${run.parentRunId ? ` · parent ${shortId(run.parentRunId)}` : " · root"}`;
   runIntegrity.textContent = run.draft ? `${lineage} · ${run.eventCount} correlated events · ${run.draft.contentHash}${run.recoveredFromCheckpoint ? " · restored from checkpoint" : ""}` : `${lineage} · ${run.eventCount} correlated events`;
+  if (["planned", "running", "recovering"].includes(run.state)) {
+    focusStage.textContent = "Shaping your idea";
+    focusProgress.textContent = "Step 2 of 3";
+    focusStageDetail.textContent = "Clark is organizing the thought and separating clear claims from assumptions.";
+  } else if (run.state === "waiting_approval") {
+    focusStage.textContent = "Waiting for your review";
+    focusProgress.textContent = "Step 3 of 3";
+    focusStageDetail.textContent = "Read the working brief and approve this exact wording or create a stronger revision.";
+  } else if (run.state === "completed") {
+    focusStage.textContent = "Version approved";
+    focusProgress.textContent = "Loop complete";
+    focusStageDetail.textContent = "This exact brief is approved. The idea still needs real-world evidence before it is validated.";
+  } else {
+    focusStage.textContent = "Revision requested";
+    focusProgress.textContent = "Needs your input";
+    focusStageDetail.textContent = "Update the idea and explain what the next version will make clearer.";
+  }
 }
 
 function parseThesis(text) {
@@ -262,36 +328,36 @@ function renderThesisReadiness(assessment) {
   thesisReadiness.hidden = !assessment;
   if (!assessment) return;
   const { explicitCount, totalCount, state } = assessment.structuralCompleteness;
-  readinessHeading.textContent = `${explicitCount}/${totalCount} thesis facets explicit · ${state === "ready_for_evidence" ? "ready for evidence" : "clarification required"}`;
+  readinessHeading.textContent = `${explicitCount}/${totalCount} parts clear · ${state === "ready_for_evidence" ? "ready to test" : "needs clarification"}`;
   readinessSummary.textContent = assessment.summary;
   readinessGaps.textContent = assessment.missingFacets.length
-    ? `Clarify: ${assessment.missingFacets.map(humanize).join(", ")}.`
-    : "Structure is complete; observed demand, payment, and repeat-use evidence are still required.";
+    ? `Make these clearer: ${assessment.missingFacets.map(humanize).join(", ")}.`
+    : "The structure is clear. You still need observed demand, payment, and repeat-use evidence.";
 }
 
 function renderCanvas(run, assessment) {
   if (!run) {
-    canvasLineage.textContent = "Idea Foundry · waiting for a thesis";
-    canvasReadiness.textContent = "No assessment";
-    evidenceGapList.replaceChildren(listItem("Capture a thesis to reveal exact gaps."));
+    canvasLineage.textContent = "Waiting for your first idea";
+    canvasReadiness.textContent = "Not assessed";
+    evidenceGapList.replaceChildren(listItem("Start an idea to reveal its proof questions."));
     return;
   }
   const revision = `Revision ${run.revisionNumber}`;
   const structural = assessment?.structuralCompleteness;
-  const readiness = assessment?.readiness === "evidence_required" ? "Evidence required" : assessment ? "Clarification required" : "Assessment pending";
-  canvasLineage.textContent = `Idea Foundry · ${revision}${run.parentRunId ? ` · derived from ${shortId(run.parentRunId)}` : " · root thesis"}`;
+  const readiness = assessment?.readiness === "evidence_required" ? "Ready to test" : assessment ? "Needs clarification" : "Check in progress";
+  canvasLineage.textContent = `${revision}${run.parentRunId ? " · based on an earlier version" : " · first version"}`;
   canvasReadiness.textContent = readiness;
-  setCanvasNode("idea", `Idea thesis v${run.revisionNumber}`, `Content-addressed · ${shortHash(run.idea.contentHash)}`);
-  setCanvasNode("assessment", "Thesis stress-test", assessment ? `${structural.explicitCount}/${structural.totalCount} facets explicit · MCP 1.1` : "Governed MCP inspection pending");
-  setCanvasNode("evidence", "Observed proof", assessment ? `${assessment.evidenceGaps.length} gates open · ${humanize(assessment.evidenceState)}` : "No evidence inferred");
-  setCanvasNode("brief", `Idea brief v${run.revisionNumber}`, run.draft ? `Deterministic · ${shortHash(run.draft.contentHash)}` : "Structure pending");
-  setCanvasNode("review", "Exact-version review", run.approval ? `${humanize(run.approval.state)} · wording only` : "Gate pending");
+  setCanvasNode("idea", `Your idea · v${run.revisionNumber}`, "Saved exactly as you wrote it");
+  setCanvasNode("assessment", "Idea check", assessment ? `${structural.explicitCount}/${structural.totalCount} parts clear` : "Local check in progress");
+  setCanvasNode("evidence", "Proof needed", assessment ? `${assessment.evidenceGaps.length} real-world questions open` : "No proof is assumed");
+  setCanvasNode("brief", `Working brief · v${run.revisionNumber}`, run.draft ? "Ready to read" : "Being prepared");
+  setCanvasNode("review", "Your review", run.approval ? `${humanize(run.approval.state)} · this wording only` : "No decision waiting");
   nodeDetails = {
-    idea: [`Idea thesis v${run.revisionNumber}`, "Creator-supplied text only", run.parentRunId ? `${shortId(run.parentRunId)} → ${shortId(run.runId)}` : `${shortId(run.runId)} · root`, "Local content-addressed source", revision],
-    assessment: ["Thesis stress-test", "One leased local transform", `Idea v${run.revisionNumber} → MCP 1.1 assessment`, "Zero egress · no files or credentials", structural ? `${structural.explicitCount}/${structural.totalCount} explicit` : "Pending"],
-    evidence: ["Observed proof", "Cannot infer or promote evidence", "Assessment → five falsifiable gates", "Observed or cited inputs required", assessment ? `${assessment.evidenceGaps.length} open · not validated` : "Pending"],
-    brief: [`Idea brief v${run.revisionNumber}`, "Proposal only", `Idea + assessment → brief v${run.revisionNumber}`, "Deterministic local artifact", run.draft ? "Ready for wording review" : "Pending"],
-    review: ["Exact-version review", "Creator wording decision only", `Brief v${run.revisionNumber} → exact hash gate`, "No build or publish authority", run.approval ? humanize(run.approval.state) : humanize(run.state)]
+    idea: [`Your idea · v${run.revisionNumber}`, "You", run.parentRunId ? "An earlier version of your idea" : "Your first captured version", "Stored exactly on this Mac", revision],
+    assessment: ["Idea check", "Clark can inspect, not change", `Your idea · version ${run.revisionNumber}`, "Runs locally with no files or accounts", structural ? `${structural.explicitCount}/${structural.totalCount} parts clear` : "In progress"],
+    evidence: ["Proof needed", "No proof can be invented", "Questions created from the idea check", "Observed or cited inputs required", assessment ? `${assessment.evidenceGaps.length} questions open` : "In progress"],
+    brief: [`Working brief · v${run.revisionNumber}`, "Proposal for your review", `Your idea and its clarity check`, "Stored locally", run.draft ? "Ready to review" : "In progress"],
+    review: ["Your review", "You", `Working brief · version ${run.revisionNumber}`, "No build or publishing permission", run.approval ? humanize(run.approval.state) : humanize(run.state)]
   };
   const gaps = assessment?.evidenceGaps ?? ["problem_interviews", "workaround_baseline", "behavioral_demand", "willingness_to_pay", "retention_or_repeat_use"];
   evidenceGapList.replaceChildren(...gaps.map((gap) => listItem(humanize(gap))));
@@ -303,17 +369,17 @@ function renderMemory(snapshot) {
   latestMemories = snapshot.memories ?? [];
   const count = (state) => latestMemories.filter((memory) => memory.state === state).length;
   const activeCount = count("active");
-  memoryMode.textContent = `${activeCount} active`;
+  memoryMode.textContent = `${activeCount} in use`;
   memoryProposedCount.textContent = String(count("proposed"));
   memoryActiveCount.textContent = String(activeCount);
   memoryDisputedCount.textContent = String(count("disputed"));
-  memoryLedgerCount.textContent = `${latestMemories.length} immutable ${latestMemories.length === 1 ? "claim" : "claims"}`;
+  memoryLedgerCount.textContent = `${latestMemories.length} ${latestMemories.length === 1 ? "claim" : "claims"}`;
   const evidenceReady = harnessReady && Boolean(latestRun?.draft);
   proposeMemoryButton.disabled = !evidenceReady;
   retrieveMemoryButton.disabled = !harnessReady;
   memoryEvidenceContext.textContent = evidenceReady
-    ? `Evidence: ${shortId(latestRun.draft.artifactId)} @ ${shortId(latestRun.draft.versionId)} + run ${shortId(latestRun.runId)}. Proposal only.`
-    : "Create an Idea Foundry brief to attach an exact artifact version and durable run.";
+    ? `Source: your latest working brief. This will remain a proposal until you approve it.`
+    : "Create a working brief first so this claim has a source.";
 
   if (!latestMemories.some((memory) => memory.memoryId === selectedMemoryId)) {
     selectedMemoryId = latestMemories.find((memory) => memory.state !== "forgotten")?.memoryId ?? latestMemories[0]?.memoryId;
@@ -321,7 +387,7 @@ function renderMemory(snapshot) {
   if (!latestMemories.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
-    empty.textContent = "No governed claims yet.";
+    empty.textContent = "No saved knowledge yet. Create a brief, then propose the first useful claim.";
     memoryList.replaceChildren(empty);
   } else {
     memoryList.replaceChildren(...latestMemories.map(memoryCard));
@@ -342,7 +408,7 @@ function memoryCard(memory) {
   state.className = `state ${memoryStateClass(memory.state)}`;
   state.textContent = humanize(memory.state);
   const detail = document.createElement("small");
-  detail.textContent = `${humanize(memory.layer)} · ${Math.round(memory.confidence * 100)}% · ${humanize(memory.retrievalPolicy)}`;
+  detail.textContent = `${memoryKindLabels[memory.layer] ?? humanize(memory.layer)} · ${Math.round(memory.confidence * 100)}% confidence · ${memoryPolicyLabels[memory.retrievalPolicy] ?? humanize(memory.retrievalPolicy)}`;
   button.append(statement, state, detail);
   button.addEventListener("click", () => {
     selectedMemoryId = memory.memoryId;
@@ -365,11 +431,11 @@ function renderMemoryInspector() {
     memoryCorrectionForm.hidden = true;
     return;
   }
-  memoryInspectorHeading.textContent = `${humanize(memory.layer)} claim`;
+  memoryInspectorHeading.textContent = `${memoryKindLabels[memory.layer] ?? humanize(memory.layer)} claim`;
   memoryInspectorStatement.textContent = memory.statement;
   memoryInspectorState.textContent = `${humanize(memory.state)}${memory.retrievalEligible ? " · retrievable" : " · excluded"}`;
   memoryInspectorScope.textContent = Object.values(memory.scope).map(shortId).join(" / ");
-  memoryInspectorPolicy.textContent = `${humanize(memory.retrievalPolicy)} · ${humanize(memory.sensitivity)}`;
+  memoryInspectorPolicy.textContent = `${memoryPolicyLabels[memory.retrievalPolicy] ?? humanize(memory.retrievalPolicy)} · ${humanize(memory.sensitivity)}`;
   memoryInspectorEvidence.textContent = memory.evidence.length
     ? memory.evidence.map((reference) => `${reference.type}:${shortId(reference.refId)}${reference.versionId ? `@${shortId(reference.versionId)}` : ""}`).join(", ")
     : memory.searchDerivativesDeleted ? "Redacted from active projection" : "No evidence";
@@ -395,13 +461,15 @@ function renderToolPackages(snapshot) {
   if (!candidate) {
     openCutConnectionState.textContent = "Unavailable";
     openCutConnectionState.className = "state failed";
-    openCutConnectionDetail.textContent = "No workspace-scoped Tool Package projection";
-    toolPackReason.textContent = "No Tool Package candidate is registered in this workspace.";
+    openCutConnectionDetail.textContent = "No OpenCut candidate is available for review";
+    toolPackReason.textContent = "No OpenCut package is registered in this workspace.";
     return;
   }
-  openCutConnectionState.textContent = candidate.state === "blocked_upstream" ? "Upstream blocked" : humanize(candidate.state);
+  openCutConnectionState.textContent = candidate.state === "blocked_upstream" ? "Not available" : humanize(candidate.state);
   openCutConnectionState.className = `state ${candidate.activationEligible ? "complete" : "quarantine"}`;
-  openCutConnectionDetail.textContent = `${candidate.sourceRevision.slice(0, 10)} · ${candidate.stableInterfaceCount} stable interfaces · ${candidate.componentCounts.capabilities} capabilities`;
+  openCutConnectionDetail.textContent = candidate.activationEligible
+    ? "Every required review passes · still needs your activation"
+    : `Review found ${candidate.componentCounts.capabilities} usable capabilities · nothing can run`;
   toolPackName.textContent = `${candidate.name} ${candidate.revision}`;
   toolPackReason.textContent = candidate.statusReason;
   toolPackSource.textContent = `${candidate.sourceRevision.slice(0, 10)} · ${shortHash(candidate.sourceHash)}`;
@@ -438,14 +506,16 @@ function renderSkills(snapshot) {
   if (!candidate) {
     skillConnectionState.textContent = "Unavailable";
     skillConnectionState.className = "state failed";
-    skillConnectionDetail.textContent = "No workspace-scoped Skill projection";
-    skillReason.textContent = "No governed Skill revision is installed in this workspace.";
+    skillConnectionDetail.textContent = "No review procedure is available";
+    skillReason.textContent = "No procedure version is installed in this workspace.";
     resolveSkillButton.disabled = true;
     return;
   }
-  skillConnectionState.textContent = candidate.state === "active" ? "Revision trusted" : humanize(candidate.state);
+  skillConnectionState.textContent = candidate.state === "active" ? "Trusted" : "Waiting for trust";
   skillConnectionState.className = `state ${candidate.state === "active" ? "complete" : candidate.activationEligible ? "tested" : "quarantine"}`;
-  skillConnectionDetail.textContent = `${candidate.executionClass} · ${candidate.testStatus.replaceAll("_", " ")} · ${candidate.trustedPermissionScopes.length} trusted scopes`;
+  skillConnectionDetail.textContent = candidate.state === "active"
+    ? "This exact procedure is trusted · each future use still needs permission"
+    : "Checks passed · review this exact procedure before it can be trusted";
   skillEyebrow.textContent = candidate.state === "active" ? `Trusted Class ${candidate.executionClass} revision` : `Bundled Class ${candidate.executionClass} candidate`;
   skillName.textContent = `${candidate.name} ${candidate.revision}`;
   skillReason.textContent = candidate.state === "active"
@@ -477,7 +547,7 @@ function renderSkills(snapshot) {
   const canRollback = candidate.state === "active" && Boolean(candidate.rollbackRevision);
   resolveSkillButton.disabled = !canPromote && !canRollback;
   resolveSkillButton.dataset.action = canRollback ? "rollback" : "promote";
-  resolveSkillButton.textContent = canRollback ? `Roll back to ${candidate.rollbackRevision}` : canPromote ? "Promote exact revision" : candidate.state === "active" ? "Revision active" : "Trust blocked";
+  resolveSkillButton.textContent = canRollback ? `Restore ${candidate.rollbackRevision}` : canPromote ? "Trust this version" : candidate.state === "active" ? "Version trusted" : "Trust blocked";
 }
 
 function setCanvasNode(name, title, detail) {
@@ -522,7 +592,7 @@ async function refreshHarness() {
 ideaForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   runButton.disabled = true;
-  runButton.textContent = latestRun ? "Creating revision…" : "Structuring…";
+  runButton.textContent = latestRun ? "Creating the new version…" : "Shaping locally…";
   try {
     const result = latestRun
       ? await window.clarkDesktop.reviseIdea({ parentRunId: latestRun.runId, ideaText: ideaInput.value, revisionReason: revisionReason.value })
@@ -530,8 +600,8 @@ ideaForm.addEventListener("submit", async (event) => {
     renderRun(result.run);
     if (latestRun?.revisionNumber > 1) revisionReason.value = "";
     announcer.textContent = latestRun?.revisionNumber > 1
-      ? `Idea revision ${latestRun.revisionNumber} created. Its structure and evidence gaps are visible in Canvas.`
-      : "Idea brief created locally and waiting for exact-version approval.";
+      ? `Idea version ${latestRun.revisionNumber} created. Its clarity and proof questions are visible in Shape.`
+      : "Working brief created locally and waiting for your review.";
   } catch (error) {
     announcer.textContent = `Idea loop interrupted: ${error.message}`;
   } finally {
@@ -551,7 +621,7 @@ async function resolveBrief(decision) {
       reason: decision === "approve" ? "Creator approved the exact local brief version." : "Creator requested a revised brief."
     });
     renderRun(run);
-    announcer.textContent = decision === "approve" ? "Exact brief version approved. No publication authority was granted." : "Brief rejected. The run requires revision.";
+    announcer.textContent = decision === "approve" ? "This exact brief version is approved. Nothing was published." : "The brief was sent back for revision.";
   } catch (error) {
     announcer.textContent = `Approval decision failed: ${error.message}`;
   } finally {
@@ -577,7 +647,7 @@ memoryProposalForm.addEventListener("submit", async (event) => {
       retrievalPolicy: memoryPolicy.value
     });
     selectedMemoryId = result.memory.memoryId;
-    announcer.textContent = "Memory proposed with exact evidence. It is excluded from retrieval until you promote it.";
+    announcer.textContent = "Knowledge proposed with its source. It will not be used until you approve it.";
     await refreshHarness();
   } catch (error) {
     announcer.textContent = `Memory proposal failed: ${error.message}`;
@@ -594,8 +664,8 @@ async function resolveSelectedMemory(action) {
     const result = await window.clarkDesktop.resolveMemory({ memoryId: memory.memoryId, action, reason: memoryDecisionReason.value });
     selectedMemoryId = result.memory.memoryId;
     announcer.textContent = action === "forget"
-      ? "Memory removed from retrieval and redacted in the active projection; its immutable audit event remains."
-      : `Memory ${action} decision recorded. State: ${result.memory.state}.`;
+      ? "Knowledge removed from future use and redacted from the active record."
+      : `Knowledge decision recorded. Status: ${result.memory.state}.`;
     await refreshHarness();
   } catch (error) {
     announcer.textContent = `Memory decision failed: ${error.message}`;
@@ -622,7 +692,7 @@ memoryCorrectionForm.addEventListener("submit", async (event) => {
       reason: memoryCorrectionReason.value
     });
     selectedMemoryId = result.memory.memoryId;
-    announcer.textContent = "Correction recorded: the old claim is disputed and a linked replacement proposal is waiting for review.";
+    announcer.textContent = "Correction saved. The old claim is marked incorrect and the replacement is waiting for review.";
     await refreshHarness();
   } catch (error) {
     announcer.textContent = `Memory correction failed: ${error.message}`;
@@ -642,11 +712,11 @@ memoryRetrievalForm.addEventListener("submit", async (event) => {
       includeExplicitOnly: memoryIncludeExplicit.checked
     });
     const summary = document.createElement("p");
-    summary.textContent = `${result.memories.length} active ${result.memories.length === 1 ? "claim" : "claims"} · ${humanize(result.destination)} · audit ${shortHash(result.queryHash)}`;
+    summary.textContent = `${result.memories.length} approved ${result.memories.length === 1 ? "claim" : "claims"} · ${memoryDestinationLabels[result.destination] ?? humanize(result.destination)} · audit ${shortHash(result.queryHash)}`;
     const list = document.createElement("ul");
     list.append(...result.memories.map((memory) => listItem(memory.statement)));
     memoryRetrievalResult.replaceChildren(summary, list);
-    announcer.textContent = `${result.memories.length} policy-eligible memory claims retrieved. The raw query was not written to the event log.`;
+    announcer.textContent = `${result.memories.length} approved knowledge claims found. The search words were not written to the audit record.`;
   } catch (error) {
     announcer.textContent = `Memory retrieval failed: ${error.message}`;
   } finally {
