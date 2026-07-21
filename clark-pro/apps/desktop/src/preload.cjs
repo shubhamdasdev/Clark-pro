@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-const allowedSections = new Set(["focus", "canvas", "review", "memory", "connections"]);
+const allowedSections = new Set(["focus", "canvas", "review", "writing", "memory", "connections"]);
 const memoryLayers = new Set(["identity", "semantic", "episodic", "procedural", "performance"]);
 const memorySensitivities = new Set(["public", "workspace", "personal", "confidential", "secret_reference"]);
 const memoryPolicies = new Set(["default", "explicit_only", "never_send_to_model"]);
@@ -31,6 +31,20 @@ const api = Object.freeze({
     return () => ipcRenderer.removeListener("desktop:show-trust-center", handler);
   },
   getHarnessState: () => ipcRenderer.invoke("desktop:get-harness-state"),
+  getWritingState: () => ipcRenderer.invoke("desktop:get-writing-state"),
+  createWritingDraft: () => ipcRenderer.invoke("desktop:create-writing-draft"),
+  saveWritingDraft: (draft) => {
+    const safe = draft && typeof draft === "object" ? { draftId: draft.draftId, title: draft.title, body: draft.body } : undefined;
+    if (!safe || typeof safe.draftId !== "string" || typeof safe.title !== "string" || safe.title.length > 180 || typeof safe.body !== "string" || safe.body.length > 200000) {
+      return Promise.reject(new TypeError("A valid writing draft is required"));
+    }
+    return ipcRenderer.invoke("desktop:save-writing-draft", safe);
+  },
+  connectObsidian: () => ipcRenderer.invoke("desktop:connect-obsidian"),
+  exportWritingDraft: (draftId) => {
+    if (typeof draftId !== "string") return Promise.reject(new TypeError("A writing draft is required"));
+    return ipcRenderer.invoke("desktop:export-writing-draft", draftId);
+  },
   startIdeaLoop: (ideaText) => {
     if (typeof ideaText !== "string" || ideaText.trim().length < 20 || ideaText.length > 12000) {
       return Promise.reject(new TypeError("Idea text must be between 20 and 12,000 characters"));

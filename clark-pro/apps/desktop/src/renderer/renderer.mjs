@@ -1,10 +1,11 @@
 import { changedLineIndexes } from "./comparison.mjs";
 
-const sections = ["focus", "canvas", "review", "memory", "connections"];
+const sections = ["focus", "canvas", "review", "writing", "memory", "connections"];
 const sectionLabels = {
   focus: "Today",
   canvas: "Shape",
   review: "Review",
+  writing: "Write",
   memory: "Knowledge",
   connections: "Integrations"
 };
@@ -30,6 +31,7 @@ async function activateSection(section, { focus = false, persist = true } = {}) 
   document.title = `${sectionLabels[section]} — Clark Pro`;
   if (changed) document.querySelector("#workspace").scrollTop = 0;
   if (persist) await window.clarkDesktop.setActiveSection(section);
+  if (section === "writing") void refreshWriting();
 }
 
 for (const [section, tab] of tabs) {
@@ -46,7 +48,7 @@ for (const [section, tab] of tabs) {
 
 document.addEventListener("keydown", (event) => {
   if (!event.metaKey || event.altKey || event.ctrlKey) return;
-  const shortcuts = { "1": "focus", "2": "canvas", "3": "review", "6": "memory", "7": "connections" };
+  const shortcuts = { "1": "focus", "2": "canvas", "3": "review", "4": "writing", "6": "memory", "7": "connections" };
   if (shortcuts[event.key]) {
     event.preventDefault();
     void activateSection(shortcuts[event.key], { focus: true });
@@ -203,6 +205,19 @@ const reviewDecisionReason = document.querySelector("#review-decision-reason");
 const reviewDecisionError = document.querySelector("#review-decision-error");
 const cancelReviewDecision = document.querySelector("#cancel-review-decision");
 const submitReviewDecision = document.querySelector("#submit-review-decision");
+const obsidianStatus = document.querySelector("#obsidian-status");
+const connectObsidianButton = document.querySelector("#connect-obsidian");
+const newWritingDraftButton = document.querySelector("#new-writing-draft");
+const writingDraftList = document.querySelector("#writing-draft-list");
+const writingEmpty = document.querySelector("#writing-empty");
+const writingEmptyCreate = document.querySelector("#writing-empty-create");
+const writingEditor = document.querySelector("#writing-editor");
+const writingSavingState = document.querySelector("#writing-saving-state");
+const writingWordCount = document.querySelector("#writing-word-count");
+const writingTitle = document.querySelector("#writing-title");
+const writingBody = document.querySelector("#writing-body");
+const writingExportNote = document.querySelector("#writing-export-note");
+const exportObsidianButton = document.querySelector("#export-obsidian");
 const memoryMode = document.querySelector("#memory-mode");
 const memoryProposedCount = document.querySelector("#memory-proposed-count");
 const memoryActiveCount = document.querySelector("#memory-active-count");
@@ -1103,8 +1118,176 @@ resolveSkillButton.addEventListener("click", async () => {
   }
 });
 
+let writingDrafts = [];
+let selectedWritingDraftId;
+let writingConnection = { connected: false };
+let writingSaveTimer;
+let writingSavePromise;
+
+function wordCount(value) {
+  const words = value.trim().match(/\S+/g);
+  return words?.length ?? 0;
+}
+
+function selectedWritingDraft() {
+  return writingDrafts.find((draft) => draft.id === selectedWritingDraftId);
+}
+
+function renderWriting(state, { preserveEditor = false } = {}) {
+  writingDrafts = state.drafts ?? [];
+  writingConnection = state.obsidian ?? { connected: false };
+  if (!writingDrafts.some((draft) => draft.id === selectedWritingDraftId)) selectedWritingDraftId = writingDrafts[0]?.id;
+  const draft = selectedWritingDraft();
+  obsidianStatus.textContent = writingConnection.connected ? `Obsidian · ${writingConnection.vaultName}` : "Obsidian not connected";
+  connectObsidianButton.textContent = writingConnection.connected ? "Change Obsidian vault" : "Connect Obsidian vault";
+  exportObsidianButton.disabled = !draft || !writingConnection.connected;
+  writingEmpty.hidden = Boolean(draft);
+  writingEditor.hidden = !draft;
+  writingDraftList.replaceChildren();
+  if (!writingDrafts.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "Create a draft to begin.";
+    writingDraftList.append(empty);
+  } else {
+    writingDraftList.append(...writingDrafts.map((candidate) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "writing-draft-item";
+      button.dataset.draftId = candidate.id;
+      button.setAttribute("role", "listitem");
+      button.setAttribute("aria-current", String(candidate.id === selectedWritingDraftId));
+      const title = document.createElement("strong");
+      title.textContent = candidate.title || "Untitled draft";
+      const detail = document.createElement("span");
+      detail.textContent = candidate.obsidianExport ? "Exported to Obsidian" : "Local draft";
+      button.append(title, detail);
+      return button;
+    }));
+  }
+  if (!draft || preserveEditor) return;
+  writingTitle.value = draft.title;
+  writingBody.value = draft.body;
+  writingWordCount.textContent = `${wordCount(draft.body)} ${wordCount(draft.body) === 1 ? "word" : "words"}`;
+  writingSavingState.textContent = "Saved locally";
+  writingExportNote.textContent = writingConnection.connected
+    ? draft.obsidianExport
+      ? `Last exported ${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(draft.obsidianExport.exportedAt))}. Export again to update the Clark-owned Markdown copy.`
+      : `Ready to export a Clark-owned Markdown copy to ${writingConnection.vaultName}.`
+    : "Connect an Obsidian vault when you want a Markdown copy there.";
+}
+
+async function refreshWriting() {
+  try {
+    renderWriting(await window.clarkDesktop.getWritingState());
+  } catch (error) {
+    announcer.textContent = `Writing workspace unavailable: ${error.message}`;
+  }
+}
+
+async function createWritingDraft() {
+  newWritingDraftButton.disabled = true;
+  writingEmptyCreate.disabled = true;
+  try {
+    if (selectedWritingDraft()) await saveWritingDraft();
+    const draft = await window.clarkDesktop.createWritingDraft();
+    writingDrafts = [draft, ...writingDrafts];
+    selectedWritingDraftId = draft.id;
+    renderWriting({ drafts: writingDrafts, obsidian: writingConnection });
+    writingTitle.focus();
+    announcer.textContent = "New local draft created.";
+  } catch (error) {
+    announcer.textContent = `Could not create draft: ${error.message}`;
+  } finally {
+    newWritingDraftButton.disabled = false;
+    writingEmptyCreate.disabled = false;
+  }
+}
+
+async function saveWritingDraft() {
+  clearTimeout(writingSaveTimer);
+  const draft = selectedWritingDraft();
+  if (!draft) return undefined;
+  writingSavingState.textContent = "Saving locally…";
+  const request = window.clarkDesktop.saveWritingDraft({
+    draftId: draft.id,
+    title: writingTitle.value,
+    body: writingBody.value
+  });
+  writingSavePromise = request;
+  try {
+    const saved = await request;
+    writingDrafts = writingDrafts.map((candidate) => candidate.id === saved.id ? saved : candidate);
+    if (writingSavePromise === request) writingSavingState.textContent = "Saved locally";
+    return saved;
+  } catch (error) {
+    if (writingSavePromise === request) writingSavingState.textContent = "Not saved";
+    announcer.textContent = `Draft was not saved: ${error.message}`;
+    throw error;
+  } finally {
+    if (writingSavePromise === request) writingSavePromise = undefined;
+  }
+}
+
+function scheduleWritingSave() {
+  const count = wordCount(writingBody.value);
+  writingWordCount.textContent = `${count} ${count === 1 ? "word" : "words"}`;
+  writingSavingState.textContent = "Unsaved changes";
+  clearTimeout(writingSaveTimer);
+  writingSaveTimer = setTimeout(() => void saveWritingDraft(), 550);
+}
+
+writingTitle.addEventListener("input", scheduleWritingSave);
+writingBody.addEventListener("input", scheduleWritingSave);
+writingDraftList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-draft-id]");
+  if (!button || button.dataset.draftId === selectedWritingDraftId) return;
+  try {
+    await saveWritingDraft();
+    selectedWritingDraftId = button.dataset.draftId;
+    renderWriting({ drafts: writingDrafts, obsidian: writingConnection });
+    writingTitle.focus();
+  } catch {
+    // The visible save error already explains why selection did not change.
+  }
+});
+newWritingDraftButton.addEventListener("click", () => void createWritingDraft());
+writingEmptyCreate.addEventListener("click", () => void createWritingDraft());
+connectObsidianButton.addEventListener("click", async () => {
+  connectObsidianButton.disabled = true;
+  try {
+    const result = await window.clarkDesktop.connectObsidian();
+    if (!result.cancelled) {
+      await refreshWriting();
+      announcer.textContent = `Obsidian vault ${result.vaultName} connected. Clark can only write its own Markdown copies there.`;
+    }
+  } catch (error) {
+    announcer.textContent = `Obsidian was not connected: ${error.message}`;
+  } finally {
+    connectObsidianButton.disabled = false;
+  }
+});
+exportObsidianButton.addEventListener("click", async () => {
+  const draft = selectedWritingDraft();
+  if (!draft) return;
+  exportObsidianButton.disabled = true;
+  try {
+    await saveWritingDraft();
+    const exported = await window.clarkDesktop.exportWritingDraft(draft.id);
+    writingDrafts = writingDrafts.map((candidate) => candidate.id === exported.draft.id ? exported.draft : candidate);
+    writingConnection = exported.obsidian;
+    renderWriting({ drafts: writingDrafts, obsidian: writingConnection });
+    announcer.textContent = "Markdown copy exported to your connected Obsidian vault.";
+  } catch (error) {
+    announcer.textContent = `Obsidian export did not run: ${error.message}`;
+  } finally {
+    exportObsidianButton.disabled = !selectedWritingDraft() || !writingConnection.connected;
+  }
+});
+
 window.clarkDesktop.onHarnessEvent(() => void refreshHarness());
 
 const initialState = await window.clarkDesktop.getShellState();
 await activateSection(initialState.activeSection, { persist: false });
+await refreshWriting();
 await refreshHarness();
