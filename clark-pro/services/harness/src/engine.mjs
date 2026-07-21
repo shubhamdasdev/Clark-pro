@@ -365,10 +365,15 @@ export class HarnessEngine extends EventEmitter {
 
   resolveApproval(payload, context = {}) {
     const { runId, workspaceId, approvalId, decision, reason, idempotencyKey } = payload;
+    if (!["approve", "reject"].includes(decision)) throw new HarnessError("invalid_request", "Approval decision must be approve or reject");
+    const decisionReason = typeof reason === "string" ? reason.trim() : "";
+    if (decisionReason.length < 3 || decisionReason.length > 1_000) {
+      throw new HarnessError("invalid_request", "An approval decision reason between 3 and 1,000 characters is required");
+    }
     const row = this.store.getRunRow(runId);
     if (!row || row.workspace_id !== workspaceId) throw new HarnessError("not_found", "Run does not exist in this workspace");
     if (row.approval_id !== approvalId) throw new HarnessError("conflict", "Approval does not match the active exact-version gate");
-    const requestHash = sha256({ method: "approval.resolve", runId, approvalId, decision, reason: reason ?? "" });
+    const requestHash = sha256({ method: "approval.resolve", runId, approvalId, decision, reason: decisionReason });
     const existing = this.store.getCommand(idempotencyKey);
     if (existing) {
       this.assertIdempotentMatch(existing, "approval.resolve", requestHash);
@@ -389,7 +394,7 @@ export class HarnessEngine extends EventEmitter {
           payload: {
             approvalId, subjectRef: ids.draftArtifactId,
             artifact: { artifactId: ids.draftArtifactId, versionId: ids.draftVersionId },
-            actionClass: "artifact_approve", status: "granted", policyRevisionId: "policy.creator-default", reason: reason ?? "Creator approved the exact brief version."
+            actionClass: "artifact_approve", status: "granted", policyRevisionId: "policy.creator-default", reason: decisionReason
           }
         });
       }
@@ -401,7 +406,7 @@ export class HarnessEngine extends EventEmitter {
           decisionId: ids.decisionId, decisionType: "artifact_approve", subjectRef: ids.draftArtifactId,
           selectedOption: decision, alternatives: decision === "approve" ? ["reject"] : ["approve"],
           evidenceRefs: [{ type: "artifact", refId: ids.draftArtifactId, versionId: ids.draftVersionId }],
-          reason: reason ?? (decision === "approve" ? "Approved exact brief version." : "Rejected exact brief version."), reversible: true
+          reason: decisionReason, reversible: true
         }
       });
       if (decision === "approve") {
@@ -687,6 +692,7 @@ export class HarnessEngine extends EventEmitter {
   }
 
   runSummary(row) {
+    const approvalDecision = row.draft_artifact_id ? this.store.latestArtifactDecision(row.run_id, row.draft_artifact_id) : undefined;
     const summary = {
       runId: row.run_id,
       workspaceId: row.workspace_id,
@@ -703,7 +709,9 @@ export class HarnessEngine extends EventEmitter {
       ...(row.analysis_artifact_id ? { analysis: this.assetSummary(row.analysis_artifact_id, row.analysis_version_id) } : {}),
       ...(row.approval_id && row.draft_artifact_id ? { approval: {
         approvalId: row.approval_id, subjectRef: row.draft_artifact_id, state: row.approval_state,
-        reason: row.approval_state === "invalidated" ? "A newer immutable idea revision invalidated this exact-version gate." : "Approve or reject this exact content-addressed brief version."
+        reason: row.approval_state === "invalidated"
+          ? "A newer immutable idea revision invalidated this exact-version gate."
+          : approvalDecision?.payload.reason ?? "Approve or reject this exact content-addressed brief version."
       } } : {}),
       eventCount: this.store.countEventsForRun(row.run_id),
       recoveredFromCheckpoint: Boolean(row.recovered_from_checkpoint),

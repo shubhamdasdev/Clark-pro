@@ -7,6 +7,7 @@
 **Status:** Done
 **Priority:** P0
 **Version:** 1.0
+**Analytics:** AE-007
 **Created:** 2026-07-13
 **Updated:** 2026-07-13
 **Sources:** [Authoritative epics](../../research/history/import-2026-07-13/product/03-epics-and-stories.md), [Whole-product roadmap](../../research/history/import-2026-07-13/roadmap.md), [Harness evidence](../../research/history/import-2026-07-13/evidence/harness-latest-report.json)

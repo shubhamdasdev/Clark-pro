@@ -10,6 +10,19 @@
 
 ---
 
+## Architecture Gate
+
+**Gate:** Closed
+
+| AT | Title | Stage | Status | Phase |
+|----|-------|-------|--------|-------|
+| AT-002-001 | Release Security, Keychain, and Update Pipeline | Ready | Backlog | P-002-02 |
+| AT-002-002 | Portable Encrypted Backup and Migration Substrate | Ready | Backlog | P-002-02 |
+| AT-002-003 | Isolated Media, Tool Pack, and Skill Execution Substrate | Ready | Backlog | P-002-03 |
+| AT-002-004 | Privacy-Safe Observability and Diagnostics | Ready | Backlog | P-002-02 |
+
+Coding may begin only after each task is Done and the architect opens this gate.
+
 ## Goal
 
 Complete the remaining local single-user creator system and trust boundaries needed before real multi-channel distribution begins.
@@ -35,6 +48,10 @@ Complete the remaining local single-user creator system and trust boundaries nee
 | S-007-003 | Run-Scoped Skill Invocation and Receipts | E-007 | Ready | Backlog |
 | S-007-004 | Community Skills and Class B/C Sandbox | E-007 | Ready | Backlog |
 | S-007-005 | Reflection-Driven Skill Proposals and Regression | E-007 | Ready | Backlog |
+| AT-002-001 | Release Security, Keychain, and Update Pipeline | Architecture | Ready | Backlog |
+| AT-002-002 | Portable Encrypted Backup and Migration Substrate | Architecture | Ready | Backlog |
+| AT-002-003 | Isolated Media, Tool Pack, and Skill Execution Substrate | Architecture | Ready | Backlog |
+| AT-002-004 | Privacy-Safe Observability and Diagnostics | Architecture | Ready | Backlog |
 
 ## Phases
 
@@ -43,6 +60,17 @@ Complete the remaining local single-user creator system and trust boundaries nee
 | P-002-01 | Ground Signoff |  |  | Ground closed | Representative human, commercial, security, and ownership evidence |
 | P-002-02 | Native Runtime Completion |  |  | Release-trusted Mac build | Portability, Keychain, signing, updater, accessibility, and performance |
 | P-002-03 | Creation and Ecosystem Completion |  |  | Complete single-user creator loop | Research, media, review, durable Bridge, memory, Tool Packs, and Skill execution |
+
+## Evidence Alignment
+
+| Layer | Required artifacts / evidence |
+|-------|-------------------------------|
+| Flows | UF-001 through UF-008 and UF-011 through UF-014; TF-006 protects the primary creation spine |
+| Design | design.md, design-tokens.md, sitemap, and all linked DS screens/states/copy |
+| Architecture | ARCH-001 through ARCH-003 and AT-002-001 through AT-002-004 |
+| Metrics | AE-001 through AE-007; local-first analytics dashboard; no export before opt-in |
+| QA | 17 story plans, TR-002, HP-001 through HP-009, conformance/chaos/migration/accessibility/human evidence |
+| Exit | Ground signoff, production-trusted Mac build, portable restore, complete single-user loop, one real supported Tool Pack, run-scoped Skill receipts |
 
 ## Out of Scope
 
@@ -101,3 +129,4 @@ Complete the remaining local single-user creator system and trust boundaries nee
 | Date | Version | Author | Change |
 |------|---------|--------|--------|
 | 2026-07-13 11:28 | 1.0 | PM Agent | Created from the evidence-reconciled Clark Pro whole-product board import. |
+| 2026-07-13 11:50 | — | PM Agent | Added architecture and evidence alignment gates for flows, design, metrics, observability, and QA. |

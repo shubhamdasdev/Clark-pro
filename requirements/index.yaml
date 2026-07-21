@@ -2,7 +2,7 @@
 # Do not edit manually — regenerate with: pm index clark-pro
 
 project: clark-pro
-updated: "2026-07-13 16:33"
+updated: "2026-07-13 17:03"
 
 brief:
   problem: Professional operator-creators building across multiple channels lose intent, evidence, approvals, identity, and lessons as work moves between AI chats, research tools, editors, schedulers, and analytics dashboards. Clark Pro is a Mac-first creator operating system that keeps the workflow and the creator model in one inspectable, portable workspace, so automation can add leverage without taking hidden authority or erasing judgment.
@@ -12,66 +12,66 @@ brief:
   areas: [Contracts & Product Proof, Native Studio & Harness, Idea Foundry & Creation, MCP & Clark Bridge, Creator Memory, Tool Packs, Agent Skills, Distribution & Observation, Team & Release]
 
 coverage:
-  arch: false
-  design: false
-  analytics: false
+  arch: true
+  design: true
+  analytics: true
   locales: true
-  design_tokens: false
+  design_tokens: true
 
 epics:
   E-001:
     name: Contracts and Product Proof
     stage: Ready
     outcome: The Clark team and representative creators can inspect one authoritative product model, verify its executable contracts, and distinguish automated proof from the human and commercial evidence still required to proceed.
-    analytics: null
+    analytics: AE-001
     stories: [S-001-001, S-001-002, S-001-003, S-001-004]
   E-002:
     name: Native Studio and Durable Harness
     stage: Ready
     outcome: Creators can operate a local Mac studio whose canonical state, approvals, and active work survive renderer reloads and Harness restarts without granting the renderer ambient authority.
-    analytics: null
+    analytics: AE-002
     stories: [S-002-001, S-002-002, S-002-003, S-002-004, S-002-005]
   E-003:
     name: Idea Foundry and Creation Studio
     stage: Ready
     outcome: Creators can move from rough intent to evidence-linked, versioned, reviewable content while retaining alternatives, upstream lineage, and exact-version approval.
-    analytics: null
+    analytics: AE-003
     stories: [S-003-001, S-003-002, S-003-003, S-003-004, S-003-005]
   E-004:
     name: MCP and Clark Bridge
     stage: Ready
     outcome: Connected tools and external agents can use Clark through scoped, inspectable contracts while producing the same canonical state and policy decisions as Studio.
-    analytics: null
+    analytics: AE-004
     stories: [S-004-001, S-004-002, S-004-003, S-004-004]
   E-005:
     name: Governed Creator Memory
     stage: Ready
     outcome: Creators can inspect, promote, retrieve, correct, dispute, expire, export, and forget scoped beliefs without silent learning or cross-workspace leakage.
-    analytics: null
+    analytics: AE-005
     stories: [S-005-001, S-005-002, S-005-003, S-005-004]
   E-006:
     name: Reuse-First Tool Packs
     stage: Ready
     outcome: Creators can reuse mature external engines only through immutable, licensed, tested, permission-bounded, reversible Tool Packs while Clark retains canonical workflow and provenance truth.
-    analytics: null
+    analytics: AE-006
     stories: [S-006-001, S-006-002, S-006-003, S-006-004, S-006-005]
   E-007:
     name: Governed Agent Skills
     stage: Ready
     outcome: Creators can trust, invoke, revise, and roll back reusable procedures through explicit capability ceilings and evidence without allowing a Skill package to self-promote or expand authority.
-    analytics: null
+    analytics: AE-007
     stories: [S-007-001, S-007-002, S-007-003, S-007-004, S-007-005]
   E-008:
     name: Distribution and Observation
     stage: Ready
     outcome: Creators can publish approved artifacts across real channels, reconcile every external mutation, collect lineage-linked outcomes, and review evidence without unsupported causal claims.
-    analytics: null
+    analytics: AE-008
     stories: [S-008-001, S-008-002, S-008-003, S-008-004, S-008-005]
   E-009:
     name: Team and Whole-Product Release
     stage: Ready
     outcome: Creators and teams can coordinate, sync, and delegate bounded work while retaining local canonical ownership, tenant isolation, and a complete usable export during hosted outages.
-    analytics: null
+    analytics: AE-009
     stories: [S-009-001, S-009-002, S-009-003, S-009-004, S-009-005]
 
 stories:
@@ -82,11 +82,11 @@ stories:
     status: Done
     story: As a **workspace_admin**, I want to **verify every canonical event and payload against generated, versioned contracts**, so that **implementation drift and unsafe historical data fail closed before they corrupt a workspace**.
     priority: P0
-    test_plan: null
+    test_plan: T-001-001
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-001
   S-001-002:
     title: Ground Prototype and Evidence Ledger
     epic: E-001
@@ -94,11 +94,11 @@ stories:
     status: QA
     story: As a **creator**, I want to **walk through the real Clark surfaces with visible provenance, authority, and evidence state**, so that **product decisions are evaluated against an honest fixture instead of a feature checklist**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-001-002
+    analytics: AE-001
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-001
   S-001-003:
     title: Representative Creator Validation
     epic: E-001
@@ -106,11 +106,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **complete observed Clark workflows with the representative Full-Week fixture**, so that **the team can prove Focus, Canvas, memory, provenance, and authority are understandable before expanding automation**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-001-003
+    analytics: AE-001
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-001-004:
     title: Commercial and Leadership Signoff
     epic: E-001
@@ -118,11 +118,11 @@ stories:
     status: Backlog
     story: As a **workspace_admin**, I want to **record accountable owners, capacity, security approval, and a binding replacement signal**, so that **Ground closes only when the project has real organizational and commercial commitment**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-001-004
+    analytics: AE-001
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-002-001:
     title: Hardened Mac Shell Boundary
     epic: E-002
@@ -130,11 +130,11 @@ stories:
     status: Done
     story: As a **creator**, I want to **navigate Clark with native Mac controls while the renderer remains isolated**, so that **the desktop experience feels native without exposing shell, filesystem, secrets, or raw IPC**.
     priority: P0
-    test_plan: null
+    test_plan: T-002-001
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-001
   S-002-002:
     title: Durable Event Store and Run Recovery
     epic: E-002
@@ -142,11 +142,11 @@ stories:
     status: Done
     story: As a **creator**, I want to **resume an interrupted idea run from canonical local events**, so that **work, approvals, and exact artifact identity survive process death without duplicate mutation**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-002-002
+    analytics: AE-002
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-015
   S-002-003:
     title: Workspace Portability and Backup Recovery
     epic: E-002
@@ -154,11 +154,11 @@ stories:
     status: Backlog
     story: As a **workspace_admin**, I want to **export, restore, and migrate a workspace with its assets and history intact**, so that **local ownership remains useful even after corruption, device change, or hosted-service loss**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-002-003
+    analytics: AE-002
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-001
   S-002-004:
     title: Keychain, Signing, and Safe Updates
     epic: E-002
@@ -166,11 +166,11 @@ stories:
     status: Backlog
     story: As a **workspace_admin**, I want to **install and update a trusted Clark build whose credentials stay behind scoped Keychain leases**, so that **the product can leave local development without weakening its security model**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-002-004
+    analytics: AE-002
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-001
   S-002-005:
     title: Accessibility and Performance Release Evidence
     epic: E-002
@@ -178,11 +178,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **operate the representative workspace with keyboard and VoiceOver at production scale**, so that **native trust and control are available to creators without hidden interaction or performance failures**.
     priority: P1
-    test_plan: null
+    test_plan: T-002-005
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-003-001:
     title: Immutable Idea Capture and Revision Lineage
     epic: E-003
@@ -190,11 +190,11 @@ stories:
     status: Done
     story: As a **creator**, I want to **capture an idea and create explicit revisions with root and parent lineage**, so that **upstream decisions can change without rewriting history or preserving stale approval**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-003-001
+    analytics: AE-003
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-001
   S-003-002:
     title: Evidence-Honest Idea Inspection and Canvas
     epic: E-003
@@ -202,11 +202,11 @@ stories:
     status: Done
     story: As a **creator**, I want to **inspect thesis structure, open evidence gates, lineage, and the next creator decision in one Canvas**, so that **structural completeness is never confused with market validation or research proof**.
     priority: P0
-    test_plan: null
+    test_plan: T-003-002
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-007
   S-003-003:
     title: Source Ingestion and Claim Ledger
     epic: E-003
@@ -214,11 +214,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **bring text, URLs, documents, screenshots, audio, video, and files into a traceable claim workflow**, so that **final assertions retain original evidence and visible uncertainty**.
     priority: P0
-    test_plan: null
+    test_plan: T-003-003
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-005
   S-003-004:
     title: Writing, Media, and Platform Variants
     epic: E-003
@@ -226,11 +226,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **produce scripts, long-form work, images, audio, video, reels, carousels, captions, and thumbnails from shared lineage**, so that **one intent can become a coordinated body of platform-ready work without flattening artifacts into text blobs**.
     priority: P1
-    test_plan: null
-    analytics: null
+    test_plan: T-003-004
+    analytics: AE-003
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-003-005:
     title: Version-Specific Review and Policy Gates
     epic: E-003
@@ -238,11 +238,11 @@ stories:
     status: Backlog
     story: As a **reviewer**, I want to **compare versions and approve only the exact artifact that passed evidence, brand, budget, accessibility, disclosure, and confidentiality checks**, so that **no stale or invalid output can publish under a prior approval**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-003-005
+    analytics: AE-003
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-004-001:
     title: Governed Bundled MCP Capability
     epic: E-004
@@ -250,11 +250,11 @@ stories:
     status: Done
     story: As a **workspace_admin**, I want to **register and invoke a pinned MCP capability through exact schemas and short-lived permission leases**, so that **external tool results enter canonical state without inheriting ambient process authority**.
     priority: P0
-    test_plan: null
+    test_plan: T-004-001
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-002
   S-004-002:
     title: Scoped Clark Bridge Core
     epic: E-004
@@ -262,11 +262,11 @@ stories:
     status: Done
     story: As a **external_agent**, I want to **capture, revise, list, and read ideas through an authenticated workspace-scoped Bridge**, so that **external agents can collaborate without creating a second state model or gaining approval authority**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-004-002
+    analytics: AE-004
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-013
   S-004-003:
     title: Durable Bridge Tasks and Client Pairing
     epic: E-004
@@ -274,11 +274,11 @@ stories:
     status: Backlog
     story: As a **external_agent**, I want to **start long-running Clark work, reconnect, observe status, cancel when allowed, and resume creator review**, so that **client disconnects or Mac restarts do not lose work or create ambiguous duplicate mutations**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-004-003
+    analytics: AE-004
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-002
   S-004-004:
     title: External Client Examples and Compatibility
     epic: E-004
@@ -286,11 +286,11 @@ stories:
     status: Backlog
     story: As a **external_agent**, I want to **connect Claude, Codex, Hermes, and another MCP client using documented scope and recovery patterns**, so that **builders can integrate with Clark without reverse-engineering private implementation details**.
     priority: P1
-    test_plan: null
-    analytics: null
+    test_plan: T-004-004
+    analytics: AE-004
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-013
   S-005-001:
     title: Evidence-Bound Memory Promotion
     epic: E-005
@@ -298,11 +298,11 @@ stories:
     status: Done
     story: As a **creator**, I want to **review a memory proposal with exact evidence, scope, confidence, sensitivity, and retrieval policy**, so that **only deliberate creator decisions can make a belief active**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-005-001
+    analytics: AE-005
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-011
   S-005-002:
     title: Scoped Retrieval, Correction, and Forgetting
     epic: E-005
@@ -310,11 +310,11 @@ stories:
     status: Done
     story: As a **creator**, I want to **retrieve memory by task policy and replace, dispute, or forget an active claim**, so that **the creator can correct Clark without hidden residual retrieval behavior**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-005-002
+    analytics: AE-005
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-014
   S-005-003:
     title: Semantic Retrieval and Reflection Lineage
     epic: E-005
@@ -322,11 +322,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **receive small evidence-linked memory proposals from completed trajectories and see when active memory influenced later artifacts**, so that **personalization compounds without turning noisy outcomes into opaque permanent beliefs**.
     priority: P1
-    test_plan: null
-    analytics: null
+    test_plan: T-005-003
+    analytics: AE-005
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-005-004:
     title: Physical Erasure and Memory Validation Corpus
     epic: E-005
@@ -334,11 +334,11 @@ stories:
     status: Backlog
     story: As a **workspace_admin**, I want to **prove deletion, backup retention, and retrieval behavior against a representative privacy corpus**, so that **forgetting claims match the physical data lifecycle and regulatory expectations**.
     priority: P0
-    test_plan: null
+    test_plan: T-005-004
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-014
   S-006-001:
     title: Tool Pack Quarantine and Trust Gates
     epic: E-006
@@ -346,11 +346,11 @@ stories:
     status: Done
     story: As a **workspace_admin**, I want to **inspect a pinned Tool Pack revision, its interface, license, supply chain, permissions, converters, UI boundary, migration, and rollback evidence**, so that **untrusted packages cannot gain capability authority by appearing installed**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-006-001
+    analytics: AE-006
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-003
   S-006-002:
     title: Atomic Tool Pack Activation and Rollback
     epic: E-006
@@ -358,11 +358,11 @@ stories:
     status: Done
     story: As a **workspace_admin**, I want to **activate, update, suspend, and roll back an eligible Tool Pack revision atomically**, so that **a bad update cannot strand the workspace or silently retain superseded authority**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-006-002
+    analytics: AE-006
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-003
   S-006-003:
     title: OpenCut Candidate Blocked Upstream
     epic: E-006
@@ -370,11 +370,11 @@ stories:
     status: Done
     story: As a **workspace_admin**, I want to **evaluate OpenCut at an immutable revision against the reuse-first boundary ladder**, so that **Clark does not fork or embed a promising editor before a stable supported integration surface exists**.
     priority: P1
-    test_plan: null
+    test_plan: T-006-003
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-003
   S-006-004:
     title: Real Third-Party Acquisition and Execution
     epic: E-006
@@ -382,11 +382,11 @@ stories:
     status: Backlog
     story: As a **workspace_admin**, I want to **acquire, verify, unpack, build when permitted, activate, execute, update, and roll back one supported external Tool Pack**, so that **the reuse-first strategy is proven against a real maintained engine rather than a synthetic package**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-006-004
+    analytics: AE-006
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-003
   S-006-005:
     title: Clark Kit SDK and Community Compatibility
     epic: E-006
@@ -394,11 +394,11 @@ stories:
     status: Backlog
     story: As a **external_agent**, I want to **build and validate Tool Packs without changing Clark core**, so that **the ecosystem can add engines while respecting one canonical model and upgrade contract**.
     priority: P1
-    test_plan: null
+    test_plan: T-006-005
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-003
   S-007-001:
     title: Bundled Class A Skill Trust Lifecycle
     epic: E-007
@@ -406,11 +406,11 @@ stories:
     status: Done
     story: As a **workspace_admin**, I want to **inspect exact Skill bytes, requested tools, effective permissions, compatibility, and tests before promotion**, so that **a readable Skill package cannot execute merely because it was discovered or installed**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-007-001
+    analytics: AE-007
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-004
   S-007-002:
     title: Skill Update, Expansion Denial, and Rollback
     epic: E-007
@@ -418,11 +418,11 @@ stories:
     status: Done
     story: As a **workspace_admin**, I want to **review Skill revision diffs and retain a tested prior revision for rollback**, so that **updates cannot silently add tools or break the last trusted procedure**.
     priority: P0
-    test_plan: null
+    test_plan: T-007-002
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-004
   S-007-003:
     title: Run-Scoped Skill Invocation and Receipts
     epic: E-007
@@ -430,11 +430,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **invoke a trusted Skill only inside an approved run and capability intersection**, so that **promotion remains a trust decision rather than implicit authorization to act**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-007-003
+    analytics: AE-007
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-004
   S-007-004:
     title: Community Skills and Class B/C Sandbox
     epic: E-007
@@ -442,11 +442,11 @@ stories:
     status: Backlog
     story: As a **workspace_admin**, I want to **acquire signed community Skills and execute higher-risk classes in production isolation**, so that **extensible procedures cannot escape filesystem, network, process, or capability policy**.
     priority: P0
-    test_plan: null
+    test_plan: T-007-004
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-004
   S-007-005:
     title: Reflection-Driven Skill Proposals and Regression
     epic: E-007
@@ -454,11 +454,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **turn a successful or corrected trajectory into a reviewable Skill proposal with tests**, so that **reliable procedures compound without silent self-modification**.
     priority: P1
-    test_plan: null
-    analytics: null
+    test_plan: T-007-005
+    analytics: AE-007
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-012
   S-008-001:
     title: Social Account and Credential Center
     epic: E-008
@@ -466,11 +466,11 @@ stories:
     status: Backlog
     story: As a **workspace_admin**, I want to **connect, scope, inspect, and revoke social accounts without exposing credentials**, so that **publishing authority remains visible and workspace-specific**.
     priority: P0
-    test_plan: null
+    test_plan: T-008-001
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-002
   S-008-002:
     title: Postiz Scheduling and Publication Ledger
     epic: E-008
@@ -478,11 +478,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **schedule or publish through Postiz with idempotent intent, receipt, verification, and reconciliation**, so that **every external mutation ends in a known, reviewable state without blind retry**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-008-002
+    analytics: AE-008
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-008-003:
     title: Assisted Handoff and Deterministic Export
     epic: E-008
@@ -490,11 +490,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **complete publication through a human handoff or platform-valid export when automation is unavailable**, so that **connector outages do not strand approved work or force unsafe platform bypasses**.
     priority: P1
-    test_plan: null
+    test_plan: T-008-003
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-009
   S-008-004:
     title: Observation Ingestion and Evidence Review
     epic: E-008
@@ -502,11 +502,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **review quantitative, qualitative, and manual outcomes against exact publication and decision lineage**, so that **performance data informs judgment without merging incompatible platform semantics**.
     priority: P1
-    test_plan: null
-    analytics: null
+    test_plan: T-008-004
+    analytics: AE-008
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-010
   S-008-005:
     title: Experiment and Strategy Loop
     epic: E-008
@@ -514,11 +514,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **turn reviewed outcomes into scoped experiments, follow-ups, and optional memory proposals**, so that **future work changes only through visible, reversible decisions with new evidence**.
     priority: P1
-    test_plan: null
-    analytics: null
+    test_plan: T-008-005
+    analytics: AE-008
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-011
   S-009-001:
     title: Shared Workspaces, Roles, and Approval
     epic: E-009
@@ -526,11 +526,11 @@ stories:
     status: Backlog
     story: As a **team_member**, I want to **coordinate assignments, comments, decisions, and approval under workspace roles**, so that **teams can collaborate without collapsing personal and shared authority**.
     priority: P1
-    test_plan: null
+    test_plan: T-009-001
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-008
   S-009-002:
     title: Encrypted Event Sync and Asset Mirror
     epic: E-009
@@ -538,11 +538,11 @@ stories:
     status: Backlog
     story: As a **team_member**, I want to **work offline and reconcile events and assets without losing concurrent changes**, so that **local-first collaboration remains deterministic across devices**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-009-002
+    analytics: AE-009
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-015
   S-009-003:
     title: Scoped Remote Workers and Schedules
     epic: E-009
@@ -550,11 +550,11 @@ stories:
     status: Backlog
     story: As a **workspace_admin**, I want to **delegate long jobs and schedules through revocable, sensitivity-bounded remote envelopes**, so that **work can continue while the Mac sleeps without copying broad personal authority to the cloud**.
     priority: P1
-    test_plan: null
+    test_plan: T-009-003
     analytics: null
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-015
   S-009-004:
     title: Four-Week Whole-Product Proof
     epic: E-009
@@ -562,11 +562,11 @@ stories:
     status: Backlog
     story: As a **creator**, I want to **operate the complete capture-to-learning cycle for four representative weeks**, so that **Clark Pro 1.0 is judged by real continuity, recovery, publishability, and learning rather than screen completion**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-009-004
+    analytics: AE-009
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-006
   S-009-005:
     title: Release, Hosted Continuity, and Tenant Isolation
     epic: E-009
@@ -574,13 +574,73 @@ stories:
     status: Backlog
     story: As a **workspace_admin**, I want to **install a signed production release and retain complete local access during hosted failure**, so that **a managed offering adds elasticity without becoming the owner of canonical creator state**.
     priority: P0
-    test_plan: null
-    analytics: null
+    test_plan: T-009-005
+    analytics: AE-009
     data_refs: []
     ds_spec: null
-    flow: null
+    flow: UF-015
 
 flows:
+  UF-001:
+    name: UF-001
+    epics: [E-001, E-002, E-003]
+    screens: 0
+  UF-002:
+    name: UF-002
+    epics: [E-004, E-008]
+    screens: 0
+  UF-003:
+    name: UF-003
+    epics: [E-006]
+    screens: 0
+  UF-004:
+    name: UF-004
+    epics: [E-007]
+    screens: 0
+  UF-005:
+    name: UF-005
+    epics: [E-003]
+    screens: 0
+  UF-006:
+    name: UF-006
+    epics: [E-003, E-005, E-006, E-007, E-008, E-009]
+    screens: 0
+  UF-007:
+    name: UF-007
+    epics: [E-003, E-008]
+    screens: 0
+  UF-008:
+    name: UF-008
+    epics: [E-003]
+    screens: 0
+  UF-009:
+    name: UF-009
+    epics: [E-008]
+    screens: 0
+  UF-010:
+    name: UF-010
+    epics: [E-008]
+    screens: 0
+  UF-011:
+    name: UF-011
+    epics: [E-005, E-008]
+    screens: 0
+  UF-012:
+    name: UF-012
+    epics: [E-007]
+    screens: 0
+  UF-013:
+    name: UF-013
+    epics: [E-004]
+    screens: 0
+  UF-014:
+    name: UF-014
+    epics: [E-005]
+    screens: 0
+  UF-015:
+    name: UF-015
+    epics: [E-002, E-004, E-008, E-009]
+    screens: 0
 
 releases:
   R-001:
@@ -593,8 +653,10 @@ releases:
     stage: Draft
     status: Backlog
     stories: [S-001-003, S-001-004, S-002-003, S-002-004, S-002-005, S-003-003, S-003-004, S-003-005, S-004-003, S-004-004, S-005-003, S-005-004, S-006-004, S-006-005, S-007-003, S-007-004, S-007-005]
+    gate: Closed
   R-003:
     name: R-003
     stage: Draft
     status: Backlog
     stories: [S-008-001, S-008-002, S-008-003, S-008-004, S-008-005, S-009-001, S-009-002, S-009-003, S-009-004, S-009-005]
+    gate: Closed

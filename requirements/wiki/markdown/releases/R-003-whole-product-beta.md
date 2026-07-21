@@ -10,6 +10,18 @@
 
 ---
 
+## Architecture Gate
+
+**Gate:** Closed
+
+| AT | Title | Stage | Status | Phase |
+|----|-------|-------|--------|-------|
+| AT-003-001 | Distribution Adapter and Reconciliation Infrastructure | Ready | Backlog | P-003-01 |
+| AT-003-002 | Encrypted Relay, Sync, Asset Mirror, and Worker Envelopes | Ready | Backlog | P-003-02 |
+| AT-003-003 | Hosted Tenant, Audit, Monitoring, and Release Controls | Ready | Backlog | P-003-02 |
+
+Coding may begin only after each task is Done and the architect opens this gate.
+
 ## Goal
 
 Run the complete creator cycle on real channels, then prove collaboration, remote continuity, and the Clark Pro 1.0 exit gate over four representative weeks.
@@ -28,6 +40,9 @@ Run the complete creator cycle on real channels, then prove collaboration, remot
 | S-009-003 | Scoped Remote Workers and Schedules | E-009 | Ready | Backlog |
 | S-009-004 | Four-Week Whole-Product Proof | E-009 | Ready | Backlog |
 | S-009-005 | Release, Hosted Continuity, and Tenant Isolation | E-009 | Ready | Backlog |
+| AT-003-001 | Distribution Adapter and Reconciliation Infrastructure | Architecture | Ready | Backlog |
+| AT-003-002 | Encrypted Relay, Sync, Asset Mirror, and Worker Envelopes | Architecture | Ready | Backlog |
+| AT-003-003 | Hosted Tenant, Audit, Monitoring, and Release Controls | Architecture | Ready | Backlog |
 
 ## Phases
 
@@ -35,6 +50,17 @@ Run the complete creator cycle on real channels, then prove collaboration, remot
 |----|------|-------|-----|-----------|---------|
 | P-003-01 | Distribution and Learning |  |  | Verified publication-to-reflection loop | Accounts, Postiz, export, observations, and experiments |
 | P-003-02 | Team and Release Proof |  |  | Clark Pro 1.0 exit evidence | Shared workspaces, sync, remote workers, four-week proof, and release continuity |
+
+## Evidence Alignment
+
+| Layer | Required artifacts / evidence |
+|-------|-------------------------------|
+| Flows | UF-009 through UF-011 plus UF-015; TF-009 and TF-015; TF-006 reruns for whole-product continuity |
+| Design | Timeline, Publication Approval, Reconciliation, Export Package, Observation, Memory, Recovery Summary, team authority states |
+| Architecture | ARCH-002 through ARCH-004 and AT-003-001 through AT-003-003 |
+| Metrics | AE-008 and AE-009 plus North Star and trust dashboards |
+| QA | 10 story plans, TR-003, publication chaos, sync/tenant/worker corpus, hosted outage/local export, four real weekly cycles |
+| Exit | No duplicate/unexplained publications, deterministic team convergence, scoped remote work, tenant isolation, local continuity, attributable 1.0 evidence |
 
 ## Out of Scope
 

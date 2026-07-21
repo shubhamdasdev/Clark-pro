@@ -57,6 +57,16 @@ test("idea loop is durable, idempotent, rebuildable, and approval-bound", async 
       /different command content/
     );
 
+    assert.throws(() => engine.resolveApproval({
+      workspaceId: "workspace.local",
+      runId: started.run.runId,
+      approvalId: started.run.approval.approvalId,
+      decision: "approve",
+      reason: "  ",
+      idempotencyKey: "intent-approval-no-reason-0001"
+    }), /decision reason/);
+    assert.equal(engine.store.countEvents(), eventCount);
+
     const approved = engine.resolveApproval({
       workspaceId: "workspace.local",
       runId: started.run.runId,
@@ -67,6 +77,7 @@ test("idea loop is durable, idempotent, rebuildable, and approval-bound", async 
     }, { requestId: "request.approval.001" });
     assert.equal(approved.state, "completed");
     assert.equal(approved.approval.state, "approved");
+    assert.equal(approved.approval.reason, "The brief preserves the intent and makes the boundaries explicit.");
     assert.equal(engine.store.verifyHashChain(), true);
 
     const approvedEventCount = engine.store.countEvents();
@@ -127,7 +138,7 @@ test("idea revision preserves lineage and atomically invalidates stale exact-ver
     assert.equal(engine.store.eventEnvelopes().some((event) => event.eventType === "run.cancelled"), true);
     assert.throws(() => engine.resolveApproval({
       workspaceId: "workspace.local", runId: first.run.runId, approvalId: first.run.approval.approvalId,
-      decision: "approve", idempotencyKey: "intent-stale-approval-0001"
+      decision: "approve", reason: "Attempt to approve a superseded version.", idempotencyKey: "intent-stale-approval-0001"
     }), /not waiting for approval/);
 
     const eventCount = engine.store.countEvents();
@@ -202,6 +213,7 @@ test("rejected brief records creator decision without granting approval", async 
     });
     assert.equal(rejected.state, "failed");
     assert.equal(rejected.approval.state, "rejected");
+    assert.equal(rejected.approval.reason, "The target user is still too broad.");
     assert.equal(engine.store.eventEnvelopes().some((event) => event.eventType === "approval.granted"), false);
     assert.equal(engine.store.eventEnvelopes().some((event) => event.eventType === "decision.recorded"), true);
   } finally {

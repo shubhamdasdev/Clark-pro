@@ -10,7 +10,7 @@ import { normalizeWindowBounds, readWindowState, writeWindowState, writeWindowSt
 
 const sourceDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rendererDirectory = path.join(sourceDirectory, "renderer");
-const allowedAssets = new Set(["index.html", "app.css", "renderer.mjs"]);
+const allowedAssets = new Set(["index.html", "app.css", "renderer.mjs", "comparison.mjs"]);
 const state = { activeSection: "focus" };
 let mainWindow;
 let saveTimer;
@@ -27,7 +27,7 @@ const SKILL_ACTIONS = new Set(["promote", "rollback"]);
 const TOOL_PACKAGE_ACTIONS = new Set(["activate", "rollback"]);
 
 if (process.env.CLARK_TEST_USER_DATA) app.setPath("userData", process.env.CLARK_TEST_USER_DATA);
-app.setName("Clark Studio");
+app.setName("Clark Pro");
 app.enableSandbox();
 protocol.registerSchemesAsPrivileged([
   {
@@ -136,12 +136,15 @@ function installIpc() {
     if (typeof decision.runId !== "string" || typeof decision.approvalId !== "string") {
       throw new TypeError("Run and approval IDs are required");
     }
+    if (typeof decision.reason !== "string" || decision.reason.trim().length < 3 || decision.reason.length > 1_000) {
+      throw new TypeError("An approval decision reason between 3 and 1,000 characters is required");
+    }
     return harnessSupervisor.request("approval.resolve", {
       workspaceId: LOCAL_WORKSPACE_ID,
       runId: decision.runId,
       approvalId: decision.approvalId,
       decision: decision.decision,
-      ...(typeof decision.reason === "string" && decision.reason ? { reason: decision.reason.slice(0, 1000) } : {}),
+      reason: decision.reason.trim(),
       idempotencyKey: `intent.approval.${randomUUID()}`
     });
   });
@@ -304,8 +307,8 @@ async function createMainWindow() {
     minWidth: 780,
     minHeight: 560,
     show: false,
-    title: "Clark Studio",
-    backgroundColor: "#111318",
+    title: "Clark Pro",
+    backgroundColor: "#151513",
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 18, y: 18 },
     webPreferences: {

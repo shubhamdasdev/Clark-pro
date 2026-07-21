@@ -3,40 +3,65 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
-    <title>Clark Studio</title>
+    <title>Clark Pro</title>
     <link rel="stylesheet" href="/app.css">
   </head>
   <body>
     <a class="skip-link" href="#workspace">Skip to workspace</a>
     <div class="app-shell">
-      <header class="titlebar" aria-label="Clark Studio window">
-        <div class="brand" aria-label="Clark Studio">
+      <header class="titlebar" aria-label="Clark Pro window">
+        <div class="brand" aria-label="Clark Pro">
           <span class="brand-mark" aria-hidden="true">C</span>
-          <span>Clark</span>
+          <span class="brand-name">Clark</span>
+          <span class="brand-edition">PRO</span>
         </div>
-        <p class="workspace-name">Creator launch system</p>
-        <span class="local-badge">Local shell</span>
+        <p class="workspace-name">Creator workspace</p>
+        <span class="local-badge">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5.5 6v5.1c0 4.2 2.7 8.1 6.5 9.2 3.8-1.1 6.5-5 6.5-9.2V6L12 3Z"/><path d="m9.5 12 1.7 1.7 3.5-3.7"/></svg>
+          Private by default
+        </span>
       </header>
 
       <nav class="rail" aria-label="Primary views">
-        <div class="nav-group" role="tablist" aria-label="Studio views" aria-orientation="vertical">
-          <button id="tab-focus" class="nav-item" type="button" role="tab" aria-selected="true" aria-controls="view-focus" data-section="focus">
-            <span aria-hidden="true">◉</span><span>Focus</span><kbd>⌘1</kbd>
-          </button>
-          <button id="tab-canvas" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-canvas" tabindex="-1" data-section="canvas">
-            <span aria-hidden="true">⌘</span><span>Canvas</span><kbd>⌘2</kbd>
-          </button>
-          <button id="tab-memory" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-memory" tabindex="-1" data-section="memory">
-            <span aria-hidden="true">◫</span><span>Memory</span><kbd>⌘6</kbd>
-          </button>
-          <button id="tab-connections" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-connections" tabindex="-1" data-section="connections">
-            <span aria-hidden="true">◇</span><span>Connections</span><kbd>⌘7</kbd>
-          </button>
+        <div class="rail-navigation" role="tablist" aria-label="Clark Pro views" aria-orientation="vertical">
+          <div class="nav-section">
+            <p class="nav-label">Workspace</p>
+            <div class="nav-group" role="presentation">
+            <button id="tab-focus" class="nav-item" type="button" role="tab" aria-selected="true" aria-controls="view-focus" data-section="focus">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>
+              <span>Today</span><kbd>⌘1</kbd>
+            </button>
+            <button id="tab-canvas" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-canvas" tabindex="-1" data-section="canvas">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7.5h8M5 12h14M5 16.5h10"/><path d="m16 5 3 3-3 3"/></svg>
+              <span>Shape</span><kbd>⌘2</kbd>
+            </button>
+            <button id="tab-review" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-review" tabindex="-1" data-section="review">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v3h3v13H4V7h3V4Z"/><path d="M8 12h8M8 16h5M9 4h6v4H9z"/></svg>
+              <span>Review</span><kbd>⌘3</kbd>
+            </button>
+            <button id="tab-memory" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-memory" tabindex="-1" data-section="memory">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5.5A2.5 2.5 0 0 1 8.5 3H19v15H8.5A2.5 2.5 0 0 0 6 20.5v-15Z"/><path d="M6 18.5A2.5 2.5 0 0 1 8.5 16H19"/></svg>
+              <span>Knowledge</span><kbd>⌘6</kbd>
+            </button>
+            </div>
+          </div>
+
+          <div class="nav-section manage-section">
+            <p class="nav-label">Manage</p>
+            <div class="nav-group" role="presentation">
+            <button id="tab-connections" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-connections" tabindex="-1" data-section="connections">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8.5 6.5 6A3.5 3.5 0 1 0 1.6 11l2.5 2.5A3.5 3.5 0 0 0 9 8.5Z"/><path d="m15 15.5 2.5 2.5a3.5 3.5 0 1 0 4.9-5l-2.5-2.5a3.5 3.5 0 0 0-4.9 5Z"/><path d="m8.5 15.5 7-7"/></svg>
+              <span>Integrations</span><kbd>⌘7</kbd>
+            </button>
+            </div>
+          </div>
         </div>
-        <div class="rail-note" id="harness-rail-status">
+
+        <div class="rail-note" id="harness-rail-status" role="status">
           <span class="status-dot" aria-hidden="true"></span>
-          <span>Harness starting</span>
+          <span>Starting local workspace</span>
         </div>
       </nav>
 
@@ -44,234 +69,415 @@
         <div id="announcer" class="sr-only" role="status" aria-live="polite"></div>
 
         <section id="view-focus" class="view" role="tabpanel" aria-labelledby="tab-focus" data-view="focus">
-          <div class="view-heading">
+          <header class="view-heading hero-heading">
             <div>
-              <p class="eyebrow">Sunday, July 12</p>
-              <h1>Focus</h1>
-              <p>One clear operating picture before the tools start moving.</p>
+              <p id="today-date" class="eyebrow">Your workspace</p>
+              <h1>Today</h1>
+              <p class="display-copy">Make the next idea clearer.</p>
+              <p class="view-description">Start with a rough thought. Clark turns it into a reviewable brief, shows what still needs proof, and leaves the decision with you.</p>
             </div>
-            <button class="primary-action" type="button" disabled>Capture idea</button>
-          </div>
-          <div class="metric-row" aria-label="Workspace summary">
-            <article><span>1</span><p>Decision waiting</p></article>
-            <article><span>3</span><p>Active loops</p></article>
-            <article><span>0</span><p>Unreviewed publishes</p></article>
-          </div>
-          <div class="content-grid">
-            <section class="panel priority-panel" aria-labelledby="priority-heading">
-              <div class="panel-heading"><h2 id="priority-heading">Next best work</h2><span>Creator-controlled</span></div>
-              <ol class="work-list">
-                <li><button type="button"><span class="number">01</span><span><strong>Approve the launch narrative</strong><small>Decision gate · 12 min</small></span><span aria-hidden="true">→</span></button></li>
-                <li><button type="button"><span class="number">02</span><span><strong>Review the video assembly</strong><small>Artifact review · 8 min</small></span><span aria-hidden="true">→</span></button></li>
-                <li><button type="button"><span class="number">03</span><span><strong>Resolve a memory contradiction</strong><small>Personalization · 5 min</small></span><span aria-hidden="true">→</span></button></li>
+            <button id="start-idea" class="primary-action" type="button" aria-controls="idea-input">
+              Start with an idea
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5"/></svg>
+            </button>
+          </header>
+
+          <section class="orientation-grid" aria-label="How Clark works">
+            <article class="orientation-card current-work">
+              <p class="eyebrow">Current workflow</p>
+              <div class="work-status-row">
+                <span id="focus-stage" class="work-status">Ready to begin</span>
+                <span id="focus-progress" class="quiet-badge">Step 1 of 3</span>
+              </div>
+              <p id="focus-stage-detail">Write the idea in your own words. It does not need to be polished.</p>
+            </article>
+            <article class="orientation-card process-card">
+              <p class="eyebrow">The whole loop</p>
+              <ol class="process-list">
+                <li><span>1</span><div><strong>You write</strong><small>Capture the rough idea</small></div></li>
+                <li><span>2</span><div><strong>Clark shapes</strong><small>Structure it and expose gaps</small></div></li>
+                <li><span>3</span><div><strong>You decide</strong><small>Approve the exact wording</small></div></li>
               </ol>
-            </section>
-            <aside class="panel confidence-panel" aria-labelledby="confidence-heading">
-              <div class="panel-heading"><h2 id="confidence-heading">System confidence</h2><span class="health">Bounded</span></div>
-              <dl>
-                <div><dt>Runtime contracts</dt><dd>Generated</dd></div>
-                <div><dt>OpenCut Tool Pack</dt><dd>Quarantined</dd></div>
-                <div><dt>Publish authority</dt><dd>Review required</dd></div>
-                <div><dt>Native release</dt><dd>Unsigned proof</dd></div>
-              </dl>
-            </aside>
-          </div>
+            </article>
+          </section>
+
           <section class="panel harness-panel" aria-labelledby="harness-heading">
-            <div class="panel-heading">
-              <div><h2 id="harness-heading">Idea improvement loop</h2><span>Durable local Harness</span></div>
-              <span id="harness-state" class="health" role="status">Starting</span>
+            <div class="panel-heading workbench-heading">
+              <div>
+                <p class="eyebrow">Idea workbench</p>
+                <h2 id="harness-heading">Turn a rough idea into a working brief</h2>
+              </div>
+              <span id="harness-state" class="health" role="status">Starting locally</span>
             </div>
             <div class="harness-body">
               <form id="idea-loop-form" class="idea-form">
-                <label for="idea-input">Creator intent</label>
-                <textarea id="idea-input" minlength="20" maxlength="12000" rows="4" required>Build a creator operating system that connects reusable tools while keeping memory, approvals, and publication under creator control.</textarea>
+                <div class="field-heading">
+                  <label for="idea-input">What are you building?</label>
+                  <span>Write naturally. Specifics help.</span>
+                </div>
+                <textarea id="idea-input" minlength="20" maxlength="12000" rows="8" required>Build a creator operating system that connects reusable tools while keeping memory, approvals, and publication under creator control.</textarea>
                 <div id="revision-reason-group" class="revision-reason" hidden>
-                  <label for="revision-reason">Why this revision is stronger</label>
-                  <input id="revision-reason" type="text" minlength="3" maxlength="1000" placeholder="Narrow the user, replacement, wedge, or evidence test">
+                  <label for="revision-reason">What did you make clearer?</label>
+                  <input id="revision-reason" type="text" minlength="3" maxlength="1000" placeholder="For example: narrowed the audience and added a measurable proof test">
                 </div>
                 <div class="form-footer">
-                  <p id="idea-form-context">Local deterministic stress-test · $0 · no network, model, credentials, build, or publishing authority</p>
-                  <button id="run-idea-loop" class="primary-action" type="submit">Structure idea</button>
+                  <p id="idea-form-context">Runs on this Mac. Nothing is published or sent to an account.</p>
+                  <button id="run-idea-loop" class="primary-action" type="submit">Shape this idea</button>
                 </div>
               </form>
-              <aside id="run-empty" class="run-empty" aria-label="Idea loop durability">
-                <p class="eyebrow">Permanent execution path</p>
-                <ol>
-                  <li><strong>Capture</strong><span>Content-addressed local source</span></li>
-                  <li><strong>Structure</strong><span>Deterministic, zero-egress transform</span></li>
-                  <li><strong>Review</strong><span>Exact-version creator decision</span></li>
-                </ol>
-                <p>Renderer reload and app restart read the same event-backed projection.</p>
+
+              <aside id="run-empty" class="run-empty" aria-label="What Clark will create">
+                <div class="empty-symbol" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M6 5h9l3 3v11H6V5Z"/><path d="M15 5v4h4M9 12h6M9 15h6"/></svg>
+                </div>
+                <p class="eyebrow">Your brief will appear here</p>
+                <h3>Clear enough to discuss. Honest about what is missing.</h3>
+                <p>Clark will organize the idea, identify assumptions, and ask you to review the exact result.</p>
+                <ul class="plain-checks">
+                  <li>Stored on this Mac</li>
+                  <li>No publishing access</li>
+                  <li>You approve every version</li>
+                </ul>
               </aside>
+
               <article id="harness-run" class="run-result" aria-labelledby="run-result-heading" hidden>
                 <div class="run-result-heading">
-                  <div><p class="eyebrow">Latest durable run</p><h3 id="run-result-heading">Idea brief</h3></div>
+                  <div><p class="eyebrow">Latest working version</p><h3 id="run-result-heading">Your idea brief</h3></div>
                   <span id="run-state" class="state specified">Planned</span>
                 </div>
                 <section id="thesis-readiness" class="thesis-readiness" aria-live="polite" hidden>
-                  <strong id="readiness-heading">Thesis assessment</strong>
+                  <strong id="readiness-heading">Idea clarity</strong>
                   <p id="readiness-summary"></p>
                   <p id="readiness-gaps"></p>
                 </section>
                 <pre id="draft-text" tabindex="0"></pre>
                 <div id="approval-actions" class="approval-actions" hidden>
-                  <p>Approval pins this wording only. It does not validate demand or authorize build or publication.</p>
-                  <div><button id="reject-brief" type="button" class="secondary-action">Reject</button><button id="approve-brief" type="button" class="primary-action">Approve exact version</button></div>
+                  <p>This exact version is waiting in Review. Compare it with the earlier wording before you decide.</p>
+                  <div><button id="improve-brief" type="button" class="secondary-action">Improve the idea</button><button id="open-review" type="button" class="primary-action">Open Review</button></div>
                 </div>
-                <p id="run-integrity" class="run-integrity"></p>
+                <details class="technical-note">
+                  <summary>Version and audit details</summary>
+                  <p id="run-integrity" class="run-integrity"></p>
+                </details>
               </article>
             </div>
           </section>
         </section>
 
         <section id="view-canvas" class="view" role="tabpanel" aria-labelledby="tab-canvas" data-view="canvas" hidden>
-          <div class="view-heading">
-            <div><p id="canvas-lineage" class="eyebrow">Idea Foundry · waiting for a thesis</p><h1>Canvas</h1><p>The live, event-backed path from creator intent to honest evidence readiness and exact-version review.</p></div>
-            <span id="canvas-readiness" class="mode-badge">No assessment</span>
-          </div>
-          <p id="canvas-help" class="keyboard-help">Use arrow keys to move between objects. Press Enter to inspect the selected object.</p>
+          <header class="view-heading">
+            <div>
+              <p id="canvas-lineage" class="eyebrow">Waiting for your first idea</p>
+              <h1>Shape</h1>
+              <p class="display-copy">See what is clear—and what still needs proof.</p>
+              <p class="view-description">Follow the path from your original thought to the version you can confidently discuss with other people.</p>
+            </div>
+            <span id="canvas-readiness" class="mode-badge">Not assessed</span>
+          </header>
+          <p id="canvas-help" class="keyboard-help">Use the arrow keys to move through the flow. Select a step to see its details.</p>
           <div class="canvas-layout">
-            <ol class="node-flow" aria-label="Idea Foundry graph" aria-describedby="canvas-help">
-              <li><button type="button" class="node-card selected" data-node="idea"><span class="node-type">Source</span><strong>Idea thesis</strong><small>No captured revision yet</small></button></li>
-              <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
-              <li><button type="button" class="node-card" data-node="assessment"><span class="node-type">MCP assessment</span><strong>Thesis stress-test</strong><small>Awaiting local inspection</small></button></li>
-              <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
-              <li><button type="button" class="node-card" data-node="evidence"><span class="node-type">Evidence gates</span><strong>Observed proof</strong><small>No evidence inferred</small></button></li>
-              <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
-              <li><button type="button" class="node-card" data-node="brief"><span class="node-type">Artifact</span><strong>Idea brief</strong><small>Awaiting deterministic structure</small></button></li>
-              <li class="edge" aria-label="flows to"><span aria-hidden="true">↓</span></li>
-              <li><button type="button" class="node-card" data-node="review"><span class="node-type">Human gate</span><strong>Exact-version review</strong><small>No review gate yet</small></button></li>
+            <ol class="node-flow" aria-label="Idea shaping flow" aria-describedby="canvas-help">
+              <li><button type="button" class="node-card selected" data-node="idea"><span class="node-type">01 · Starting point</span><strong>Your idea</strong><small>No version yet</small></button></li>
+              <li class="edge" aria-label="then"><span aria-hidden="true">→</span></li>
+              <li><button type="button" class="node-card" data-node="assessment"><span class="node-type">02 · Clarity</span><strong>Idea check</strong><small>Waiting for your idea</small></button></li>
+              <li class="edge" aria-label="then"><span aria-hidden="true">→</span></li>
+              <li><button type="button" class="node-card" data-node="evidence"><span class="node-type">03 · Reality</span><strong>Proof needed</strong><small>No proof assumed</small></button></li>
+              <li class="edge" aria-label="then"><span aria-hidden="true">→</span></li>
+              <li><button type="button" class="node-card" data-node="brief"><span class="node-type">04 · Output</span><strong>Working brief</strong><small>Not created yet</small></button></li>
+              <li class="edge" aria-label="then"><span aria-hidden="true">→</span></li>
+              <li><button type="button" class="node-card" data-node="review"><span class="node-type">05 · Decision</span><strong>Your review</strong><small>No decision waiting</small></button></li>
             </ol>
             <aside class="panel inspector" aria-labelledby="inspector-heading">
-              <p class="eyebrow">Selected object</p><h2 id="inspector-heading">Idea thesis</h2>
-              <dl><div><dt>Authority</dt><dd>Creator input only</dd></div><div><dt>Lineage</dt><dd>No revision</dd></div><div><dt>Trust</dt><dd>Local canonical</dd></div><div><dt>Readiness</dt><dd>Not assessed</dd></div></dl>
+              <p class="eyebrow">Selected step</p>
+              <h2 id="inspector-heading">Your idea</h2>
+              <dl>
+                <div><dt>Who controls it</dt><dd>Your input only</dd></div>
+                <div><dt>Where it came from</dt><dd>No version yet</dd></div>
+                <div><dt>Privacy</dt><dd>Stored locally</dd></div>
+                <div><dt>Status</dt><dd>Not assessed</dd></div>
+              </dl>
               <section class="evidence-gap-panel" aria-labelledby="evidence-gap-heading">
-                <h3 id="evidence-gap-heading">Open evidence gates</h3>
-                <ul id="evidence-gap-list"><li>Capture a thesis to reveal exact gaps.</li></ul>
+                <h3 id="evidence-gap-heading">What you still need to learn</h3>
+                <ul id="evidence-gap-list"><li>Start an idea to reveal its proof questions.</li></ul>
               </section>
             </aside>
           </div>
         </section>
 
+        <section id="view-review" class="view" role="tabpanel" aria-labelledby="tab-review" data-view="review" hidden>
+          <header class="view-heading">
+            <div>
+              <p class="eyebrow">Exact wording, explicit decision</p>
+              <h1>Review</h1>
+              <p class="display-copy">Compare the work. Decide what moves forward.</p>
+              <p class="view-description">Read the current brief beside its parent, inspect what the decision does—and does not—authorize, then record your reason.</p>
+            </div>
+            <span id="review-mode" class="mode-badge">Nothing waiting</span>
+          </header>
+
+          <div class="review-layout">
+            <aside class="panel review-queue-panel" aria-labelledby="review-queue-heading">
+              <div class="panel-heading review-queue-heading">
+                <div><p class="eyebrow">Version history</p><h2 id="review-queue-heading">Briefs</h2></div>
+                <span id="review-queue-count">0 versions</span>
+              </div>
+              <div id="review-queue" class="review-queue" role="list">
+                <p class="empty-state">Create a working brief to begin a review.</p>
+              </div>
+            </aside>
+
+            <section class="panel review-workspace" aria-labelledby="review-workspace-heading">
+              <h2 id="review-workspace-heading" class="sr-only">Version review workspace</h2>
+              <div id="review-empty" class="review-empty">
+                <div class="empty-symbol" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M7 4h10v3h3v13H4V7h3V4Z"/><path d="M8 12h8M8 16h5M9 4h6v4H9z"/></svg>
+                </div>
+                <p class="eyebrow">No brief selected</p>
+                <h2>Your exact-version decisions will live here.</h2>
+                <p>Start with an idea, then return to compare versions and approve or reject the wording.</p>
+                <button id="review-start-idea" class="secondary-action" type="button">Go to Today</button>
+              </div>
+
+              <article id="review-comparison" hidden>
+                <header class="review-comparison-heading">
+                  <div>
+                    <p id="review-version-label" class="eyebrow">Selected version</p>
+                    <h2 id="review-comparison-heading">Working brief</h2>
+                    <p id="review-revision-note" class="review-revision-note">Choose a version to inspect its lineage.</p>
+                  </div>
+                  <span id="review-state" class="state specified">Not selected</span>
+                </header>
+
+                <dl class="review-provenance" aria-label="Selected version provenance">
+                  <div><dt>Exact brief</dt><dd id="review-current-hash">—</dd></div>
+                  <div><dt>Based on</dt><dd id="review-parent-version">—</dd></div>
+                  <div><dt>Decision scope</dt><dd>Wording only</dd></div>
+                  <div><dt>External action</dt><dd>None</dd></div>
+                </dl>
+
+                <div class="version-comparison" aria-label="Brief version comparison">
+                  <article class="comparison-pane previous-version">
+                    <header><div><p class="eyebrow">Earlier</p><h3 id="review-previous-heading">No parent version</h3></div><span id="review-previous-hash">—</span></header>
+                    <div id="review-previous-text" class="comparison-text" tabindex="0"><p class="comparison-placeholder">This is the first version, so there is no earlier brief to compare.</p></div>
+                  </article>
+                  <article class="comparison-pane current-version">
+                    <header><div><p class="eyebrow">Current</p><h3 id="review-current-heading">Selected brief</h3></div><span id="review-current-short-hash">—</span></header>
+                    <div id="review-current-text" class="comparison-text" tabindex="0"><p class="comparison-placeholder">Select a version to read its exact wording.</p></div>
+                  </article>
+                </div>
+
+                <section class="review-gates" aria-labelledby="review-gates-heading">
+                  <div class="section-heading"><div><p class="eyebrow">Before you decide</p><h3 id="review-gates-heading">What this approval means</h3></div></div>
+                  <ul>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-8"/></svg><div><strong id="review-version-gate">Exact local version</strong><p>The decision is pinned to one content hash.</p></div></li>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 12 4 4 8-8"/></svg><div><strong id="review-lineage-gate">Lineage reference retained</strong><p>The parent reference and revision reason stay visible.</p></div></li>
+                    <li class="warning"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 3 20h18L12 4Z"/><path d="M12 9v5M12 17h.01"/></svg><div><strong id="review-evidence-gate">Real-world evidence still required</strong><p>Approval does not prove demand, payment, or repeat use.</p></div></li>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5.5 6v5.1c0 4.2 2.7 8.1 6.5 9.2 3.8-1.1 6.5-5 6.5-9.2V6L12 3Z"/><path d="m9.5 12 1.7 1.7 3.5-3.7"/></svg><div><strong>No publishing permission</strong><p>No file, account, build, or publication action is granted.</p></div></li>
+                  </ul>
+                </section>
+
+                <footer class="review-decision-bar">
+                  <div><strong id="review-decision-heading">No decision available</strong><p id="review-decision-help">Select a version that is waiting for your review.</p></div>
+                  <button id="open-review-decision" class="primary-action" type="button" disabled>Decide on this version</button>
+                </footer>
+              </article>
+            </section>
+          </div>
+
+          <dialog id="review-decision-dialog" class="decision-dialog" aria-labelledby="review-dialog-title" aria-describedby="review-dialog-description">
+            <form id="review-decision-form" novalidate>
+              <div class="decision-dialog-heading">
+                <div><p class="eyebrow">Creator decision</p><h2 id="review-dialog-title">Review this exact version</h2></div>
+                <span id="review-dialog-version" class="quiet-badge">Version —</span>
+              </div>
+              <p id="review-dialog-description" class="decision-dialog-description">Choose what happens to this wording. Nothing will be published or sent to an account.</p>
+              <p id="review-dialog-hash" class="decision-hash">Exact brief —</p>
+              <fieldset class="decision-options">
+                <legend>What do you want to do?</legend>
+                <label><input id="review-decision-approve" type="radio" name="review-decision" value="approve" checked><span><strong>Approve this wording</strong><small>Pin this exact brief as approved. No other authority is granted.</small></span></label>
+                <label><input id="review-decision-reject" type="radio" name="review-decision" value="reject"><span><strong>Send it back</strong><small>Keep the version and lineage, but mark it as needing revision.</small></span></label>
+              </fieldset>
+              <label class="decision-reason-field" for="review-decision-reason">Why are you making this decision?<textarea id="review-decision-reason" minlength="3" maxlength="1000" rows="3" required aria-describedby="review-decision-reason-help"></textarea></label>
+              <p id="review-decision-reason-help" class="field-help">Your reason is stored with the exact-version decision and helps future you understand the choice.</p>
+              <p id="review-decision-error" class="field-error" role="alert" hidden></p>
+              <div class="decision-dialog-actions">
+                <button id="cancel-review-decision" class="secondary-action" type="button">Cancel</button>
+                <button id="submit-review-decision" class="primary-action" type="submit">Approve exact version</button>
+              </div>
+            </form>
+          </dialog>
+        </section>
+
         <section id="view-memory" class="view" role="tabpanel" aria-labelledby="tab-memory" data-view="memory" hidden>
-          <div class="view-heading">
-            <div><p class="eyebrow">Governed creator context</p><h1>Memory</h1><p>Evidence-backed claims stay proposals until you promote them. Every correction, retrieval, and forgetting decision is auditable.</p></div>
-            <span id="memory-mode" class="mode-badge">0 active</span>
+          <header class="view-heading">
+            <div>
+              <p class="eyebrow">Reviewed context, not hidden profiling</p>
+              <h1>Knowledge</h1>
+              <p class="display-copy">You choose what Clark remembers.</p>
+              <p class="view-description">Useful facts stay as proposals until you approve them. You can inspect, correct, dispute, or remove them at any time.</p>
+            </div>
+            <span id="memory-mode" class="mode-badge">0 in use</span>
+          </header>
+
+          <section class="knowledge-rule" aria-label="Knowledge rule">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5.5 6v5.1c0 4.2 2.7 8.1 6.5 9.2 3.8-1.1 6.5-5 6.5-9.2V6L12 3Z"/><path d="m9.5 12 1.7 1.7 3.5-3.7"/></svg>
+            <div><strong>Nothing becomes active memory without your review.</strong><p>New claims are excluded from use until you explicitly approve them.</p></div>
+          </section>
+
+          <div class="memory-metrics" aria-label="Knowledge summary">
+            <article><span id="memory-proposed-count">0</span><p>Waiting for review</p></article>
+            <article><span id="memory-active-count">0</span><p>In use</p></article>
+            <article><span id="memory-disputed-count">0</span><p>Needs correction</p></article>
           </div>
-          <div class="memory-metrics" aria-label="Memory governance summary">
-            <article><span id="memory-proposed-count">0</span><p>Proposals waiting</p></article>
-            <article><span id="memory-active-count">0</span><p>Active claims</p></article>
-            <article><span id="memory-disputed-count">0</span><p>Disputed claims</p></article>
-          </div>
+
           <div class="memory-layout">
             <div class="memory-controls">
               <section class="panel memory-panel" aria-labelledby="memory-propose-heading">
-                <div class="panel-heading"><h2 id="memory-propose-heading">Propose from durable work</h2><span>Never auto-promoted</span></div>
+                <div class="panel-heading"><div><p class="eyebrow">Add knowledge</p><h2 id="memory-propose-heading">Save something useful</h2></div><span>Review required</span></div>
                 <form id="memory-proposal-form" class="memory-form">
-                  <label for="memory-statement">Candidate claim</label>
+                  <label for="memory-statement">What should Clark remember?</label>
                   <textarea id="memory-statement" minlength="3" maxlength="4000" rows="3" required>Creator prefers evidence-first operational explanations.</textarea>
-                  <div class="field-grid">
-                    <label>Layer<select id="memory-layer"><option value="identity">Identity</option><option value="semantic">Semantic</option><option value="episodic">Episodic</option><option value="procedural">Procedural</option><option value="performance">Performance</option></select></label>
-                    <label>Retrieval<select id="memory-policy"><option value="default">Default</option><option value="explicit_only">Explicit each time</option><option value="never_send_to_model">Never send to model</option></select></label>
-                    <label>Sensitivity<select id="memory-sensitivity"><option value="personal">Personal</option><option value="workspace">Workspace</option><option value="confidential">Confidential</option><option value="public">Public</option></select></label>
-                    <label>Confidence<input id="memory-confidence" type="number" min="0" max="1" step="0.01" value="0.72" required></label>
-                  </div>
-                  <p id="memory-evidence-context" class="governance-note">Create an Idea Foundry brief to attach exact evidence.</p>
-                  <button id="propose-memory" class="primary-action" type="submit" disabled>Propose memory</button>
+                  <details class="form-options">
+                    <summary>Privacy and use settings</summary>
+                    <div class="field-grid">
+                      <label>Kind<select id="memory-layer"><option value="identity">Preference</option><option value="semantic">Fact</option><option value="episodic">Past work</option><option value="procedural">Process</option><option value="performance">Performance</option></select></label>
+                      <label>Use<select id="memory-policy"><option value="default">Use when relevant</option><option value="explicit_only">Ask every time</option><option value="never_send_to_model">Keep out of models</option></select></label>
+                      <label>Privacy<select id="memory-sensitivity"><option value="personal">Personal</option><option value="workspace">Workspace</option><option value="confidential">Confidential</option><option value="public">Public</option></select></label>
+                      <label>Confidence<input id="memory-confidence" type="number" min="0" max="1" step="0.01" value="0.72" required></label>
+                    </div>
+                  </details>
+                  <p id="memory-evidence-context" class="governance-note">Create a working brief first so this claim has a source.</p>
+                  <button id="propose-memory" class="primary-action" type="submit" disabled>Send for review</button>
                 </form>
               </section>
+
               <section class="panel memory-panel" aria-labelledby="memory-retrieve-heading">
-                <div class="panel-heading"><h2 id="memory-retrieve-heading">Retrieve with policy</h2><span>Content-free audit receipt</span></div>
+                <div class="panel-heading"><div><p class="eyebrow">Use knowledge</p><h2 id="memory-retrieve-heading">Find helpful context</h2></div><span>Approved only</span></div>
                 <form id="memory-retrieval-form" class="memory-form compact-form">
-                  <label for="memory-query">Context query</label>
+                  <label for="memory-query">What are you working on?</label>
                   <input id="memory-query" type="search" maxlength="1000" value="evidence operational" required>
                   <div class="field-grid">
-                    <label>Destination<select id="memory-destination"><option value="creator_view">Creator view</option><option value="local_model">Local model</option><option value="remote_model">Remote model</option></select></label>
-                    <label>Max sensitivity<select id="memory-max-sensitivity"><option value="personal">Personal</option><option value="workspace">Workspace</option><option value="confidential">Confidential</option><option value="public">Public</option></select></label>
+                    <label>Use it in<select id="memory-destination"><option value="creator_view">This view only</option><option value="local_model">Local model</option><option value="remote_model">Remote model</option></select></label>
+                    <label>Privacy limit<select id="memory-max-sensitivity"><option value="personal">Personal</option><option value="workspace">Workspace</option><option value="confidential">Confidential</option><option value="public">Public</option></select></label>
                   </div>
-                  <label class="check-row"><input id="memory-include-explicit" type="checkbox"> Authorize explicit-only claims for this retrieval</label>
-                  <button id="retrieve-memory" class="secondary-action" type="submit">Retrieve active claims</button>
+                  <label class="check-row"><input id="memory-include-explicit" type="checkbox"> Include claims marked “ask every time” for this search</label>
+                  <button id="retrieve-memory" class="secondary-action" type="submit">Find approved knowledge</button>
                 </form>
-                <div id="memory-retrieval-result" class="retrieval-result" aria-live="polite"><p>No retrieval recorded in this session.</p></div>
+                <div id="memory-retrieval-result" class="retrieval-result" aria-live="polite"><p>No search yet.</p></div>
               </section>
             </div>
+
             <div class="memory-ledger-column">
               <section class="panel memory-panel memory-ledger" aria-labelledby="memory-ledger-heading">
-                <div class="panel-heading"><h2 id="memory-ledger-heading">Claim ledger</h2><span id="memory-ledger-count">0 immutable claims</span></div>
-                <div id="memory-list" class="memory-list" role="list"><p class="empty-state">No governed claims yet.</p></div>
+                <div class="panel-heading"><div><p class="eyebrow">Your records</p><h2 id="memory-ledger-heading">Saved knowledge</h2></div><span id="memory-ledger-count">0 claims</span></div>
+                <div id="memory-list" class="memory-list" role="list"><p class="empty-state">No saved knowledge yet. Create a brief, then propose the first useful claim.</p></div>
               </section>
               <aside id="memory-inspector" class="panel memory-inspector" aria-labelledby="memory-inspector-heading">
-                <p class="eyebrow">Selected claim</p><h2 id="memory-inspector-heading">Nothing selected</h2>
-                <p id="memory-inspector-statement" class="memory-statement">Select a claim to review its evidence, scope, and authority.</p>
-                <dl><div><dt>State</dt><dd id="memory-inspector-state">—</dd></div><div><dt>Scope</dt><dd id="memory-inspector-scope">—</dd></div><div><dt>Policy</dt><dd id="memory-inspector-policy">—</dd></div><div><dt>Evidence</dt><dd id="memory-inspector-evidence">—</dd></div></dl>
-                <label class="decision-reason" for="memory-decision-reason">Decision reason<input id="memory-decision-reason" type="text" minlength="3" maxlength="1000" value="Creator reviewed the evidence and chose this state."></label>
+                <p class="eyebrow">Selected claim</p>
+                <h2 id="memory-inspector-heading">Nothing selected</h2>
+                <p id="memory-inspector-statement" class="memory-statement">Choose a claim to review how it can be used.</p>
+                <dl><div><dt>Status</dt><dd id="memory-inspector-state">—</dd></div><div><dt>Workspace</dt><dd id="memory-inspector-scope">—</dd></div><div><dt>Use and privacy</dt><dd id="memory-inspector-policy">—</dd></div><div><dt>Source</dt><dd id="memory-inspector-evidence">—</dd></div></dl>
+                <label class="decision-reason" for="memory-decision-reason">Why are you making this change?<input id="memory-decision-reason" type="text" minlength="3" maxlength="1000" value="I reviewed the source and chose how Clark may use this claim."></label>
                 <div id="memory-state-actions" class="memory-actions">
-                  <button id="promote-memory" class="primary-action" type="button">Promote</button><button id="reject-memory" class="secondary-action" type="button">Reject</button><button id="dispute-memory" class="secondary-action" type="button">Dispute</button><button id="forget-memory" class="danger-action" type="button">Forget</button>
+                  <button id="promote-memory" class="primary-action" type="button">Approve</button><button id="reject-memory" class="secondary-action" type="button">Reject</button><button id="dispute-memory" class="secondary-action" type="button">Mark incorrect</button><button id="forget-memory" class="danger-action" type="button">Remove</button>
                 </div>
                 <form id="memory-correction-form" class="correction-form">
-                  <label for="memory-correction">Append-only correction</label>
+                  <label for="memory-correction">Corrected claim</label>
                   <textarea id="memory-correction" minlength="3" maxlength="4000" rows="2" required></textarea>
-                  <label for="memory-correction-reason">Why the old claim is wrong</label>
-                  <input id="memory-correction-reason" type="text" minlength="3" maxlength="1000" value="Creator supplied a more accurate replacement." required>
-                  <button id="correct-memory" class="secondary-action" type="submit">Propose corrected claim</button>
+                  <label for="memory-correction-reason">What was wrong?<input id="memory-correction-reason" type="text" minlength="3" maxlength="1000" value="I supplied a more accurate replacement." required></label>
+                  <button id="correct-memory" class="secondary-action" type="submit">Save correction for review</button>
                 </form>
-                <p class="forget-limit">Forget removes the claim from retrieval and redacts the active projection. The immutable audit event remains until cryptographic erasure or compaction is implemented.</p>
+                <details class="technical-note forget-details">
+                  <summary>What “Remove” does</summary>
+                  <p class="forget-limit">Remove excludes the claim from future use and redacts the active record. The current audit event remains until cryptographic erasure or compaction is implemented.</p>
+                </details>
               </aside>
             </div>
           </div>
         </section>
 
         <section id="view-connections" class="view" role="tabpanel" aria-labelledby="tab-connections" data-view="connections" hidden>
-          <div class="view-heading">
-            <div><p class="eyebrow">Capability boundary</p><h1>Connections</h1><p>Nothing gains authority merely because it was discovered or installed.</p></div>
-            <button id="review-trust" class="primary-action" type="button">Review trust</button>
-          </div>
-          <div id="trust-summary" class="trust-summary" tabindex="-1" aria-labelledby="trust-heading">
-            <div><p class="eyebrow">Trust center</p><h2 id="trust-heading">3 decisions remain explicit</h2></div>
-            <p>File, credential, and publish access stay separate. A permission change forces re-review.</p>
-          </div>
-          <div class="connection-list" role="list" aria-label="Configured capability packages">
-            <article class="connection-card" role="listitem">
-              <div class="connection-icon mcp" aria-hidden="true">M</div><div><h2>Bundled MCP idea inspector</h2><p id="capability-connection-detail">Exact stdio process · connecting</p></div><span id="capability-connection-state" class="state specified">Starting</span>
-            </article>
-            <article class="connection-card" role="listitem">
-              <div class="connection-icon bridge" aria-hidden="true">B</div><div><h2>Clark Bridge</h2><p id="bridge-connection-detail">Authenticated localhost MCP · memory unavailable without a separate pairing scope</p></div><span id="bridge-connection-state" class="state specified">Starting</span>
-            </article>
-            <article class="connection-card" role="listitem">
-              <div class="connection-icon harness" aria-hidden="true">H</div><div><h2>Clark Harness</h2><p id="harness-connection-detail">Supervised utility process · connecting</p></div><span id="harness-connection-state" class="state specified">Starting</span>
-            </article>
-            <article class="connection-card" role="listitem">
-              <div class="connection-icon opencut" aria-hidden="true">O</div><div><h2>OpenCut Tool Pack candidate</h2><p id="opencut-connection-detail">Loading immutable manifest and activation gates</p></div><span id="opencut-connection-state" class="state specified">Inspecting</span>
-            </article>
-            <article class="connection-card" role="listitem">
-              <div class="connection-icon skill" aria-hidden="true">S</div><div><h2>Agent Skills host</h2><p id="skill-connection-detail">Loading exact revisions and trust gates</p></div><span id="skill-connection-state" class="state specified">Inspecting</span>
-            </article>
-          </div>
-          <section id="tool-pack-inspector" class="tool-pack-inspector" aria-labelledby="tool-pack-heading">
-            <div class="panel-heading"><div><h2 id="tool-pack-heading">Tool Pack gate review</h2><span>Reuse the engine; keep Clark truth canonical</span></div><button id="recheck-tool-pack" class="secondary-action" type="button">Recheck gates</button></div>
-            <div class="tool-pack-summary">
-              <div><p class="eyebrow">Pinned candidate</p><h3 id="tool-pack-name">OpenCut Rewrite</h3><p id="tool-pack-reason">Reading the workspace-scoped package projection…</p></div>
-              <dl><div><dt>Source</dt><dd id="tool-pack-source">—</dd></div><div><dt>Manifest</dt><dd id="tool-pack-manifest">—</dd></div><div><dt>Package contents</dt><dd id="tool-pack-components">—</dd></div><div><dt>Preferred boundary</dt><dd id="tool-pack-path">—</dd></div></dl>
+          <header class="view-heading">
+            <div>
+              <p class="eyebrow">Replaceable tools, explicit permission</p>
+              <h1>Integrations</h1>
+              <p class="display-copy">Connect tools without giving away control.</p>
+              <p class="view-description">Clark can reuse open-source tools behind a clear boundary. Discovery never means activation, and each permission stays separate.</p>
             </div>
-            <ol id="tool-pack-gates" class="tool-pack-gates" aria-label="OpenCut activation gates"><li><span>Loading</span><strong>Pending</strong><small>Waiting for Harness projection.</small></li></ol>
-            <div class="tool-pack-decision"><p id="tool-pack-decision">A Git repository is a candidate, not an installed plugin. Activation remains unavailable until every gate passes.</p><button id="resolve-tool-pack" class="primary-action" type="button" disabled>Activation blocked</button></div>
+            <button id="review-trust" class="primary-action" type="button">Review permissions</button>
+          </header>
+
+          <section id="trust-summary" class="trust-summary" tabindex="-1" aria-labelledby="trust-heading">
+            <div class="trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 5.5 6v5.1c0 4.2 2.7 8.1 6.5 9.2 3.8-1.1 6.5-5 6.5-9.2V6L12 3Z"/><path d="m9.5 12 1.7 1.7 3.5-3.7"/></svg></div>
+            <div><p class="eyebrow">Permission rule</p><h2 id="trust-heading">You stay in control</h2><p>Files, accounts, and publishing are separate decisions. Changing a tool or permission requires another review.</p></div>
+            <span class="quiet-badge">3 explicit decisions</span>
           </section>
-          <section id="skill-inspector" class="skill-inspector" aria-labelledby="skill-heading">
-            <div class="panel-heading"><div><h2 id="skill-heading">Skill trust review</h2><span>Trust a procedure; grant each invocation separately</span></div><button id="recheck-skill" class="secondary-action" type="button">Recheck skill</button></div>
-            <div class="skill-summary">
-              <div><p id="skill-eyebrow" class="eyebrow">Bundled Class A candidate</p><h3 id="skill-name">Evidence Brief Review</h3><p id="skill-reason">Reading the workspace-scoped Skill projection…</p></div>
-              <dl><div><dt>Source</dt><dd id="skill-source">—</dd></div><div><dt>Package</dt><dd id="skill-files">—</dd></div><div><dt>Requested ceiling</dt><dd id="skill-requested">—</dd></div><div><dt>Trusted ceiling</dt><dd id="skill-trusted">—</dd></div></dl>
+
+          <section class="connection-group" aria-labelledby="available-tools-heading">
+            <div class="section-heading"><div><p class="eyebrow">Working on this Mac</p><h2 id="available-tools-heading">Available now</h2></div><span>3 local services</span></div>
+            <div class="connection-list" role="list" aria-label="Available local services">
+              <article class="connection-card" role="listitem">
+                <div class="connection-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16M7 4v6M4 17h16M16 14v6"/></svg></div><div><h3>Idea analyzer</h3><p id="capability-connection-detail">Starting the built-in idea check</p></div><span id="capability-connection-state" class="state specified">Starting</span>
+              </article>
+              <article class="connection-card" role="listitem">
+                <div class="connection-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="8"/></svg></div><div><h3>Local tool bridge</h3><p id="bridge-connection-detail">Starting the private connection on this Mac</p></div><span id="bridge-connection-state" class="state specified">Starting</span>
+              </article>
+              <article class="connection-card" role="listitem">
+                <div class="connection-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM9 5v14M9 10h10"/></svg></div><div><h3>Local workspace</h3><p id="harness-connection-detail">Opening your durable local workspace</p></div><span id="harness-connection-state" class="state specified">Starting</span>
+              </article>
             </div>
-            <ol id="skill-gates" class="skill-gates" aria-label="Skill promotion gates"><li><span>Loading</span><strong>Pending</strong><small>Waiting for Harness projection.</small></li></ol>
-            <div class="skill-decision"><p id="skill-decision">Installation retains exact bytes in quarantine. Promotion still grants no direct invocation authority.</p><button id="resolve-skill" class="primary-action" type="button" disabled>Trust blocked</button></div>
           </section>
-          <section class="native-prompts" aria-labelledby="native-heading">
-            <div class="panel-heading"><h2 id="native-heading">Native trust language</h2><span>Interaction proof only</span></div>
-            <div class="prompt-grid">
-              <article><strong>Files</strong><p>“Choose the workspace Clark may use.” No broad Home-folder access.</p><span>File picker planned</span></article>
-              <article><strong>Credentials</strong><p>“Allow Clark to use this account?” Secret values never enter the canvas.</p><span>Keychain broker planned</span></article>
-              <article><strong>Notifications</strong><p>Requested only after you choose background completion alerts.</p><span>TCC flow planned</span></article>
-              <article><strong>Updates & Share</strong><p>Publisher identity, signature, permissions, and rollback appear before activation.</p><span>Signed flows not built</span></article>
+
+          <section class="connection-group" aria-labelledby="candidate-tools-heading">
+            <div class="section-heading"><div><p class="eyebrow">Installed does not mean active</p><h2 id="candidate-tools-heading">Under review</h2></div><span>2 candidates</span></div>
+            <div class="connection-list candidate-list" role="list" aria-label="Tools under review">
+              <article class="connection-card" role="listitem">
+                <div class="connection-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 4 10 8L7 20V4Z"/><path d="M4 4h2M4 20h2"/></svg></div><div><h3>OpenCut video tools</h3><p id="opencut-connection-detail">Checking the exact source and supported interfaces</p></div><span id="opencut-connection-state" class="state specified">Inspecting</span>
+              </article>
+              <article class="connection-card" role="listitem">
+                <div class="connection-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 4h8v4h4v8h-4v4H8v-4H4V8h4V4Z"/><path d="m9.5 12 1.5 1.5 3.5-3.5"/></svg></div><div><h3>Brief review procedure</h3><p id="skill-connection-detail">Checking the exact procedure and its permission ceiling</p></div><span id="skill-connection-state" class="state specified">Inspecting</span>
+              </article>
+            </div>
+          </section>
+
+          <details id="tool-pack-inspector" class="advanced-panel tool-pack-inspector">
+            <summary>
+              <span><span class="eyebrow">OpenCut candidate</span><strong>Why the video tools are not active</strong></span>
+              <span class="summary-action">View technical review</span>
+            </summary>
+            <div class="advanced-body">
+              <div class="panel-heading"><div><h2 id="tool-pack-heading">OpenCut activation review</h2><span>Reuse its engine while Clark keeps the source of truth</span></div><button id="recheck-tool-pack" class="secondary-action" type="button">Recheck</button></div>
+              <div class="tool-pack-summary">
+                <div><p class="eyebrow">Pinned candidate</p><h3 id="tool-pack-name">OpenCut Rewrite</h3><p id="tool-pack-reason">Reading the workspace review…</p></div>
+                <dl><div><dt>Source</dt><dd id="tool-pack-source">—</dd></div><div><dt>Manifest</dt><dd id="tool-pack-manifest">—</dd></div><div><dt>Contents</dt><dd id="tool-pack-components">—</dd></div><div><dt>Boundary</dt><dd id="tool-pack-path">—</dd></div></dl>
+              </div>
+              <ol id="tool-pack-gates" class="tool-pack-gates" aria-label="OpenCut activation checks"><li><span>Loading</span><strong>Pending</strong><small>Waiting for the local workspace.</small></li></ol>
+              <div class="tool-pack-decision"><p id="tool-pack-decision">A repository is a candidate, not an active integration. Every check must pass first.</p><button id="resolve-tool-pack" class="primary-action" type="button" disabled>Activation blocked</button></div>
+            </div>
+          </details>
+
+          <details id="skill-inspector" class="advanced-panel skill-inspector">
+            <summary>
+              <span><span class="eyebrow">Review procedure</span><strong>What this procedure is allowed to do</strong></span>
+              <span class="summary-action">View trust review</span>
+            </summary>
+            <div class="advanced-body">
+              <div class="panel-heading"><div><h2 id="skill-heading">Procedure trust review</h2><span>Trust this exact version; approve each future use separately</span></div><button id="recheck-skill" class="secondary-action" type="button">Recheck</button></div>
+              <div class="skill-summary">
+                <div><p id="skill-eyebrow" class="eyebrow">Bundled procedure</p><h3 id="skill-name">Evidence Brief Review</h3><p id="skill-reason">Reading the exact version…</p></div>
+                <dl><div><dt>Source</dt><dd id="skill-source">—</dd></div><div><dt>Package</dt><dd id="skill-files">—</dd></div><div><dt>Requested limit</dt><dd id="skill-requested">—</dd></div><div><dt>Trusted limit</dt><dd id="skill-trusted">—</dd></div></dl>
+              </div>
+              <ol id="skill-gates" class="skill-gates" aria-label="Procedure trust checks"><li><span>Loading</span><strong>Pending</strong><small>Waiting for the local workspace.</small></li></ol>
+              <div class="skill-decision"><p id="skill-decision">The exact files are retained for review. Nothing can run until you trust the version and separately allow its use.</p><button id="resolve-skill" class="primary-action" type="button" disabled>Trust blocked</button></div>
+            </div>
+          </details>
+
+          <section class="permission-rules" aria-labelledby="permission-rules-heading">
+            <div class="section-heading"><div><p class="eyebrow">Boundaries that do not blur</p><h2 id="permission-rules-heading">Permission rules</h2></div></div>
+            <div class="permission-grid">
+              <article><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h6l2 2h8v10H4V7Z"/></svg><div><strong>Files</strong><p>You choose the exact workspace. Clark does not request your whole Home folder.</p></div></article>
+              <article><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4"/><path d="M12 12h8M17 12v3M20 12v2"/></svg><div><strong>Accounts</strong><p>Credentials stay behind a broker and never appear inside creator content.</p></div></article>
+              <article><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h11M12 7l5 5-5 5"/><path d="M19 5v14"/></svg><div><strong>Publishing</strong><p>Publishing is not available yet. A future signed flow will require a separate final review.</p></div></article>
             </div>
           </section>
         </section>

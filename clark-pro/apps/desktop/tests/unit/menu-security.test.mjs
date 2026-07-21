@@ -12,10 +12,10 @@ test("native menu contains Mac roles and stable navigation accelerators", () => 
   assert.equal(template[4].role, "windowMenu");
   const viewItems = template[3].submenu;
   assert.deepEqual(viewItems.filter((item) => item.id?.startsWith("view-")).map((item) => [item.id, item.accelerator]), [
-    ["view-focus", "CmdOrCtrl+1"], ["view-canvas", "CmdOrCtrl+2"], ["view-memory", "CmdOrCtrl+6"], ["view-connections", "CmdOrCtrl+7"]
+    ["view-focus", "CmdOrCtrl+1"], ["view-canvas", "CmdOrCtrl+2"], ["view-review", "CmdOrCtrl+3"], ["view-memory", "CmdOrCtrl+6"], ["view-connections", "CmdOrCtrl+7"]
   ]);
-  viewItems.find((item) => item.id === "view-canvas").click();
-  assert.deepEqual(navigated, ["canvas"]);
+  viewItems.find((item) => item.id === "view-review").click();
+  assert.deepEqual(navigated, ["review"]);
 });
 
 test("only the packaged shell origin is trusted", () => {

@@ -69,6 +69,23 @@ test("idea revision requests require explicit parent lineage and a reason", () =
   }), HarnessProtocolError);
 });
 
+test("exact-version approval requests require an explicit decision reason", () => {
+  const approval = {
+    workspaceId: "workspace.local",
+    runId: "run.idea.12345678",
+    approvalId: "approval.idea.12345678",
+    decision: "approve",
+    reason: "Creator reviewed this exact wording.",
+    idempotencyKey: "intent-approval-0001"
+  };
+  assert.doesNotThrow(() => createRequest("approval.resolve", approval));
+  const { reason: _reason, ...withoutReason } = approval;
+  assert.throws(() => createRequest("approval.resolve", withoutReason), HarnessProtocolError);
+  assert.throws(() => createRequest("approval.resolve", { ...approval, reason: "x" }), HarnessProtocolError);
+  assert.throws(() => createRequest("approval.resolve", { ...approval, reason: "   " }), HarnessProtocolError);
+  assert.throws(() => createRequest("approval.resolve", { ...approval, reason: "ab " }), HarnessProtocolError);
+});
+
 test("memory mutation and retrieval requests require workspace scope, evidence, and explicit send policy", () => {
   const scope = { workspaceId: "workspace.local", projectId: "project.idea-lab" };
   assert.doesNotThrow(() => createRequest("memory.propose", {
