@@ -34,8 +34,9 @@ const api = Object.freeze({
   getWritingState: () => ipcRenderer.invoke("desktop:get-writing-state"),
   createWritingDraft: () => ipcRenderer.invoke("desktop:create-writing-draft"),
   saveWritingDraft: (draft) => {
-    const safe = draft && typeof draft === "object" ? { draftId: draft.draftId, title: draft.title, body: draft.body } : undefined;
-    if (!safe || typeof safe.draftId !== "string" || typeof safe.title !== "string" || safe.title.length > 180 || typeof safe.body !== "string" || safe.body.length > 200000) {
+    const safe = draft && typeof draft === "object" ? { draftId: draft.draftId, title: draft.title, body: draft.body, scheduledFor: draft.scheduledFor, channel: draft.channel } : undefined;
+    const validDate = safe?.scheduledFor === "" || (typeof safe?.scheduledFor === "string" && /^\d{4}-\d{2}-\d{2}$/.test(safe.scheduledFor));
+    if (!safe || typeof safe.draftId !== "string" || typeof safe.title !== "string" || safe.title.length > 180 || typeof safe.body !== "string" || safe.body.length > 200000 || !validDate || !["LinkedIn", "X", "Instagram", "YouTube", "Newsletter"].includes(safe.channel)) {
       return Promise.reject(new TypeError("A valid writing draft is required"));
     }
     return ipcRenderer.invoke("desktop:save-writing-draft", safe);

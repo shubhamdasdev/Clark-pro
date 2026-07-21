@@ -345,12 +345,19 @@ test("writing workspace autosaves a local draft across a desktop restart", async
     await page.getByRole("heading", { name: "Write", level: 1 }).waitFor();
     await page.getByRole("button", { name: "New draft" }).click();
     await page.locator("#writing-title").fill("A better creator workflow");
+    await page.locator("#writing-scheduled-for").evaluate((input) => {
+      input.value = "2026-07-24";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await page.locator("#writing-channel").selectOption("LinkedIn");
     await page.locator("#writing-body").fill("Write the first useful sentence before asking a tool to help.");
     await page.getByText("Saved locally", { exact: true }).waitFor();
     assert.match(await page.locator("#writing-word-count").innerText(), /^11 words$/i);
     const writingState = await page.evaluate(() => window.clarkDesktop.getWritingState());
     assert.equal(writingState.drafts.length, 1);
     assert.equal(writingState.drafts[0].title, "A better creator workflow");
+    assert.deepEqual(writingState.drafts[0].plan, { scheduledFor: "2026-07-24", channel: "LinkedIn" });
     assert.equal(writingState.obsidian.connected, false);
     await electronApp.close();
     electronApp = undefined;
@@ -359,6 +366,7 @@ test("writing workspace autosaves a local draft across a desktop restart", async
     const restoredPage = await electronApp.firstWindow();
     await restoredPage.getByRole("heading", { name: "Write", level: 1 }).waitFor();
     assert.equal(await restoredPage.locator("#writing-title").inputValue(), "A better creator workflow");
+    assert.equal(await restoredPage.locator("#writing-scheduled-for").inputValue(), "2026-07-24");
     assert.equal(await restoredPage.locator("#writing-body").inputValue(), "Write the first useful sentence before asking a tool to help.");
   } finally {
     if (electronApp) await electronApp.close().catch(() => {});

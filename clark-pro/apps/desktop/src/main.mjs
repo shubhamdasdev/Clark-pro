@@ -128,7 +128,7 @@ function installIpc() {
   ipcMain.handle("desktop:save-writing-draft", (event, draft) => {
     assertTrustedSender(event, mainWindow?.webContents);
     if (!draft || typeof draft !== "object") throw new TypeError("A writing draft is required");
-    return writing().save({ draftId: draft.draftId, title: draft.title, body: draft.body });
+    return writing().save({ draftId: draft.draftId, title: draft.title, body: draft.body, scheduledFor: draft.scheduledFor, channel: draft.channel });
   });
   ipcMain.handle("desktop:connect-obsidian", async (event) => {
     assertTrustedSender(event, mainWindow?.webContents);
@@ -145,7 +145,7 @@ function installIpc() {
     if (typeof draftId !== "string") throw new TypeError("A writing draft is required");
     const draft = writing().get(draftId);
     if (!draft) throw new TypeError("Writing draft does not exist");
-    const exported = vault().exportDraft(draft);
+    const exported = vault().exportDraft(draft, { drafts: writing().list() });
     const saved = writing().markExported({ draftId, exportFileName: exported.fileName, markdownHash: exported.markdownHash });
     return { draft: saved, obsidian: vault().status() };
   });

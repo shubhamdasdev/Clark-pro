@@ -39,12 +39,14 @@ test("Obsidian exporter only writes a Clark-owned Markdown file inside a selecte
     await mkdir(path.join(vaultDirectory, ".obsidian"), { recursive: true });
     const vault = new ObsidianVault(path.join(directory, "state", "obsidian.json"));
     assert.deepEqual(vault.connect(vaultDirectory), { connected: true, vaultName: "Creator notes" });
-    const draft = store.save({ draftId: store.create().id, title: "Launch plan", body: "Make the opening specific." });
-    const exported = vault.exportDraft(draft);
-    assert.match(exported.fileName, /^Clark Pro\/draft\./);
+    const draft = store.save({ draftId: store.create().id, title: "Launch plan", body: "Make the opening specific.", scheduledFor: "2026-07-24", channel: "LinkedIn" });
+    const exported = vault.exportDraft(draft, { drafts: [draft] });
+    assert.match(exported.fileName, /^AI-Memory\/Content\/2026\/2026-07\/2026-07-24--draft\./);
     const output = await readFile(path.join(vaultDirectory, exported.fileName), "utf8");
     assert.equal(output, renderObsidianMarkdown(draft));
     assert.match(output, /clark_draft_id: draft\./);
+    assert.match(output, /clark_channel: LinkedIn/);
+    assert.match(await readFile(path.join(vaultDirectory, "AI-Memory", "Calendar", "2026-07.md"), "utf8"), /Launch plan/);
     const saved = store.markExported({ draftId: draft.id, exportFileName: exported.fileName, markdownHash: exported.markdownHash });
     assert.equal(saved.obsidianExport.fileName, exported.fileName);
   } finally {
@@ -60,14 +62,14 @@ test("Obsidian exporter rejects unowned files and symlink escape attempts", asyn
     const vault = new ObsidianVault(path.join(directory, "state", "obsidian.json"));
     vault.connect(vaultDirectory);
     const draft = store.create();
-    const exportDirectory = path.join(vaultDirectory, "Clark Pro");
-    await mkdir(exportDirectory);
+    const exportDirectory = path.join(vaultDirectory, "AI-Memory", "Content", "Unscheduled");
+    await mkdir(exportDirectory, { recursive: true });
     const target = path.join(exportDirectory, `draft.${draft.id.slice("draft.".length)}.md`);
     await import("node:fs/promises").then(({ writeFile }) => writeFile(target, "# Someone else's note\n"));
-    assert.throws(() => vault.exportDraft(draft), /did not create/);
+    assert.throws(() => vault.exportDraft(draft), /unowned/);
     await rm(target);
-    await rm(exportDirectory, { recursive: true });
-    await symlink(path.join(directory, "outside"), exportDirectory);
+    await rm(path.join(vaultDirectory, "AI-Memory"), { recursive: true });
+    await symlink(path.join(directory, "outside"), path.join(vaultDirectory, "AI-Memory"));
     assert.throws(() => vault.exportDraft(draft), /unavailable or unsafe/);
   } finally {
     await rm(directory, { recursive: true, force: true });

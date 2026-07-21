@@ -335,6 +335,10 @@
               <div id="writing-draft-list" class="writing-draft-list" role="list">
                 <p class="empty-state">Create a draft to begin.</p>
               </div>
+              <section class="content-plan" aria-labelledby="content-plan-heading">
+                <div class="content-plan-heading"><p class="eyebrow">Your next posts</p><h3 id="content-plan-heading">Publishing plan</h3></div>
+                <div id="content-calendar" class="content-calendar" role="list"><p class="empty-state">Give a draft a date to see it here.</p></div>
+              </section>
             </aside>
 
             <section class="panel writing-editor-panel" aria-labelledby="writing-editor-heading">
@@ -351,6 +355,11 @@
                 </div>
                 <label class="sr-only" for="writing-title">Draft title</label>
                 <input id="writing-title" class="writing-title" type="text" maxlength="180" placeholder="Untitled draft" autocomplete="off">
+                <div class="writing-plan-fields" aria-label="Publishing plan">
+                  <div><label for="writing-scheduled-for">Publish date</label><input id="writing-scheduled-for" type="date"></div>
+                  <div><label for="writing-channel">Where it is for</label><select id="writing-channel"><option>LinkedIn</option><option>X</option><option>Instagram</option><option>YouTube</option><option>Newsletter</option></select></div>
+                  <p>Scheduling clarifies the plan. Clark does not publish automatically.</p>
+                </div>
                 <label class="sr-only" for="writing-body">Draft body</label>
                 <textarea id="writing-body" class="writing-body" maxlength="200000" placeholder="Start writing. Clark saves this draft only on this Mac."></textarea>
                 <div class="writing-footer">

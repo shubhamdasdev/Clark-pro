@@ -215,9 +215,12 @@ const writingEditor = document.querySelector("#writing-editor");
 const writingSavingState = document.querySelector("#writing-saving-state");
 const writingWordCount = document.querySelector("#writing-word-count");
 const writingTitle = document.querySelector("#writing-title");
+const writingScheduledFor = document.querySelector("#writing-scheduled-for");
+const writingChannel = document.querySelector("#writing-channel");
 const writingBody = document.querySelector("#writing-body");
 const writingExportNote = document.querySelector("#writing-export-note");
 const exportObsidianButton = document.querySelector("#export-obsidian");
+const contentCalendar = document.querySelector("#content-calendar");
 const memoryMode = document.querySelector("#memory-mode");
 const memoryProposedCount = document.querySelector("#memory-proposed-count");
 const memoryActiveCount = document.querySelector("#memory-active-count");
@@ -1133,6 +1136,39 @@ function selectedWritingDraft() {
   return writingDrafts.find((draft) => draft.id === selectedWritingDraftId);
 }
 
+function formatPublishDate(value) {
+  return new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(new Date(`${value}T12:00:00`));
+}
+
+function renderContentCalendar() {
+  const planned = writingDrafts
+    .filter((draft) => draft.plan?.scheduledFor)
+    .sort((left, right) => left.plan.scheduledFor.localeCompare(right.plan.scheduledFor) || left.title.localeCompare(right.title))
+    .slice(0, 7);
+  contentCalendar.replaceChildren();
+  if (!planned.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "Give a draft a date to see it here.";
+    contentCalendar.append(empty);
+    return;
+  }
+  contentCalendar.append(...planned.map((draft) => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "content-calendar-item";
+    item.dataset.draftId = draft.id;
+    item.setAttribute("role", "listitem");
+    const date = document.createElement("time");
+    date.dateTime = draft.plan.scheduledFor;
+    date.textContent = formatPublishDate(draft.plan.scheduledFor);
+    const detail = document.createElement("span");
+    detail.textContent = `${draft.plan.channel} · ${draft.title || "Untitled draft"}`;
+    item.append(date, detail);
+    return item;
+  }));
+}
+
 function renderWriting(state, { preserveEditor = false } = {}) {
   writingDrafts = state.drafts ?? [];
   writingConnection = state.obsidian ?? { connected: false };
@@ -1144,6 +1180,7 @@ function renderWriting(state, { preserveEditor = false } = {}) {
   writingEmpty.hidden = Boolean(draft);
   writingEditor.hidden = !draft;
   writingDraftList.replaceChildren();
+  renderContentCalendar();
   if (!writingDrafts.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
@@ -1167,14 +1204,16 @@ function renderWriting(state, { preserveEditor = false } = {}) {
   }
   if (!draft || preserveEditor) return;
   writingTitle.value = draft.title;
+  writingScheduledFor.value = draft.plan?.scheduledFor ?? "";
+  writingChannel.value = draft.plan?.channel ?? "LinkedIn";
   writingBody.value = draft.body;
   writingWordCount.textContent = `${wordCount(draft.body)} ${wordCount(draft.body) === 1 ? "word" : "words"}`;
   writingSavingState.textContent = "Saved locally";
   writingExportNote.textContent = writingConnection.connected
     ? draft.obsidianExport
       ? `Last exported ${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(draft.obsidianExport.exportedAt))}. Export again to update the Clark-owned Markdown copy.`
-      : `Ready to export a Clark-owned Markdown copy to ${writingConnection.vaultName}.`
-    : "Connect an Obsidian vault when you want a Markdown copy there.";
+      : `Ready to export to AI-Memory/Content in ${writingConnection.vaultName}.`
+    : "Connect an Obsidian vault when you want a scheduled Markdown copy there.";
 }
 
 async function refreshWriting() {
@@ -1212,12 +1251,15 @@ async function saveWritingDraft() {
   const request = window.clarkDesktop.saveWritingDraft({
     draftId: draft.id,
     title: writingTitle.value,
-    body: writingBody.value
+    body: writingBody.value,
+    scheduledFor: writingScheduledFor.value,
+    channel: writingChannel.value
   });
   writingSavePromise = request;
   try {
     const saved = await request;
     writingDrafts = writingDrafts.map((candidate) => candidate.id === saved.id ? saved : candidate);
+    renderWriting({ drafts: writingDrafts, obsidian: writingConnection }, { preserveEditor: true });
     if (writingSavePromise === request) writingSavingState.textContent = "Saved locally";
     return saved;
   } catch (error) {
@@ -1238,8 +1280,23 @@ function scheduleWritingSave() {
 }
 
 writingTitle.addEventListener("input", scheduleWritingSave);
+writingScheduledFor.addEventListener("input", scheduleWritingSave);
+writingScheduledFor.addEventListener("change", scheduleWritingSave);
+writingChannel.addEventListener("change", scheduleWritingSave);
 writingBody.addEventListener("input", scheduleWritingSave);
 writingDraftList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-draft-id]");
+  if (!button || button.dataset.draftId === selectedWritingDraftId) return;
+  try {
+    await saveWritingDraft();
+    selectedWritingDraftId = button.dataset.draftId;
+    renderWriting({ drafts: writingDrafts, obsidian: writingConnection });
+    writingTitle.focus();
+  } catch {
+    // The visible save error already explains why selection did not change.
+  }
+});
+contentCalendar.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-draft-id]");
   if (!button || button.dataset.draftId === selectedWritingDraftId) return;
   try {

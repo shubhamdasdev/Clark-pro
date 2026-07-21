@@ -2434,6 +2434,61 @@ dd {
   margin-top: var(--space-4);
 }
 
+.content-plan {
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.content-plan-heading h3 {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-md);
+}
+
+.content-plan-heading .eyebrow {
+  margin: 0;
+}
+
+.content-calendar {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.content-calendar-item {
+  display: grid;
+  min-height: 3.5rem;
+  grid-template-columns: 4.8rem minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.content-calendar-item:hover {
+  border-color: var(--color-border);
+  background: var(--color-surface-muted);
+}
+
+.content-calendar-item time {
+  color: var(--color-accent);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.content-calendar-item span {
+  overflow: hidden;
+  color: var(--color-text-soft);
+  font-size: var(--font-xs);
+  line-height: 1.35;
+  text-overflow: ellipsis;
+}
+
 .writing-draft-item {
   display: grid;
   min-height: 4.25rem;
@@ -2503,7 +2558,7 @@ dd {
 .writing-editor {
   display: grid;
   min-height: 34rem;
-  grid-template-rows: auto auto minmax(20rem, 1fr) auto;
+  grid-template-rows: auto auto auto minmax(20rem, 1fr) auto;
 }
 
 .writing-editor-topline,
@@ -2553,6 +2608,44 @@ dd {
   opacity: 1;
 }
 
+.writing-plan-fields {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.7fr) minmax(10rem, 0.8fr) minmax(14rem, 1.5fr);
+  gap: var(--space-3);
+  align-items: end;
+  padding: var(--space-3) var(--space-8) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.writing-plan-fields > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.writing-plan-fields label {
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+  font-weight: 700;
+}
+
+.writing-plan-fields input,
+.writing-plan-fields select {
+  min-height: 2.5rem;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
+  color: var(--color-text);
+  padding: 0 var(--space-2);
+  font: inherit;
+}
+
+.writing-plan-fields p {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+  line-height: 1.4;
+}
+
 .writing-body {
   min-height: 20rem;
   padding: var(--space-3) var(--space-8) var(--space-8);
@@ -2589,6 +2682,14 @@ dd {
   .writing-draft-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .writing-plan-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .writing-plan-fields p {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 56rem) {
@@ -2611,6 +2712,16 @@ dd {
   .writing-body {
     padding-right: var(--space-5);
     padding-left: var(--space-5);
+  }
+
+  .writing-plan-fields {
+    grid-template-columns: 1fr;
+    padding-right: var(--space-5);
+    padding-left: var(--space-5);
+  }
+
+  .writing-plan-fields p {
+    grid-column: auto;
   }
 
   .writing-editor-topline,
