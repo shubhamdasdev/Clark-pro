@@ -1,12 +1,14 @@
-import { app, BrowserWindow, ipcMain, Menu, net, protocol, screen, session } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, net, protocol, screen, session } from "electron";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { HarnessSupervisor } from "./harness-supervisor.mjs";
 import { minimalHarnessEnvironment } from "./harness-boundary-utils.mjs";
 import { createMenuTemplate, SECTIONS } from "./menu.mjs";
+import { ObsidianVault } from "./obsidian-vault.mjs";
 import { assertTrustedSender, denyAllSessionPermissions, hardenWebContents } from "./security.mjs";
 import { normalizeWindowBounds, readWindowState, writeWindowState, writeWindowStateSync } from "./window-state.mjs";
+import { WritingStore } from "./writing-store.mjs";
 
 const sourceDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rendererDirectory = path.join(sourceDirectory, "renderer");
@@ -15,6 +17,8 @@ const state = { activeSection: "focus" };
 let mainWindow;
 let saveTimer;
 let harnessSupervisor;
+let writingStore;
+let obsidianVault;
 
 const LOCAL_WORKSPACE_ID = "workspace.local";
 const LOCAL_PROJECT_ID = "project.idea-lab";
@@ -38,6 +42,16 @@ protocol.registerSchemesAsPrivileged([
 
 function statePath() {
   return path.join(app.getPath("userData"), "shell-state.json");
+}
+
+function writing() {
+  writingStore ??= new WritingStore(path.join(app.getPath("userData"), "writing", "drafts.json"));
+  return writingStore;
+}
+
+function vault() {
+  obsidianVault ??= new ObsidianVault(path.join(app.getPath("userData"), "writing", "obsidian-connection.json"));
+  return obsidianVault;
 }
 
 function sendNavigation(section) {
@@ -102,6 +116,38 @@ function installIpc() {
       harnessSupervisor.request("bridge.status", { workspaceId: LOCAL_WORKSPACE_ID })
     ]);
     return { available: true, ...status, runs: list.runs, memories: memories.memories, skills: skills.skills, toolPackages: toolPackages.toolPackages, capabilities: capabilities.capabilities, bridge };
+  });
+  ipcMain.handle("desktop:get-writing-state", (event) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    return { drafts: writing().list(), obsidian: vault().status() };
+  });
+  ipcMain.handle("desktop:create-writing-draft", (event) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    return writing().create();
+  });
+  ipcMain.handle("desktop:save-writing-draft", (event, draft) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    if (!draft || typeof draft !== "object") throw new TypeError("A writing draft is required");
+    return writing().save({ draftId: draft.draftId, title: draft.title, body: draft.body, scheduledFor: draft.scheduledFor, channel: draft.channel });
+  });
+  ipcMain.handle("desktop:connect-obsidian", async (event) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    const selection = await dialog.showOpenDialog(mainWindow, {
+      title: "Choose your Obsidian vault",
+      buttonLabel: "Connect vault",
+      properties: ["openDirectory", "createDirectory"]
+    });
+    if (selection.canceled || selection.filePaths.length !== 1) return { cancelled: true, ...vault().status() };
+    return { cancelled: false, ...vault().connect(selection.filePaths[0]) };
+  });
+  ipcMain.handle("desktop:export-writing-draft", (event, draftId) => {
+    assertTrustedSender(event, mainWindow?.webContents);
+    if (typeof draftId !== "string") throw new TypeError("A writing draft is required");
+    const draft = writing().get(draftId);
+    if (!draft) throw new TypeError("Writing draft does not exist");
+    const exported = vault().exportDraft(draft, { drafts: writing().list() });
+    const saved = writing().markExported({ draftId, exportFileName: exported.fileName, markdownHash: exported.markdownHash });
+    return { draft: saved, obsidian: vault().status() };
   });
   ipcMain.handle("desktop:start-idea-loop", async (event, ideaText) => {
     assertTrustedSender(event, mainWindow?.webContents);

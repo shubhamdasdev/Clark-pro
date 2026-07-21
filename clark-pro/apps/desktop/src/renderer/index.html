@@ -41,6 +41,10 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v3h3v13H4V7h3V4Z"/><path d="M8 12h8M8 16h5M9 4h6v4H9z"/></svg>
               <span>Review</span><kbd>⌘3</kbd>
             </button>
+            <button id="tab-writing" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-writing" tabindex="-1" data-section="writing">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h9l3 3v13H6V4Z"/><path d="M15 4v4h4M9 12h6M9 16h6"/></svg>
+              <span>Write</span><kbd>⌘4</kbd>
+            </button>
             <button id="tab-memory" class="nav-item" type="button" role="tab" aria-selected="false" aria-controls="view-memory" tabindex="-1" data-section="memory">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5.5A2.5 2.5 0 0 1 8.5 3H19v15H8.5A2.5 2.5 0 0 0 6 20.5v-15Z"/><path d="M6 18.5A2.5 2.5 0 0 1 8.5 16H19"/></svg>
               <span>Knowledge</span><kbd>⌘6</kbd>
@@ -306,6 +310,65 @@
               </div>
             </form>
           </dialog>
+        </section>
+
+        <section id="view-writing" class="view" role="tabpanel" aria-labelledby="tab-writing" data-view="writing" hidden>
+          <header class="view-heading writing-heading">
+            <div>
+              <p class="eyebrow">A calmer place to make the work</p>
+              <h1>Write</h1>
+              <p class="display-copy">Stay with the draft until it says what you mean.</p>
+              <p class="view-description">Draft locally, then send a Clark-owned Markdown copy to the Obsidian vault you choose. Nothing is shared automatically.</p>
+            </div>
+            <div class="writing-heading-actions">
+              <span id="obsidian-status" class="mode-badge">Obsidian not connected</span>
+              <button id="connect-obsidian" class="secondary-action" type="button">Connect Obsidian vault</button>
+            </div>
+          </header>
+
+          <div class="writing-layout">
+            <aside class="panel draft-list-panel" aria-labelledby="draft-list-heading">
+              <div class="panel-heading">
+                <div><p class="eyebrow">Local drafts</p><h2 id="draft-list-heading">Writing</h2></div>
+                <button id="new-writing-draft" class="icon-action" type="button" aria-label="New draft" title="New draft">+</button>
+              </div>
+              <div id="writing-draft-list" class="writing-draft-list" role="list">
+                <p class="empty-state">Create a draft to begin.</p>
+              </div>
+              <section class="content-plan" aria-labelledby="content-plan-heading">
+                <div class="content-plan-heading"><p class="eyebrow">Your next posts</p><h3 id="content-plan-heading">Publishing plan</h3></div>
+                <div id="content-calendar" class="content-calendar" role="list"><p class="empty-state">Give a draft a date to see it here.</p></div>
+              </section>
+            </aside>
+
+            <section class="panel writing-editor-panel" aria-labelledby="writing-editor-heading">
+              <div id="writing-empty" class="writing-empty">
+                <p class="eyebrow">Start here</p>
+                <h2 id="writing-editor-heading">A blank page, with no unnecessary ceremony.</h2>
+                <p>Make a local draft first. You can export a Markdown copy only when you are ready.</p>
+                <button id="writing-empty-create" class="primary-action" type="button">Create a draft</button>
+              </div>
+              <form id="writing-editor" class="writing-editor" hidden>
+                <div class="writing-editor-topline">
+                  <p id="writing-saving-state" class="eyebrow" role="status">Saved locally</p>
+                  <span id="writing-word-count" class="quiet-badge">0 words</span>
+                </div>
+                <label class="sr-only" for="writing-title">Draft title</label>
+                <input id="writing-title" class="writing-title" type="text" maxlength="180" placeholder="Untitled draft" autocomplete="off">
+                <div class="writing-plan-fields" aria-label="Publishing plan">
+                  <div><label for="writing-scheduled-for">Publish date</label><input id="writing-scheduled-for" type="date"></div>
+                  <div><label for="writing-channel">Where it is for</label><select id="writing-channel"><option>LinkedIn</option><option>X</option><option>Instagram</option><option>YouTube</option><option>Newsletter</option></select></div>
+                  <p>Scheduling clarifies the plan. Clark does not publish automatically.</p>
+                </div>
+                <label class="sr-only" for="writing-body">Draft body</label>
+                <textarea id="writing-body" class="writing-body" maxlength="200000" placeholder="Start writing. Clark saves this draft only on this Mac."></textarea>
+                <div class="writing-footer">
+                  <p id="writing-export-note">Connect an Obsidian vault when you want a Markdown copy there.</p>
+                  <button id="export-obsidian" class="primary-action" type="button" disabled>Export to Obsidian</button>
+                </div>
+              </form>
+            </section>
+          </div>
         </section>
 
         <section id="view-memory" class="view" role="tabpanel" aria-labelledby="tab-memory" data-view="memory" hidden>

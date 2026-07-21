@@ -46,6 +46,21 @@ test("packaged app contains and executes the supervised Harness", async () => {
     assert.equal(snapshot.bridge.state, "ready");
     assert.equal("token" in snapshot.bridge, false);
     assert.match(snapshot.runs[0].draft.contentHash, /^sha256:[a-f0-9]{64}$/);
+    await page.keyboard.press("Meta+4");
+    await page.getByRole("heading", { name: "Write", level: 1 }).waitFor({ timeout: 10_000 });
+    await page.getByRole("button", { name: "New draft" }).click();
+    await page.locator("#writing-title").fill("Packaged writing proof");
+    await page.locator("#writing-scheduled-for").evaluate((input) => {
+      input.value = "2026-07-24";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await page.locator("#writing-body").fill("The packaged app saves a private local writing draft.");
+    await page.getByText("Saved locally", { exact: true }).waitFor({ timeout: 10_000 });
+    const writing = await page.evaluate(() => window.clarkDesktop.getWritingState());
+    assert.equal(writing.drafts[0].title, "Packaged writing proof");
+    assert.deepEqual(writing.drafts[0].plan, { scheduledFor: "2026-07-24", channel: "LinkedIn" });
+    assert.equal(writing.obsidian.connected, false);
   } finally {
     if (electronApp) await electronApp.close().catch(() => {});
     await rm(userData, { recursive: true, force: true });

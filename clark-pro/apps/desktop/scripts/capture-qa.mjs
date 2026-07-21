@@ -38,6 +38,19 @@ try {
   await page.getByRole("dialog").waitFor();
   await page.screenshot({ path: path.join(outputDirectory, "review-decision.png") });
   await page.getByRole("button", { name: "Cancel" }).click();
+  await page.keyboard.press("Meta+4");
+  await page.getByRole("heading", { name: "Write", level: 1 }).waitFor();
+  await page.getByRole("button", { name: "New draft" }).click();
+  await page.locator("#writing-title").fill("A creator workflow worth returning to");
+  await page.locator("#writing-scheduled-for").evaluate((input) => {
+    input.value = "2026-07-24";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await page.locator("#writing-channel").selectOption("LinkedIn");
+  await page.locator("#writing-body").fill("Start with the thought in your own words. Shape it only after the point is clear.\n\nClark keeps the draft on this Mac, then exports a Markdown copy to the Obsidian vault you explicitly connect.");
+  await page.getByText("Saved locally", { exact: true }).waitFor();
+  await page.screenshot({ path: path.join(outputDirectory, "writing.png") });
   await page.keyboard.press("Meta+6");
   await page.getByRole("heading", { name: "Knowledge", level: 1 }).waitFor();
   await page.getByRole("button", { name: "Send for review" }).click();
